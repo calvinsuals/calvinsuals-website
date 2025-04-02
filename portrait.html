@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人像项目 - calvinsuals</title>
+    <!-- 字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400&family=Montserrat:wght@300;400;500;700&family=Raleway:wght@300;400&family=Open+Sans:wght@300;400&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+    <!-- 样式 -->
+    <link rel="stylesheet" href="navigation.css">
+    <link rel="stylesheet" href="footer.css">
+    <link rel="stylesheet" href="titles.css">
+    <link rel="stylesheet" href="styles.css">
+    <!-- 脚本 -->
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <!-- 导航菜单 -->
+    <button class="menu-toggle">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    <div class="menu-content">
+        <div class="menu-items">
+            <a href="index.html">CALVINSUALS</a>
+            <a href="#automotive">AUTOMOTIVE</a>
+            <a href="automotive.html">AUTOMOTIVE PROJECTS</a>
+            <a href="#comparison">COMPARISON</a>
+            <a href="#portrait">PORTRAIT</a>
+            <a href="portrait.html">PORTRAIT PROJECTS</a>
+            <a href="#about">ABOUT</a>
+        </div>
+    </div>
+
+    <!-- 作品展示页面 -->
+    <section class="projects-page">
+        <h2 class="section-title">Portrait</h2>
+        <div class="projects-grid">
+            <!-- 这里可以添加更多的Portrait作品 -->
+            <div class="project-item" style="background-image: url('images/portrait/图片_20250329023535.jpg')"></div>
+            <div class="project-item" style="background-image: url('images/portrait/图片_20250329023546.jpg')"></div>
+            <div class="project-item" style="background-image: url('images/portrait/图片_20250329023559.jpg')"></div>
+        </div>
+    </section>
+
+    <!-- 底部 -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2025 calvinsuals. All photography works and website content are copyrighted by the author.</p>
+            <p>Website design and development: calvinsuals</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 导航菜单代码
+            const menuToggle = document.querySelector('.menu-toggle');
+            const menuContent = document.querySelector('.menu-content');
+
+            menuToggle.addEventListener('click', () => {
+                menuToggle.classList.toggle('active');
+                menuContent.classList.toggle('active');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!menuContent.contains(e.target) && !menuToggle.contains(e.target)) {
+                    menuToggle.classList.remove('active');
+                    menuContent.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

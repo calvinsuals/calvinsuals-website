@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>价格 - calvinsuals</title>
+    <!-- 字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400&family=Montserrat:wght@300;400;500;700&family=Raleway:wght@300;400&family=Open+Sans:wght@300;400&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500&family=M+PLUS+Rounded+1c:wght@400;500&family=Varela+Round&family=Quicksand:wght@400;500&family=Comfortaa:wght@400;500&display=swap" rel="stylesheet">
+    <!-- 样式 -->
+    <link rel="stylesheet" href="navigation.css">
+    <link rel="stylesheet" href="footer.css">
+    <link rel="stylesheet" href="titles.css">
+    <link rel="stylesheet" href="pricing.css">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Additional styles for high quality images -->
+    <style>
+        /* High Quality Image Display */
+        .full-image-container {
+            position: fixed;
+            z-index: 1001;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(240, 240, 240, 0.9);
+        }
+        
+        .full-image-container img {
+            max-width: 95%;
+            max-height: 95%;
+            object-fit: contain;
+            box-shadow: 0 0 30px rgba(0,0,0,0.2);
+        }
+        
+        .expanded-close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: rgba(200, 200, 200, 0.8);
+            border: none;
+            font-size: 30px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        
+        /* 重要：停用原有遮罩层样式 */
+        .pricing-overlay {
+            display: none !important;
+        }
+        
+        /* 隐藏导航栏 */
+        body.viewing-image .navbar,
+        body.viewing-image #toggle {
+            display: none !important;
+        }
+    </style>
+    <!-- 脚本 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 页面加载时计算滚动条宽度
+            const scrollbarWidth = setScrollbarWidth();
+            
+            // 获取所有价格卡片
+            const pricingCards = document.querySelectorAll('.pricing-card');
+            
+            // 为每张卡片添加点击事件
+            pricingCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    showFullsizeImage(card);
+                });
+            });
+
+            // 查找图片和打开全屏查看
+            function showFullsizeImage(card) {
+                // 查找图片
+                const imgElement = card.querySelector('.expanded-image');
+                if (!imgElement) return;
+                
+                // 创建新的全屏查看器
+                const viewer = document.createElement('div');
+                viewer.className = 'fullscreen-viewer';
+                viewer.style.position = 'fixed';
+                viewer.style.top = '0';
+                viewer.style.left = '0';
+                viewer.style.width = '100%';
+                viewer.style.height = '100%';
+                viewer.style.backgroundColor = 'rgba(240, 240, 240, 0.95)';
+                viewer.style.display = 'flex';
+                viewer.style.justifyContent = 'center';
+                viewer.style.alignItems = 'center';
+                viewer.style.zIndex = '9999';
+                
+                // 创建图片元素
+                const img = document.createElement('img');
+                img.src = imgElement.src;
+                img.alt = imgElement.alt;
+                img.style.maxWidth = '95%';
+                img.style.maxHeight = '95%';
+                img.style.objectFit = 'contain';
+                img.style.boxShadow = '0 5px 20px rgba(0,0,0,0.2)';
+                
+                // 创建关闭按钮
+                const closeButton = document.createElement('button');
+                closeButton.textContent = '×';
+                closeButton.style.position = 'absolute';
+                closeButton.style.top = '20px';
+                closeButton.style.right = '20px';
+                closeButton.style.width = '50px';
+                closeButton.style.height = '50px';
+                closeButton.style.borderRadius = '50%';
+                closeButton.style.backgroundColor = 'rgba(200, 200, 200, 0.8)';
+                closeButton.style.border = 'none';
+                closeButton.style.fontSize = '30px';
+                closeButton.style.fontWeight = 'bold';
+                closeButton.style.color = '#333';
+                closeButton.style.cursor = 'pointer';
+                closeButton.style.display = 'flex';
+                closeButton.style.justifyContent = 'center';
+                closeButton.style.alignItems = 'center';
+                closeButton.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+                
+                // 添加关闭操作
+                closeButton.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    document.body.removeChild(viewer);
+                    document.body.classList.remove('no-scroll');
+                });
+                
+                // 点击背景也可以关闭
+                viewer.addEventListener('click', function(e) {
+                    if (e.target === viewer) {
+                        document.body.removeChild(viewer);
+                        document.body.classList.remove('no-scroll');
+                    }
+                });
+                
+                // 将元素添加到查看器
+                viewer.appendChild(img);
+                viewer.appendChild(closeButton);
+                
+                // 阻止页面滚动
+                document.body.classList.add('no-scroll');
+                
+                // 添加到文档
+                document.body.appendChild(viewer);
+            }
+            
+            // 计算滚动条宽度并设置为CSS变量
+            function setScrollbarWidth() {
+                const outer = document.createElement('div');
+                outer.style.visibility = 'hidden';
+                outer.style.width = '100px';
+                outer.style.overflow = 'scroll';
+                document.body.appendChild(outer);
+                
+                const inner = document.createElement('div');
+                inner.style.width = '100%';
+                outer.appendChild(inner);
+                
+                const scrollbarWidth = outer.offsetWidth - inner.offsetWidth;
+                document.documentElement.style.setProperty('--scrollbar-width', scrollbarWidth + 'px');
+                
+                document.body.removeChild(outer);
+                return scrollbarWidth;
+            }
+
+            // 拍摄须知按钮点击事件
+            const noticeBtn = document.getElementById('showNoticeBtn');
+            const noticeModal = document.getElementById('noticeModal');
+            const closeNoticeBtn = document.querySelector('#noticeModal .close-button');
+
+            if (noticeBtn && noticeModal && closeNoticeBtn) {
+                noticeBtn.addEventListener('click', function() {
+                    noticeModal.classList.add('show');
+                    
+                    // 保存当前滚动位置
+                    window.noticeScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+                    
+                    // 使用新的CSS类锁定页面滚动
+                    document.documentElement.classList.add('modal-open');
+                    document.body.classList.add('body-fixed');
+                    document.body.style.top = `-${window.noticeScrollPosition}px`;
+                });
+
+                closeNoticeBtn.addEventListener('click', function() {
+                    noticeModal.classList.remove('show');
+                    
+                    // 临时保存滚动位置
+                    const scrollPos = window.noticeScrollPosition;
+                    
+                    // 恢复页面滚动
+                    document.documentElement.classList.remove('modal-open');
+                    document.body.classList.remove('body-fixed');
+                    document.body.style.top = '';
+                    
+                    // 重置滚动位置
+                    window.scrollTo(0, scrollPos);
+                });
+            }
+        });
+    </script>
+    
+    <!-- 添加菜单控制脚本 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 切换菜单状态 - 修正选择器匹配实际HTML结构
+            const menuToggle = document.querySelector('.menu-toggle');
+            const menuContent = document.querySelector('.menu-content');
+            
+            if (menuToggle && menuContent) {
+                menuToggle.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    menuContent.classList.toggle('active');
+                    
+                    if (menuContent.classList.contains('active')) {
+                        document.body.classList.add('menu-open');
+                    } else {
+                        document.body.classList.remove('menu-open');
+                    }
+                });
+            }
+        });
+    </script>
+    <style>
+        .no-scroll {
+            overflow: hidden !important;
+        }
+    </style>
+</head>
+<body class="pricing-page">
+    <!-- 语言切换按钮 -->
+    <a href="pricing-en.html" class="language-switch">
+        <span class="active">中文</span>
+        <span class="divider">|</span>
+        <span>English</span>
+    </a>
+    <!-- 导航菜单 -->
+    <button class="menu-toggle">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    <div class="menu-content">
+        <div class="menu-items">
+            <a href="index.html">CALVINSUALS</a>
+            <a href="#automotive">AUTOMOTIVE</a>
+            <a href="automotive.html">AUTOMOTIVE PROJECTS</a>
+            <a href="#comparison">COMPARISON</a>
+            <a href="#portrait">PORTRAIT</a>
+            <a href="portrait.html">PORTRAIT PROJECTS</a>
+            <a href="#about">ABOUT</a>
+            <a href="#contact">CONTACT</a>
+        </div>
+    </div>
+
+    <!-- 价格部分 -->
+    <section class="pricing">
+        <h1 class="main-title">Automobile and Motorcycle</h1>
+        <h2 class="sub-title">Photography Pricing</h2>
+        <div class="pricing-container">
+            <!-- 动态拍摄套餐 -->
+            <div class="pricing-card">
+                <div class="content-collapsed">
+                    <div class="title-area">
+                        <h3>动态拍摄套餐</h3>
+                    </div>
+                    <div class="content-area">
+                        <div class="time-info">
+                            <p class="shoot-time">平均拍摄时长：2Hr</p>
+                            <p class="edit-time">平均每张修图：5Hr</p>
+                        </div>
+                        <p class="description">专为只想拍摄动态感照片或是静态与动态分别不同的拍摄场景的客人准备</p>
+                    </div>
+                </div>
+                <div class="content-expanded">
+                    <div class="expanded-image-container">
+                        <img src="images/pricing/动态拍摄套餐.jpg" alt="动态拍摄套餐示例" class="expanded-image">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 基础拍摄套餐 -->
+            <div class="pricing-card">
+                <div class="content-collapsed">
+                    <div class="title-area">
+                        <h3>基础拍摄套餐</h3>
+                    </div>
+                    <div class="content-area">
+                        <div class="time-info">
+                            <p class="shoot-time">平均拍摄时长：2Hr</p>
+                            <p class="edit-time">平均每张修图：2Hr</p>
+                        </div>
+                        <p class="description">基础拍摄精细的照片调色，拍摄内容包含爱车全貌与车内外的细照片</p>
+                    </div>
+                </div>
+                <div class="content-expanded">
+                    <div class="expanded-image-container">
+                        <img src="images/pricing/基础拍摄套餐.jpg" alt="基础拍摄套餐示例" class="expanded-image">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 进阶拍摄套餐 -->
+            <div class="pricing-card pricing-card-middle">
+                <div class="content-collapsed">
+                    <div class="title-area">
+                        <h3>进阶拍摄套餐</h3>
+                    </div>
+                    <div class="content-area">
+                        <div class="time-info">
+                            <p class="shoot-time">平均拍摄时长：2Hr</p>
+                            <p class="edit-time">平均每张修图：7Hr</p>
+                        </div>
+                        <p class="description">最精细的后期调色和修图，为追求最高品质照片或是不需要车内外细节照片的客人准备</p>
+                    </div>
+                </div>
+                <div class="content-expanded">
+                    <div class="expanded-image-container">
+                        <img src="images/pricing/进阶拍摄套餐.jpg" alt="进阶拍摄套餐示例" class="expanded-image">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 机车拍摄套餐 -->
+            <div class="pricing-card">
+                <div class="content-collapsed">
+                    <div class="title-area">
+                        <h3>机车拍摄套餐</h3>
+                    </div>
+                    <div class="content-area">
+                        <div class="time-info">
+                            <p class="shoot-time">平均拍摄时长：1Hr</p>
+                            <p class="edit-time">平均每张修图：4Hr</p>
+                        </div>
+                        <p class="description">超精细的后期调色修图，专为机车准备的</p>
+                    </div>
+                </div>
+                <div class="content-expanded">
+                    <div class="expanded-image-container">
+                        <img src="images/pricing/机车拍摄套餐.jpg" alt="机车拍摄套餐示例" class="expanded-image">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 跟拍定制套餐 -->
+            <div class="pricing-card">
+                <div class="content-collapsed">
+                    <div class="title-area">
+                        <h3>跟拍定制套餐</h3>
+                    </div>
+                    <div class="content-area">
+                        <div class="time-info">
+                            <p class="shoot-time">拍摄时长：自定义</p>
+                            <p class="edit-time">出片时间：自定义</p>
+                        </div>
+                        <p class="description">按小时拍摄所有内容均可定制</p>
+                    </div>
+                </div>
+                <div class="content-expanded">
+                    <div class="expanded-image-container">
+                        <img src="images/pricing/跟拍定制套餐.jpg" alt="跟拍定制套餐示例" class="expanded-image">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 移除固定区域，创建须知区 -->
+        <div class="notice-section-area">
+            <!-- 将按钮放在须知区内 -->
+            <button class="floating-button" id="showNoticeBtn">
+                拍摄须知及条款
+            </button>
+            <!-- 添加提示文字 -->
+            <div class="click-hint">CLICK TO SEE THE FULL LIST</div>
+        </div>
+    </section>
+
+    <!-- 弹窗 -->
+    <div class="modal" id="noticeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>拍摄须知</h2>
+                <button class="close-button" id="closeModal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="notice-section">
+                    <h3>预约流程</h3>
+                    <ul>
+                        <li>预约拍摄需支付50%定金, 定金收到后确定时间. 定金有效180日.</li>
+                    </ul>
+                </div>
+                <div class="notice-section">
+                    <h3>拍摄准备</h3>
+                    <ul>
+                        <li>每次拍摄前一天最好都清洗一下车辆，车身轮毂内饰至少去自动洗车机外洗一下 . 最好擦干以保车辆干净！雪后或雨后的天气拍摄最好带条湿毛巾以便擦净车辆</li>
+                    </ul>
+                </div>
+                <div class="notice-section">
+                    <h3>出片时间</h3>
+                    <ul>
+                        <li>需收到尾款之日起计算出片时间,正常情况下一组照片的出片时间为14日,节假日除外（提供加急出片服务$30-7日出片,$50-3日内出片,具体情况视照片数量决定）最后给到您精修好的成片（汽车机车摄影无原片需要则额外加收）</li>
+                    </ul>
+                </div>
+                <div class="notice-section">
+                    <h3>成片说明</h3>
+                    <ul>
+                        <li>需要额外的精修照片或者原片照片请询问, 收到成片后24小时内会删除照片并且不会留底</li>
+                    </ul>
+                </div>
+                <div class="notice-section">
+                    <h3>其他条款</h3>
+                    <ul>
+                        <li><strong>取消和未到场：</strong>如果您取消预约或未完成拍摄，全部定金将作为罚金不予退还。</li>
+                        <li><strong>改期：</strong>允许一次改期不收罚金,48小时内改期除外。每次改期将扣除定金的50%作为罚金。90日内如若没有补全定金重新预约拍摄视即为自动放弃拍摄，定金不予退还！</li>
+                        <li><strong>天气情况：</strong>在极端天气情况下，我们可能会允许改期且不收罚金，但需根据具体情况和审批决定。</li>
+                        <li><strong>责任声明：</strong>摄影师对拍摄过程中发生的任何损坏或事故（包括但不限于财产损坏或人身伤害）不承担责任。</li>
+                        <li><strong>社交媒体使用：</strong>如果客户不希望照片发布在社交媒体上，需支付额外费用$30
+                            。</li>
+                        <li><strong>知识产权：</strong>拍摄过程中产生的所有图像为摄影师所有。客户获得图像的个人使用许可，但任何商业用途需事先获得批准，并可能需支付额外费用。</li>
+                    </ul>
+                </div>
+                <div class="disclaimer">
+                    请确保已阅读所有条款,若有任何争议，最终解释权归calvinsuals所有
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2025 calvinsuals. All photography works and website content are copyrighted by the author.</p>
+            <p>Website design and development: calvinsuals</p>
+        </div>
+    </footer>
+</body>
+<!-- 专门用于修复菜单的脚本，确保在页面加载完成后执行 -->
+<script>
+    // 等待所有内容加载完成
+    window.addEventListener('load', function() {
+        // 获取菜单按钮和菜单内容
+        const menuToggle = document.querySelector('.menu-toggle');
+        const menuContent = document.querySelector('.menu-content');
+        
+        // 重新添加点击事件
+        if (menuToggle && menuContent) {
+            // 移除可能存在的旧事件监听器
+            menuToggle.replaceWith(menuToggle.cloneNode(true));
+            
+            // 重新获取引用
+            const newMenuToggle = document.querySelector('.menu-toggle');
+            
+            // 添加新的事件监听器
+            newMenuToggle.addEventListener('click', function() {
+                console.log('菜单按钮被点击');
+                this.classList.toggle('active');
+                menuContent.classList.toggle('active');
+                
+                if (menuContent.classList.contains('active')) {
+                    document.body.classList.add('menu-open');
+                } else {
+                    document.body.classList.remove('menu-open');
+                }
+            });
+            
+            console.log('菜单事件监听器已添加');
+        } else {
+            console.log('未找到菜单元素', {
+                menuToggle: !!menuToggle,
+                menuContent: !!menuContent
+            });
+        }
+    });
+</script>
+</html>

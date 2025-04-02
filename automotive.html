@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>汽车项目 - calvinsuals</title>
+    <!-- 字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400&family=Montserrat:wght@300;400;500;700&family=Raleway:wght@300;400&family=Open+Sans:wght@300;400&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500&family=M+PLUS+Rounded+1c:wght@400;500&family=Varela+Round&family=Quicksand:wght@400;500&family=Comfortaa:wght@400;500&display=swap" rel="stylesheet">
+    <!-- 样式 -->
+    <link rel="stylesheet" href="navigation.css">
+    <link rel="stylesheet" href="footer.css">
+    <link rel="stylesheet" href="titles.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="automotive.css">
+    <link rel="stylesheet" href="components/image-gallery/gallery.css">
+    <style>
+        body {
+            background-color: #333333; /* 改为深灰色 */
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            color: #ffffff; /* 因为背景变深，文字改为白色 */
+        }
+        .projects-page {
+            padding: 0;
+            margin: 0;
+            position: relative;
+        }
+
+        .section-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #ffffff; /* 因为背景变深，文字改为白色 */
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            z-index: 10;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -10px;
+            width: 40px;
+            height: 4px;
+            background: #ffffff; /* 因为背景变深，文字改为白色 */
+        }
+
+        .gallery-section {
+            position: relative;
+            z-index: 1;
+            padding: 80px 0;
+        }
+
+        .page-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2em;
+            font-weight: 700;
+            color: #ffffff; /* 因为背景变深，文字改为白色 */
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            z-index: 10;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            display: inline-block;
+            text-shadow: 
+                0 0 0 rgba(255, 255, 255, 0.8),
+                -8px -8px 0 rgba(255, 255, 255, 0.6),
+                8px -8px 0 rgba(255, 255, 255, 0.6),
+                -8px 8px 0 rgba(255, 255, 255, 0.6),
+                8px 8px 0 rgba(255, 255, 255, 0.6),
+                -12px 0px 0 rgba(255, 255, 255, 0.4),
+                12px 0px 0 rgba(255, 255, 255, 0.4);
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -10px;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .gallery-container {
+            width: 1400px;
+            margin: 100px auto 0;
+            padding: 20px;
+            background: rgba(51, 51, 51, 0.1);
+            position: relative;
+            z-index: 5;
+        }
+
+        .gallery-wrapper {
+            display: flex;
+            overflow-x: auto;
+            overflow-y: hidden; /* 禁止垂直滚动 */
+            gap: 20px;
+            padding: 20px;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+
+        .gallery-wrapper::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        .gallery-item {
+            flex: 0 0 auto;
+            width: auto;
+            height: 400px;
+            overflow: hidden;
+            position: relative;
+            margin: 0;
+            padding: 0;
+            scroll-snap-align: start;
+        }
+
+        .gallery-item img {
+            width: auto;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .gallery-container {
+                width: 95%;
+                padding: 30px;
+                height: 500px;
+            }
+
+            .gallery-wrapper {
+                height: 400px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .gallery-container {
+                padding: 20px;
+                height: 400px;
+            }
+
+            .gallery-wrapper {
+                height: 300px;
+            }
+        }
+
+        /* 展示台样式 */
+        .showcase-section {
+            padding: 120px 0;
+            background-color: #333333; /* 改为深灰色 */
+            position: relative;
+        }
+
+        .showcase-title {
+            text-align: center;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #ffffff; /* 因为背景变深，文字改为白色 */
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .showcase-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background-color: #ffffff; /* 因为背景变深，文字改为白色 */
+        }
+
+        .showcase-container {
+            width: 90%;
+            max-width: 1600px;
+            margin: 0 auto;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        /* 悬浮展示台 */
+        .floating-platform {
+            position: relative;
+            margin: 60px auto;
+            width: 90%;
+            max-width: 1600px;
+            transform: translateY(-10px);
+        }
+
+        /* 画廊主容器 - 悬浮效果 */
+        .floating-gallery-container {
+            background-color: #333333; /* 改为深灰色 */
+            padding: 0;
+            border-radius: 0;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 10px 20px rgba(0, 0, 0, 0.2);
+            transform: translateZ(20px);
+            position: relative;
+            z-index: 5;
+            border: none;
+            overflow: hidden;
+        }
+
+        /* 修改图像项目样式 */
+        .gallery-item {
+            flex: 0 0 auto;
+            width: 720px;
+            height: 400px;
+            overflow: hidden;
+            position: relative;
+            margin: 0;
+            padding: 0;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* 后台平台效果 */
+        .platform-backdrop {
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 95%;
+            height: 15px;
+            background-color: #333333; /* 改为深灰色 */
+            z-index: 1;
+            border-radius: 0 0 4px 4px;
+        }
+
+        /* 底部阴影 */
+        .bottom-shadow {
+            position: absolute;
+            bottom: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 95%;
+            height: 35px;
+            background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0) 70%);
+            border-radius: 50%;
+            z-index: 0;
+            filter: blur(5px);
+        }
+
+        /* 模糊背景阴影 */
+        .blur-shadow {
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(to bottom, rgba(51, 51, 51, 0.5), rgba(51, 51, 51, 0));
+            filter: blur(15px);
+            z-index: -1;
+        }
+    </style>
+</head>
+<body class="automotive-page">
+    <!-- 导航菜单 -->
+    <button class="menu-toggle">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    <div class="menu-content">
+        <div class="menu-items">
+            <a href="index.html">CALVINSUALS</a>
+            <a href="index.html#automotive">AUTOMOTIVE</a>
+            <a href="pricing.html" class="active">PRICING</a>
+            <a href="index.html#comparison">COMPARISON</a>
+            <a href="index.html#portrait">PORTRAIT</a>
+            <a href="portrait.html">PORTRAIT PROJECTS</a>
+            <a href="index.html#about">ABOUT</a>
+            <a href="index.html#contact">CONTACT</a>
+        </div>
+    </div>
+
+    <!-- 页面标题 -->
+    <h1 class="page-title">AUTOMOTIVE PROJECTS</h1>
+
+    <!-- 作品展示区 -->
+    <div class="showcase-section">
+        <div class="showcase-container">
+            <div class="floating-platform">
+                <div class="floating-gallery-container">
+                    <div class="gallery-wrapper">
+                        <!-- 示例图片，实际使用时请替换为真实图片 -->
+                        <div class="gallery-item">
+                            <img src="https://via.placeholder.com/720x400" alt="Project 1">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="https://via.placeholder.com/720x400" alt="Project 2">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="https://via.placeholder.com/720x400" alt="Project 3">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="https://via.placeholder.com/720x400" alt="Project 4">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="https://via.placeholder.com/720x400" alt="Project 5">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="https://via.placeholder.com/720x400" alt="Project 6">
+                        </div>
+                    </div>
+                </div>
+                <div class="platform-backdrop"></div>
+                <div class="bottom-shadow"></div>
+                <div class="blur-shadow"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 展示区1 -->
+    <section class="showcase-section">
+        <div class="showcase-container">
+            <div class="floating-platform">
+                <div class="floating-gallery-container">
+                    <div class="gallery-wrapper">
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062857.jpg" alt="Premium Vehicle 1">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062922.jpg" alt="Premium Vehicle 2">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062928.jpg" alt="Premium Vehicle 3">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062936.jpg" alt="Premium Vehicle 4">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062945.jpg" alt="Premium Vehicle 5">
+                        </div>
+                    </div>
+                </div>
+                <div class="platform-backdrop"></div>
+                <div class="bottom-shadow"></div>
+                <div class="blur-shadow"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 展示区2 -->
+    <section class="showcase-section">
+        <div class="showcase-container">
+            <div class="floating-platform">
+                <div class="floating-gallery-container">
+                    <div class="gallery-wrapper">
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062857.jpg" alt="Premium Vehicle 1">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062922.jpg" alt="Premium Vehicle 2">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062928.jpg" alt="Premium Vehicle 3">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062936.jpg" alt="Premium Vehicle 4">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062945.jpg" alt="Premium Vehicle 5">
+                        </div>
+                    </div>
+                </div>
+                <div class="platform-backdrop"></div>
+                <div class="bottom-shadow"></div>
+                <div class="blur-shadow"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 展示区3 -->
+    <section class="showcase-section">
+        <div class="showcase-container">
+            <div class="floating-platform">
+                <div class="floating-gallery-container">
+                    <div class="gallery-wrapper">
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062857.jpg" alt="Premium Vehicle 1">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062922.jpg" alt="Premium Vehicle 2">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062928.jpg" alt="Premium Vehicle 3">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062936.jpg" alt="Premium Vehicle 4">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062945.jpg" alt="Premium Vehicle 5">
+                        </div>
+                    </div>
+                </div>
+                <div class="platform-backdrop"></div>
+                <div class="bottom-shadow"></div>
+                <div class="blur-shadow"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 展示区4 -->
+    <section class="showcase-section">
+        <div class="showcase-container">
+            <div class="floating-platform">
+                <div class="floating-gallery-container">
+                    <div class="gallery-wrapper">
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062857.jpg" alt="Premium Vehicle 1">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062922.jpg" alt="Premium Vehicle 2">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062928.jpg" alt="Premium Vehicle 3">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062936.jpg" alt="Premium Vehicle 4">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062945.jpg" alt="Premium Vehicle 5">
+                        </div>
+                    </div>
+                </div>
+                <div class="platform-backdrop"></div>
+                <div class="bottom-shadow"></div>
+                <div class="blur-shadow"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 展示区5 -->
+    <section class="showcase-section">
+        <div class="showcase-container">
+            <div class="floating-platform">
+                <div class="floating-gallery-container">
+                    <div class="gallery-wrapper">
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062857.jpg" alt="Premium Vehicle 1">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062922.jpg" alt="Premium Vehicle 2">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062928.jpg" alt="Premium Vehicle 3">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062936.jpg" alt="Premium Vehicle 4">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062945.jpg" alt="Premium Vehicle 5">
+                        </div>
+                    </div>
+                </div>
+                <div class="platform-backdrop"></div>
+                <div class="bottom-shadow"></div>
+                <div class="blur-shadow"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 展示区6 -->
+    <section class="showcase-section">
+        <div class="showcase-container">
+            <div class="floating-platform">
+                <div class="floating-gallery-container">
+                    <div class="gallery-wrapper">
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062857.jpg" alt="Premium Vehicle 1">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062922.jpg" alt="Premium Vehicle 2">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062928.jpg" alt="Premium Vehicle 3">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062936.jpg" alt="Premium Vehicle 4">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062945.jpg" alt="Premium Vehicle 5">
+                        </div>
+                    </div>
+                </div>
+                <div class="platform-backdrop"></div>
+                <div class="bottom-shadow"></div>
+                <div class="blur-shadow"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 展示区7 -->
+    <section class="showcase-section">
+        <div class="showcase-container">
+            <div class="floating-platform">
+                <div class="floating-gallery-container">
+                    <div class="gallery-wrapper">
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062857.jpg" alt="Premium Vehicle 1">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062922.jpg" alt="Premium Vehicle 2">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062928.jpg" alt="Premium Vehicle 3">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062936.jpg" alt="Premium Vehicle 4">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="images/automotive/portfolio/图片_20250329062945.jpg" alt="Premium Vehicle 5">
+                        </div>
+                    </div>
+                </div>
+                <div class="platform-backdrop"></div>
+                <div class="bottom-shadow"></div>
+                <div class="blur-shadow"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 底部 -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2025 calvinsuals. All photography works and website content are copyrighted by the author.</p>
+            <p>Website design and development: calvinsuals</p>
+        </div>
+    </footer>
+
+    <!-- 脚本 -->
+    <script src="script.js"></script>
+    <script src="components/image-gallery/gallery.js"></script>
+</body>
+</html>
