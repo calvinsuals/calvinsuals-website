@@ -4,8 +4,8 @@ on:
   push:
     branches: [ main ]
   schedule:
-    - cron: '*/30 * * * *'  # 每30分钟运行一次
-  workflow_dispatch:  # 允许手动触发
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
 
 jobs:
   sync:
@@ -22,13 +22,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install google-api-python-client google-auth google-auth-oauthlib google-auth-httplib2 Pillow
-          
-      - name: Create script directories
-        run: mkdir -p .github/scripts
       
       - name: Create folder mappings
         run: |
-          echo '{
+          mkdir -p .github/scripts
+          cat > .github/scripts/folder_mappings.json << 'EOL'
+          {
             "automotive": {
               "folder_id": "1gg6DRwdJKW9Z3SZ9zYJYyYDHlMQT1o0e",
               "target_dir": "images/automotive"
@@ -57,7 +56,8 @@ jobs:
               "folder_id": "19KwF8RCJ2y8pZ8ZXlS_zrCXJ24uNJu47",
               "target_dir": "images/about"
             }
-          }' > .github/scripts/folder_mappings.json
+          }
+          EOL
           
       - name: Create sync script
         run: |
@@ -187,7 +187,7 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
         run: python .github/scripts/sync_drive_images.py
         
-      -      - name: Commit changes
+      - name: Commit changes
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
