@@ -1,0 +1,85 @@
+{
+  "home": {
+    "automotive": [
+      "1r-AUzzrJ6LZj_A20jnFeRfIJWSpSjw1x",
+      "1WybJxeT7a_VnEXQG-csJCV7ggsWQRCgC",
+      "1jyTWiEtmYxvDVupBD7A1LTJWk3xt69Cx",
+      "19ofkP1h_tqzkbJXAaA14xkTv2rjYlfc0",
+      "1BQZyp6XluSHfySCeRiQCXXSxAjtkR9Eu",
+      "1BEAoEMoNwHPNorQvZ-xOfhK99Ztu-jaH",
+      "1W8jtyqr35i-C1V1rrfd3R2bQWK5MMUWP"
+    ],
+    "portrait": []
+  },
+  "automotive": {
+    "showcase1": [
+      "1r-AUzzrJ6LZj_A20jnFeRfIJWSpSjw1x",
+      "1WybJxeT7a_VnEXQG-csJCV7ggsWQRCgC",
+      "1jyTWiEtmYxvDVupBD7A1LTJWk3xt69Cx",
+      "19ofkP1h_tqzkbJXAaA14xkTv2rjYlfc0",
+      "1BQZyp6XluSHfySCeRiQCXXSxAjtkR9Eu",
+      "1BEAoEMoNwHPNorQvZ-xOfhK99Ztu-jaH",
+      "1W8jtyqr35i-C1V1rrfd3R2bQWK5MMUWP"
+    ],
+    "showcase2": [
+      "1r-AUzzrJ6LZj_A20jnFeRfIJWSpSjw1x",
+      "1WybJxeT7a_VnEXQG-csJCV7ggsWQRCgC",
+      "1jyTWiEtmYxvDVupBD7A1LTJWk3xt69Cx",
+      "19ofkP1h_tqzkbJXAaA14xkTv2rjYlfc0",
+      "1BQZyp6XluSHfySCeRiQCXXSxAjtkR9Eu",
+      "1BEAoEMoNwHPNorQvZ-xOfhK99Ztu-jaH",
+      "1W8jtyqr35i-C1V1rrfd3R2bQWK5MMUWP"
+    ],
+    "showcase3": [
+      "1r-AUzzrJ6LZj_A20jnFeRfIJWSpSjw1x",
+      "1WybJxeT7a_VnEXQG-csJCV7ggsWQRCgC",
+      "1jyTWiEtmYxvDVupBD7A1LTJWk3xt69Cx",
+      "19ofkP1h_tqzkbJXAaA14xkTv2rjYlfc0",
+      "1BQZyp6XluSHfySCeRiQCXXSxAjtkR9Eu",
+      "1BEAoEMoNwHPNorQvZ-xOfhK99Ztu-jaH",
+      "1W8jtyqr35i-C1V1rrfd3R2bQWK5MMUWP"
+    ],
+    "showcase4": [
+      "1r-AUzzrJ6LZj_A20jnFeRfIJWSpSjw1x",
+      "1WybJxeT7a_VnEXQG-csJCV7ggsWQRCgC",
+      "1jyTWiEtmYxvDVupBD7A1LTJWk3xt69Cx",
+      "19ofkP1h_tqzkbJXAaA14xkTv2rjYlfc0",
+      "1BQZyp6XluSHfySCeRiQCXXSxAjtkR9Eu",
+      "1BEAoEMoNwHPNorQvZ-xOfhK99Ztu-jaH",
+      "1W8jtyqr35i-C1V1rrfd3R2bQWK5MMUWP"
+    ],
+    "showcase5": [
+      "1r-AUzzrJ6LZj_A20jnFeRfIJWSpSjw1x",
+      "1WybJxeT7a_VnEXQG-csJCV7ggsWQRCgC",
+      "1jyTWiEtmYxvDVupBD7A1LTJWk3xt69Cx"
+    ],
+    "showcase6": [
+      "19ofkP1h_tqzkbJXAaA14xkTv2rjYlfc0",
+      "1BQZyp6XluSHfySCeRiQCXXSxAjtkR9Eu"
+    ],
+    "showcase7": [
+      "1BEAoEMoNwHPNorQvZ-xOfhK99Ztu-jaH",
+      "1W8jtyqr35i-C1V1rrfd3R2bQWK5MMUWP"
+    ],
+    "showcase8": [
+      "1r-AUzzrJ6LZj_A20jnFeRfIJWSpSjw1x",
+      "1WybJxeT7a_VnEXQG-csJCV7ggsWQRCgC"
+    ]
+  },
+  "portrait": {
+    "showcase1": [
+      "1r-AUzzrJ6LZj_A20jnFeRfIJWSpSjw1x",
+      "1WybJxeT7a_VnEXQG-csJCV7ggsWQRCgC",
+      "1jyTWiEtmYxvDVupBD7A1LTJWk3xt69Cx"
+    ],
+    "showcase2": [
+      "19ofkP1h_tqzkbJXAaA14xkTv2rjYlfc0",
+      "1BQZyp6XluSHfySCeRiQCXXSxAjtkR9Eu"
+    ],
+    "showcase3": [
+      "1BEAoEMoNwHPNorQvZ-xOfhK99Ztu-jaH",
+      "1W8jtyqr35i-C1V1rrfd3R2bQWK5MMUWP"
+    ],
+    "showcase4": []
+  }
+}
