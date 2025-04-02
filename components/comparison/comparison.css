@@ -1,0 +1,171 @@
+/* 对比区域样式 */
+.comp-section {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* 添加背景颜色到整个comparison区域 */
+#comparison {
+    background-color: #8c7f71;
+    background-image: radial-gradient(circle at center, transparent, rgba(0,0,0,.02));
+    background-size: 100% 100%;
+    padding: 100px 0;
+}
+
+.comp-grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    margin: 2rem auto;
+    padding: 20px;
+    min-height: 600px;
+}
+
+.comp-item {
+    position: relative;
+    width: 380px;
+    flex: 0 0 380px;
+    aspect-ratio: 8/11;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.comp-horizontal {
+    position: relative;
+    width: 500px;
+    flex: 0 0 500px;
+    aspect-ratio: 16/10;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.comp-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #f0f0f0;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+}
+
+.comp-wrapper img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+}
+
+.comp-wrapper img.loaded {
+    opacity: 1;
+}
+
+.comp-wrapper img.after {
+    clip-path: inset(0 50% 0 0);
+}
+
+/* 对比条样式 */
+.comp-handle {
+    position: absolute;
+    width: 40px;
+    height: 100%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    cursor: ew-resize;
+    z-index: 3;
+}
+
+/* 对比条的竖线 */
+.comp-handle::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 100%;
+    background: transparent;
+    box-shadow: 
+        0 0 4px rgba(255, 255, 255, 0.8),
+        0 0 8px rgba(255, 255, 255, 0.6),
+        0 0 12px rgba(255, 255, 255, 0.4),
+        0 0 16px rgba(255, 255, 255, 0.2);
+}
+
+/* 对比条的圆形按钮 */
+.comp-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: transparent;
+    box-shadow: 
+        0 0 6px rgba(255, 255, 255, 0.9),
+        0 0 12px rgba(255, 255, 255, 0.7),
+        0 0 18px rgba(255, 255, 255, 0.5),
+        0 0 24px rgba(255, 255, 255, 0.3);
+    z-index: 4;
+}
+
+/* 激活状态加强发光效果 */
+.comp-wrapper.active .comp-handle::after {
+    box-shadow: 
+        0 0 6px rgba(255, 255, 255, 0.9),
+        0 0 12px rgba(255, 255, 255, 0.7),
+        0 0 18px rgba(255, 255, 255, 0.5),
+        0 0 24px rgba(255, 255, 255, 0.3);
+}
+
+.comp-wrapper.active .comp-button {
+    box-shadow: 
+        0 0 8px rgba(255, 255, 255, 1.0),
+        0 0 16px rgba(255, 255, 255, 0.8),
+        0 0 24px rgba(255, 255, 255, 0.6),
+        0 0 32px rgba(255, 255, 255, 0.4);
+}
+
+/* 美化滚动条 */
+.comp-grid::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+}
+
+.comp-grid::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.comp-grid::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+.comp-grid::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+    .comp-grid {
+        gap: 30px;
+        padding: 20px;
+    }
+
+    .comp-item,
+    .comp-horizontal {
+        width: 100%;
+        max-width: 300px;
+    }
+}

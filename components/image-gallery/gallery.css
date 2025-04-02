@@ -1,0 +1,185 @@
+/* 图片画廊组件样式 */
+.gallery-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    overflow: hidden;
+    position: relative;
+}
+
+.gallery-section {
+    width: 1600px;
+    margin: 80px auto;
+    position: relative;
+    overflow: hidden;
+}
+
+.gallery-background {
+    position: relative;
+    width: 1600px;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.1),
+        0 10px 20px rgba(0, 0, 0, 0.05),
+        inset 0 2px 4px rgba(255, 255, 255, 0.5),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.gallery-background::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.05) 100%);
+    pointer-events: none;
+}
+
+.gallery-background::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to top, transparent 0%, rgba(0, 0, 0, 0.05) 100%);
+    pointer-events: none;
+}
+
+.gallery-background:hover {
+    transform: translateX(-50%) translateY(-5px);
+}
+
+.gallery-wrapper {
+    display: flex;
+    gap: 0;
+    transition: transform 0.3s ease;
+    scroll-snap-type: x mandatory;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding-bottom: 20px;
+}
+
+.gallery-item {
+    flex: 0 0 auto;
+    min-width: 216px;
+    max-width: 216px;
+    height: 270px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    scroll-snap-align: start;
+    transition: transform 0.3s ease;
+}
+
+.gallery-item {
+    transform: none;
+    box-shadow: none;
+}
+
+.gallery-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: none;
+    opacity: 0;
+}
+
+/* 添加箭头指示器 */
+.gallery-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.gallery-arrow:hover {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.gallery-arrow::before {
+    content: '';
+    width: 12px;
+    height: 12px;
+    border-top: 2px solid #fff;
+    border-right: 2px solid #fff;
+    transform: rotate(45deg);
+}
+
+.gallery-arrow.prev {
+    left: 20px;
+}
+
+.gallery-arrow.next {
+    right: 20px;
+}
+
+.gallery-arrow.next::before {
+    transform: rotate(-135deg);
+}
+
+/* 隐藏滚动条 */
+.gallery-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+.gallery-wrapper {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* 响应式设计 */
+@media (max-width: 1600px) {
+    .gallery-section {
+        width: 90%;
+        margin: 60px auto;
+    }
+
+    .gallery-background {
+        width: 100%;
+        padding: 30px;
+        left: 0;
+        transform: translateX(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .gallery-section {
+        width: 100%;
+        margin: 40px auto;
+    }
+
+    .gallery-background {
+        width: 100%;
+        padding: 20px;
+        left: 0;
+        transform: translateX(0);
+    }
+
+    .gallery-item {
+        min-width: 108px;
+        max-width: 108px;
+        height: 135px;
+    }
+}
