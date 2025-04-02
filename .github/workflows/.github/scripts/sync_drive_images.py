@@ -1,3 +1,4 @@
+# 触发工作流测试 - 添加于2025年4月2日
 #!/usr/bin/env python3
 """
 Google Drive图片同步脚本
