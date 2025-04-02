@@ -1,1 +1,196 @@
+name: Sync Google Drive Images
 
+on:
+  push:
+    branches: [ main ]
+  schedule:
+    - cron: '*/30 * * * *'  # 每30分钟运行一次
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install google-api-python-client google-auth google-auth-oauthlib google-auth-httplib2 Pillow
+          
+      - name: Create script directories
+        run: mkdir -p .github/scripts
+      
+      - name: Create folder mappings
+        run: |
+          echo '{
+            "automotive": {
+              "folder_id": "1gg6DRwdJKW9Z3SZ9zYJYyYDHlMQT1o0e",
+              "target_dir": "images/automotive"
+            },
+            "portrait": {
+              "folder_id": "1vVHQGfITBaXWCQG3gGzNGYu76EgRGEKO",
+              "target_dir": "images/portrait"
+            },
+            "homepage_showcase": {
+              "folder_id": "1QE2Yr1Xzk_mEJAFlqC0eMCsXlRJZrhTr",
+              "target_dir": "images/showcase"
+            },
+            "comparison": {
+              "folder_id": "1I13PzVs3dlKSGLjVPAfSuDWvVzHpwUq4",
+              "target_dir": "images/comparison"
+            },
+            "pricing_cards": {
+              "folder_id": "1h0PwpMKNc_Jrm-O2GBFULn0S6UNpTyMW",
+              "target_dir": "images/pricing"
+            },
+            "contact_icons": {
+              "folder_id": "1SZ1_UfEOqOv4oBjqCLvx2GzEiPnDz86K",
+              "target_dir": "images/contact"
+            },
+            "about_images": {
+              "folder_id": "19KwF8RCJ2y8pZ8ZXlS_zrCXJ24uNJu47",
+              "target_dir": "images/about"
+            }
+          }' > .github/scripts/folder_mappings.json
+          
+      - name: Create sync script
+        run: |
+          cat > .github/scripts/sync_drive_images.py << 'EOL'
+          import os
+          import json
+          import io
+          from google.oauth2 import service_account
+          from googleapiclient.discovery import build
+          from googleapiclient.http import MediaIoBaseDownload
+          from PIL import Image, ImageOps
+          import logging
+
+          # 配置日志
+          logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+          # 从环境变量获取服务账号密钥
+          service_account_info = json.loads(os.environ.get('GOOGLE_SERVICE_ACCOUNT_KEY'))
+          credentials = service_account.Credentials.from_service_account_info(
+              service_account_info, scopes=['https://www.googleapis.com/auth/drive.readonly']
+          )
+
+          # 创建服务
+          drive_service = build('drive', 'v3', credentials=credentials)
+
+          def optimize_image(image_data, target_path, max_size=2000):
+              """优化图片尺寸和质量"""
+              try:
+                  # 使用Pillow打开图像
+                  img = Image.open(io.BytesIO(image_data))
+                  
+                  # 调整尺寸（如果需要）
+                  width, height = img.size
+                  if width > max_size or height > max_size:
+                      if width > height:
+                          new_width = max_size
+                          new_height = int(height * (max_size / width))
+                      else:
+                          new_height = max_size
+                          new_width = int(width * (max_size / height))
+                      img = img.resize((new_width, new_height), Image.LANCZOS)
+                  
+                  # 确保目标目录存在
+                  os.makedirs(os.path.dirname(target_path), exist_ok=True)
+                  
+                  # 保存图片，优化质量
+                  img.save(target_path, optimize=True, quality=85)
+                  logging.info(f"Optimized and saved image to {target_path}")
+                  return True
+              except Exception as e:
+                  logging.error(f"Error optimizing image: {str(e)}")
+                  return False
+
+          def download_file(file_id, target_path):
+              """从Drive下载文件"""
+              try:
+                  request = drive_service.files().get_media(fileId=file_id)
+                  file = io.BytesIO()
+                  downloader = MediaIoBaseDownload(file, request)
+                  done = False
+                  while done is False:
+                      status, done = downloader.next_chunk()
+                  return file.getvalue()
+              except Exception as e:
+                  logging.error(f"Error downloading file {file_id}: {str(e)}")
+                  return None
+
+          def sync_folder(folder_id, target_dir):
+              """同步一个文件夹的所有图片"""
+              try:
+                  # 列出文件夹中的所有文件
+                  results = drive_service.files().list(
+                      q=f"'{folder_id}' in parents and trashed=false",
+                      pageSize=100,
+                      fields="files(id, name, mimeType)"
+                  ).execute()
+                  
+                  files = results.get('files', [])
+                  if not files:
+                      logging.warning(f"No files found in folder {folder_id}")
+                      return
+                  
+                  for file in files:
+                      # 只处理图片文件
+                      if 'image/' in file.get('mimeType', ''):
+                          file_id = file.get('id')
+                          file_name = file.get('name')
+                          target_path = os.path.join(target_dir, file_name)
+                          
+                          # 下载并优化图片
+                          file_data = download_file(file_id, target_path)
+                          if file_data:
+                              optimize_image(file_data, target_path)
+                          
+              except Exception as e:
+                  logging.error(f"Error syncing folder {folder_id}: {str(e)}")
+
+          def main():
+              """主函数，同步所有配置的文件夹"""
+              try:
+                  # 读取文件夹映射配置
+                  with open('.github/scripts/folder_mappings.json', 'r') as f:
+                      folder_mappings = json.load(f)
+                  
+                  # 同步每个文件夹
+                  for section, config in folder_mappings.items():
+                      folder_id = config.get('folder_id')
+                      target_dir = config.get('target_dir')
+                      
+                      if folder_id and target_dir:
+                          logging.info(f"Syncing {section} from folder {folder_id} to {target_dir}")
+                          sync_folder(folder_id, target_dir)
+                      else:
+                          logging.warning(f"Invalid configuration for section {section}")
+                  
+                  logging.info("Sync completed successfully!")
+                  
+              except Exception as e:
+                  logging.error(f"Error in main function: {str(e)}")
+
+          if __name__ == "__main__":
+              main()
+          EOL
+          
+      - name: Run sync script
+        env:
+          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+        run: python .github/scripts/sync_drive_images.py
+        
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Sync images from Google Drive" || echo "No changes to commit"
+          git push
