@@ -83,7 +83,7 @@ jobs:
           # 创建服务
           drive_service = build('drive', 'v3', credentials=credentials)
 
-          def optimize_image(image_data, target_path, max_size=2000):
+          def optimize_image(image_data, target_path, max_size=4000):
               """优化图片尺寸和质量"""
               try:
                   # 使用Pillow打开图像
@@ -104,7 +104,7 @@ jobs:
                   os.makedirs(os.path.dirname(target_path), exist_ok=True)
                   
                   # 保存图片，优化质量
-                  img.save(target_path, optimize=True, quality=85)
+                  img.save(target_path, optimize=True, quality=95)
                   logging.info(f"Optimized and saved image to {target_path}")
                   return True
               except Exception as e:
@@ -186,3 +186,19 @@ jobs:
         env:
           GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
         run: python .github/scripts/sync_drive_images.py
+
+      - name: Debug directory
+        run: |
+          echo "Current directory contents:"
+          ls -la
+          echo "Images directory contents:"
+          ls -la images/ || echo "No images directory found"
+          
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git add images/ || echo "No images directory to add"
+          git status
+          git commit -m "Update images from Google Drive" || echo "No changes to commit"
+          git push
