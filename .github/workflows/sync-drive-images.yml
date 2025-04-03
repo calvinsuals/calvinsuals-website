@@ -177,6 +177,10 @@ jobs:
           if __name__ == "__main__":
               main()
           EOL
+
+      - name: Create directories
+        run: |
+          mkdir -p images/automotive images/portrait images/showcase images/comparison images/pricing images/contact
           
       - name: Run sync script
         env:
