@@ -7,6 +7,9 @@ on:
     - cron: '*/30 * * * *'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -177,7 +180,7 @@ jobs:
           if __name__ == "__main__":
               main()
           EOL
-
+          
       - name: Create directories
         run: |
           mkdir -p images/automotive images/portrait images/showcase images/comparison images/pricing images/contact
