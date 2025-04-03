@@ -29,32 +29,28 @@ jobs:
           cat > .github/scripts/folder_mappings.json << 'EOL'
           {
             "automotive": {
-              "folder_id": "1gg6DRwdJKW9Z3SZ9zYJYyYDHlMQT1o0e",
+              "folder_id": "1BsXBmqVftzP73tB7PVfDj4tnn6mNduoe",
               "target_dir": "images/automotive"
             },
             "portrait": {
-              "folder_id": "1vVHQGfITBaXWCQG3gGzNGYu76EgRGEKO",
+              "folder_id": "1q2Mq9877eMukndBGskSCF2j7mEM63qsH",
               "target_dir": "images/portrait"
             },
             "homepage_showcase": {
-              "folder_id": "1QE2Yr1Xzk_mEJAFlqC0eMCsXlRJZrhTr",
+              "folder_id": "15WaRDIFnFGSfZr5V36E68C78Qnq_0fUk",
               "target_dir": "images/showcase"
             },
             "comparison": {
-              "folder_id": "1I13PzVs3dlKSGLjVPAfSuDWvVzHpwUq4",
+              "folder_id": "1IkQbTGYl-0YxQ6L8g-TqiTaY5q05wUou",
               "target_dir": "images/comparison"
             },
             "pricing_cards": {
-              "folder_id": "1h0PwpMKNc_Jrm-O2GBFULn0S6UNpTyMW",
+              "folder_id": "1F9KTNdLboQdrYJucJJTmmT7G9LnR-Zky",
               "target_dir": "images/pricing"
             },
             "contact_icons": {
-              "folder_id": "1SZ1_UfEOqOv4oBjqCLvx2GzEiPnDz86K",
+              "folder_id": "1fb_098zJmN6g6uAOFBHXwC-7OGNuyls2",
               "target_dir": "images/contact"
-            },
-            "about_images": {
-              "folder_id": "19KwF8RCJ2y8pZ8ZXlS_zrCXJ24uNJu47",
-              "target_dir": "images/about"
             }
           }
           EOL
