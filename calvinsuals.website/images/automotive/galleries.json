@@ -1,0 +1,52 @@
+﻿[
+  {
+    "id": "gallery_01",
+    "title": "画廊 1",
+    "jsonFile": "gallery_01.json"
+  },
+  {
+    "id": "gallery_02",
+    "title": "画廊 2",
+    "jsonFile": "gallery_02.json"
+  },
+  {
+    "id": "gallery_03",
+    "title": "画廊 3",
+    "jsonFile": "gallery_03.json"
+  },
+  {
+    "id": "gallery_04",
+    "title": "画廊 4",
+    "jsonFile": "gallery_04.json"
+  },
+  {
+    "id": "gallery_05",
+    "title": "画廊 5",
+    "jsonFile": "gallery_05.json"
+  },
+  {
+    "id": "gallery_06",
+    "title": "画廊 6",
+    "jsonFile": "gallery_06.json"
+  },
+  {
+    "id": "gallery_07",
+    "title": "画廊 7",
+    "jsonFile": "gallery_07.json"
+  },
+  {
+    "id": "gallery_08",
+    "title": "画廊 8",
+    "jsonFile": "gallery_08.json"
+  },
+  {
+    "id": "gallery_09",
+    "title": "画廊 9",
+    "jsonFile": "gallery_09.json"
+  },
+  {
+    "id": "gallery_10",
+    "title": "画廊 10",
+    "jsonFile": "gallery_10.json"
+  }
+]
