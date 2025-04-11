@@ -1,0 +1,357 @@
+/* 汽车摄影页面样式 */
+.automotive-page {
+    background: linear-gradient(to bottom, #f9fafb, #555555);
+    color: #ffffff;
+}
+
+/* 标题背景区域 */
+.title-background {
+    width: 100%;
+    height: 35vh;
+    background: transparent;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding-left: 100px;
+    margin-top: 0;
+}
+
+.automotive-page .title-text {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 3em;
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 1.1;
+    letter-spacing: 4px;
+    margin: 0;
+    position: relative;
+    background: linear-gradient(
+        90deg,
+        #444444 0%,
+        #444444 20%,
+        #999999 30%,
+        #ffffff 40%,
+        #999999 50%,
+        #444444 60%,
+        #444444 100%
+    );
+    background-size: 400% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: wave 12s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    text-shadow: 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+@keyframes wave {
+    0% {
+        background-position: 0% center;
+    }
+    15% {
+        background-position: 50% center;
+    }
+    35% {
+        background-position: 150% center;
+    }
+    65% {
+        background-position: 250% center;
+    }
+    85% {
+        background-position: 350% center;
+    }
+    100% {
+        background-position: 400% center;
+    }
+}
+
+/* 删除旧的流光效果 */
+.title-text::before {
+    display: none;
+}
+
+/* 修正汉堡菜单颜色 */
+.automotive-page .menu-toggle span {
+    background-color: #374151;
+}
+
+/* 展示区域容器 */
+.showcase-wrapper {
+    width: 100%;
+    padding-top: 0;
+    margin-top: -50vh;
+    position: relative;
+}
+
+/* 展示区域 */
+.showcase-section {
+    width: 100%;
+    margin: 0 0 200px 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* 画廊容器 */
+.car-gallery-container { 
+    position: relative;
+    background-color: #242424;
+    padding: 0;
+    box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.5),
+        0 18px 35px rgba(0, 0, 0, 0.4),
+        0 12px 20px rgba(0, 0, 0, 0.3);
+    border-radius: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+/* 背景画布容器 */
+.gallery-background {
+    width: 100%;
+    position: relative;
+    padding-bottom: 120px;
+    margin-bottom: 120px;
+}
+
+.gallery-background::after {
+    content: '';
+    position: absolute;
+    height: 1px;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 
+        0 0 20px 3px rgba(255, 255, 255, 0.7),
+        0 0 15px 2px rgba(255, 255, 255, 0.5),
+        0 0 10px 1px rgba(255, 255, 255, 0.3);
+    filter: blur(0.2px);
+    width: 1300px;
+}
+
+.gallery-background::before {
+    content: '';
+    position: absolute;
+    height: 1px;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(to right, 
+        transparent, 
+        rgba(255,255,255,0.3),
+        transparent
+    );
+    width: 900px;
+}
+
+/* 画廊基础样式 */
+.showcase-container {
+    position: relative;
+    margin: 0 auto;
+    width: 1200px;
+    max-width: 1200px;
+}
+
+.car-gallery {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 0;
+    padding: 0;
+    margin: 0 auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    cursor: grab;
+}
+
+.car-gallery::-webkit-scrollbar {
+    display: none;
+}
+
+.car-gallery > img {
+    display: block;
+    flex-shrink: 0;
+    object-fit: cover;
+    border-radius: 0;
+}
+
+/* 响应式布局 */
+@media (min-width: 768px) and (max-width: 1199px) {
+    .title-background {
+        padding-left: 60px;
+        margin-top: 0;
+        height: 30vh;
+    }
+    
+    .title-text {
+        font-size: 2.5em;
+        letter-spacing: 3px;
+    }
+    
+    .showcase-wrapper {
+        margin-top: -40vh;
+    }
+
+    .showcase-container {
+        width: 600px;
+        max-width: 600px;
+    }
+    
+    .car-gallery {
+        width: 600px;
+    }
+    
+    .car-gallery > img {
+        width: 300px;
+        height: 375px;
+        flex: 0 0 300px;
+    }
+
+    .gallery-background::after {
+        width: 720px;
+        bottom: 55px;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 
+            0 0 20px 3px rgba(255, 255, 255, 0.7),
+            0 0 15px 2px rgba(255, 255, 255, 0.5),
+            0 0 10px 1px rgba(255, 255, 255, 0.3);
+    }
+
+    .gallery-background::before {
+        width: 580px;
+        bottom: 25px;
+        background: linear-gradient(to right, 
+            transparent, 
+            rgba(255,255,255,0.3),
+            transparent
+        );
+    }
+
+    .gallery-background {
+        padding-bottom: 100px;
+        margin-bottom: 80px;
+    }
+}
+
+@media (max-width: 767px) {
+    .automotive-page .title-background {
+        padding-left: 40px;
+        padding-top: 60px;
+        margin-top: 20px;
+        height: 25vh;
+    }
+    
+    .automotive-page .title-text {
+        font-size: 1.8em !important;
+        letter-spacing: 1.5px !important;
+        font-weight: 600 !important;
+    }
+    
+    .showcase-wrapper {
+        margin-top: -20vh;
+    }
+
+    .showcase-container {
+        width: 280px;
+        max-width: 280px;
+    }
+    
+    .car-gallery {
+        width: 280px;
+    }
+    
+    .car-gallery > img {
+        width: 280px;
+        height: 350px;
+    }
+
+    .gallery-background::after {
+        width: 340px;
+        bottom: 65px;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 
+            0 0 20px 3px rgba(255, 255, 255, 0.7),
+            0 0 15px 2px rgba(255, 255, 255, 0.5),
+            0 0 10px 1px rgba(255, 255, 255, 0.3);
+    }
+
+    .gallery-background::before {
+        width: 280px;
+        bottom: 35px;
+        background: linear-gradient(to right, 
+            transparent, 
+            rgba(255,255,255,0.3),
+            transparent
+        );
+    }
+
+    .gallery-background {
+        padding-bottom: 80px;
+        margin-bottom: 80px;
+    }
+
+    .showcase-section:last-child {
+        margin-bottom: 60px;
+    }
+}
+
+@media (max-width: 480px) {
+    .gallery-background::after {
+        width: 320px;
+        bottom: 60px;
+    }
+
+    .gallery-background::before {
+        width: 260px;
+        bottom: 30px;
+    }
+
+    .gallery-background {
+        padding-bottom: 70px;
+        margin-bottom: 70px;
+    }
+
+    .automotive-page .title-text {
+        font-size: 1.6em !important;
+        letter-spacing: 1.2px !important;
+    }
+
+    .automotive-page .title-background {
+        padding-left: 35px;
+        padding-top: 50px;
+        margin-top: 15px;
+    }
+}
+
+/* 桌面端画廊尺寸 */
+@media (min-width: 1200px) {
+    .car-gallery {
+        width: 1200px;
+    }
+    
+    .car-gallery > img {
+        width: 400px;
+        height: 500px;
+    }
+}
+
+/* 移除旧的发光条样式 */
+.showcase-container::after,
+.showcase-container::before {
+    display: none;
+}
+
+/* 最后一个画廊的底部间距调整 */
+.showcase-section:last-child {
+    margin-bottom: 100px;
+}
+
+/* 移除不再使用的 .project-item 规则 */
+/*
+.project-item {
+    ...
+}
+*/
