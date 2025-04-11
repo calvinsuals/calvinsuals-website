@@ -1,0 +1,382 @@
+/* 人像摄影页面样式 */
+.portrait-page {
+    /* background-color: #a89b8d; 保留原背景色 */
+    /* background: #a89b8d; 强制使用这个背景 */
+    /* background: linear-gradient(to bottom, #cccccc, #888888); /* 浅灰到中冷灰渐变 */
+    /* background: linear-gradient(to bottom, #e0e0e0, #666666); /* 增加对比度：更浅的灰 (#e0e0e0) 到更深的冷灰 (#666666) */
+    background: linear-gradient(to bottom, #efefef, #555555); /* 再次增加对比度：非常浅的灰 (#efefef) 到更深的冷灰 (#555555) */
+    color: #ffffff;
+}
+
+/* 标题背景区域 (来自 automotive.css) */
+.title-background {
+    width: 100%;
+    height: 35vh;
+    background: transparent;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding-left: 100px;
+    margin-top: 0;
+}
+
+/* 标题文本样式 (来自 automotive.css, 修改选择器) */
+.portrait-page .title-text {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 3em;
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 1.1;
+    letter-spacing: 4px;
+    margin: 0;
+    position: relative;
+    background: linear-gradient(
+        90deg,
+        #444444 0%,
+        #444444 20%,
+        #999999 30%,
+        #ffffff 40%,
+        #999999 50%,
+        #444444 60%,
+        #444444 100%
+    );
+    background-size: 400% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: wave 12s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    text-shadow: 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* 流光动画 (来自 automotive.css) */
+@keyframes wave {
+    0% {
+        background-position: 0% center;
+    }
+    15% {
+        background-position: 50% center;
+    }
+    35% {
+        background-position: 150% center;
+    }
+    65% {
+        background-position: 250% center;
+    }
+    85% {
+        background-position: 350% center;
+    }
+    100% {
+        background-position: 400% center;
+    }
+}
+
+/* 修正汉堡菜单颜色 (来自 automotive.css, 修改选择器) */
+.portrait-page .menu-toggle span {
+    /* 人像页面菜单颜色可能不同，这里可以调整或移除 */
+    /* background-color: #374151; */ 
+    background-color: white; /* 假设人像页面用白色 */
+}
+
+/* 展示区域容器 (来自 automotive.css) */
+.showcase-wrapper {
+    width: 100%;
+    padding-top: 0;
+    margin-top: -50vh; /* 与 automotive 保持一致 */
+    position: relative;
+}
+
+/* 展示区域 (来自 automotive.css) */
+.showcase-section {
+    width: 100%;
+    margin: 0 0 200px 0; /* 与 automotive 保持一致 */
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* 画廊容器 (来自 automotive.css) */
+.car-gallery-container { /* 使用 automotive 的类名 */
+    position: relative;
+    background-color: #242424;
+    padding: 0;
+    box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.5),
+        0 18px 35px rgba(0, 0, 0, 0.4),
+        0 12px 20px rgba(0, 0, 0, 0.3);
+    border-radius: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+/* 背景画布容器 (来自 automotive.css) */
+.gallery-background {
+    width: 100%;
+    position: relative;
+    padding-bottom: 120px;
+    margin-bottom: 120px;
+}
+
+.gallery-background::after {
+    content: '';
+    position: absolute;
+    height: 1px;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 
+        0 0 20px 3px rgba(255, 255, 255, 0.7),
+        0 0 15px 2px rgba(255, 255, 255, 0.5),
+        0 0 10px 1px rgba(255, 255, 255, 0.3);
+    filter: blur(0.2px);
+    width: 1300px;
+}
+
+.gallery-background::before {
+    content: '';
+    position: absolute;
+    height: 1px;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(to right, 
+        transparent, 
+        rgba(255,255,255,0.3),
+        transparent
+    );
+    width: 900px;
+}
+
+/* 画廊基础样式 (来自 automotive.css) */
+.showcase-container {
+    position: relative;
+    margin: 0 auto;
+    width: 1200px;
+    max-width: 1200px;
+}
+
+.car-gallery { /* 使用 automotive 的类名 */
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 0;
+    padding: 0;
+    margin: 0 auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    cursor: grab;
+}
+
+.car-gallery::-webkit-scrollbar {
+    display: none;
+}
+
+.car-gallery > img { /* 使用 automotive 的类名 */
+    display: block;
+    flex-shrink: 0;
+    object-fit: cover;
+    border-radius: 0;
+}
+
+/* 响应式布局 - 平板 (来自 automotive.css, 修改标题选择器) */
+@media (min-width: 768px) and (max-width: 1199px) {
+    .title-background {
+        /* padding-left: 60px; */ /* 移除左内边距 */
+        padding-left: 0; /* 确保无左内边距 */
+        align-items: center !important; /* 强制居中 */
+        margin-top: 0;
+        height: 30vh;
+    }
+    
+    /* 使用 .portrait-page 确保特异性 */
+    .portrait-page .title-text {
+        text-align: center !important; /* 强制文本居中 */
+        width: 100%; /* 确保标题元素占满宽度 */
+        font-size: 2.5em; /* 保持平板字体大小 */
+        letter-spacing: 3px; /* 保持平板字母间距 */
+        /* 移除 !important 如果基础样式没有冲突 */
+        /* font-weight: 700; 继承基础样式 */
+    }
+    
+    .showcase-wrapper {
+        margin-top: -40vh;
+    }
+
+    .showcase-container {
+        width: 600px;
+        max-width: 600px;
+    }
+    
+    .car-gallery {
+        width: 600px;
+    }
+    
+    .car-gallery > img {
+        width: 300px;
+        height: 375px;
+        flex: 0 0 300px;
+    }
+
+    .gallery-background::after {
+        width: 720px;
+        bottom: 55px;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 
+            0 0 20px 3px rgba(255, 255, 255, 0.7),
+            0 0 15px 2px rgba(255, 255, 255, 0.5),
+            0 0 10px 1px rgba(255, 255, 255, 0.3);
+    }
+
+    .gallery-background::before {
+        width: 580px;
+        bottom: 25px;
+        background: linear-gradient(to right, 
+            transparent, 
+            rgba(255,255,255,0.3),
+            transparent
+        );
+    }
+
+    .gallery-background {
+        padding-bottom: 100px;
+        margin-bottom: 80px;
+    }
+}
+
+/* 响应式布局 - 手机 (来自 automotive.css, 修改标题选择器) */
+@media (max-width: 767px) {
+    .portrait-page .title-background {
+        padding-left: 0;
+        align-items: center !important; /* 强制居中 */
+        padding-top: 60px;
+        margin-top: 20px;
+        height: 25vh;
+    }
+    
+    .portrait-page .title-text {
+        text-align: center !important; /* 强制文本居中 */
+        width: 100%; /* 确保标题元素占满宽度 */
+        font-size: 1.8em !important;
+        letter-spacing: 1.5px !important;
+        font-weight: 600 !important;
+    }
+    
+    .showcase-wrapper {
+        margin-top: -20vh;
+    }
+
+    .showcase-container {
+        width: 280px;
+        max-width: 280px;
+    }
+    
+    .car-gallery {
+        width: 280px;
+    }
+    
+    .car-gallery > img {
+        width: 280px;
+        height: 350px;
+    }
+
+    .gallery-background::after {
+        width: 340px;
+        bottom: 65px;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 
+            0 0 20px 3px rgba(255, 255, 255, 0.7),
+            0 0 15px 2px rgba(255, 255, 255, 0.5),
+            0 0 10px 1px rgba(255, 255, 255, 0.3);
+    }
+
+    .gallery-background::before {
+        width: 280px;
+        bottom: 35px;
+        background: linear-gradient(to right, 
+            transparent, 
+            rgba(255,255,255,0.3),
+            transparent
+        );
+    }
+
+    .gallery-background {
+        padding-bottom: 80px;
+        margin-bottom: 80px;
+    }
+
+    .showcase-section:last-child {
+        margin-bottom: 60px;
+    }
+}
+
+/* 响应式布局 - 小屏幕 (来自 automotive.css, 修改标题选择器) */
+@media (max-width: 480px) {
+    .gallery-background::after {
+        width: 320px;
+        bottom: 60px;
+    }
+
+    .gallery-background::before {
+        width: 260px;
+        bottom: 30px;
+    }
+
+    .gallery-background {
+        padding-bottom: 70px;
+        margin-bottom: 70px;
+    }
+
+    .portrait-page .title-text {
+        /* 继承 767px 的 text-align 和 width */
+        font-size: 1.6em !important;
+        letter-spacing: 1.2px !important;
+    }
+
+    .portrait-page .title-background {
+        padding-left: 0;
+        align-items: center !important; /* 强制居中 */
+        padding-top: 50px;
+        margin-top: 15px;
+    }
+}
+
+/* 桌面端画廊尺寸 (来自 automotive.css) */
+@media (min-width: 1200px) {
+    .car-gallery {
+        width: 1200px;
+    }
+    
+    .car-gallery > img {
+        width: 400px;
+        height: 500px;
+    }
+}
+
+/* 最后一个画廊的底部间距调整 (来自 automotive.css) */
+.showcase-section:last-child {
+    margin-bottom: 100px;
+}
+
+/* 移除不再使用的规则 */
+/*
+.showcase-container::after,
+.showcase-container::before {
+    display: none;
+}
+*/
+
+/* 移除旧的人像画廊规则 */
+/*
+.gallery-container {
+    ...
+}
+.projects-grid {
+    ...
+}
+.project-item {
+    ...
+}
+*/
