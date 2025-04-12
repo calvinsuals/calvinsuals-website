@@ -259,33 +259,34 @@
             margin-top: 30px; /* 增加顶部间距 */
         }
 
-        /* REMOVED footer styles, moved to external CSS */
-        /*
+        /* 调整页脚样式与主页保持一致 */
         .footer {
             position: static;
-            background-color: #8a7e71;
-            color: rgba(255, 255, 255, 0.7);
+            background-color: #e8e6e1; /* 修改为与渐变底部颜色完全一致 */
+            color: rgba(0, 0, 0, 0.7); /* 修改为深色文字，以适应浅色背景 */
             text-align: center;
             padding: 15px 0;
             width: 100%;
-            margin-top: 30px; 
+            max-width: 1800px;
+            margin: 0 auto;
         }
-        
+
         .footer p {
             margin: 0;
             font-size: 0.9rem;
+            font-family: 'Montserrat', sans-serif; /* 确保使用与主页相同的字体 */
         }
-        
+
         @media (max-width: 767px) {
             .footer {
                 padding: 15px 0;
+                width: 100%;
             }
             
             .footer p {
                 font-size: 0.8rem;
             }
         }
-        */
 
         /* REMOVED background and shadow from title container for seamless connection */
         .page-title-container {
@@ -405,9 +406,10 @@
         <!-- 内容将由 JavaScript 动态生成 -->
     </main>
 
-    <footer style="background-color: #555555; text-align: center; padding: 15px 0;">
+    <!-- 页脚 -->
+    <footer class="footer">
         <p>&copy; 2025 calvinsuals. All photography works and website content are copyrighted by the author.</p>
-        <p>Website design and development: calvinsuals</p>
+        <p>Website design and development: calvinsuals.</p>
     </footer>
 
     <script>

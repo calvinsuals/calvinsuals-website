@@ -88,14 +88,13 @@
         @media screen and (min-width: 768px) {
             .about-content {
                 display: flex;
+                justify-content: center; /* 居中显示 */
                 align-items: center;
-                max-width: 1800px; /* Apply max-width here */
-                width: 90%; /* Adjust as needed */
-                margin: 0 auto; /* Center the block */
-                /* margin-left: 5%; */ /* REMOVE left align */
-                padding: 0 15px; /* Add some horizontal padding inside */
-                gap: 60px; /* Maybe increase gap slightly */
-                box-sizing: border-box;
+                gap: 30px;
+                max-width: 1600px; /* 增加最大宽度 */
+                margin: 0 auto;
+                padding-top: 30px; /* 添加顶部内边距 */
+                width: 90%; /* 确保在移动设备上有边距 */
             }
             /* Keep .about-image and .about-text styles, but remove margin-left from text */
             .about-image {
@@ -109,9 +108,13 @@
                 /* ... rest of styles ... */
             }
             .about-text {
-                flex: 1;
-                margin-left: 0; /* Reset margin-left */
-                /* ... rest of styles ... */
+                flex: 1; /* 弹性伸缩 */
+                text-align: left;
+                padding: 0;
+                max-width: 800px; /* 设置文本最大宽度 */
+                margin: 0; /* 移除边距 */
+                font-size: 1.05rem;
+                line-height: 1.7;
             }
         }
 
@@ -678,12 +681,13 @@
         /* 关于我区域 */
         .about-content {
             display: flex;
-            justify-content: space-between;
+            justify-content: center; /* 居中显示 */
             align-items: center;
             gap: 30px;
-            max-width: 1200px;
+            max-width: 1600px; /* 增加最大宽度 */
             margin: 0 auto;
             padding-top: 30px; /* 添加顶部内边距 */
+            width: 90%; /* 确保在移动设备上有边距 */
         }
 
         .about-image {
@@ -714,13 +718,12 @@
         /* 关于我区域的背景色 */
         #about {
             background-color: transparent; /* 改为透明背景 */
-            padding: 60px 20px;
+            padding: 60px 20px 120px; /* 增加底部内边距，为社交图标留出空间 */
             min-height: 500px; /* 固定最小高度 */
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             position: relative;
-            padding-bottom: 100px; /* 为底部社交图标留出空间 */
         }
         
         /* 关于我区域标题样式修改 */
@@ -767,43 +770,61 @@
             object-fit: contain;
         }
         
-        /* 桌面端关于我区域样式 - 移除冲突的定位 */
+        /* 桌面端关于我区域样式 */
         @media screen and (min-width: 768px) {
             .about-content {
-                display: flex;
-                align-items: center;
-                max-width: 1200px;
-                margin-left: 5%;
-                padding: 0;
-                gap: 40px;
+                position: relative;
+                margin: 0 auto; /* 居中显示 */
+                max-width: 1200px; /* 设置合适的最大宽度 */
+                padding: 0 20px; /* 添加水平内边距 */
             }
             
             .about-image {
+                flex: 0 0 280px; /* 固定宽度 */
                 width: 280px;
                 height: 280px;
-                min-width: 280px;
-                min-height: 280px;
-                flex-basis: 280px;
-                margin: 0;
-                margin-top: 25px; /* Increased margin-top to 25px */
-                flex-shrink: 0;
                 border-radius: 50%;
                 overflow: hidden;
-                box-sizing: border-box;
-                padding: 0;
-                border: none;
-                transform: none;
+                position: relative; /* 使用相对定位 */
+                top: 0;
+                left: 0;
+                margin-right: 40px; /* 添加右边距 */
             }
             
             .about-text {
+                flex: 1; /* 弹性伸缩 */
                 text-align: left;
-                padding-left: 0;
-                max-width: none;
-                margin: 0;
-                margin-left: 130px; /* Increased margin-left further */
-                flex: 1;
+                padding: 0;
+                max-width: 800px; /* 设置文本最大宽度 */
+                margin: 0; /* 移除边距 */
                 font-size: 1.05rem;
                 line-height: 1.7;
+            }
+            
+            /* 社交图标居中 */
+            #about .about-social {
+                position: absolute;
+                bottom: -100px; /* 调整底部距离 */
+                left: 0;
+                right: 0;
+                display: flex;
+                justify-content: center;
+                gap: 25px;
+                margin: 0 auto;
+            }
+        }
+        
+        /* 当屏幕宽度大于1200px时 */
+        @media screen and (min-width: 1200px) {
+            .about-content {
+                max-width: 1400px; /* 更大的最大宽度 */
+            }
+        }
+        
+        /* 当屏幕宽度大于1600px时 */
+        @media screen and (min-width: 1600px) {
+            .about-content {
+                max-width: 1600px; /* 更大的最大宽度 */
             }
         }
         
@@ -1631,7 +1652,7 @@
                 padding-left: 0;
                 max-width: none;
                 margin: 0;
-                margin-left: 200px; /* Increased margin-left further */
+                margin-left: 300px; /* Increased margin-left further */
                 flex: 1;
                 font-size: 1.05rem;
                 line-height: 1.7;
@@ -1645,7 +1666,7 @@
 
             #about .about-social {
                  position: absolute;
-                 bottom: 40px;
+                 bottom: -100px; /* 调整底部距离 */
                  left: 0;
                  right: 0;
                 display: flex;
