@@ -305,7 +305,7 @@ function initializeGallerySlider(slidesId, dotsId) {
                 // 使用 IntersectionObserver 或自定义逻辑加载
                 // 简单实现：对于视口附近的图片进行加载
                 const proximity = Math.abs(index - currentIndex);
-                if (proximity <= 2) {  // 只加载当前、前一张和后一张
+                if (proximity <= 1) {  // 修改：只加载当前和前后紧邻的1张
                     slide.style.backgroundImage = `url('${slide.dataset.bgImage}')`;
                     
                     // 异步预加载图片提高渲染性能
