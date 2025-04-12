@@ -12,6 +12,153 @@
     <!-- <link rel="stylesheet" href="gallery.css"> -->
     <!-- <link rel="stylesheet" href="automotive.css"> --> 
     <style>
+        /* Resetting base styles for consistent full-width */
+        html, body {
+            width: 100%;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Base Section Styling - Full Width Background */
+        .section, .comparison-section, .contact-section, .footer, .hero {
+            width: 100%; /* Ensure sections span full width */
+            max-width: none !important; /* Remove any max-width */
+            margin-left: 0 !important; /* Remove specific margins */
+            margin-right: 0 !important;
+            padding-left: 0; /* Remove horizontal padding, keep vertical */
+            padding-right: 0;
+            box-sizing: border-box; /* Ensure padding is included correctly */
+        }
+
+        /* Keep vertical padding where it was defined */
+        .section {
+            padding-top: 60px;
+            padding-bottom: 60px;
+        }
+        .comparison-section { /* Assuming it uses .section base padding */
+            /* padding-top/bottom inherited or defined */
+        }
+        .contact-section {
+            padding-top: 60px;
+            padding-bottom: 60px;
+        }
+        .footer {
+            padding-top: 40px;
+            padding-bottom: 40px;
+        }
+        .hero {
+            /* height styles remain */
+            /* background styles remain */
+            /* position styles remain */
+            /* display flex styles remain */
+            margin: 0 auto; /* This should have been removed, correcting now */
+        }
+
+        /* Apply max-width and centering to INNER content containers */
+
+        /* Hero Inner Content */
+        .hero-container {
+            max-width: 1800px;
+            width: 90%; /* Use percentage for smaller screens */
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Section Title Centering (already mostly correct) */
+        .section-title {
+            max-width: 1800px;
+            width: 90%;
+            margin: 0 auto 2.5rem auto; /* Center title */
+            /* Other title styles */
+        }
+
+        /* Gallery Inner Content (Slider) */
+        .carousel-container {
+            max-width: 1800px; /* Align with other sections */
+            width: 95%; /* Adjust width as needed for padding */
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* About Inner Content */
+        /* Need to adjust .about-content (>=768px) */
+        @media screen and (min-width: 768px) {
+            .about-content {
+                display: flex;
+                align-items: center;
+                max-width: 1800px; /* Apply max-width here */
+                width: 90%; /* Adjust as needed */
+                margin: 0 auto; /* Center the block */
+                /* margin-left: 5%; */ /* REMOVE left align */
+                padding: 0 15px; /* Add some horizontal padding inside */
+                gap: 60px; /* Maybe increase gap slightly */
+                box-sizing: border-box;
+            }
+            /* Keep .about-image and .about-text styles, but remove margin-left from text */
+            .about-image {
+                width: 280px;
+                height: 280px;
+                min-width: 280px;
+                min-height: 280px;
+                flex-basis: 280px;
+                margin: 0; /* Remove margin-top */
+                flex-shrink: 0;
+                /* ... rest of styles ... */
+            }
+            .about-text {
+                flex: 1;
+                margin-left: 0; /* Reset margin-left */
+                /* ... rest of styles ... */
+            }
+        }
+
+        /* Comparison Inner Content */
+        .comparison-container {
+            max-width: 1800px;
+            width: 90%;
+            margin: 0 auto;
+            position: relative; /* For potential absolute positioning inside */
+            /* Adjust display/gap for desktop view if needed */
+        }
+        @media screen and (min-width: 768px) {
+            .comparison-container {
+                display: flex;
+                justify-content: center;
+                align-items: flex-start; /* Or center? */
+                gap: 40px; /* Adjust gap */
+            }
+             /* Ensure groups inside behave correctly */
+            .comparison-group {
+                /* Resetting width/max-width from desktop defaults if needed */
+                /* width: auto; */ /* Let flexbox handle */
+                /* max-width: none; */
+                flex: 1; /* Example: make groups flexible */
+                max-width: 30%; /* Example: limit group width */
+            }
+        }
+
+        /* Contact Inner Content */
+        .contact-content {
+            max-width: 1800px;
+            width: 90%;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        /* Footer Inner Content */
+        .footer-container {
+            max-width: 1800px;
+            width: 90%;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
         /* 基础样式 */
         * {
             margin: 0;
@@ -23,13 +170,14 @@
             font-family: 'Montserrat', sans-serif;
             line-height: 1.6;
             color: #333;
-            background-color: #e8e6e1; 
+            background-image: linear-gradient(165deg, #333333, #555555 15%, #777777 35%, #aaa9a7 60%, #d8d6d1 80%); /* 角度调整为165度，调暗最亮色并增加过渡色 */
+            background-color: #d8d6d1; /* 调整备用背景色 */
+            background-attachment: fixed; /* 确保渐变固定不随滚动变化 */
             width: 100%;
-            overflow-x: hidden; 
+            overflow-x: hidden;
             margin: 0;
             padding: 0;
-            min-width: 100vw; 
-            min-height: 100vh; 
+            min-height: 100vh;
         }
         
         html {
@@ -168,29 +316,31 @@
             transform: translateX(-50%);
         }
         
-        /* Hero 区域 */
+        /* Hero 区域 - Apply Max Width and Center */
         .hero {
             height: 100vh;
             min-height: 500px;
-            background-color: #7a7a7a;
+            background-color: transparent; /* 改为透明背景，以显示底层的渐变背景 */
             position: relative;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            max-width: 1800px; /* 添加最大宽度限制 */
-            margin: 0 auto; /* 居中显示 */
+            max-width: 1800px;
+            width: 100%;
+            margin: 0 auto; /* Ensure centering */
+            padding: 0; /* Ensure no padding */
         }
         
         .hero-container {
             width: 100%;
             height: 100%;
-            margin: 0 auto;
+            margin: 0; /* 去除边距 */
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            max-width: 1800px;
+            max-width: 100%; /* 从1800px改为100% */
         }
         
         .hero-content {
@@ -267,7 +417,7 @@
             padding: 60px 20px;
             max-width: 1800px; /* 从1600px增加到1800px，使背景画布更宽 */
             margin: 0 auto;
-            background-color: #e0dcd8; /* 更暗且带暖色调的展示区背景色 */
+            background-color: transparent; /* 改为透明背景 */
         }
         
         .section-title {
@@ -303,22 +453,33 @@
         .gallery-slider {
             position: relative;
             overflow: hidden;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 0;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.45), 0 10px 25px rgba(0,0,0,0.3); /* 加深双重阴影效果 */
+            max-width: 1400px;
+            margin: 0 auto;
+            border: none; /* 移除边框 */
+            transform: perspective(1000px) translateZ(0); /* 增加透视效果 */
         }
         
         .gallery-slides {
             display: flex;
-            transition: transform 0.4s ease;
+            transition: transform 2s cubic-bezier(0.25, 0.1, 0.25, 1);
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.5); /* 增强内阴影深度和不透明度 */
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            -webkit-perspective: 1000;
+            perspective: 1000;
         }
         
         .gallery-slide {
             flex: 0 0 100%;
             height: 0;
-            padding-bottom: 50%; /* 2:1比例 = 50% */
+            padding-bottom: 50%; /* 2:1比例 */
             position: relative;
             background-size: cover;
             background-position: center;
+            transform: translateZ(0);
         }
         
         .gallery-slide img {
@@ -328,6 +489,12 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));
+            will-change: transform; /* 启用GPU加速 */
+            transform: translateZ(0); /* 强制GPU渲染 */
+            -webkit-transform: translateZ(0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
         }
         
         .gallery-nav {
@@ -362,7 +529,7 @@
         
         /* 图片对比区 */
         .comparison-section {
-            background-color: #d1d0d0; 
+            background-color: transparent; /* 改为透明背景 */
             padding: 60px 20px; 
             width: 100%;
             margin-left: auto;
@@ -407,9 +574,11 @@
         .comparison-wrapper {
             position: relative;
             overflow: hidden;
-            border-radius: 8px !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 0 !important; /* 确保直角 */
+            box-shadow: 0 20px 50px rgba(0,0,0,0.45), 0 10px 25px rgba(0,0,0,0.3); /* 加深双重阴影效果 */
             margin-bottom: 10px;
+            border: none; /* 移除边框 */
+            transform: perspective(1000px) translateZ(0); /* 增加透视效果 */
         }
         
         /* 移动端横图：宽高比16:10 */
@@ -457,11 +626,14 @@
             top: 0;
             bottom: 0;
             left: 50%;
-            width: 2px; /* Restore original width */
-            background-color: #fff; /* Restore original color */
+            width: 2px; /* 保持宽度一致 */
+            background-color: #fff;
             transform: translateX(-50%);
-            z-index: 3; /* Restore original z-index */
+            z-index: 3;
             cursor: ew-resize;
+            height: 100%; /* 确保高度为100% */
+            transform-origin: center; /* 确保变换起点在中心 */
+            transform: translateX(-50%) rotate(0deg); /* 强制垂直，防止旋转 */
         }
         
         .slider-handle::before, .slider-handle::after {
@@ -472,36 +644,41 @@
             content: '< '; 
             position: absolute;
             top: 50%;
-            right: 8px; /* 定位在中心线左侧 */
+            right: 8px;
             transform: translateY(-50%);
             color: rgba(255, 255, 255, 0.75); 
-            font-size: 1.5rem; /* 稍微调整大小 */
+            font-size: 1.5rem;
             line-height: 1;
             background-color: transparent !important;
             border-radius: 0 !important;
             box-shadow: none !important;
-             opacity: 1; 
-             visibility: visible;
+            opacity: 1; 
+            visibility: visible;
         }
         
         .slider-handle::after {
             content: ' >'; 
             position: absolute;
             top: 50%;
-            left: 8px; /* 定位在中心线右侧 */
+            left: 8px;
             transform: translateY(-50%);
             color: rgba(255, 255, 255, 0.75); 
-            font-size: 1.5rem; /* 稍微调整大小 */
+            font-size: 1.5rem;
             font-weight: bold;
             opacity: 1; 
             visibility: visible; 
             text-shadow: none !important;
         }
         
+        /* 确保所有对比图的分隔线都是垂直的 */
+        .comparison-wrapper .slider-handle {
+            transform: translateX(-50%) rotate(0deg) !important; /* 强制所有分隔线垂直 */
+        }
+        
         /* 关于我区域 */
         .about-content {
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
             gap: 30px;
             max-width: 1200px;
@@ -511,11 +688,9 @@
 
         .about-image {
             position: relative;
-            width: 200px;
-            height: 200px;
             margin: 0 auto 30px;
             overflow: hidden;
-            border-radius: 50%; /* 将图片变为圆形 */
+            border-radius: 50%;
         }
 
         .about-image img {
@@ -526,11 +701,11 @@
         }
 
         .about-text {
+            flex: 2;
             font-size: 1rem;
             line-height: 1.6;
             color: #333;
             text-align: left;
-            padding-left: 10%;
             padding-right: 10%;
             width: 100%;
             max-width: 800px;
@@ -538,7 +713,7 @@
 
         /* 关于我区域的背景色 */
         #about {
-            background-color: #d1d0d0; /* 与对比区相同的背景色 */
+            background-color: transparent; /* 改为透明背景 */
             padding: 60px 20px;
             min-height: 500px; /* 固定最小高度 */
             display: flex;
@@ -555,6 +730,8 @@
         
         /* 关于我区域的社交媒体链接样式 */
         .about-social {
+            flex: 1;
+            text-align: right;
             position: absolute;
             bottom: 30px;
             left: 0;
@@ -590,28 +767,32 @@
             object-fit: contain;
         }
         
-        /* 桌面端关于我区域样式 */
+        /* 桌面端关于我区域样式 - 移除冲突的定位 */
         @media screen and (min-width: 768px) {
             .about-content {
                 display: flex;
-                flex-direction: row;
-                align-items: flex-start;
-                justify-content: flex-start;
-                gap: 60px;
-                max-width: 1000px;
-                margin: 0 auto;
-                padding: 0 40px;
-                position: relative;
+                align-items: center;
+                max-width: 1200px;
+                margin-left: 5%;
+                padding: 0;
+                gap: 40px;
             }
             
             .about-image {
-                width: 250px;
-                height: 250px;
+                width: 280px;
+                height: 280px;
+                min-width: 280px;
+                min-height: 280px;
+                flex-basis: 280px;
                 margin: 0;
+                margin-top: 25px; /* Increased margin-top to 25px */
                 flex-shrink: 0;
-                position: relative;
-                left: -200px; /* 增加向左移动的距离，对齐标题 */
-                top: 20px;
+                border-radius: 50%;
+                overflow: hidden;
+                box-sizing: border-box;
+                padding: 0;
+                border: none;
+                transform: none;
             }
             
             .about-text {
@@ -619,11 +800,10 @@
                 padding-left: 0;
                 max-width: none;
                 margin: 0;
+                margin-left: 130px; /* Increased margin-left further */
                 flex: 1;
                 font-size: 1.05rem;
                 line-height: 1.7;
-                padding-top: 60px;
-                margin-left: 140px; /* 补偿头像左移造成的空间 */
             }
         }
         
@@ -647,7 +827,7 @@
         
         /* 联系区域 */
         .contact-section {
-            background-color: #333;
+            background-color: transparent; /* 改为透明背景 */
             color: #fff;
             padding: 60px 20px 0; /* 移除底部内边距 */
             min-height: 500px;
@@ -697,6 +877,23 @@
             border-radius: 6px; 
             font-size: 0.9rem; /* 恢复稍大字体 */
             width: 100%; /* 确保占满宽度 */
+            border: 1px solid rgba(255, 255, 255, 0.3); /* 使用半透明白色边框 */
+            background-color: rgba(255, 255, 255, 0.1); /* 半透明背景 */
+            color: #fff; /* 文字颜色改为白色 */
+            transition: all 0.3s ease;
+            outline: none; /* 移除焦点时的默认轮廓 */
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: rgba(255, 255, 255, 0.5); /* 聚焦时边框更明显 */
+            background-color: rgba(255, 255, 255, 0.15); /* 聚焦时稍微亮一点 */
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.2); /* 轻微发光效果 */
+        }
+        
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5); /* 占位符文字颜色 */
         }
         
         .form-group textarea {
@@ -745,8 +942,8 @@
         /* 修复页脚样式确保对齐 */
         .footer {
             position: static;
-            background-color: #8a7e71;
-            color: rgba(255, 255, 255, 0.7);
+            background-color: #e8e6e1; /* 修改为与渐变底部颜色完全一致 */
+            color: rgba(0, 0, 0, 0.7); /* 修改为深色文字，以适应浅色背景 */
             text-align: center;
             padding: 15px 0;
             width: 100%;
@@ -948,26 +1145,40 @@
                 visibility: visible;
             }
             
+            /* 移动端阴影调整 */
+            .comparison-wrapper {
+                box-shadow: 0 2px 3px rgba(0,0,0,0.25), 0 1px 2px rgba(0,0,0,0.22) !important; /* 双层小阴影增强立体感 */
+                border: 1px solid rgba(0,0,0,0.03) !important; /* 微妙边框 */
+            }
+            
             /* 移动端横图优化 */
             .comparison-wrapper.landscape {
-                width: 130%; /* 增加横图宽度从120%到130% */
+                width: 130%;
                 height: 0;
-                padding-bottom: 62.5%; /* 16:10 比例 */
-                margin: 0 -15%; /* 调整负边距以保持居中 */
-                border-radius: 8px !important;
+                padding-bottom: 62.5%;
+                margin: 0 -15%;
+                border-radius: 0 !important;
                 overflow: hidden;
                 position: relative;
+                /* 内嵌阴影增强立体感 */
+                background: linear-gradient(to bottom, #000, transparent 2px, transparent calc(100% - 2px), #000) !important;
+                background-size: 100% 100% !important;
+                background-repeat: no-repeat !important;
             }
             
             /* 移动端竖图优化 */
             .comparison-wrapper.portrait {
-                width: 85% !important; /* 恢复宽度到85% */
+                width: 85% !important;
                 height: 0 !important;
-                padding-bottom: 137.5% !important; /* 保持原有的长宽比例 */
+                padding-bottom: 137.5% !important;
                 margin: 0 auto !important;
-                border-radius: 8px 8px 0 0 !important;
+                border-radius: 0 !important;
                 position: relative !important;
                 overflow: hidden !important;
+                /* 内嵌阴影增强立体感 */
+                background: linear-gradient(to bottom, #000, transparent 2px, transparent calc(100% - 2px), #000) !important;
+                background-size: 100% 100% !important;
+                background-repeat: no-repeat !important;
             }
             
             /* 移动端导航按钮优化 */
@@ -1072,12 +1283,16 @@
             .about-content {
                 padding: 0 10px;
                 padding-top: 20px;
+                flex-direction: column; /* Stack image and text */
+                align-items: center;   /* Center items horizontally */
+                gap: 15px;
             }
             
             .about-image {
                 width: 180px;
                 height: 180px;
                 margin: 0 auto 25px;
+                flex: none; /* Reset flex property for column layout */
             }
             
             .about-text {
@@ -1086,7 +1301,8 @@
                 padding-right: 5%;
                 max-width: 100%;
                 margin: 0 auto;
-                text-align: left;
+                text-align: center; /* Center text on mobile */
+                flex: none; /* Reset flex property for column layout */
             }
             
             #about {
@@ -1382,83 +1598,32 @@
             }
         }
 
-        /* 平板端样式 (768px - 1280px) */
-        @media screen and (min-width: 768px) and (max-width: 1280px) {
+        /* Consolidated Desktop/Tablet Styles (>= 768px) - Final Position Tuning 3 */
+        @media screen and (min-width: 768px) {
             .about-content {
                 display: flex;
-                flex-direction: column;
                 align-items: center;
-                text-align: center;
-                padding: 0 30px;
-            }
-            
-            .about-image {
-                width: 220px;
-                height: 220px;
-                margin: 0 auto 30px;
-                position: static;
-            }
-            
-            .about-text {
-                text-align: center;
+                max-width: 1200px;
+                margin-left: 5%;
                 padding: 0;
-                margin: 0 auto;
-                font-size: 1rem;
-                line-height: 1.6;
-                max-width: 600px;
-                width: 100%;
-            }
-
-            .about-text p {
-                text-align: center;
-                margin: 0 auto;
-                padding: 5px 0;
-            }
-
-            .social-links.about-social {
-                position: relative;
-                bottom: auto;
-                margin-top: 40px;
-            }
-
-            .social-link img {
-                width: 26px;
-                height: 26px;
-            }
-
-            .social-link[title="小红书"] img {
-                width: 32px;
-                height: 32px;
-            }
-
-            .social-link[title="抖音"] img {
-                width: 33px;
-                height: 33px;
-            }
-        }
-
-        /* 桌面端样式 (1280px以上) */
-        @media screen and (min-width: 1281px) {
-            .about-content {
-                display: flex;
-                flex-direction: row;
-                align-items: flex-start;
-                justify-content: flex-start;
-                gap: 60px;
-                max-width: 1000px;
-                margin: 0 auto;
-                padding: 0 40px;
-                position: relative;
+                gap: 40px;
             }
             
             .about-image {
-                width: 250px;
-                height: 250px;
+                width: 280px;
+                height: 280px;
+                min-width: 280px;
+                min-height: 280px;
+                flex-basis: 280px;
                 margin: 0;
+                margin-top: 25px; /* Increased margin-top to 25px */
                 flex-shrink: 0;
-                position: relative;
-                left: -200px;
-                top: 20px;
+                border-radius: 50%;
+                overflow: hidden;
+                box-sizing: border-box;
+                padding: 0;
+                border: none;
+                transform: none;
             }
             
             .about-text {
@@ -1466,151 +1631,31 @@
                 padding-left: 0;
                 max-width: none;
                 margin: 0;
+                margin-left: 200px; /* Increased margin-left further */
                 flex: 1;
                 font-size: 1.05rem;
                 line-height: 1.7;
-                padding-top: 60px;
-                margin-left: 140px;
-            }
-        }
-
-        /* iPad Air 特定样式 */
-        @media only screen 
-        and (min-width: 820px) 
-        and (max-width: 1180px) 
-        and (-webkit-min-device-pixel-ratio: 2) {
-            .about-content {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                text-align: center;
-                padding: 0 40px;
-                width: 100%;
-            }
-            
-            .about-text {
-                text-align: center !important;
-                padding: 0;
-                margin: 0 auto;
-                max-width: 600px;
-                width: 100%;
             }
 
-            .about-text p {
-                text-align: center !important;
-                margin: 0 auto;
-                padding: 5px 0;
+            /* Keep social icons styling */
+            #about {
+                 position: relative;
+                 padding-bottom: 100px;
             }
-        }
 
-        /* 桌面端对比区布局 */
-        @media screen and (min-width: 768px) {
-            .comparison-container {
+            #about .about-social {
+                 position: absolute;
+                 bottom: 40px;
+                 left: 0;
+                 right: 0;
                 display: flex;
                 justify-content: center;
-                align-items: center;
-                gap: 40px; /* 增加间距从15px到40px */
-                max-width: 90%;
-            }
-            
-            .comparison-group {
-                position: static !important;
-                opacity: 1 !important;
-                visibility: visible !important;
-                height: auto !important;
-                margin: 0 !important;
-                border: none !important;
-                display: flex !important;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                padding-bottom: 0 !important;
-                min-height: 0 !important;
+                 gap: 25px;
             }
 
-            .comparison-group:nth-child(1),
-            .comparison-group:nth-child(3) {
-                width: 25%; /* 缩小竖图尺寸 */
-                max-width: 300px;
-                top: -10px;
-                position: relative;
-                margin-right: 20px; /* 添加右边距 */
-            }
-            
-            .comparison-group:nth-child(2) {
-                width: 30%; /* 缩小横图尺寸 */
-                max-width: 450px;
-                top: 15px;
-                position: relative;
-                margin: 0 20px; /* 添加左右边距 */
-                margin-bottom: 0 !important;
-            }
-            
-            .comparison-nav { 
-                display: none; 
-            }
-        }
-        
-        /* 移动端对比区样式 */
-        @media screen and (max-width: 767px) {
-            .comparison-section {
-                padding: 40px 0 !important;
-                width: 100% !important;
-            }
-            
-            .comparison-container {
-                padding: 0 !important;
-                height: auto;
-                min-height: 450px;
-                overflow: hidden;
-                margin: 0 auto;
-                width: 100% !important;
-                position: relative;
-            }
-            
-            .comparison-group {
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                width: 100%;
-                height: 90%;
-                opacity: 0;
-                visibility: hidden;
-                transition: opacity 0.3s ease;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                margin: 0 auto;
-            }
-            
-            .comparison-group.active {
-                opacity: 1;
-                visibility: visible;
-            }
-            
-            /* 移动端横图优化 */
-            .comparison-wrapper.landscape {
-                width: 130%; /* 增加横图宽度从120%到130% */
-                height: 0;
-                padding-bottom: 62.5%; /* 16:10 比例 */
-                margin: 0 -15%; /* 调整负边距以保持居中 */
-                border-radius: 8px !important;
-                overflow: hidden;
-                position: relative;
-            }
-            
-            /* 移动端竖图优化 */
-            .comparison-wrapper.portrait {
-                width: 85% !important; /* 恢复宽度到85% */
-                height: 0 !important;
-                padding-bottom: 137.5% !important; /* 保持原有的长宽比例 */
-                margin: 0 auto !important;
-                border-radius: 8px 8px 0 0 !important;
-                position: relative !important;
-                overflow: hidden !important;
+            /* Hide comparison nav dots on desktop/tablet */
+            .comparison-nav {
+                display: none;
             }
         }
 
