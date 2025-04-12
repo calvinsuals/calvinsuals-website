@@ -2,8 +2,7 @@
 // (确保所有函数定义都在这里)
 
 async function loadGalleryImages(containerId, navId, jsonPath, imageFolderPath, count = Infinity) {
-   // ... (完整函数体 - 从下面复制代码) ...
-   const container = document.getElementById(containerId);
+    const container = document.getElementById(containerId);
     const nav = navId ? document.getElementById(navId) : null;
     
     if (!container) {
@@ -64,11 +63,44 @@ async function loadGalleryImages(containerId, navId, jsonPath, imageFolderPath, 
              return;
         }
         
+        // 创建临时的文档片段，减少DOM重排
+        const fragment = document.createDocumentFragment();
+
+        // 预加载第一张图片后再显示轮播
+        const preloadFirstImage = new Promise((resolve) => {
+            if (typeof images[0] === 'string' && /\.(jpe?g|png|gif|webp)$/i.test(images[0])) {
+                const preloadImg = new Image();
+                preloadImg.onload = () => resolve();
+                preloadImg.onerror = () => resolve(); // 即使加载失败也继续
+                preloadImg.src = `${imageFolderPath}/${images[0]}`;
+            } else {
+                resolve(); // 如果第一个项目无效，直接继续
+            }
+        });
+        
+        // 等待第一张图加载完成
+        await preloadFirstImage;
+        
+        // 创建轮播项
         images.forEach((image, index) => {
             const slide = document.createElement('div');
             slide.className = 'gallery-slide';
+            
             if (typeof image === 'string' && /\.(jpe?g|png|gif|webp)$/i.test(image)) {
-               slide.style.backgroundImage = `url('${imageFolderPath}/${image}')`; 
+                const imgUrl = `${imageFolderPath}/${image}`;
+                
+                // 设置数据属性而不是直接设置背景，用于延迟加载
+                slide.dataset.bgImage = imgUrl;
+                
+                // 只对前两张图片立即加载背景
+                if (index < 2) {
+                    slide.style.backgroundImage = `url('${imgUrl}')`;
+                    // 异步预加载图片以提高性能
+                    setTimeout(() => {
+                        const img = new Image();
+                        img.src = imgUrl;
+                    }, 0);
+                }
             } else {
                console.warn(`Skipping invalid entry '${image}' from ${jsonPath}.`);
                slide.textContent = `Invalid: ${image}`;
@@ -79,7 +111,8 @@ async function loadGalleryImages(containerId, navId, jsonPath, imageFolderPath, 
                slide.style.backgroundColor = '#eee';
                slide.style.minHeight = '100px';
             }
-            container.appendChild(slide);
+            
+            fragment.appendChild(slide);
             
             if (nav) {
                 const dot = document.createElement('div');
@@ -89,10 +122,13 @@ async function loadGalleryImages(containerId, navId, jsonPath, imageFolderPath, 
             }
         });
         
-         if (navId) {
-             initializeGallerySlider(containerId, navId);
-         }
-         console.log(`Successfully loaded ${images.length} images into ${containerId} from ${jsonPath}`);
+        // 一次性追加所有幻灯片到容器
+        container.appendChild(fragment);
+        
+        if (navId) {
+            initializeGallerySlider(containerId, navId);
+        }
+        console.log(`Successfully loaded ${images.length} images into ${containerId} from ${jsonPath}`);
         
     } catch (error) {
         console.error(`Error loading images for ${containerId} from ${jsonPath}:`, error);
@@ -226,49 +262,174 @@ function initializeContactForm() {
 }
 
 function initializeGallerySlider(slidesId, dotsId) {
-   // ... (完整函数体 - 从下面复制代码) ...
     const slides = document.getElementById(slidesId);
+    const slideElements = slides.querySelectorAll('.gallery-slide');
     const dots = document.querySelectorAll(`#${dotsId} .gallery-dot`);
     if (!slides || dots.length === 0) return;
     let currentIndex = 0;
     let interval;
+    let isTransitioning = false; // 防止快速点击导致的问题
+    
+    // 克隆所有幻灯片用于真正的无限循环
+    const originalSlideCount = slideElements.length;
+    
+    // 克隆第一张到最后
+    if (slideElements.length > 0) {
+        const firstSlideClone = slideElements[0].cloneNode(true);
+        slides.appendChild(firstSlideClone);
+    }
+    
+    // 克隆最后一张到最前面（为向右循环准备）
+    if (slideElements.length > 0) {
+        const lastSlideClone = slideElements[originalSlideCount-1].cloneNode(true);
+        slides.insertBefore(lastSlideClone, slides.firstChild);
+        
+        // 初始化时要显示第一张原始幻灯片，所以需要向左偏移一个幻灯片宽度
+        slides.style.transform = `translateX(-100%)`;
+        currentIndex = 1; // 注意现在的索引从1开始（0是克隆的最后一张）
+    }
+    
+    // 优化渲染性能
+    slides.style.willChange = 'transform';
+    slides.style.backfaceVisibility = 'hidden';
+    slides.style.webkitBackfaceVisibility = 'hidden';
+    slides.style.transform = 'translateZ(0)';
+    slides.style.webkitTransform = 'translateZ(0)';
+    
+    // 延迟加载背景图片
+    function lazyLoadSlideImages() {
+        const allSlides = slides.querySelectorAll('.gallery-slide');
+        allSlides.forEach((slide, index) => {
+            // 如果有数据属性但没有设置背景图
+            if (slide.dataset.bgImage && !slide.style.backgroundImage) {
+                // 使用 IntersectionObserver 或自定义逻辑加载
+                // 简单实现：对于视口附近的图片进行加载
+                const proximity = Math.abs(index - currentIndex);
+                if (proximity <= 2) {  // 只加载当前、前一张和后一张
+                    slide.style.backgroundImage = `url('${slide.dataset.bgImage}')`;
+                    
+                    // 异步预加载图片提高渲染性能
+                    setTimeout(() => {
+                        const img = new Image();
+                        img.src = slide.dataset.bgImage;
+                    }, 0);
+                }
+            }
+        });
+    }
 
-    function showSlide(index) {
-        slides.style.transform = `translateX(-${index * 100}%)`;
-        dots.forEach(dot => dot.classList.remove('active'));
-        // 确保 dots[index] 存在
-        if (dots[index]) {
-            dots[index].classList.add('active');
+    function showSlide(index, animate = true) {
+        if (isTransitioning) return; // 如果正在过渡中，忽略请求
+        
+        isTransitioning = true;
+        
+        // 确保动画计时与过渡时间匹配
+        const transitionTime = 800; // 减少到0.8秒以提升流畅感
+        
+        if (!animate) {
+            slides.style.transition = 'none';
+        } else {
+            slides.style.transition = `transform ${transitionTime}ms cubic-bezier(0.23, 1, 0.32, 1)`;
         }
-        currentIndex = index;
+        
+        // 预先加载将要显示的幻灯片图像
+        const allSlides = slides.querySelectorAll('.gallery-slide');
+        if (allSlides[index] && allSlides[index].dataset.bgImage && !allSlides[index].style.backgroundImage) {
+            allSlides[index].style.backgroundImage = `url('${allSlides[index].dataset.bgImage}')`;
+        }
+        
+        // 调整index，考虑到前后各有一个克隆幻灯片
+        requestAnimationFrame(() => {
+            slides.style.transform = `translateX(-${index * 100}%)`;
+            
+            // 更新导航点状态 - 由于添加了前后克隆幻灯片，需要调整索引
+            dots.forEach(dot => dot.classList.remove('active'));
+            
+            // 计算对应的原始幻灯片索引（移除克隆幻灯片的影响）
+            let originalIndex = index - 1; // 因为第一个是克隆的最后一张
+            if (originalIndex < 0) originalIndex = originalSlideCount - 1;
+            if (originalIndex >= originalSlideCount) originalIndex = 0;
+            
+            if (dots[originalIndex]) {
+                dots[originalIndex].classList.add('active');
+            }
+            
+            // 无限循环逻辑：
+            // 如果滑动到了克隆幻灯片区域，滑动完成后无缝跳回实际位置
+            if (index <= 0) { // 如果到了最左边（克隆的最后一张）
+                setTimeout(() => {
+                    slides.style.transition = 'none';
+                    slides.style.transform = `translateX(-${originalSlideCount * 100}%)`;
+                    currentIndex = originalSlideCount; // 跳到最后一张实际幻灯片
+                    isTransitioning = false;
+                    
+                    // 预加载相邻幻灯片
+                    setTimeout(lazyLoadSlideImages, 100);
+                }, transitionTime);
+            } else if (index >= originalSlideCount + 1) { // 如果超过了最右边（克隆的第一张）
+                setTimeout(() => {
+                    slides.style.transition = 'none';
+                    slides.style.transform = `translateX(-100%)`;
+                    currentIndex = 1; // 跳回第一张实际幻灯片
+                    isTransitioning = false;
+                    
+                    // 预加载相邻幻灯片
+                    setTimeout(lazyLoadSlideImages, 100);
+                }, transitionTime);
+            } else {
+                currentIndex = index;
+                
+                // 过渡结束后重置标志
+                setTimeout(() => {
+                    isTransitioning = false;
+                    
+                    // 延迟加载相邻幻灯片
+                    lazyLoadSlideImages();
+                }, transitionTime);
+            }
+        });
     }
 
     function nextSlide() {
-        const next = (currentIndex + 1) % dots.length;
-        showSlide(next);
+        if (!isTransitioning) {
+            showSlide(currentIndex + 1);
+        }
+    }
+
+    function prevSlide() { // 为完整性添加，虽然目前未使用
+        if (!isTransitioning) {
+            showSlide(currentIndex - 1);
+        }
     }
 
     dots.forEach((dot, index) => {
         dot.addEventListener('click', () => {
-            clearInterval(interval);
-            showSlide(index);
-            startAutoSlide();
+            if (!isTransitioning) {
+                clearInterval(interval);
+                // 点击导航点时，需要+1来考虑前面的克隆幻灯片
+                showSlide(index + 1);
+                startAutoSlide();
+            }
         });
     });
 
     function startAutoSlide() {
         // 清除旧的定时器（如果存在）
         clearInterval(interval);
-        interval = setInterval(nextSlide, 3000);
+        // 保持原有的8000ms速度
+        interval = setInterval(nextSlide, 8000);
     }
 
-    showSlide(0);
+    // 初始加载相邻幻灯片
+    lazyLoadSlideImages();
+    
+    // 初始化第一张幻灯片位置
+    showSlide(currentIndex, false);
     startAutoSlide();
 }
 
 async function loadAndInitComparison(masterJsonPath) {
-   // ... (完整函数体 - 从下面复制代码) ...
-   const container = document.getElementById('comparison-container-dynamic');
+    const container = document.getElementById('comparison-container-dynamic');
     const navContainer = document.getElementById('comparison-nav-dynamic');
 
     if (!container || !navContainer) {
@@ -354,31 +515,64 @@ async function loadAndInitComparison(masterJsonPath) {
              return;
         }
 
+        // 使用文档片段减少DOM重绘
+        const fragment = document.createDocumentFragment();
+        
         console.log("Creating comparison group elements...");
+        // 异步预加载第一组图片
+        const preloadFirstGroup = new Promise((resolve) => {
+            if (loadedGroups[0]) {
+                let loaded = 0;
+                const preloadBefore = new Image();
+                preloadBefore.onload = () => { if (++loaded === 2) resolve(); };
+                preloadBefore.onerror = () => { if (++loaded === 2) resolve(); };
+                preloadBefore.src = loadedGroups[0].before;
+                
+                const preloadAfter = new Image();
+                preloadAfter.onload = () => { if (++loaded === 2) resolve(); };
+                preloadAfter.onerror = () => { if (++loaded === 2) resolve(); };
+                preloadAfter.src = loadedGroups[0].after;
+                
+                // 添加超时确保不会永远等待
+                setTimeout(resolve, 3000);
+            } else {
+                resolve();
+            }
+        });
+        
+        // 等待第一组图片预加载完成
+        await preloadFirstGroup;
+        
         loadedGroups.forEach((pair, index) => {
             const group = document.createElement('div');
             group.className = `comparison-group${index === 0 ? ' active' : ''}`;
             const wrapper = document.createElement('div');
             wrapper.className = `comparison-wrapper ${pair.orientation ? pair.orientation : ''}`.trim();
-            console.log(`Comparison Group ${index}: Setting before image src to: ${pair.before}`);
-            console.log(`Comparison Group ${index}: Setting after image src to: ${pair.after}`);
+            
             const imgBefore = document.createElement('img');
-            imgBefore.src = pair.before;
             imgBefore.alt = 'Before';
             imgBefore.className = 'before';
+            imgBefore.loading = 'lazy'; // 使用浏览器原生懒加载
+            imgBefore.src = pair.before;
             imgBefore.onerror = () => { imgBefore.alt='Image not found'; imgBefore.src=''; };
+            
             const imgAfter = document.createElement('img');
-            imgAfter.src = pair.after;
             imgAfter.alt = 'After';
             imgAfter.className = 'after';
+            imgAfter.loading = 'lazy'; // 使用浏览器原生懒加载
+            imgAfter.src = pair.after;
             imgAfter.onerror = () => { imgAfter.alt='Image not found'; imgAfter.src=''; };
+            
             const sliderHandle = document.createElement('div');
             sliderHandle.className = 'slider-handle';
+            
             wrapper.appendChild(imgBefore);
             wrapper.appendChild(imgAfter);
             wrapper.appendChild(sliderHandle);
             group.appendChild(wrapper);
-            container.insertBefore(group, navContainer);
+            
+            // 先添加到文档片段而不是直接加到DOM
+            fragment.appendChild(group);
             
             // 创建导航按钮
             const navBtn = document.createElement('button');
@@ -386,16 +580,19 @@ async function loadAndInitComparison(masterJsonPath) {
             navBtn.dataset.index = index;
             navBtn.title = `View Comparison ${index + 1}`;
             navBtn.setAttribute('aria-label', `View Comparison ${index + 1}`);
-            console.log(`Appending nav button ${index + 1} to`, navContainer); // Log appending
             navContainer.appendChild(navBtn);
         });
+        
+        // 一次性添加所有元素到DOM
+        container.insertBefore(fragment, navContainer);
+        
         console.log("Finished creating elements.");
         
-       // 确保在元素创建完成后再初始化 
-       console.log("Initializing comparison interaction and nav...");
-       initializeComparison(); 
-       initializeComparisonNav(); 
-       console.log(`Successfully loaded ${loadedGroups.length} comparison pairs based on ${masterJsonPath}`);
+        // 确保在元素创建完成后再初始化 
+        console.log("Initializing comparison interaction and nav...");
+        initializeComparison(); 
+        initializeComparisonNav(); 
+        console.log(`Successfully loaded ${loadedGroups.length} comparison pairs based on ${masterJsonPath}`);
         
     } catch (error) {
         console.error(`Error loading comparison setup from ${masterJsonPath}:`, error);
