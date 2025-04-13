@@ -69,10 +69,28 @@
 
         /* Section Title Centering (already mostly correct) */
         .section-title {
-            max-width: 1800px;
-            width: 90%;
-            margin: 0 auto 2.5rem auto; /* Center title */
-            /* Other title styles */
+            color: #000; /* 标题改为黑色以适应不同背景 */
+            position: relative;
+            width: auto; /* 自适应内容宽度 */
+            display: inline-block;
+            margin-left: 5%; /* 统一的左边距 */
+            margin-right: auto;
+            padding-bottom: 0.5rem;
+            text-transform: uppercase;
+            font-size: 1.8rem;
+            margin-bottom: 50px;
+            text-align: left;
+        }
+        
+        /* 统一横线长度为350px */
+        .section-title::after {
+            background-color: #000; /* 标题下划线也改为黑色 */
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 350px; /* 调整为350px */
+            height: 2px;
         }
 
         /* Gallery Inner Content */
@@ -183,11 +201,14 @@
         body {
             font-family: 'Montserrat', sans-serif;
             line-height: 1.6;
-            color: #333;
-            /* 恢复body的渐变背景 */
-            background-image: linear-gradient(165deg, #333333, #555555 15%, #777777 35%, #aaa9a7 60%, #d8d6d1 80%);
-            background-color: #d8d6d1; /* 保留备用背景色 */
-            /* background-attachment: scroll; */ /* 默认值，确保背景随滚动 */
+            color: #fff;
+            /* 设置从深灰到超浅灰的渐变，确保亮色区域更大 */
+            background: linear-gradient(165deg, #222222, #444444 20%, #777777 40%, #bbbbbb 60%, #e8e8e8 75%);
+            /* 移除固定背景设置，让背景随页面滚动 */
+            background-attachment: scroll;
+            /* 调整渐变长度，使其足够长并且不重复 */
+            background-size: 100% 1000%;
+            background-repeat: no-repeat;
             width: 100%;
             overflow-x: hidden;
             margin: 0;
@@ -421,20 +442,21 @@
             }
         }
         
-        /* 作品展示区 */
-        #automotive,
-        #portrait {
-            background-color: #f0f0f0; /* 示例：浅灰色 */
+        /* 确保所有区域保持透明，没有自己的背景色 */
+        .section, .comparison-section, .contact-section, .hero, .footer,
+        #automotive, #portrait, #comparison, #about, #contact,
+        .about-container, .contact-container, 
+        .about-section, .about-content,
+        #contact::before, #contact::after,
+        #about::before, #about::after,
+        .section-inner, .section-content {
+            background-color: transparent !important; /* 强制所有区域透明 */
+            background-image: none !important; /* 确保没有背景图片 */
         }
-
-        /* 图片对比区 */
-        #comparison {
-            background-color: #cccccc; /* 示例：中灰色 */
-        }
-
-        /* 关于我区域的背景色 */
+        
+        /* 确保 about 区域特定样式 */
         #about {
-            background-color: #b0b0b0; /* 示例：深一点的灰色 */
+            background-color: transparent !important;
             padding: 60px 20px 120px; 
             min-height: 500px; 
             display: flex;
@@ -442,20 +464,20 @@
             justify-content: flex-start;
             position: relative;
         }
-
-        /* 联系区域 */
+        
+        /* 确保 contact 区域特定样式 */
         #contact {
-            background-color: #888888; /* 示例：更深灰色 */
+            background-color: transparent !important;
             color: #fff; /* 联系区文字保持白色 */
         }
-
+        
         /* 统一修改所有 section 的标题颜色 */
         .section-title {
             color: #000; /* 标题改为黑色以适应不同背景 */
-            /* ...保留其他标题样式... */
             position: relative;
-            width: 90%;
-            margin-left: 5%;
+            width: auto; /* 自适应内容宽度 */
+            display: inline-block;
+            margin-left: 5%; /* 统一的左边距 */
             margin-right: auto;
             padding-bottom: 0.5rem;
             text-transform: uppercase;
@@ -463,33 +485,78 @@
             margin-bottom: 50px;
             text-align: left;
         }
-        .section-title::after {
-            background-color: #000; /* 标题下划线也改为黑色 */
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-        }
-
+        
         /* 特殊处理 Contact 区标题颜色 */
         #contact .section-title {
             color: #fff; /* 联系区标题保持白色 */
         }
         #contact .section-title::after {
             background-color: #fff; /* 联系区标题下划线保持白色 */
+            width: 350px; /* 确保一致性 */
         }
         
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%; /* 设为100%，确保横线长度与标题文本宽度一致 */
-            height: 2px;
-            background-color: #fff;
+        /* portrait区域标题颜色改为白色 */
+        #portrait .section-title {
+            color: #fff;
         }
+        
+        #portrait .section-title::after {
+            background-color: #fff;
+            width: 350px; /* 确保一致性 */
+        }
+        
+        /* about区域标题颜色也改为白色 */
+        #about .section-title {
+            color: #fff;
+        }
+        
+        #about .section-title::after {
+            background-color: #fff;
+            width: 350px; /* 确保一致性 */
+        }
+        
+        /* 移除之前PC端调整标题下方横线的宽度的设置 */
+        /* @media screen and (min-width: 768px) {
+            .section-title {
+                display: inline-block;
+                width: auto;
+                min-width: 180px; 
+            }
+            
+            .section-title::after {
+                width: 350px; 
+                max-width: 350px;
+                padding-right: 0;
+            }
+        } */
+        
+        /* 确保所有区域标题完全对齐 */
+        #automotive .section-title,
+        #portrait .section-title,
+        #comparison .section-title,
+        #about .section-title,
+        #contact .section-title {
+            margin-left: 5%; /* 统一所有标题的左边距 */
+            padding-left: 0;
+            box-sizing: border-box;
+            text-indent: 0; /* 确保没有文本缩进 */
+            letter-spacing: normal; /* 重置字符间距 */
+        }
+        
+        /* 删除之前不起作用的PC端和平板端特别调整 */
+        /* @media screen and (min-width: 768px) {
+            
+            .section-title {
+                margin-left: 5% !important; 
+                padding-left: 0 !important;
+                text-indent: 0 !important;
+            }
+            
+            #automotive .section-title,
+            #portrait .section-title {
+                margin-left: calc(5% - 5px) !important; 
+            }
+        } */
         
         .gallery-preview {
             margin-bottom: 40px;
@@ -1010,8 +1077,8 @@
         /* 修复页脚样式确保对齐 */
         .footer {
             position: static;
-            background-color: #e8e6e1; /* 修改为与渐变底部颜色完全一致 */
-            color: rgba(0, 0, 0, 0.7); /* 修改为深色文字，以适应浅色背景 */
+            background-color: transparent !important;
+            color: rgba(0, 0, 0, 0.7);
             text-align: center;
             padding: 15px 0;
             width: 100%;
@@ -1348,12 +1415,6 @@
         /* 移动端样式 */
         @media screen and (max-width: 767px) {
             /* 移动端关于我区域样式 */
-            #about {
-                min-height: 600px; /* 增加最小高度 */
-                padding-bottom: 120px; /* 增加底部内边距，为社交图标留出更多空间 */
-                background-color: #b0b0b0 !important; /* 强制设置背景色，覆盖任何冲突 */
-            }
-            
             .about-content {
                 padding: 0 10px;
                 padding-top: 20px;
@@ -1377,7 +1438,11 @@
                 margin: 0 auto;
                 text-align: center; /* Center text on mobile */
                 flex: none; /* Reset flex property for column layout */
-                color: #000; /* 确保文字在灰色背景上可见 */
+            }
+            
+            #about {
+                min-height: 600px; /* 增加最小高度 */
+                padding-bottom: 120px; /* 增加底部内边距，为社交图标留出更多空间 */
             }
             
             #about .section-title {
@@ -1725,7 +1790,7 @@
 
             /* Keep social icons styling */
             #about {
-                 position: relative;
+                position: relative;
                  padding-bottom: 100px;
             }
 
@@ -1745,6 +1810,116 @@
             }
         }
 
+        /* 重新设计about区域布局，将头像和文本分开 */
+        .about-wrapper {
+                position: relative;
+            width: 100%;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        .about-image-container {
+                position: relative;
+            width: 280px;
+            height: 280px;
+            margin-left: 5%; /* 与标题对齐 */
+            overflow: hidden;
+            border-radius: 50%;
+        }
+        
+        .about-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        
+        .about-text-container {
+            position: relative;
+                flex: 1;
+            max-width: 800px;
+            margin: 0 auto; /* 居中放置 */
+            padding-left: 20px;
+            padding-right: 20px;
+            color: #333; /* 确保文字颜色保持一致 */
+                font-size: 1.05rem;
+                line-height: 1.7;
+        }
+
+        /* 移动端样式调整 */
+        @media screen and (max-width: 767px) {
+            .about-wrapper {
+                flex-direction: column;
+                align-items: center;
+                padding: 0;
+            }
+            
+            .about-image-container {
+                width: 180px;
+                height: 180px;
+                margin: 0 auto 25px;
+            }
+            
+            .about-text-container {
+                width: 100%;
+                padding: 0 20px;
+                text-align: center;
+                font-size: 0.95rem;
+            }
+        }
+
+        /* 确保大于768px屏幕的所有区域标题完全对齐 - 增加选择器特异性 */
+        @media screen and (min-width: 768px) {
+            /* 强制所有区域标题统一样式，无论之前设置 */
+            body .section-title,
+            body #automotive .section-title,
+            body #portrait .section-title,
+            body #comparison .section-title,
+            body #about .section-title,
+            body #contact .section-title,
+            section .section-title,
+            .section .section-title,
+            .comparison-section .section-title,
+            .contact-section .section-title {
+                margin-left: 5% !important; /* 统一所有标题的左边距 */
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+                text-indent: 0 !important;
+                letter-spacing: normal !important;
+                word-spacing: normal !important;
+                box-sizing: border-box !important;
+                width: auto !important;
+                display: inline-block !important;
+                overflow: visible !important;
+                position: relative !important;
+            }
+            
+            /* 特殊处理：将automotive和portrait标题右移12px对齐 */
+            html body #automotive .section-title,
+            html body #portrait .section-title,
+            html body section#automotive .section-title,
+            html body section#portrait .section-title,
+            body .section#automotive .section-title,
+            body .section#portrait .section-title {
+                margin-left: calc(5% + 12px) !important; /* 整体右移12px */
+                position: relative !important;
+                left: 0 !important;
+            }
+            
+            /* 确保所有横线宽度一致 */
+            body .section-title::after,
+            body #automotive .section-title::after,
+            body #portrait .section-title::after,
+            body #comparison .section-title::after,
+            body #about .section-title::after,
+            body #contact .section-title::after {
+                width: 350px !important;
+                max-width: 350px !important;
+            }
+        }
     </style>
     <!-- 强制显示弹窗的调试 CSS (移除或注释掉) -->
     <!-- 
@@ -1851,11 +2026,11 @@
     <!-- 关于我区域 -->
     <section class="section" id="about">
         <h2 class="section-title text-white">ABOUT ME</h2>
-        <div class="about-content">
-            <div class="about-image">
+        <div class="about-wrapper">
+            <div class="about-image-container">
                 <img src="images/about/01/hero.jpg" alt="Photographer Portrait" onerror="this.alt='Profile image not found'; this.src=''; this.style.display='none';">
             </div>
-            <div class="about-text">
+            <div class="about-text-container">
                 <p>ESTP留学生到顶流性价比车摄OG? 性格不是很E也不是很I</I>.</p>
                 <p>拍摄过200+辆车，服务过300+位客人，为车行提供过服务，为大型活动记录过瞬间.</p>
                 <p>资深摄影师,致力于让每一位客人每次都能愉快的拍完每一组照片.</p>
