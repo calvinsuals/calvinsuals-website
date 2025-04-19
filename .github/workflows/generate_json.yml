@@ -1,41 +1,58 @@
-        name: Generate Gallery JSON
+name: Generate Gallery JSON
 
-        on:
-          push:
-            branches:
-              - main # 当推送到 main 分支时触发
-            paths:
-              - 'images/**' # 或者当 images 目录下的任何文件发生变化时触发
-              - '.github/workflows/generate_json.yml' # 当 workflow 文件本身变化时也触发
-          workflow_dispatch: # 允许手动触发
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'images/**'
+      - '.github/workflows/generate_json.yml'
+  workflow_dispatch:
 
-        jobs:
-          generate:
-            runs-on: ubuntu-latest # 在最新的 Ubuntu 环境运行
-            permissions:
-              contents: write # 需要写入权限来提交更改
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
-            steps:
-              - name: Checkout repository
-                uses: actions/checkout@v4 # 获取仓库代码
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-              - name: Set up Python
-                uses: actions/setup-python@v5 # 设置 Python 环境
-                with:
-                  python-version: '3.11' # 可以指定您希望使用的 Python 版本
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-              - name: Run script to generate JSON
-                run: python generate_galleries.py # 运行我们的脚本
+      - name: Run script to generate JSON
+        run: python generate_galleries.py
 
-              - name: Commit and push changes # 提交并推送 JSON 文件的更改
-                run: |
-                  git config --global user.name 'github-actions[bot]' # 设置提交者名称
-                  git config --global user.email 'github-actions[bot]@users.noreply.github.com' # 设置提交者邮箱
-                  git add images/**/*.json images/automotive/galleries.json images/portrait/galleries.json # 添加所有可能更改的 JSON 文件
-                  # 检查是否有文件被暂存 (git diff --staged --quiet 返回非0表示有更改)
-                  if ! git diff --staged --quiet; then
-                    git commit -m "Automated: Update gallery JSON files" # 提交更改
-                    git push origin main # 推送到 main 分支
-                  else
-                    echo "No changes to JSON files detected." # 如果没有更改则打印信息
-                  fi
+      - name: Commit and push changes
+        # 添加 set -e，让脚本在出错时立即停止
+        run: |
+          set -e 
+          
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          echo "--- 开始将文件添加到 Git ---"
+          git add images/automotive/ images/portrait/
+          git add images/automotive/galleries.json images/portrait/galleries.json images/**/*.json
+          
+          echo "--- 添加文件后的 Git 状态 ---"
+          git status
+          
+          echo "--- 暂存区的文件差异（显示具体更改） ---"
+          # 显示实际差异，不使用 --quiet 以便调试
+          git diff --staged || echo "Diff 未发现暂存区的更改。"
+          
+          echo "--- 检查是否存在用于提交的暂存更改 ---"
+          # 直接在 if 条件里进行判断，不单独存储退出代码
+          if git diff --staged --quiet; then
+            echo "未检测到 JSON 文件有更改。"
+          else
+            echo "检测到更改，开始提交和推送..."
+            git commit -m "Automated: 更新画廊 JSON 文件"
+            git push origin main
+            echo "提交和推送完成。"
+          fi
