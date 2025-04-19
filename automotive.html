@@ -528,14 +528,14 @@
                         continue;
                     }
 
-                    const galleryId = galleryInfo.id;
-                    const jsonFileName = galleryInfo.jsonFile;
-                    const actualTitle = galleryInfo.title || galleryId;
-                    const subGalleryPath = `images/automotive/${galleryId}`;
-                    // *** 修正 JSON 路径 ***
-                    const subGalleryJsonPath = `${subGalleryPath}/${jsonFileName}`;
+                    const subGalleryId = galleryInfo.id;
+                    const subGalleryTitle = galleryInfo.title || subGalleryId.replace('_', ' ');
+                    const subGalleryPath = `${basePath}/${subGalleryId}`;
+                    // *** 修正 JSON 路径构建 ***
+                    // const subGalleryJsonPath = `${subGalleryPath}/${galleryInfo.jsonFile}`; // 旧的错误方式
+                    const subGalleryJsonPath = `${basePath}/${galleryInfo.jsonFile}`; // 正确方式：基础路径 + galleries.json 提供的相对路径
 
-                    console.log(`[${galleryType}] Processing sub-gallery: ${actualTitle} (Path: ${subGalleryPath}, JSON: ${subGalleryJsonPath})`);
+                    console.log(`[${galleryType}] Processing sub-gallery: ${subGalleryTitle} (Path: ${subGalleryPath}, JSON: ${subGalleryJsonPath})`);
 
                     try {
                         const response = await fetch(subGalleryJsonPath);
@@ -551,12 +551,12 @@
                             // 检查第一个元素是否有 images 数组
                             if (subGalleryDataArray[0] && Array.isArray(subGalleryDataArray[0].images)) {
                                 subGalleryImages = subGalleryDataArray[0].images;
-                                console.log(`[${galleryType}] Successfully parsed JSON for sub-gallery: ${actualTitle}, found ${subGalleryImages.length} images.`);
+                                console.log(`[${galleryType}] Successfully parsed JSON for sub-gallery: ${subGalleryTitle}, found ${subGalleryImages.length} images.`);
                             } else {
-                                console.warn(`[${galleryType}] JSON structure for ${actualTitle} is incorrect. Missing 'images' array in the first object.`);
+                                console.warn(`[${galleryType}] JSON structure for ${subGalleryTitle} is incorrect. Missing 'images' array in the first object.`);
                             }
                         } else {
-                             console.warn(`[${galleryType}] JSON data for ${actualTitle} is not a valid array or is empty.`);
+                             console.warn(`[${galleryType}] JSON data for ${subGalleryTitle} is not a valid array or is empty.`);
                         }
                         // *** 修改结束 ***
 
@@ -565,7 +565,7 @@
                         if (subGalleryImages.length > 0) { 
                             const showcaseSection = document.createElement('section');
                             showcaseSection.classList.add('showcase-section');
-                            showcaseSection.id = `showcase-${galleryId}`;
+                            showcaseSection.id = `showcase-${subGalleryId}`;
 
                             const galleryBackground = document.createElement('div');
                             galleryBackground.classList.add('gallery-background');
@@ -577,7 +577,7 @@
 
                             const galleryContainer = document.createElement('div');
                             galleryContainer.classList.add('car-gallery-container'); 
-                            galleryContainer.id = `subgallery-${galleryId}`;
+                            galleryContainer.id = `subgallery-${subGalleryId}`;
                             showcaseContainer.appendChild(galleryContainer);
 
                             const imageScrollContainer = document.createElement('div');
@@ -587,7 +587,7 @@
                             subGalleryImages.forEach((imageName, index) => {
                                 // *** 确保 imageName 现在是字符串 ***
                                 if (typeof imageName !== 'string' || imageName.trim() === '') {
-                                    console.warn(`[${galleryType} - ${actualTitle}] Invalid image name found at index ${index}:`, imageName);
+                                    console.warn(`[${galleryType} - ${subGalleryTitle}] Invalid image name found at index ${index}:`, imageName);
                                     return; // 跳过无效的图片名
                                 }
                                 const imagePath = `${subGalleryPath}/${imageName}`;
@@ -595,11 +595,11 @@
                                 // 直接创建 img 元素并添加到 car-gallery
                                 const imgElement = document.createElement('img'); // Image directly inside .car-gallery
                                 imgElement.src = imagePath;
-                                imgElement.alt = `${actualTitle} - Image ${index + 1}`;
+                                imgElement.alt = `${subGalleryTitle} - Image ${index + 1}`;
                                 imgElement.loading = 'lazy';
 
                                 imgElement.onerror = () => {
-                                    console.error(`[${galleryType} - ${actualTitle}] Image failed to load: ${imagePath}`);
+                                    console.error(`[${galleryType} - ${subGalleryTitle}] Image failed to load: ${imagePath}`);
                                     imgElement.alt = `Failed to load ${imagePath}`;
                                     imgElement.style.display = 'none';
                                 };
@@ -607,11 +607,11 @@
                             });
 
                             mainContainer.appendChild(showcaseSection); // Add the whole section
-                            console.log(`[${galleryType}] Added styled section for sub-gallery: ${actualTitle}`);
+                            console.log(`[${galleryType}] Added styled section for sub-gallery: ${subGalleryTitle}`);
                             initializeDragScroll(imageScrollContainer); // Target .car-gallery for scroll
                         } else {
                             // --- 占位符逻辑 (也使用新结构) ---
-                             console.log(`[${galleryType}] Skipping section for sub-gallery ${actualTitle} as it has no images.`);
+                             console.log(`[${galleryType}] Skipping section for sub-gallery ${subGalleryTitle} as it has no images.`);
                              const showcaseSection = document.createElement('section');
                              showcaseSection.classList.add('showcase-section');
                             
@@ -629,7 +629,7 @@
                          // --- HTML 结构创建结束 ---
 
                     } catch (error) {
-                        console.error(`[${galleryType}] Error processing sub-gallery ${actualTitle} (${subGalleryJsonPath}):`, error);
+                        console.error(`[${galleryType}] Error processing sub-gallery ${subGalleryTitle} (${subGalleryJsonPath}):`, error);
                     }
                 }
 

@@ -848,7 +848,7 @@
                     const subGalleryId = galleryInfo.id;
                     const subGalleryTitle = galleryInfo.title || subGalleryId.replace('_', ' ');
                     const subGalleryPath = `${basePath}/${subGalleryId}`;
-                    const subGalleryJsonPath = `${subGalleryPath}/${galleryInfo.jsonFile}`;
+                    const subGalleryJsonPath = `${basePath}/${galleryInfo.jsonFile}`;
 
                     console.log(`[${galleryType}] Processing sub-gallery: ${subGalleryTitle} (Path: ${subGalleryPath}, JSON: ${subGalleryJsonPath})`);
 
