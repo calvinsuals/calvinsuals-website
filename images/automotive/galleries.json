@@ -1,1 +1,52 @@
-﻿[]
+[
+  {
+    "id": "gallery_01",
+    "title": "Gallery 01",
+    "jsonFile": "gallery_01/images.json"
+  },
+  {
+    "id": "gallery_02",
+    "title": "Gallery 02",
+    "jsonFile": "gallery_02/images.json"
+  },
+  {
+    "id": "gallery_03",
+    "title": "Gallery 03",
+    "jsonFile": "gallery_03/images.json"
+  },
+  {
+    "id": "gallery_04",
+    "title": "Gallery 04",
+    "jsonFile": "gallery_04/images.json"
+  },
+  {
+    "id": "gallery_05",
+    "title": "Gallery 05",
+    "jsonFile": "gallery_05/images.json"
+  },
+  {
+    "id": "gallery_06",
+    "title": "Gallery 06",
+    "jsonFile": "gallery_06/images.json"
+  },
+  {
+    "id": "gallery_07",
+    "title": "Gallery 07",
+    "jsonFile": "gallery_07/images.json"
+  },
+  {
+    "id": "gallery_08",
+    "title": "Gallery 08",
+    "jsonFile": "gallery_08/images.json"
+  },
+  {
+    "id": "gallery_09",
+    "title": "Gallery 09",
+    "jsonFile": "gallery_09/images.json"
+  },
+  {
+    "id": "gallery_10",
+    "title": "Gallery 10",
+    "jsonFile": "gallery_10/images.json"
+  }
+]
