@@ -1,42 +1,42 @@
-﻿[
+[
   {
     "id": "gallery_01",
-    "title": "画廊 1",
-    "jsonFile": "gallery_01.json"
+    "title": "Gallery 01",
+    "jsonFile": "gallery_01/images.json"
   },
   {
     "id": "gallery_02",
-    "title": "画廊 2",
-    "jsonFile": "gallery_02.json"
+    "title": "Gallery 02",
+    "jsonFile": "gallery_02/images.json"
   },
   {
     "id": "gallery_03",
-    "title": "画廊 3",
-    "jsonFile": "gallery_03.json"
+    "title": "Gallery 03",
+    "jsonFile": "gallery_03/images.json"
   },
   {
     "id": "gallery_04",
-    "title": "画廊 4",
-    "jsonFile": "gallery_04.json"
+    "title": "Gallery 04",
+    "jsonFile": "gallery_04/images.json"
   },
   {
     "id": "gallery_05",
-    "title": "画廊 5",
-    "jsonFile": "gallery_05.json"
+    "title": "Gallery 05",
+    "jsonFile": "gallery_05/images.json"
   },
   {
     "id": "gallery_06",
-    "title": "画廊 6",
-    "jsonFile": "gallery_06.json"
+    "title": "Gallery 06",
+    "jsonFile": "gallery_06/images.json"
   },
   {
     "id": "gallery_07",
-    "title": "画廊 7",
-    "jsonFile": "gallery_07.json"
+    "title": "Gallery 07",
+    "jsonFile": "gallery_07/images.json"
   },
   {
     "id": "gallery_08",
-    "title": "画廊 8",
-    "jsonFile": "gallery_08.json"
+    "title": "Gallery 08",
+    "jsonFile": "gallery_08/images.json"
   }
 ]
