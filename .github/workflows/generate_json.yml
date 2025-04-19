@@ -1,61 +1,56 @@
-           name: Generate Gallery JSON
+    name: Generate Gallery JSON
 
-on:
-  push:
-    branches:
-      - main # 当推送到 main 分支时触发
-    paths:
-      - 'images/**' # 或者当 images 目录下的任何文件发生变化时触发
-      - '.github/workflows/generate_json.yml' # 当 workflow 文件本身变化时也触发
-  workflow_dispatch: # 允许手动触发
+    on:
+      push:
+        branches:
+          - main
+        paths:
+          - 'images/**'
+          - '.github/workflows/generate_json.yml'
+      workflow_dispatch:
 
-jobs:
-  generate:
-    runs-on: ubuntu-latest # 在最新的 Ubuntu 环境运行
-    permissions:
-      contents: write # 需要写入权限来提交更改
+    jobs:
+      generate:
+        runs-on: ubuntu-latest
+        permissions:
+          contents: write
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4 # 获取仓库代码
+        steps:
+          - name: Checkout repository
+            uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5 # 设置 Python 环境
-        with:
-          python-version: '3.11' # 可以指定您希望使用的 Python 版本
+          - name: Set up Python
+            uses: actions/setup-python@v5
+            with:
+              python-version: '3.11'
 
-      - name: Run script to generate JSON
-        run: python generate_galleries.py # 运行我们的脚本
+          - name: Run script to generate JSON
+            run: python generate_galleries.py
 
-      - name: Commit and push changes # 提交并推送 JSON 文件的更改
-        # 注意下面 run: 后面所有行的缩进，必须是空格，且对齐
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          
-          echo "--- 开始将文件添加到 Git ---"
-          # 尝试更明确地添加目录和文件
-          git add images/automotive/ images/portrait/
-          git add images/automotive/galleries.json images/portrait/galleries.json images/**/*.json
-          
-          echo "--- 添加文件后的 Git 状态 ---"
-          git status
-          
-          echo "--- 暂存区的文件差异（显示具体更改） ---"
-          # 显示实际差异，不使用 --quiet 以便调试
-          git diff --staged || echo "Diff 未发现暂存区的更改。"
-          
-          echo "--- 检查是否存在用于提交的暂存更改 ---"
-          # 使用变量存储退出代码，方便查看
-          git diff --staged --quiet
-          exit_code=$?
-          echo "命令 'git diff --staged --quiet' 的退出代码: $exit_code"
+          - name: Commit and push changes
+            run: |
+              git config --global user.name 'github-actions[bot]'
+              git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+              
+              echo "--- 开始将文件添加到 Git ---"
+              git add images/automotive/ images/portrait/
+              git add images/automotive/galleries.json images/portrait/galleries.json images/**/*.json
+              
+              echo "--- 添加文件后的 Git 状态 ---"
+              git status
+              
+              echo "--- 暂存区的文件差异（显示具体更改） ---"
+              git diff --staged || echo "Diff 未发现暂存区的更改。"
+              
+              echo "--- 检查是否存在用于提交的暂存更改 ---"
+              git diff --staged --quiet
+              exit_code=$?
+              echo "命令 'git diff --staged --quiet' 的退出代码: $exit_code"
 
-          # 退出代码非0表示有更改
-          if [ $exit_code -ne 0 ]; then
-            echo "检测到更改，开始提交和推送..."
-            git commit -m "Automated: 更新画廊 JSON 文件"
-            git push origin main
-          else
-            echo "未检测到 JSON 文件有更改。"
-          fi
+              if [ $exit_code -ne 0 ]; then
+                echo "检测到更改，开始提交和推送..."
+                git commit -m "Automated: 更新画廊 JSON 文件"
+                git push origin main
+              else
+                echo "未检测到 JSON 文件有更改。"
+              fi
