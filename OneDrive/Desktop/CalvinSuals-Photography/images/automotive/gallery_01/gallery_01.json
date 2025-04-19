@@ -1,0 +1,47 @@
+﻿[
+  {
+    "title": "Gallery 1 Title",
+    "images": [
+      "IMG_9100.JPG",
+      "IMG_9111.JPG",
+      "IMG_9626.JPG",
+      "IMG_9627.JPG"
+    ]
+  },
+  {
+    "title": "Gallery 2 Title",
+    "images": []
+  },
+  {
+    "title": "Gallery 3 Title",
+    "images": []
+  },
+  {
+    "title": "Gallery 4 Title",
+    "images": []
+  },
+  {
+    "title": "Gallery 5 Title",
+    "images": []
+  },
+  {
+    "title": "Gallery 6 Title",
+    "images": []
+  },
+  {
+    "title": "Gallery 7 Title",
+    "images": []
+  },
+  {
+    "title": "Gallery 8 Title",
+    "images": []
+  },
+  {
+    "title": "Gallery 9 Title",
+    "images": []
+  },
+  {
+    "title": "Gallery 10 Title",
+    "images": []
+  }
+]
