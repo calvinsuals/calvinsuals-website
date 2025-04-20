@@ -275,57 +275,70 @@ async function loadAndInitComparison(jsonPath) {
         await preloadFirstGroup;
 
         const fragment = document.createDocumentFragment();
+        console.log("[Comparison] 开始创建对比组元素...");
+
         comparisonGroupsData.forEach((groupData, index) => {
+            console.log(`[Comparison] 开始处理 group ${index}, ID: ${groupData.id}`);
             if (!groupData.id || !groupData.before_src || !groupData.after_src) {
-                console.warn(`[Comparison] Skipping invalid group data at index ${index}:`, groupData);
+                console.warn(`[Comparison] 跳过无效数据 at index ${index}:`, groupData);
                 return;
             }
+            try {
+                const group = document.createElement('div');
+                group.className = `comparison-group${index === 0 ? ' active' : ''}`; 
+                group.id = `comparison-group-${groupData.id}`;
+                console.log(`[Comparison ${groupData.id}] Group div 创建成功.`);
 
-            const group = document.createElement('div');
-            group.className = `comparison-group${index === 0 ? ' active' : ''}`; // 移动端逻辑会在 initializeComparisonNav 中覆盖
-            group.id = `comparison-group-${groupData.id}`;
+                const wrapper = document.createElement('div');
+                let orientationClass = '';
+                if (groupData.id === 'group_01' || groupData.id === 'group_04') {
+                    orientationClass = 'portrait';
+                } else if (groupData.id === 'group_02' || groupData.id === 'group_03') {
+                    orientationClass = 'landscape';
+                } else {
+                    console.warn(`[Comparison] 未知方向 for group ID: ${groupData.id}`);
+                }
+                wrapper.className = `comparison-wrapper ${orientationClass}`.trim();
+                console.log(`[Comparison ${groupData.id}] Wrapper div 创建成功, class: ${wrapper.className}`);
 
-            const wrapper = document.createElement('div');
-            // --- 根据 group ID 添加方向类 ---
-            let orientationClass = '';
-            if (groupData.id === 'group_01' || groupData.id === 'group_04') {
-                orientationClass = 'portrait';
-            } else if (groupData.id === 'group_02' || groupData.id === 'group_03') {
-                orientationClass = 'landscape';
-            } else {
-                console.warn(`[Comparison] Unknown orientation for group ID: ${groupData.id}`);
+                const imgBefore = document.createElement('img');
+                imgBefore.alt = 'Before'; imgBefore.className = 'before'; imgBefore.loading = 'lazy';
+                console.log(`[Comparison ${groupData.id}] 设置 Before src: ${groupData.before_src}`);
+                imgBefore.src = groupData.before_src;
+                imgBefore.onerror = () => { imgBefore.alt='Image not found'; imgBefore.src=''; console.error(`[Comparison ${groupData.id}] 加载 Before 图片失败: ${groupData.before_src}`);};
+                console.log(`[Comparison ${groupData.id}] Before img 创建成功.`);
+
+                const imgAfter = document.createElement('img');
+                imgAfter.alt = 'After'; imgAfter.className = 'after'; imgAfter.loading = 'lazy';
+                console.log(`[Comparison ${groupData.id}] 设置 After src: ${groupData.after_src}`);
+                imgAfter.src = groupData.after_src;
+                imgAfter.onerror = () => { imgAfter.alt='Image not found'; imgAfter.src=''; console.error(`[Comparison ${groupData.id}] 加载 After 图片失败: ${groupData.after_src}`);};
+                console.log(`[Comparison ${groupData.id}] After img 创建成功.`);
+
+                const sliderHandle = document.createElement('div'); sliderHandle.className = 'slider-handle';
+                console.log(`[Comparison ${groupData.id}] Handle div 创建成功.`);
+
+                wrapper.appendChild(imgBefore);
+                wrapper.appendChild(imgAfter);
+                wrapper.appendChild(sliderHandle);
+                console.log(`[Comparison ${groupData.id}] 图片和 handle 已附加到 wrapper.`);
+                group.appendChild(wrapper);
+                console.log(`[Comparison ${groupData.id}] Wrapper 已附加到 group.`);
+                
+                console.log(`[Comparison ${groupData.id}] 准备将 group 附加到 fragment...`);
+                fragment.appendChild(group);
+                console.log(`[Comparison ${groupData.id}] Group 已附加到 fragment.`);
+            } catch (error) {
+                 console.error(`[Comparison] 处理 group ${index} (ID: ${groupData.id}) 时发生错误:`, error);
             }
-            wrapper.className = `comparison-wrapper ${orientationClass}`.trim();
-            // --- 结束添加方向类 ---
-
-            const imgBefore = document.createElement('img');
-            imgBefore.alt = 'Before'; imgBefore.className = 'before'; imgBefore.loading = 'lazy';
-            console.log(`[Comparison ${groupData.id}] Setting Before src: ${groupData.before_src}`);
-            imgBefore.src = groupData.before_src;
-            imgBefore.onerror = () => { imgBefore.alt='Image not found'; imgBefore.src=''; console.error(`[Comparison ${groupData.id}] Failed to load Before image: ${groupData.before_src}`);};
-
-            const imgAfter = document.createElement('img');
-            imgAfter.alt = 'After'; imgAfter.className = 'after'; imgAfter.loading = 'lazy';
-            console.log(`[Comparison ${groupData.id}] Setting After src: ${groupData.after_src}`);
-            imgAfter.src = groupData.after_src;
-            imgAfter.onerror = () => { imgAfter.alt='Image not found'; imgAfter.src=''; console.error(`[Comparison ${groupData.id}] Failed to load After image: ${groupData.after_src}`);};
-
-            const sliderHandle = document.createElement('div'); sliderHandle.className = 'slider-handle';
-
-            wrapper.appendChild(imgBefore); wrapper.appendChild(imgAfter); wrapper.appendChild(sliderHandle);
-            group.appendChild(wrapper);
-
-            console.log(`[Comparison ${groupData.id}] Appending group element to fragment.`);
-            fragment.appendChild(group);
         });
 
-        console.log("[Comparison] Inserting fragment into container...");
-        // 将 fragment 插入到 navContainer 之前
+        console.log("[Comparison] 循环创建元素结束。准备插入 fragment...");
         container.insertBefore(fragment, navContainer);
-        console.log("[Comparison] Fragment inserted.");
+        console.log("[Comparison] Fragment 已插入页面容器。准备初始化交互...");
 
-        initializeComparison(); // 初始化滑块交互
-        initializeComparisonNav(); // 初始化移动端导航点和显示逻辑
+        initializeComparison(); 
+        initializeComparisonNav();
 
         console.log(`[Comparison] Successfully loaded ${comparisonGroupsData.length} comparison pairs from ${jsonPath}`);
 
