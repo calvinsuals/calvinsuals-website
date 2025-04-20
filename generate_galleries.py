@@ -1,121 +1,258 @@
 import os
 import json
 from pathlib import Path
+import boto3
+from botocore.exceptions import NoCredentialsError, ClientError
+import traceback
 
 # --- 配置 ---
-BASE_IMAGE_DIR = Path("images") # 图片库根目录
-GALLERY_TYPES = ["automotive", "portrait"] # 需要处理的画廊类型
-SUPPORTED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"} # 支持的图片扩展名 (小写)
-SUB_GALLERY_JSON_FILENAME = "images.json" # 子画廊JSON文件名
+# 本地 JSON 文件存放的基础路径 (相对于脚本)
+LOCAL_JSON_BASE_DIR = Path("images")
+
+# 需要处理的画廊类型及其在 R2 上的前缀
+GALLERY_CONFIG = {
+    "automotive": {"prefix": "images/automotive/", "output_main": "galleries.json", "output_sub": "images.json"},
+    "portrait":   {"prefix": "images/portrait/",   "output_main": "galleries.json", "output_sub": "images.json"}
+}
+
+# 需要处理的独立图片列表区域及其在 R2 上的前缀和本地输出文件名
+DISPLAY_CONFIG = {
+    "display_automotive": {"prefix": "images/display/automotive display/", "output_json": "display_automotive.json"},
+    "display_portrait":   {"prefix": "images/display/portrait display/",   "output_json": "display_portrait.json"}
+}
+
+# 需要处理的对比组区域及其在 R2 上的前缀和本地输出文件名
+COMPARISON_CONFIG = {
+    "comparison_groups": {"prefix": "images/comparison/", "output_json": "comparison_groups.json"}
+}
+
+SUPPORTED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 # -------------
 
-def find_image_files(directory: Path) -> list[str]:
-    """在指定目录查找并返回排序后的图片文件名列表"""
-    image_files = []
-    if not directory.is_dir():
-        return image_files
-    try:
-        for item in directory.iterdir():
-            if item.is_file():
-                # 检查扩展名是否支持 (忽略大小写)
-                if item.suffix.lower() in SUPPORTED_EXTENSIONS:
-                    image_files.append(item.name)
-    except OSError as e:
-        print(f"  错误: 无法访问目录 {directory}: {e}")
-    image_files.sort() # 按文件名排序
-    return image_files
+# --- Cloudflare R2 配置 (从环境变量读取) ---
+R2_ENDPOINT_URL = os.environ.get("R2_ENDPOINT_URL")
+R2_ACCESS_KEY_ID = os.environ.get("R2_ACCESS_KEY_ID")
+R2_SECRET_ACCESS_KEY = os.environ.get("R2_SECRET_ACCESS_KEY")
+R2_BUCKET_NAME = os.environ.get("R2_BUCKET_NAME")
+R2_PUBLIC_BASE_URL = os.environ.get("R2_PUBLIC_BASE_URL")
 
-def generate_sub_gallery_json(directory: Path, image_files: list[str]):
-    """生成子画廊的 JSON 文件"""
-    json_file_path = directory / SUB_GALLERY_JSON_FILENAME
-    # 使用要求的 JSON 结构
-    json_data = [
-        {
-            "images": image_files
-        }
-    ]
-    try:
-        # 使用 utf-8 编码写入，确保中文字符（如果文件名包含）没问题
-        with open(json_file_path, 'w', encoding='utf-8') as f:
-            # indent=2 用于格式化输出，方便阅读
-            # ensure_ascii=False 允许非 ASCII 字符直接写入
-            json.dump(json_data, f, indent=2, ensure_ascii=False)
-        print(f"    - 已生成 {json_file_path.relative_to(BASE_IMAGE_DIR.parent)} (包含 {len(image_files)} 张图片)")
-    except OSError as e:
-        print(f"  错误: 无法写入 JSON 文件 {json_file_path}: {e}")
+missing_vars = []
+if not R2_ENDPOINT_URL: missing_vars.append("R2_ENDPOINT_URL")
+if not R2_ACCESS_KEY_ID: missing_vars.append("R2_ACCESS_KEY_ID")
+if not R2_SECRET_ACCESS_KEY: missing_vars.append("R2_SECRET_ACCESS_KEY")
+if not R2_BUCKET_NAME: missing_vars.append("R2_BUCKET_NAME")
+if not R2_PUBLIC_BASE_URL: missing_vars.append("R2_PUBLIC_BASE_URL")
 
-def generate_main_gallery_json(gallery_type_dir: Path, sub_galleries_info: list[dict]):
-    """生成主画廊列表的 galleries.json 文件"""
-    json_file_path = gallery_type_dir / "galleries.json"
-    # 按 'id' (文件夹名) 排序
-    sub_galleries_info.sort(key=lambda x: x['id'])
-    try:
-        with open(json_file_path, 'w', encoding='utf-8') as f:
-            json.dump(sub_galleries_info, f, indent=2, ensure_ascii=False)
-        print(f"  - 已生成主列表 {json_file_path.relative_to(BASE_IMAGE_DIR.parent)}")
-    except OSError as e:
-        print(f"  错误: 无法写入主列表 JSON 文件 {json_file_path}: {e}")
+if missing_vars:
+    print(f"错误：缺少必要的 Cloudflare R2 环境变量配置！请设置: {', '.join(missing_vars)}")
+    exit(1)
 
+# --- 初始化 S3 客户端 ---
+s3_client = None
+try:
+    print("正在初始化 R2 客户端...")
+    s3_client = boto3.client(
+        's3',
+        endpoint_url=R2_ENDPOINT_URL,
+        aws_access_key_id=R2_ACCESS_KEY_ID,
+        aws_secret_access_key=R2_SECRET_ACCESS_KEY,
+        region_name='auto',
+    )
+    print("尝试连接 Cloudflare R2 (跳过 ListBuckets 验证)...")
+    print(f"  正在尝试获取存储桶 '{R2_BUCKET_NAME}' 的位置信息以验证连接...")
+    response = s3_client.get_bucket_location(Bucket=R2_BUCKET_NAME)
+    print(f"  存储桶位置信息获取成功 (Status: {response.get('ResponseMetadata', {}).get('HTTPStatusCode')})。连接 R2 成功。")
+except Exception as e:
+    print(f"错误: 初始化 R2 客户端时发生错误: {e}")
+    print(traceback.format_exc())
+    exit(1)
+# ------------------------
+
+def list_r2_image_urls(bucket: str, prefix: str) -> list[str]:
+    """获取 R2 指定前缀下的图片公共 URL 列表"""
+    image_urls = []
+    if prefix and not prefix.endswith('/'): prefix += '/'
+    print(f"    - 正在列出 R2 前缀 '{prefix}' ...")
+    try:
+        paginator = s3_client.get_paginator('list_objects_v2')
+        pages = paginator.paginate(Bucket=bucket, Prefix=prefix)
+        object_count = 0
+        for page in pages:
+            if 'Contents' in page:
+                for obj in page['Contents']:
+                    object_count += 1
+                    key = obj['Key']
+                    if key != prefix and Path(key).suffix.lower() in SUPPORTED_EXTENSIONS:
+                        full_url = f"{R2_PUBLIC_BASE_URL.rstrip('/')}/{key}"
+                        image_urls.append(full_url)
+        print(f"    - 共找到 {object_count} 个对象, {len(image_urls)} 个是支持的图片。")
+    except ClientError as e:
+        print(f"  错误: 访问 R2 前缀 '{prefix}' 出错: {e}")
+        return []
+    except Exception as e:
+        print(f"  错误: 列出 R2 对象时未知错误: {e}")
+        print(traceback.format_exc())
+        return []
+    image_urls.sort()
+    return image_urls
+
+def get_r2_sub_prefixes(bucket: str, prefix: str) -> list[str]:
+    """获取 R2 指定前缀下的一级子目录 (模拟画廊 ID 或对比组 ID)"""
+    sub_prefixes = set()
+    if prefix and not prefix.endswith('/'): prefix += '/'
+    print(f"  - 正在获取 R2 '{prefix}' 下的子目录...")
+    try:
+        paginator = s3_client.get_paginator('list_objects_v2')
+        pages = paginator.paginate(Bucket=bucket, Prefix=prefix, Delimiter='/')
+        for page in pages:
+            if 'CommonPrefixes' in page:
+                for common_prefix in page['CommonPrefixes']:
+                    full_sub_prefix = common_prefix.get('Prefix', '')
+                    if full_sub_prefix.startswith(prefix) and full_sub_prefix.endswith('/'):
+                         sub_id = full_sub_prefix[len(prefix):].strip('/')
+                         if sub_id:
+                              sub_prefixes.add(sub_id)
+        print(f"  - 共找到 {len(sub_prefixes)} 个子目录 ID。")
+        return sorted(list(sub_prefixes))
+    except ClientError as e:
+        print(f"  错误: 尝试从 R2 列出子目录时出错 (前缀: '{prefix}'): {e}")
+        return []
+    except Exception as e:
+        print(f"  错误: 列出 R2 子目录时未知错误: {e}")
+        print(traceback.format_exc())
+        return []
+
+def write_json_local(file_path: Path, data: object):
+    """将数据写入本地 JSON 文件"""
+    try:
+        # 确保父目录存在
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        script_dir = Path(__file__).parent
+        relative_path = file_path.relative_to(script_dir)
+        print(f"    DEBUG: 准备写入本地文件: '{relative_path}'")
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        print(f"    DEBUG: 文件写入完成: '{relative_path}'")
+    except OSError as e:
+        print(f"  错误: 无法写入 JSON 文件 '{file_path}': {e}")
+        print(traceback.format_exc())
+    except Exception as e:
+        print(f"  错误: 写入 JSON 时发生未知错误: {e}")
+        print(traceback.format_exc())
 
 def main():
-    """主函数，处理所有画廊类型"""
-    script_dir = Path(__file__).parent # 获取脚本所在的目录
-    # 将基础图片目录设置为相对于脚本的位置
-    global BASE_IMAGE_DIR
-    BASE_IMAGE_DIR = script_dir / "images"
+    """主函数"""
+    if s3_client is None:
+         print("错误：R2 客户端未成功初始化。")
+         return
 
-    if not BASE_IMAGE_DIR.is_dir():
-        print(f"错误: 基础图片目录 '{BASE_IMAGE_DIR}' 不存在或不是一个目录。请确保 'images' 文件夹与脚本在同一目录下。")
-        return
+    script_dir = Path(__file__).parent
+    local_base_json_dir = script_dir / LOCAL_JSON_BASE_DIR
 
-    for gallery_type in GALLERY_TYPES:
-        gallery_type_path = BASE_IMAGE_DIR / gallery_type
-        print(f"\n正在处理 '{gallery_type}' 画廊: {gallery_type_path}")
+    # --- 处理画廊页面 (Automotive, Portrait) ---
+    for gallery_type, config in GALLERY_CONFIG.items():
+        local_gallery_type_path = local_base_json_dir / gallery_type
+        r2_prefix = config['prefix']
+        print(f"\n正在处理 '{gallery_type}' 画廊 (从 R2:{R2_BUCKET_NAME} 前缀 '{r2_prefix}')")
 
-        if not gallery_type_path.is_dir():
-            print(f"  警告: 目录 '{gallery_type_path}' 不存在，跳过。")
-            continue
+        gallery_ids = get_r2_sub_prefixes(R2_BUCKET_NAME, r2_prefix)
+        if not gallery_ids:
+             print(f"  在 R2 '{r2_prefix}' 下未找到任何画廊子目录，跳过。")
+             # 考虑是否清空本地 galleries.json
+             # write_json_local(local_gallery_type_path / config['output_main'], [])
+             continue
 
-        all_sub_galleries_info = [] # 存储当前类型下所有子画廊的信息
+        all_sub_galleries_info = []
+        for gallery_id in gallery_ids:
+            print(f"  - 正在处理 R2 画廊: {gallery_id}")
+            r2_gallery_prefix = f"{r2_prefix}{gallery_id}/"
+            image_urls = list_r2_image_urls(R2_BUCKET_NAME, r2_gallery_prefix)
 
-        try:
-            # 遍历画廊类型下的子目录 (即每个子画廊)
-            for item in gallery_type_path.iterdir():
-                if item.is_dir():
-                    sub_gallery_dir = item
-                    gallery_id = sub_gallery_dir.name # 文件夹名作为 ID
-                    print(f"  - 发现子画廊: {gallery_id}")
+            if image_urls:
+                # 在本地生成子画廊的 images.json
+                sub_json_path = local_gallery_type_path / gallery_id / config['output_sub']
+                write_json_local(sub_json_path, [{"images": image_urls}])
 
-                    # 查找子画廊中的图片
-                    image_files = find_image_files(sub_gallery_dir)
-
-                    if image_files:
-                        # 生成子画廊的 images.json
-                        generate_sub_gallery_json(sub_gallery_dir, image_files)
-
-                        # 准备主列表 galleries.json 的信息
-                        # 简单的标题生成：用下划线替换空格并首字母大写
-                        title = gallery_id.replace('_', ' ').title()
-                        # jsonFile 路径是相对于 galleries.json 的
-                        json_file_relative_path = f"{gallery_id}/{SUB_GALLERY_JSON_FILENAME}"
-                        all_sub_galleries_info.append({
-                            "id": gallery_id,
-                            "title": title,
-                            "jsonFile": json_file_relative_path
-                        })
-                    else:
-                        print(f"    - 在 '{gallery_id}' 中未找到支持的图片文件，跳过生成 {SUB_GALLERY_JSON_FILENAME}。")
-
-            # 生成主画廊列表 galleries.json
-            if all_sub_galleries_info:
-                generate_main_gallery_json(gallery_type_path, all_sub_galleries_info)
+                # 准备主列表信息
+                title = gallery_id.replace('_', ' ').title()
+                json_file_relative_path = f"{gallery_id}/{config['output_sub']}"
+                all_sub_galleries_info.append({
+                    "id": gallery_id,
+                    "title": title,
+                    "jsonFile": json_file_relative_path
+                })
             else:
-                print(f"  在 '{gallery_type}' 目录下未找到任何包含图片的子画廊，未生成 galleries.json。")
+                print(f"    - 在 R2 路径 '{r2_gallery_prefix}' 未找到符合条件的图片。")
 
-        except OSError as e:
-             print(f"  错误: 处理目录 {gallery_type_path} 时发生错误: {e}")
+        if all_sub_galleries_info:
+            main_json_path = local_gallery_type_path / config['output_main']
+            write_json_local(main_json_path, all_sub_galleries_info)
+            print(f"  - 已更新本地主列表 '{main_json_path.relative_to(script_dir)}'")
+        else:
+            print(f"  未能在 R2 的 '{r2_prefix}' 路径下找到任何包含图片的画廊。")
 
-    print("\n处理完成！")
+    # --- 处理独立图片列表区域 (主页轮播) ---
+    for area_name, config in DISPLAY_CONFIG.items():
+        r2_prefix = config['prefix']
+        local_json_path = local_base_json_dir / config['output_json'] # 直接输出到 images/ 目录下
+        print(f"\n正在处理 '{area_name}' 区域 (从 R2:{R2_BUCKET_NAME} 前缀 '{r2_prefix}')")
+
+        image_urls = list_r2_image_urls(R2_BUCKET_NAME, r2_prefix)
+        if image_urls:
+            # 直接将 URL 列表写入 JSON 文件
+            write_json_local(local_json_path, image_urls)
+            print(f"  - 已更新本地 JSON '{local_json_path.relative_to(script_dir)}'")
+        else:
+            print(f"  在 R2 前缀 '{r2_prefix}' 未找到图片。")
+            # 考虑是否清空本地 JSON？
+            # write_json_local(local_json_path, [])
+
+    # --- 处理对比组区域 ---
+    for area_name, config in COMPARISON_CONFIG.items():
+        r2_prefix = config['prefix']
+        local_json_path = local_base_json_dir / config['output_json']
+        print(f"\n正在处理 '{area_name}' 区域 (从 R2:{R2_BUCKET_NAME} 前缀 '{r2_prefix}')")
+
+        comparison_group_ids = get_r2_sub_prefixes(R2_BUCKET_NAME, r2_prefix)
+        if not comparison_group_ids:
+             print(f"  在 R2 '{r2_prefix}' 下未找到任何对比组子目录，跳过。")
+             continue
+
+        all_comparison_groups_data = []
+        for group_id in comparison_group_ids:
+             print(f"  - 正在处理 R2 对比组: {group_id}")
+             r2_group_prefix = f"{r2_prefix}{group_id}/"
+             image_urls = list_r2_image_urls(R2_BUCKET_NAME, r2_group_prefix)
+
+             if len(image_urls) >= 2: # 确保至少有两张图片用于对比
+                 # 假设按名称排序后，第一张是 before，第二张是 after
+                 before_url = image_urls[0]
+                 after_url = image_urls[1]
+                 # 可以添加简单的检查，比如文件名是否包含 "before"/"after"
+                 # if "before" in Path(before_url).name.lower() and "after" in Path(after_url).name.lower():
+                 #      pass # 名字符合预期
+                 # else:
+                 #      print(f"    警告: 对比组 '{group_id}' 的图片名称可能不符合 before/after 约定，按排序取前两张。")
+
+                 all_comparison_groups_data.append({
+                     "id": group_id,
+                     "before_src": before_url,
+                     "after_src": after_url
+                 })
+                 print(f"    - 已处理对比组，Before: {Path(before_url).name}, After: {Path(after_url).name}")
+             elif len(image_urls) == 1:
+                 print(f"    警告: 对比组 '{group_id}' 只找到一张图片，无法创建对比。")
+             else:
+                 print(f"    - 在 R2 路径 '{r2_group_prefix}' 未找到符合条件的图片。")
+
+        if all_comparison_groups_data:
+            write_json_local(local_json_path, all_comparison_groups_data)
+            print(f"  - 已更新本地对比组 JSON '{local_json_path.relative_to(script_dir)}'")
+        else:
+            print(f"  未能在 R2 的 '{r2_prefix}' 路径下找到任何有效的对比组。")
+
+    print("\n处理完成！JSON 文件已在本地 Git 仓库中更新（如果内容有变化）。")
+    print("请使用 'git status', 'git add', 'git commit', 'git push' 将这些更新推送到 GitHub。")
 
 if __name__ == "__main__":
     main()
