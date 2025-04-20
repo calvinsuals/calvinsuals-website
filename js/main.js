@@ -254,11 +254,14 @@ async function loadAndInitComparison(jsonPath) {
     console.log(`[Comparison] Loading comparison groups from: ${jsonPath}`);
 
     try {
+        console.log("[Comparison] 开始 fetch comparison data...");
         const response = await fetch(`${jsonPath}?t=${Date.now()}`);
+        console.log(`[Comparison] Fetch response status: ${response.status}`);
         if (!response.ok) {
             throw new Error(`HTTP error fetching comparison data! status: ${response.status}`);
         }
         const comparisonGroupsData = await response.json();
+        console.log("[Comparison] JSON data 解析成功.");
 
         if (!Array.isArray(comparisonGroupsData)) {
             throw new Error(`Comparison JSON from ${jsonPath} is not a valid array.`);
@@ -270,18 +273,50 @@ async function loadAndInitComparison(jsonPath) {
            return;
         }
 
-        // 预加载第一组图片 (保持不变)
-        const preloadFirstGroup = new Promise((resolve) => { /* ... */ });
-        await preloadFirstGroup;
+        console.log("[Comparison] 开始预加载第一组图片...");
+        const preloadFirstGroup = new Promise((resolve, reject) => {
+            if (comparisonGroupsData[0]?.before_src && comparisonGroupsData[0]?.after_src) {
+                let loaded = 0;
+                const count = 2;
+                const onLoaded = () => { if (++loaded === count) { console.log("[Comparison] 第一组图片预加载完成."); resolve(); } };
+                const onError = (imgSrc) => { console.warn(`[Comparison] 预加载图片失败: ${imgSrc}`); onLoaded(); };
+
+                const imgBefore = new Image();
+                imgBefore.onload = onLoaded;
+                imgBefore.onerror = () => onError(comparisonGroupsData[0].before_src);
+                console.log(`[Comparison] Preloading Before: ${comparisonGroupsData[0].before_src}`);
+                imgBefore.src = comparisonGroupsData[0].before_src;
+
+                const imgAfter = new Image();
+                imgAfter.onload = onLoaded;
+                imgAfter.onerror = () => onError(comparisonGroupsData[0].after_src);
+                console.log(`[Comparison] Preloading After: ${comparisonGroupsData[0].after_src}`);
+                imgAfter.src = comparisonGroupsData[0].after_src;
+
+                // 移除超时，让 onerror 处理失败情况
+                // setTimeout(resolve, 5000); 
+            } else {
+                console.log("[Comparison] 第一组数据无效，跳过预加载。.");
+                resolve(); 
+            }
+        });
+
+        try {
+            await preloadFirstGroup;
+            console.log("[Comparison] 预加载 Promise 完成.");
+        } catch (preloadError) {
+            console.error("[Comparison] 预加载第一组图片时发生错误:", preloadError);
+            // 即使预加载失败，也尝试继续渲染
+        }
 
         const fragment = document.createDocumentFragment();
-        console.log("[Comparison] 开始创建对比组元素...");
+        console.log("[Comparison] 开始创建对比组元素 (forEach 循环前)...`);
 
         comparisonGroupsData.forEach((groupData, index) => {
-            console.log(`[Comparison] 开始处理 group ${index}, ID: ${groupData.id}`);
+            console.log(`[Comparison] ---- 开始处理 group ${index}, ID: ${groupData.id} ----`); 
             if (!groupData.id || !groupData.before_src || !groupData.after_src) {
                 console.warn(`[Comparison] 跳过无效数据 at index ${index}:`, groupData);
-                return;
+                return; 
             }
             try {
                 const group = document.createElement('div');
@@ -329,13 +364,19 @@ async function loadAndInitComparison(jsonPath) {
                 fragment.appendChild(group);
                 console.log(`[Comparison ${groupData.id}] Group 已附加到 fragment.`);
             } catch (error) {
-                 console.error(`[Comparison] 处理 group ${index} (ID: ${groupData.id}) 时发生错误:`, error);
+                 console.error(`[Comparison] 处理 group ${index} (ID: ${groupData.id}) 时发生严重错误:`, error);
+                 console.error(error.stack);
             }
+            console.log(`[Comparison] ---- 结束处理 group ${index}, ID: ${groupData.id} ----`);
         });
 
         console.log("[Comparison] 循环创建元素结束。准备插入 fragment...");
-        container.insertBefore(fragment, navContainer);
-        console.log("[Comparison] Fragment 已插入页面容器。准备初始化交互...");
+        if(document.body.contains(container)) { 
+             container.insertBefore(fragment, navContainer);
+             console.log("[Comparison] Fragment 已插入页面容器。准备初始化交互...");
+        } else {
+             console.error("[Comparison] 尝试插入 fragment 时发现容器已不存在！")
+        }
 
         initializeComparison(); 
         initializeComparisonNav();
