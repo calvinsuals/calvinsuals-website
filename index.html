@@ -138,46 +138,134 @@
 
         /* Comparison Inner Content */
         .comparison-container {
-            max-width: 1800px;
-            width: 90%;
-            margin: 0 auto;
-            position: relative; /* For potential absolute positioning inside */
-            /* Adjust display/gap for desktop view if needed */
+            max-width: 1400px; /* 与轮播区 .gallery-slider 保持一致 */
+            width: 95%; /* 与轮播区 .carousel-container 保持一致 */
+            margin: 0 auto; 
+            padding-top: 30px;
+            padding-bottom: 30px;
+            /* 移除之前的 width: 80% */
+            /* 移除调试边框 */
+            /* border: 2px solid red; */ 
         }
+        /* 确保轮播区容器宽度一致 (示例性检查) */
+         .gallery-preview { 
+             max-width: 95%; /* 保持与 comparison-container 一致 */
+             margin-left: auto;
+             margin-right: auto;
+         }
+         .gallery-slider { /* 轮播内部滑块 */
+             max-width: 1400px;
+             margin: 0 auto;
+         }
+         
+        /* 强制显示对比区图片 & 设置宽高比 */
+        .comparison-wrapper img {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            width: 100%;
+            height: 100%; /* 对于 absolute 定位的图片，父容器需要控制尺寸 */
+            object-fit: cover;
+            position: absolute; /* 确保图片填满 wrapper */
+            top: 0;
+            left: 0;
+        }
+        .comparison-wrapper {
+            min-height: 100px !important; /* 确保容器有最小高度 */
+            overflow: hidden !important; /* 恢复 overflow hidden */
+            border: none !important; /* 移除调试边框 */
+            position: relative; /* 必须相对定位，以便内部图片绝对定位 */
+            width: 100%; /* wrapper 宽度占满 group */
+            height: 0; /* 高度由 padding-bottom 控制 */
+        }
+         .comparison-group {
+              min-width: 100px !important; /* 确保组有最小宽度 */
+              border: none !important; /* 移除调试边框 */
+              /* 在媒体查询中设置宽度和布局 */
+         }
+         /* 根据 JS 添加的类设置宽高比 */
+         .comparison-wrapper.landscape {
+             padding-bottom: 62.5%; /* 16:10 */
+         }
+         .comparison-wrapper.portrait {
+             padding-bottom: 137.5%; /* 8:11 */
+         }
+
+        /* PC 端对比区布局 (简单flex换行) */
         @media screen and (min-width: 768px) {
             .comparison-container {
                 display: flex;
+                flex-wrap: wrap; /* 允许换行 */
                 justify-content: center;
-                align-items: flex-start; /* Or center? */
-                gap: 40px; /* Adjust gap */
+                gap: 20px; /* 组之间的间距 */
             }
-             /* Ensure groups inside behave correctly */
             .comparison-group {
-                /* Resetting width/max-width from desktop defaults if needed */
-                /* width: auto; */ /* Let flexbox handle */
-                /* max-width: none; */
-                flex: 1; /* Example: make groups flexible */
-                max-width: 30%; /* Example: limit group width */
+                flex-basis: calc(45% - 10px); /* 尝试让每行放两个，留出间距 */
+                max-width: calc(45% - 10px);
+                 /* 如果希望严格两横两竖，需要更复杂的Grid或Flex嵌套 */
+            }
+            /* PC/平板标题对齐 */
+            #automotive .section-title,
+            #portrait .section-title {
+                 /* 移除之前强制右移的规则 */
+                 /* margin-left: calc(5% + 12px) !important; */ 
+                 /* 统一使用下面的规则 */
+            }
+            /* 确保所有标题左对齐 (维持 5%) */
+            body .section-title {
+                 margin-left: 5% !important;
             }
         }
 
-        /* Contact Inner Content */
-        .contact-content {
-            max-width: 1800px;
-            width: 90%;
-            margin: 0 auto;
-            text-align: center;
+        /* 移动端对比区竖图比例修复 */
+        @media screen and (max-width: 767px) {
+            .comparison-wrapper.portrait {
+                width: 85% !important; 
+                height: 0 !important;
+                padding-bottom: 137.5% !important; /* 强制 8:11 */
+            }
+             /* 移动端标题左边距微调 */
+            .section-title {
+                font-size: 1.5rem !important;
+                margin-left: 15px !important; /* 使用像素值尝试对齐 */
+                width: auto !important; 
+                display: block !important; 
+                margin-bottom: 1.5rem;
+            }
         }
 
-        /* Footer Inner Content */
-        .footer-container {
-            max-width: 1800px;
-            width: 90%;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
+        /* 调整 About 和 Contact 标题颜色 */
+        #about .section-title,
+        #contact .section-title {
+            color: #333; /* 改为深灰色以适应浅色背景 */
+        }
+        #about .section-title::after,
+        #contact .section-title::after {
+            background-color: #333; /* 下划线也改为深灰色 */
+        }
+        /* 保留 Contact 区内部文字为白色 */
+        #contact .form-group label,
+        #contact .form-group input,
+        #contact .form-group textarea {
+            color: #fff;
+        }
+        #contact .form-group input::placeholder,
+        #contact .form-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        /* 保留 About 区文本为深色 */
+        .about-text-container {
+             color: #333;
+        }
+
+        /* 页脚样式调整 */
+        .footer {
+            background-color: transparent !important; 
+            color: rgba(51, 51, 51, 0.6); /* 降低文字透明度 (比 0.7 更低) */
+            font-family: 'Montserrat', sans-serif !important; /* 强制字体 */
+        }
+        .footer p {
+             font-family: 'Montserrat', sans-serif !important; /* 强制字体 */
         }
 
         /* 基础样式 */
