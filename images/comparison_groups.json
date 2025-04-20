@@ -1,0 +1,17 @@
+[
+  {
+    "id": "group_01",
+    "before_src": "https://pub-67b44c34fdd2480e83feffb3cfc185b9.r2.dev/images/comparison/group_01/图片_20250410004641.jpg",
+    "after_src": "https://pub-67b44c34fdd2480e83feffb3cfc185b9.r2.dev/images/comparison/group_01/图片_20250410004642.jpg"
+  },
+  {
+    "id": "group_02",
+    "before_src": "https://pub-67b44c34fdd2480e83feffb3cfc185b9.r2.dev/images/comparison/group_02/图片_20250410004626.jpg",
+    "after_src": "https://pub-67b44c34fdd2480e83feffb3cfc185b9.r2.dev/images/comparison/group_02/图片_20250410013727.jpg"
+  },
+  {
+    "id": "group_03",
+    "before_src": "https://pub-67b44c34fdd2480e83feffb3cfc185b9.r2.dev/images/comparison/group_03/图片_20250410004647.jpg",
+    "after_src": "https://pub-67b44c34fdd2480e83feffb3cfc185b9.r2.dev/images/comparison/group_03/图片_20250410004654.jpg"
+  }
+]
