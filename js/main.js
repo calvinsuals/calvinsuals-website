@@ -311,15 +311,17 @@ async function loadAndInitComparison(jsonPath) {
             imgBefore.alt = 'Before';
             imgBefore.className = 'before';
             imgBefore.loading = 'lazy';
+            console.log(`[Comparison ${groupData.id}] Setting Before src: ${groupData.before_src}`);
             imgBefore.src = groupData.before_src; // 使用 R2 URL
-            imgBefore.onerror = () => { imgBefore.alt='Image not found'; imgBefore.src=''; console.error(`Failed to load Before image: ${groupData.before_src}`);};
+            imgBefore.onerror = () => { imgBefore.alt='Image not found'; imgBefore.src=''; console.error(`[Comparison ${groupData.id}] Failed to load Before image: ${groupData.before_src}`);};
 
             const imgAfter = document.createElement('img');
             imgAfter.alt = 'After';
             imgAfter.className = 'after';
             imgAfter.loading = 'lazy';
+            console.log(`[Comparison ${groupData.id}] Setting After src: ${groupData.after_src}`);
             imgAfter.src = groupData.after_src; // 使用 R2 URL
-            imgAfter.onerror = () => { imgAfter.alt='Image not found'; imgAfter.src=''; console.error(`Failed to load After image: ${groupData.after_src}`);};
+            imgAfter.onerror = () => { imgAfter.alt='Image not found'; imgAfter.src=''; console.error(`[Comparison ${groupData.id}] Failed to load After image: ${groupData.after_src}`);};
 
             const sliderHandle = document.createElement('div');
             sliderHandle.className = 'slider-handle';
@@ -372,7 +374,7 @@ function initializeGallerySlider(slidesId, dotsId) {
         return;
     }
 
-    let currentIndex = 0; // 指向当前显示的“逻辑”幻灯片索引（0 到 originalSlideCount-1）
+    let currentIndex = 0; // 指向当前显示的"逻辑"幻灯片索引（0 到 originalSlideCount-1）
     let realIndex = 1; // 指向实际 DOM 中的幻灯片索引（考虑克隆）
     let interval;
     let isTransitioning = false;
@@ -500,7 +502,7 @@ function initializeContactForm() {
         contactForm.reset();
         // 可以提供一个更友好的提示，而不是 alert
         // alert('Your message client should have opened!');
-        // 例如，在表单旁边显示一个“邮件客户端已尝试打开”的消息
+        // 例如，在表单旁边显示一个"邮件客户端已尝试打开"的消息
     });
 }
 

@@ -585,22 +585,17 @@
                             galleryContainer.appendChild(imageScrollContainer);
 
                             subGalleryImages.forEach((imageName, index) => {
-                                // *** 确保 imageName 现在是字符串 ***
-                                if (typeof imageName !== 'string' || imageName.trim() === '') {
-                                    console.warn(`[${galleryType} - ${subGalleryTitle}] Invalid image name found at index ${index}:`, imageName);
-                                    return; // 跳过无效的图片名
-                                }
-                                const imagePath = `${subGalleryPath}/${imageName}`;
-
                                 // 直接创建 img 元素并添加到 car-gallery
-                                const imgElement = document.createElement('img'); // Image directly inside .car-gallery
-                                imgElement.src = imagePath;
+                                const imgElement = document.createElement('img');
+                                // !!! 直接使用 R2 URL !!!
+                                imgElement.src = imageName; // 使用从 JSON 读取的 R2 URL
                                 imgElement.alt = `${subGalleryTitle} - Image ${index + 1}`;
                                 imgElement.loading = 'lazy';
 
                                 imgElement.onerror = () => {
-                                    console.error(`[${galleryType} - ${subGalleryTitle}] Image failed to load: ${imagePath}`);
-                                    imgElement.alt = `Failed to load ${imagePath}`;
+                                    // !!! 修改错误日志中的路径 !!!
+                                    console.error(`[${galleryType} - ${subGalleryTitle}] Image failed to load: ${imageName}`); // 打印 R2 URL
+                                    imgElement.alt = `Failed to load ${imageName}`;
                                     imgElement.style.display = 'none';
                                 };
                                 imageScrollContainer.appendChild(imgElement);

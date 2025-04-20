@@ -907,13 +907,13 @@
 
                                 // 直接创建 img 元素并添加到 car-gallery
                                 const imgElement = document.createElement('img');
-                                imgElement.src = imagePath;
+                                imgElement.src = imageName;
                                 imgElement.alt = `${subGalleryTitle} - Image ${index + 1}`;
                                 imgElement.loading = 'lazy';
 
                                 imgElement.onerror = () => {
-                                    console.error(`[${galleryType} - ${subGalleryTitle}] Image failed to load: ${imagePath}`);
-                                    imgElement.alt = `Failed to load ${imagePath}`;
+                                    console.error(`[${galleryType} - ${subGalleryTitle}] Image failed to load: ${imageName}`);
+                                    imgElement.alt = `Failed to load ${imageName}`;
                                     imgElement.style.display = 'none';
                                 };
                                 
