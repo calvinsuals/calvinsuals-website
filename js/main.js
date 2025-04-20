@@ -111,7 +111,9 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
  * 初始化对比区滑块交互
  */
 function initializeComparison() {
+    console.log("[Comparison] initializeComparison 函数开始执行...");
     const comparisonWrappers = document.querySelectorAll('.comparison-wrapper');
+    console.log(`[Comparison] 找到 ${comparisonWrappers.length} 个 .comparison-wrapper 元素。`);
     comparisonWrappers.forEach(wrapper => {
         const handle = wrapper.querySelector('.slider-handle');
         const afterImage = wrapper.querySelector('.after');
@@ -166,17 +168,19 @@ function initializeComparison() {
  * 初始化对比区移动端导航点
  */
 function initializeComparisonNav() {
-    if (window.innerWidth > 767) { // 如果是桌面端，确保导航点隐藏
-         const navContainer = document.getElementById('comparison-nav-dynamic');
-         if (navContainer) navContainer.style.display = 'none';
-         // 确保桌面端所有 group 都可见
-         document.querySelectorAll('#comparison-container-dynamic .comparison-group').forEach(g => {
-             g.classList.remove('active'); // 移除 active 类
-             g.style.position = ''; // 移除 absolute 定位
-             g.style.opacity = '';   // 恢复默认透明度
-             g.style.visibility = ''; // 恢复默认可见性
-         });
-         return;
+    console.log("[Comparison] initializeComparisonNav 函数开始执行...");
+    if (window.innerWidth > 767) { 
+        console.log("[Comparison] 桌面端，跳过移动导航初始化。确保 group 可见。");
+        const navContainer = document.getElementById('comparison-nav-dynamic');
+        if (navContainer) navContainer.style.display = 'none';
+        // 确保桌面端所有 group 都可见
+        document.querySelectorAll('#comparison-container-dynamic .comparison-group').forEach(g => {
+            g.classList.remove('active'); // 移除 active 类
+            g.style.position = ''; // 移除 absolute 定位
+            g.style.opacity = '';   // 恢复默认透明度
+            g.style.visibility = ''; // 恢复默认可见性
+        });
+        return;
     }
 
     // --- 移动端逻辑 ---
@@ -228,6 +232,7 @@ function initializeComparisonNav() {
  * @param {string} jsonPath - comparison_groups.json 的路径
  */
 async function loadAndInitComparison(jsonPath) {
+    console.log("[Comparison] loadAndInitComparison 函数开始执行...");
     const container = document.getElementById('comparison-container-dynamic');
     const navContainer = document.getElementById('comparison-nav-dynamic');
 
@@ -423,11 +428,63 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM Loaded. Initializing scripts...");
 
     // 导航菜单功能
+    console.log("查找菜单元素...");
     const menuToggle = document.querySelector('.menu-toggle');
     const menuContent = document.querySelector('.menu-content');
-    if (menuToggle && menuContent) { /* ... 代码不变 ... */ } else { console.warn('Menu toggle or content not found'); }
+    console.log("Menu Toggle Element:", menuToggle);
+    console.log("Menu Content Element:", menuContent);
+
+    if (menuToggle && menuContent) {
+        console.log("菜单元素找到，正在添加监听器...");
+        menuToggle.addEventListener('click', () => {
+            console.log("菜单按钮被点击！");
+            menuToggle.classList.toggle('active');
+            menuContent.classList.toggle('active');
+            menuContent.style.visibility = menuContent.classList.contains('active') ? 'visible' : 'hidden';
+        });
+        const menuItems = document.querySelectorAll('.menu-items a');
+        menuItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                console.log(`菜单项 '${item.textContent.trim()}' 被点击。`);
+                const href = item.getAttribute('href');
+                let isExternalLink = !href.startsWith('#') && !href.startsWith('index.html#') && !href.startsWith('/');
+
+                // 只有在移动/平板视图下点击链接才关闭菜单
+                if (window.innerWidth <= 1023) {
+                     console.log("移动/平板视图，关闭菜单。");
+                     menuToggle.classList.remove('active');
+                     menuContent.classList.remove('active');
+                     menuContent.style.visibility = 'hidden';
+                }
+
+                // 如果是页面内锚点链接，阻止默认跳转并平滑滚动
+                if (href && href.startsWith('#')) {
+                     console.log(`处理锚点链接: ${href}`);
+                     e.preventDefault(); // 阻止默认锚点跳转
+                     const targetId = href.substring(1);
+                     const targetElement = document.getElementById(targetId);
+                     if (targetElement) {
+                          console.log(`滚动到元素: #${targetId}`);
+                          targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                     } else {
+                          console.warn(`未找到锚点目标元素: #${targetId}`);
+                     }
+                // 如果是跳转到 index.html 的锚点 (允许默认行为)
+                } else if (href && href.startsWith('index.html#')) {
+                     console.log(`允许跳转到 index.html 锚点: ${href}`);
+                } else if (isExternalLink || href === 'automotive.html' || href === 'portrait.html' || href === 'pricing.html') {
+                     console.log(`允许跳转到页面: ${href}`);
+                }
+
+            });
+        });
+        console.log("菜单事件监听器添加完成。");
+    } else {
+        console.warn('菜单切换按钮或内容未找到，菜单功能可能无法使用。');
+    }
 
     // *** 初始化调用 ***
+    console.log("开始加载轮播图和对比区...");
     loadGalleryImages('automotive-slides', 'automotive-nav', 'images/display_automotive.json', 5);
     loadGalleryImages('portrait-slides', 'portrait-nav', 'images/display_portrait.json', 5);
     loadAndInitComparison('images/comparison_groups.json');
@@ -457,6 +514,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // 页面加载时也执行一次，确保初始状态正确
     initializeComparisonNav();
 
-    console.log("Initialization scripts complete.");
+    console.log("主 DOMContentLoaded 事件监听器执行完毕。");
 
 }); // DOMContentLoaded 结束
