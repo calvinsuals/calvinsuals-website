@@ -310,7 +310,7 @@ async function loadAndInitComparison(jsonPath) {
         }
 
         const fragment = document.createDocumentFragment();
-        console.log("[Comparison] 开始创建对比组元素 (forEach 循环前)...`);
+        console.log("[Comparison] 开始创建对比组元素 (forEach 循环前)...");
 
         comparisonGroupsData.forEach((groupData, index) => {
             console.log(`[Comparison] ---- 开始处理 group ${index}, ID: ${groupData.id} ----`); 
