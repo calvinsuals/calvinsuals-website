@@ -1,9 +1,9 @@
 import os
 import json
 from pathlib import Path
-import boto3
+import boto3 # 用于与 S3 兼容 API (如 R2) 交互
 from botocore.exceptions import NoCredentialsError, ClientError
-import traceback
+import traceback # 用于打印更详细的错误信息
 
 # --- 配置 ---
 # 本地 JSON 文件存放的基础路径 (相对于脚本)
@@ -30,12 +30,13 @@ SUPPORTED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 # -------------
 
 # --- Cloudflare R2 配置 (从环境变量读取) ---
-R2_ENDPOINT_URL = os.environ.get("R2_ENDPOINT_URL")
-R2_ACCESS_KEY_ID = os.environ.get("R2_ACCESS_KEY_ID")
-R2_SECRET_ACCESS_KEY = os.environ.get("R2_SECRET_ACCESS_KEY")
-R2_BUCKET_NAME = os.environ.get("R2_BUCKET_NAME")
-R2_PUBLIC_BASE_URL = os.environ.get("R2_PUBLIC_BASE_URL")
+R2_ENDPOINT_URL = os.environ.get("R2_ENDPOINT_URL")         # 必须: R2 的 S3 API 端点, 例如 https://<ACCOUNT_ID>.r2.cloudflarestorage.com
+R2_ACCESS_KEY_ID = os.environ.get("R2_ACCESS_KEY_ID")       # 必须: 您生成的 API 令牌的 Access Key ID
+R2_SECRET_ACCESS_KEY = os.environ.get("R2_SECRET_ACCESS_KEY") # 必须: 您生成的 API 令牌的 Secret Access Key
+R2_BUCKET_NAME = os.environ.get("R2_BUCKET_NAME")           # 必须: 您的 R2 存储桶名称
+R2_PUBLIC_BASE_URL = os.environ.get("R2_PUBLIC_BASE_URL")     # 必须: R2 存储桶的公开访问基础 URL, 例如 https://pub-xxx.r2.dev 或您的自定义域 (结尾不要带 /)
 
+# 检查必要的 R2 配置是否存在
 missing_vars = []
 if not R2_ENDPOINT_URL: missing_vars.append("R2_ENDPOINT_URL")
 if not R2_ACCESS_KEY_ID: missing_vars.append("R2_ACCESS_KEY_ID")
@@ -45,12 +46,12 @@ if not R2_PUBLIC_BASE_URL: missing_vars.append("R2_PUBLIC_BASE_URL")
 
 if missing_vars:
     print(f"错误：缺少必要的 Cloudflare R2 环境变量配置！请设置: {', '.join(missing_vars)}")
-    exit(1)
+    exit(1) # 配置不全则退出脚本
 
 # --- 初始化 S3 客户端 ---
 s3_client = None
 try:
-    print("正在初始化 R2 客户端...")
+    print("正在初始化 R2 客户端...") # 新增
     s3_client = boto3.client(
         's3',
         endpoint_url=R2_ENDPOINT_URL,
@@ -61,10 +62,10 @@ try:
     print("尝试连接 Cloudflare R2 (跳过 ListBuckets 验证)...")
     print(f"  正在尝试获取存储桶 '{R2_BUCKET_NAME}' 的位置信息以验证连接...")
     response = s3_client.get_bucket_location(Bucket=R2_BUCKET_NAME)
-    print(f"  存储桶位置信息获取成功 (Status: {response.get('ResponseMetadata', {}).get('HTTPStatusCode')})。连接 R2 成功。")
+    print(f"  存储桶位置信息获取成功 (Status: {response.get('ResponseMetadata', {}).get('HTTPStatusCode')})。连接 R2 成功。") # 修改成功信息
 except Exception as e:
     print(f"错误: 初始化 R2 客户端时发生错误: {e}")
-    print(traceback.format_exc())
+    print(traceback.format_exc()) # 打印详细错误堆栈
     exit(1)
 # ------------------------
 
@@ -128,11 +129,16 @@ def write_json_local(file_path: Path, data: object):
         # 确保父目录存在
         file_path.parent.mkdir(parents=True, exist_ok=True)
         script_dir = Path(__file__).parent
-        relative_path = file_path.relative_to(script_dir)
+        relative_path = file_path.relative_to(script_dir) # 尝试获取相对路径
         print(f"    DEBUG: 准备写入本地文件: '{relative_path}'")
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
         print(f"    DEBUG: 文件写入完成: '{relative_path}'")
+    except ValueError: # 处理无法生成相对路径的情况（例如不同驱动器）
+        print(f"    DEBUG: 准备写入本地文件: '{file_path}'") # 打印绝对路径
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        print(f"    DEBUG: 文件写入完成: '{file_path}'")
     except OSError as e:
         print(f"  错误: 无法写入 JSON 文件 '{file_path}': {e}")
         print(traceback.format_exc())
@@ -158,8 +164,6 @@ def main():
         gallery_ids = get_r2_sub_prefixes(R2_BUCKET_NAME, r2_prefix)
         if not gallery_ids:
              print(f"  在 R2 '{r2_prefix}' 下未找到任何画廊子目录，跳过。")
-             # 考虑是否清空本地 galleries.json
-             # write_json_local(local_gallery_type_path / config['output_main'], [])
              continue
 
         all_sub_galleries_info = []
@@ -204,8 +208,6 @@ def main():
             print(f"  - 已更新本地 JSON '{local_json_path.relative_to(script_dir)}'")
         else:
             print(f"  在 R2 前缀 '{r2_prefix}' 未找到图片。")
-            # 考虑是否清空本地 JSON？
-            # write_json_local(local_json_path, [])
 
     # --- 处理对比组区域 ---
     for area_name, config in COMPARISON_CONFIG.items():
@@ -225,15 +227,8 @@ def main():
              image_urls = list_r2_image_urls(R2_BUCKET_NAME, r2_group_prefix)
 
              if len(image_urls) >= 2: # 确保至少有两张图片用于对比
-                 # 假设按名称排序后，第一张是 before，第二张是 after
                  before_url = image_urls[0]
                  after_url = image_urls[1]
-                 # 可以添加简单的检查，比如文件名是否包含 "before"/"after"
-                 # if "before" in Path(before_url).name.lower() and "after" in Path(after_url).name.lower():
-                 #      pass # 名字符合预期
-                 # else:
-                 #      print(f"    警告: 对比组 '{group_id}' 的图片名称可能不符合 before/after 约定，按排序取前两张。")
-
                  all_comparison_groups_data.append({
                      "id": group_id,
                      "before_src": before_url,
