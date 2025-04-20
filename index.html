@@ -201,19 +201,30 @@
         body {
             font-family: 'Montserrat', sans-serif;
             line-height: 1.6;
-            color: #fff;
-            /* 设置从深灰到超浅灰的渐变，确保亮色区域更大 */
-            background: linear-gradient(165deg, #222222, #444444 20%, #777777 40%, #bbbbbb 60%, #e8e8e8 75%);
-            /* 移除固定背景设置，让背景随页面滚动 */
-            background-attachment: scroll;
-            /* 调整渐变长度，使其足够长并且不重复 */
-            background-size: 100% 1000%;
+            color: #333; /* 默认深色文字 */
+            
+            
+            /* --- 新的渐变背景 --- */
+            background-image: linear-gradient(
+                to bottom, 
+                #282828 0%,  /* 起始深灰 */
+                #404040 20%, /* 过渡到中灰 */
+                #707070 45%, /* 过渡到中浅灰 */
+                #b0b0b0 65%, /* 过渡到浅灰 */
+                #e0e0e0 85%, /* 过渡到非常浅的灰 */
+                #f8f8f8 100% /* 结束接近白色 */
+            );
+            background-color: #f8f8f8; /* 备用 */
             background-repeat: no-repeat;
+            background-attachment: scroll;
+            min-height: 100vh; 
+            background-size: 100% 300vh; /* 调整渐变长度 */
+
+            /* 其他 body 样式 */
             width: 100%;
             overflow-x: hidden;
             margin: 0;
             padding: 0;
-            min-height: 100vh;
             position: relative;
             z-index: 1;
         }
@@ -450,8 +461,8 @@
         #contact::before, #contact::after,
         #about::before, #about::after,
         .section-inner, .section-content {
-            background-color: transparent !important; /* 强制所有区域透明 */
-            background-image: none !important; /* 确保没有背景图片 */
+            background-color: transparent !important;
+            background-image: none !important;
         }
         
         /* 确保 about 区域特定样式 */
@@ -473,11 +484,11 @@
         
         /* 统一修改所有 section 的标题颜色 */
         .section-title {
-            color: #000; /* 标题改为黑色以适应不同背景 */
+            /* 基础颜色保留之前的逻辑（部分区域可能继承 body 的 #333） */
             position: relative;
             width: auto; /* 自适应内容宽度 */
             display: inline-block;
-            margin-left: 5%; /* 统一的左边距 */
+            /* 移除之前的统一 margin-left: 5% */
             margin-right: auto;
             padding-bottom: 0.5rem;
             text-transform: uppercase;
@@ -530,17 +541,16 @@
             }
         } */
         
-        /* 确保所有区域标题完全对齐 */
+        /* 确保所有区域标题完全对齐（使用更精确的左边距） */
         #automotive .section-title,
         #portrait .section-title,
         #comparison .section-title,
         #about .section-title,
         #contact .section-title {
-            margin-left: 5%; /* 统一所有标题的左边距 */
-            padding-left: 0;
-            box-sizing: border-box;
-            text-indent: 0; /* 确保没有文本缩进 */
-            letter-spacing: normal; /* 重置字符间距 */
+            margin-left: 5% !important; /* 强制统一所有标题的左边距 */
+            padding-left: 0 !important;
+            /* 移除可能导致偏移的 text-indent */
+            text-indent: 0 !important; 
         }
         
         /* 删除之前不起作用的PC端和平板端特别调整 */
@@ -1921,25 +1931,7 @@
             }
         }
     </style>
-    <!-- 强制显示弹窗的调试 CSS (移除或注释掉) -->
-    <!-- 
-    <style>
-        .modal-overlay {
-            display: flex !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-            border: 3px solid yellow !important;
-            z-index: 10000 !important; 
-        }
-        .modal-content {
-             border: 2px solid cyan !important;
-        }
-    </style>
-    -->
-    <!-- 字体预加载 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
 </head>
 <body>
     <!-- 导航菜单 -->

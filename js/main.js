@@ -297,47 +297,51 @@ async function loadAndInitComparison(jsonPath) {
             }
 
             const group = document.createElement('div');
-            // 移动端默认隐藏，第一个加 active
             group.className = `comparison-group${index === 0 ? ' active' : ''}`;
-            group.id = `comparison-group-${groupData.id}`; // 添加 ID
+            group.id = `comparison-group-${groupData.id}`;
 
             const wrapper = document.createElement('div');
-            // 尝试从 ID 或其他地方获取方向信息，如果需要的话
-            // 假设方向信息现在可能不再需要，或者需要其他方式确定
-            const orientation = ''; // 暂时留空或移除
-            wrapper.className = `comparison-wrapper ${orientation}`.trim();
+            
+            // --- 根据 group ID 添加方向类 --- 
+            let orientationClass = '';
+            if (groupData.id === 'group_01' || groupData.id === 'group_04') {
+                orientationClass = 'portrait';
+            } else if (groupData.id === 'group_02' || groupData.id === 'group_03') {
+                orientationClass = 'landscape';
+            } else {
+                console.warn(`[Comparison] Unknown orientation for group ID: ${groupData.id}`);
+                // 可以设置一个默认方向，或者不加类名
+            }
+            wrapper.className = `comparison-wrapper ${orientationClass}`.trim();
+            // ----------------------------------
 
             const imgBefore = document.createElement('img');
-            imgBefore.alt = 'Before';
-            imgBefore.className = 'before';
-            imgBefore.loading = 'lazy';
-            console.log(`[Comparison ${groupData.id}] Setting Before src: ${groupData.before_src}`);
-            imgBefore.src = groupData.before_src; // 使用 R2 URL
+            imgBefore.alt = 'Before'; imgBefore.className = 'before'; imgBefore.loading = 'lazy';
+            console.log(`[Comparison ${groupData.id}] Setting Before src: ${groupData.before_src}`); // 保留日志
+            imgBefore.src = groupData.before_src; // R2 URL
             imgBefore.onerror = () => { imgBefore.alt='Image not found'; imgBefore.src=''; console.error(`[Comparison ${groupData.id}] Failed to load Before image: ${groupData.before_src}`);};
 
             const imgAfter = document.createElement('img');
-            imgAfter.alt = 'After';
-            imgAfter.className = 'after';
-            imgAfter.loading = 'lazy';
-            console.log(`[Comparison ${groupData.id}] Setting After src: ${groupData.after_src}`);
-            imgAfter.src = groupData.after_src; // 使用 R2 URL
+            imgAfter.alt = 'After'; imgAfter.className = 'after'; imgAfter.loading = 'lazy';
+            console.log(`[Comparison ${groupData.id}] Setting After src: ${groupData.after_src}`); // 保留日志
+            imgAfter.src = groupData.after_src; // R2 URL
             imgAfter.onerror = () => { imgAfter.alt='Image not found'; imgAfter.src=''; console.error(`[Comparison ${groupData.id}] Failed to load After image: ${groupData.after_src}`);};
 
-            const sliderHandle = document.createElement('div');
-            sliderHandle.className = 'slider-handle';
+            const sliderHandle = document.createElement('div'); sliderHandle.className = 'slider-handle';
 
             wrapper.appendChild(imgBefore);
             wrapper.appendChild(imgAfter);
             wrapper.appendChild(sliderHandle);
             group.appendChild(wrapper);
-
+            
+            console.log(`[Comparison ${groupData.id}] Appending group element to fragment.`); // <-- 新增日志
             fragment.appendChild(group);
-
-            // 创建导航点（移到 initializeComparisonNav 中动态创建）
         });
 
         // 将所有 group 添加到 container (放在 navContainer 前面)
+        console.log("[Comparison] Inserting fragment into container..."); // <-- 新增日志
         container.insertBefore(fragment, navContainer);
+        console.log("[Comparison] Fragment inserted."); // <-- 新增日志
 
         console.log("[Comparison] Finished creating elements.");
 
