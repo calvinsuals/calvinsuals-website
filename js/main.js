@@ -238,18 +238,15 @@ async function loadAndInitComparison(jsonPath) {
 
     if (!container || !navContainer) {
         console.error('Comparison container or nav container not found.');
-        if(container) container.innerHTML = '<p style="color: red;">Error: Comparison container missing.</p>';
+        if(container) container.innerHTML = '<p style="color: red;">Error: Comparison container or nav missing.</p>';
         return;
     }
 
-    // 预先添加导航容器，清空内容在后面做
-    if (!container.contains(navContainer)) {
-        container.appendChild(navContainer);
-    }
-    // 先清空 group 内容，保留 navContainer
-    const existingGroups = container.querySelectorAll('.comparison-group');
-    existingGroups.forEach(g => container.removeChild(g));
-    navContainer.innerHTML = '';
+    // --- 修改：先清空容器，再重新添加导航容器 --- 
+    container.innerHTML = ''; // 彻底清空
+    container.appendChild(navContainer); // 把空的导航容器加回去
+    navContainer.innerHTML = ''; // 确保导航容器也是空的
+    // ----------------------------------------
 
     console.log(`[Comparison] Loading comparison groups from: ${jsonPath}`);
 

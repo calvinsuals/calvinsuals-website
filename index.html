@@ -137,51 +137,48 @@
         }
 
         /* Comparison Inner Content */
+        /* 对比区容器宽度与其他区域对齐 */
         .comparison-container {
-            max-width: 1400px; /* 与轮播区 .gallery-slider 保持一致 */
-            width: 95%; /* 与轮播区 .carousel-container 保持一致 */
-            margin: 0 auto; 
+            max-width: 1400px; 
+            width: 95%; 
+            margin: 60px auto; /* 增加上下边距 */
             padding-top: 30px;
-            padding-bottom: 30px;
-            /* 移除之前的 width: 80% */
-            /* 移除调试边框 */
-            /* border: 2px solid red; */ 
+            padding-bottom: 80px; /* 增加底部 padding 给导航点留空间 */
+            position: relative; /* 保持相对定位 */
         }
-        /* 确保轮播区容器宽度一致 (示例性检查) */
-         .gallery-preview { 
-             max-width: 95%; /* 保持与 comparison-container 一致 */
-             margin-left: auto;
-             margin-right: auto;
-         }
-         .gallery-slider { /* 轮播内部滑块 */
-             max-width: 1400px;
-             margin: 0 auto;
-         }
-         
+
         /* 强制显示对比区图片 & 设置宽高比 */
         .comparison-wrapper img {
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
+            /* 移除之前的 !important 调试样式 */
+            display: block;
+            visibility: visible;
+            opacity: 1;
             width: 100%;
-            height: 100%; /* 对于 absolute 定位的图片，父容器需要控制尺寸 */
+            height: 100%; 
             object-fit: cover;
-            position: absolute; /* 确保图片填满 wrapper */
+            position: absolute; 
             top: 0;
             left: 0;
+            border-radius: 0 !important; /* 强制移除圆角 */
+            border: none; /* 移除调试边框 */
         }
         .comparison-wrapper {
-            min-height: 100px !important; /* 确保容器有最小高度 */
-            overflow: hidden !important; /* 恢复 overflow hidden */
-            border: none !important; /* 移除调试边框 */
-            position: relative; /* 必须相对定位，以便内部图片绝对定位 */
-            width: 100%; /* wrapper 宽度占满 group */
-            height: 0; /* 高度由 padding-bottom 控制 */
+            /* 移除调试样式 */
+            /* min-height: 100px !important; */
+            overflow: hidden !important; 
+            /* border: none !important; */ 
+            position: relative; 
+            width: 100%; 
+            height: 0; 
+            border-radius: 0 !important; /* 强制移除圆角 */
+            box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23); /* 添加一点阴影 */
         }
          .comparison-group {
-              min-width: 100px !important; /* 确保组有最小宽度 */
-              border: none !important; /* 移除调试边框 */
-              /* 在媒体查询中设置宽度和布局 */
+            /* 移除调试样式 */
+            /* min-width: 100px !important; */
+            /* border: none !important; */
+            position: relative; /* 添加相对定位 */
+            /* 在媒体查询中设置宽度 */
          }
          /* 根据 JS 添加的类设置宽高比 */
          .comparison-wrapper.landscape {
@@ -191,47 +188,39 @@
              padding-bottom: 137.5%; /* 8:11 */
          }
 
-        /* PC 端对比区布局 (简单flex换行) */
+        /* PC 端对比区布局 (基础 Flex 换行) */
         @media screen and (min-width: 768px) {
             .comparison-container {
                 display: flex;
                 flex-wrap: wrap; /* 允许换行 */
-                justify-content: center;
-                gap: 20px; /* 组之间的间距 */
+                justify-content: center; /* 居中排列 */
+                align-items: flex-start; /* 顶部对齐 */
+                gap: 30px; /* 增大组之间的间距 */
             }
             .comparison-group {
-                flex-basis: calc(45% - 10px); /* 尝试让每行放两个，留出间距 */
-                max-width: calc(45% - 10px);
-                 /* 如果希望严格两横两竖，需要更复杂的Grid或Flex嵌套 */
+                /* 让浏览器自动计算宽度，尝试适应 */
+                flex: 1 1 40%; /* 允许放大缩小，基础宽度 40% 左右 */
+                max-width: 45%; /* 最大不超过 45%，确保一行最多两个（加上 gap） */
+                min-width: 300px; /* 设置一个最小宽度 */
             }
-            /* PC/平板标题对齐 */
-            #automotive .section-title,
-            #portrait .section-title {
-                 /* 移除之前强制右移的规则 */
-                 /* margin-left: calc(5% + 12px) !important; */ 
-                 /* 统一使用下面的规则 */
-            }
-            /* 确保所有标题左对齐 (维持 5%) */
-            body .section-title {
-                 margin-left: 5% !important;
-            }
+            /* (移除 PC 标题对齐的特殊规则，依赖基础规则) */
         }
 
-        /* 移动端对比区竖图比例修复 */
+        /* 移动端对比区竖图比例修复 (保持) */
         @media screen and (max-width: 767px) {
             .comparison-wrapper.portrait {
                 width: 85% !important; 
                 height: 0 !important;
-                padding-bottom: 137.5% !important; /* 强制 8:11 */
+                padding-bottom: 137.5% !important; 
             }
-             /* 移动端标题左边距微调 */
-            .section-title {
-                font-size: 1.5rem !important;
-                margin-left: 15px !important; /* 使用像素值尝试对齐 */
-                width: auto !important; 
-                display: block !important; 
-                margin-bottom: 1.5rem;
-            }
+            /* (手机端标题样式保持之前的修改) */
+             .section-title {
+                 font-size: 1.5rem !important;
+                 margin-left: 15px !important; 
+                 width: auto !important; 
+                 display: block !important; 
+                 margin-bottom: 1.5rem;
+             }
         }
 
         /* 调整 About 和 Contact 标题颜色 */
