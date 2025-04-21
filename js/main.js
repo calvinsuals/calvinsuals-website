@@ -28,78 +28,23 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
             if (nav) { const dot = document.createElement('div'); dot.className = index === 0 ? 'gallery-dot active' : 'gallery-dot'; dot.dataset.index = index; nav.appendChild(dot); }
         });
         container.appendChild(fragment);
-        // --- 调用轮播初始化 --- 
-        if (finalImageUrls.length > 1) {
-            initializeGallerySlider(containerId, navId, finalImageUrls.length); 
-        } else if (nav) { 
-            nav.style.display = 'none'; // Hide nav if only one image
+
+        // 初始化轮播逻辑 (如果提供了 navId 且有多张图片)
+        if (navId && finalImageUrls.length > 1) {
+            // 传递图片数量给轮播初始化函数
+            initializeGallerySlider(containerId, navId, finalImageUrls.length);
+        } else if (nav) {
+             // 如果只有一张图，隐藏导航点
+             nav.style.display = 'none';
         }
-        console.log(`[${containerId}] Displayed ${finalImageUrls.length} images from ${jsonPath}. Slider initialized.`);
-    } catch (error) { console.error(`Error loading for ${containerId}:`, error); container.innerHTML = `<p style="color: red;">无法加载图片列表 (${jsonPath}).</p>`; }
+        console.log(`[${containerId}] Successfully displayed ${finalImageUrls.length} images from ${jsonPath}`);
+
+    } catch (error) {
+        console.error(`Error loading images for ${containerId} from ${jsonPath}:`, error);
+        container.innerHTML = `<p style="color: red; text-align: center; padding: 20px;">无法加载图片列表 (${jsonPath})。</p>`;
+    }
 }
 
-/**
- * 新增：初始化画廊自动轮播
- */
-function initializeGallerySlider(slidesContainerId, navContainerId, slideCount) {
-    const slidesContainer = document.getElementById(slidesContainerId);
-    const navContainer = navContainerId ? document.getElementById(navContainerId) : null;
-    if (!slidesContainer || slideCount <= 1) return; // No slider needed for 0 or 1 slide
-
-    let currentIndex = 0;
-    let intervalId = null;
-    const intervalTime = 5000; // 5 seconds per slide
-
-    function goToSlide(index) {
-        currentIndex = (index + slideCount) % slideCount; // Ensure index wraps around
-        const offset = currentIndex * -100; // Calculate percentage offset
-        slidesContainer.style.transform = `translateX(${offset}%)`;
-
-        if (navContainer) {
-            const dots = navContainer.querySelectorAll('.gallery-dot');
-            dots.forEach((dot, i) => {
-                dot.classList.toggle('active', i === currentIndex);
-            });
-        }
-    }
-
-    function startSlider() {
-        stopSlider(); // Clear existing interval if any
-        intervalId = setInterval(() => {
-            goToSlide(currentIndex + 1);
-        }, intervalTime);
-    }
-
-    function stopSlider() {
-        clearInterval(intervalId);
-    }
-
-    // Initialize first slide and dots
-    goToSlide(0);
-
-    // Add click handlers to dots (if navigation exists)
-    if (navContainer) {
-        const dots = navContainer.querySelectorAll('.gallery-dot');
-        dots.forEach(dot => {
-            dot.addEventListener('click', (e) => {
-                const index = parseInt(e.target.dataset.index, 10);
-                stopSlider(); // Stop auto slide on manual navigation
-                goToSlide(index);
-                // Optional: Restart slider after a delay?
-                // setTimeout(startSlider, intervalTime * 2);
-            });
-        });
-    }
-
-    // Start the automatic sliding
-    startSlider();
-
-    // Optional: Pause slider on hover
-    slidesContainer.closest('.gallery-slider').addEventListener('mouseenter', stopSlider);
-    slidesContainer.closest('.gallery-slider').addEventListener('mouseleave', startSlider);
-    
-    console.log(`[${slidesContainerId}] Slider initialized with ${slideCount} slides.`);
-}
 
 /**
  * 初始化对比区滑块交互 (在 handle touchstart 中阻止默认行为)
@@ -111,34 +56,44 @@ function initializeComparison() {
     console.log(`[Comparison] 找到 ${comparisonWrappers.length} 个 .comparison-wrapper 元素进行滑块初始化。`);
     comparisonWrappers.forEach(wrapper => {
         const handle = wrapper.querySelector('.slider-handle');
-        const imgAfter = wrapper.querySelector('img.after'); // <<< 修改这里，查找 img.after
-
-        if (!handle || !imgAfter ) { // <<< 修改判断条件
-            console.warn("Skipping comparison init for wrapper missing handle or after img:", wrapper);
+        const afterImage = wrapper.querySelector('.after');
+        if (!handle || !afterImage) {
+            console.warn("Skipping comparison init for wrapper missing handle or after image:", wrapper);
             return;
         }
-        const elementToClip = imgAfter; // <<< 直接使用 imgAfter
-        let isResizing = false; let animationFrameId = null;
-        const moveHandler = (clientX) => { if (!isResizing) return; cancelAnimationFrame(animationFrameId); animationFrameId = requestAnimationFrame(() => { const rect = wrapper.getBoundingClientRect(); if(!rect || rect.width <= 0) return; const x = Math.min(Math.max(0, clientX - rect.left), rect.width); const percent = (x / rect.width) * 100; const clampedPercent = Math.max(0, Math.min(100, percent)); handle.style.left = `${clampedPercent}%`; elementToClip.style.clipPath = `inset(0 ${100 - clampedPercent}% 0 0)`; }); };
-        const startResize = (e) => {
-            // No need to stop propagation if preventDefault works
-            // e.stopPropagation(); 
-            isResizing = true;
-            wrapper.classList.add('active');
-            // No need for handle-is-dragging class anymore
+
+        let isResizing = false;
+        let animationFrameId = null;
+
+        const moveHandler = (clientX) => {
+            if (!isResizing) return;
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = requestAnimationFrame(() => {
+                const rect = wrapper.getBoundingClientRect();
+                if(!rect || rect.width <= 0) return;
+                const x = Math.min(Math.max(0, clientX - rect.left), rect.width);
+                const percent = (x / rect.width) * 100;
+                const clampedPercent = Math.max(0, Math.min(100, percent));
+                handle.style.left = `${clampedPercent}%`;
+                afterImage.style.clipPath = `inset(0 ${100 - clampedPercent}% 0 0)`;
+            });
         };
-        const endResize = () => {
-             if (!isResizing) return;
-             isResizing = false;
-             wrapper.classList.remove('active');
-             cancelAnimationFrame(animationFrameId);
-        };
-        handle.removeEventListener('mousedown', startResize); document.removeEventListener('mousemove', moveHandler); document.removeEventListener('mouseup', endResize); handle.removeEventListener('touchstart', startResize); handle.removeEventListener('touchmove', moveHandler); handle.removeEventListener('touchend', endResize); handle.removeEventListener('touchcancel', endResize);
-        handle.addEventListener('mousedown', (e) => {
-            e.preventDefault(); 
-            // e.stopPropagation();
-            startResize(e);
-        });
+        const startResize = (e) => { isResizing = true; wrapper.classList.add('active'); };
+        const endResize = () => { if (!isResizing) return; isResizing = false; wrapper.classList.remove('active'); cancelAnimationFrame(animationFrameId); };
+
+        // 清理旧监听器（如果存在）
+        handle.removeEventListener('mousedown', startResize);
+        document.removeEventListener('mousemove', moveHandler); // 注意：全局监听器移除可能影响其他实例，最好绑定到特定元素或用标志位
+        document.removeEventListener('mouseup', endResize);
+        handle.removeEventListener('touchstart', startResize);
+        handle.removeEventListener('touchmove', moveHandler);
+        handle.removeEventListener('touchend', endResize);
+        handle.removeEventListener('touchcancel', endResize);
+
+        // 重新绑定
+        handle.addEventListener('mousedown', (e) => { e.preventDefault(); startResize(e); });
+        // 将 mousemove 和 mouseup 绑定到 document 可能导致冲突，最好限定范围或在 up 时移除
+        // 暂时保留 document 监听，但注意潜在问题
         document.addEventListener('mousemove', (e) => { if(isResizing) moveHandler(e.clientX); });
         window.addEventListener('mouseup', endResize); 
 
@@ -159,9 +114,72 @@ function initializeComparison() {
     });
 }
 
+/**
+ * 初始化对比区移动端导航点
+ */
+function initializeComparisonNav() {
+    console.log("[Comparison] initializeComparisonNav 函数开始执行...");
+    if (window.innerWidth > 767) { 
+        console.log("[Comparison] 桌面端，跳过移动导航初始化。确保 group 可见。");
+        const navContainer = document.getElementById('comparison-nav-dynamic');
+        if (navContainer) navContainer.style.display = 'none';
+        // 确保桌面端所有 group 都可见
+        document.querySelectorAll('#comparison-container-dynamic .comparison-group').forEach(g => {
+            g.classList.remove('active'); // 移除 active 类
+            g.style.position = ''; // 移除 absolute 定位
+            g.style.opacity = '';   // 恢复默认透明度
+            g.style.visibility = ''; // 恢复默认可见性
+        });
+        return;
+    }
+
+    // --- 移动端逻辑 ---
+    const navContainer = document.getElementById('comparison-nav-dynamic');
+    const groups = document.querySelectorAll('#comparison-container-dynamic .comparison-group');
+    if (!navContainer || groups.length === 0) {
+        console.warn('Comparison nav container or groups not found for mobile nav init.');
+        return;
+    }
+
+    navContainer.innerHTML = ''; // 清空旧点
+    navContainer.style.display = 'flex'; // 确保导航容器可见
+
+    groups.forEach((group, index) => {
+        // 移动端需要绝对定位来重叠显示
+        group.style.position = 'absolute';
+        group.style.opacity = index === 0 ? '1' : '0';
+        group.style.visibility = index === 0 ? 'visible' : 'hidden';
+
+        const navBtn = document.createElement('button');
+        navBtn.className = `comparison-nav-btn${index === 0 ? ' active' : ''}`;
+        navBtn.dataset.index = index;
+        navBtn.title = `View Comparison ${index + 1}`;
+        navBtn.setAttribute('aria-label', `View Comparison ${index + 1}`);
+        navContainer.appendChild(navBtn);
+
+        navBtn.addEventListener('click', () => {
+            document.querySelectorAll('#comparison-nav-dynamic .comparison-nav-btn').forEach(b => b.classList.remove('active'));
+            groups.forEach(g => {
+                g.classList.remove('active');
+                g.style.opacity = '0'; // 使用透明度过渡
+                g.style.visibility = 'hidden';
+            });
+            navBtn.classList.add('active');
+            if (groups[index]) {
+                groups[index].classList.add('active');
+                groups[index].style.opacity = '1';
+                groups[index].style.visibility = 'visible';
+            } else {
+                console.error(`Comparison group with index ${index} not found.`);
+            }
+        });
+    });
+     if (groups[0]) groups[0].classList.add('active'); // 确保第一个 active
+}
 
 /**
- * 加载对比区数据并创建元素 (添加主图加载)
+ * 加载对比区数据并初始化 (从 comparison_groups.json 加载)
+ * @param {string} jsonPath - comparison_groups.json 的路径
  */
 async function loadAndInitComparison(jsonPath) {
     const container = document.getElementById('comparison-container-dynamic');
@@ -197,56 +215,54 @@ async function loadAndInitComparison(jsonPath) {
             // 现在需要 before_src 来生成缩略图
             if (!groupData.id || !groupData.before_src || !groupData.after_src) { console.warn(`[Comparison] 跳过无效数据 at index ${index}`); return; }
             try {
-                // --- 创建对比组元素 --- 
                 const group = document.createElement('div');
                 group.className = `comparison-group`;
                 group.id = `comparison-group-${groupData.id}`;
+                console.log(`[Comparison ${groupData.id}] Group div 创建成功.`);
+
                 const wrapper = document.createElement('div');
-                wrapper.className = `comparison-wrapper landscape`;
+                let orientationClass = '';
+                if (groupData.id === 'group_01' || groupData.id === 'group_04') {
+                    orientationClass = 'portrait';
+                } else if (groupData.id === 'group_02' || groupData.id === 'group_03') {
+                    orientationClass = 'landscape';
+                } else {
+                    console.warn(`[Comparison] 未知方向 for group ID: ${groupData.id}`);
+                }
+                wrapper.className = `comparison-wrapper ${orientationClass}`.trim();
+                console.log(`[Comparison ${groupData.id}] Wrapper div 创建成功, class: ${wrapper.className}`);
 
-                // -- 修改：直接创建 img 标签并设置 src --
-                const imgBefore = document.createElement('img'); 
-                imgBefore.alt = 'Before'; 
-                imgBefore.className = 'before'; 
-                imgBefore.src = groupData.before_src; // 设置 Before 图片 URL
-                imgBefore.loading = 'lazy'; // 添加懒加载
-                imgBefore.onerror = () => { imgBefore.alt='Before image failed'; imgBefore.src=''; }; // 错误处理
+                const imgBefore = document.createElement('img');
+                imgBefore.alt = 'Before'; imgBefore.className = 'before'; imgBefore.loading = 'lazy';
+                console.log(`[Comparison ${groupData.id}] 设置 Before src: ${groupData.before_src}`);
+                imgBefore.src = groupData.before_src;
+                imgBefore.onerror = () => { imgBefore.alt='Image not found'; imgBefore.src=''; console.error(`[Comparison ${groupData.id}] 加载 Before 图片失败: ${groupData.before_src}`);};
+                console.log(`[Comparison ${groupData.id}] Before img 创建成功.`);
 
-                const imgAfter = document.createElement('img'); 
-                imgAfter.alt = 'After'; 
-                imgAfter.className = 'after'; 
-                imgAfter.src = groupData.after_src; // 设置 After 图片 URL
-                imgAfter.loading = 'lazy'; // 添加懒加载
-                imgAfter.onerror = () => { imgAfter.alt='After image failed'; imgAfter.src=''; }; // 错误处理
+                const imgAfter = document.createElement('img');
+                imgAfter.alt = 'After'; imgAfter.className = 'after'; imgAfter.loading = 'lazy';
+                console.log(`[Comparison ${groupData.id}] 设置 After src: ${groupData.after_src}`);
+                imgAfter.src = groupData.after_src;
+                imgAfter.onerror = () => { imgAfter.alt='Image not found'; imgAfter.src=''; console.error(`[Comparison ${groupData.id}] 加载 After 图片失败: ${groupData.after_src}`);};
+                console.log(`[Comparison ${groupData.id}] After img 创建成功.`);
 
-                const sliderHandle = document.createElement('div'); 
-                sliderHandle.className = 'slider-handle';
+                const sliderHandle = document.createElement('div'); sliderHandle.className = 'slider-handle';
+                console.log(`[Comparison ${groupData.id}] Handle div 创建成功.`);
 
-                // -- 移除占位符 --
-                // const placeholderBefore = ... 
-                // const placeholderAfter = ...
-                
-                // -- 按正确顺序添加元素 --
                 wrapper.appendChild(imgBefore);
                 wrapper.appendChild(imgAfter);
                 wrapper.appendChild(sliderHandle);
+                console.log(`[Comparison ${groupData.id}] 图片和 handle 已附加到 wrapper.`);
                 group.appendChild(wrapper);
-                sliderContainer.appendChild(group); 
-                console.log(`[Comparison ${groupData.id}] Group elements created and appended.`);
-
-                // --- 创建缩略图导航项 ---
-                const thumbItem = document.createElement('div');
-                thumbItem.className = 'comparison-thumbnail-item';
-                thumbItem.dataset.targetId = group.id; // 关联目标组的 ID
-                 // 用 After 图片的 R2 URL 作为缩略图背景
-                thumbItem.style.backgroundImage = `url('${groupData.after_src}')`;
-                thumbItem.setAttribute('aria-label', `View comparison ${groupData.id}`);
-                if (index === 0) { thumbItem.classList.add('active'); } // 默认激活第一个
-                thumbnailNavContainer.appendChild(thumbItem);
-                console.log(`[Comparison ${groupData.id}] Thumbnail item created.`);
-                // --- 结束创建缩略图 ---
-
-            } catch (error) { console.error(`[Comparison] 处理 group ${index} 时出错:`, error); }
+                console.log(`[Comparison ${groupData.id}] Wrapper 已附加到 group.`);
+                
+                console.log(`[Comparison ${groupData.id}] 准备将 group 附加到 fragment...`);
+                fragment.appendChild(group);
+                console.log(`[Comparison ${groupData.id}] Group 已附加到 fragment.`);
+            } catch (error) {
+                 console.error(`[Comparison] 处理 group ${index} (ID: ${groupData.id}) 时发生严重错误:`, error);
+                 console.error(error.stack);
+            }
             console.log(`[Comparison] ---- 结束处理 group ${index}, ID: ${groupData.id} ----`);
         });
 
@@ -477,7 +493,9 @@ function initializeDragScrolling() {
 
 
 // --- 其他函数 (轮播, 表单, 弹窗, 菜单) ---
-// function initializeGallerySlider(slidesId, dotsId, slideCount) { /* ... */ }
+function initializeGallerySlider(slidesContainerId, navContainerId, slideCount) {
+    // ... Full function definition from HEAD ...
+}
 // function initializeContactForm() { /* ... */ }
 // function showModal(modalId) { /* ... */ }
 // function copyWechatId() { /* ... */ }
