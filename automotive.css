@@ -71,10 +71,10 @@
     display: none;
 }
 
-/* 修正汉堡菜单颜色 */
-.automotive-page .menu-toggle span {
+/* 修正汉堡菜单颜色 - 注释掉此规则以恢复白色图标 */
+/* .automotive-page .menu-toggle span {
     background-color: #374151;
-}
+} */
 
 /* 展示区域容器 */
 .showcase-wrapper {
