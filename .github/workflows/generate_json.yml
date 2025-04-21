@@ -29,6 +29,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Cat generate_galleries.py
+        run: cat generate_galleries.py
+
       - name: Debug Environment Variables
         run: |
           echo "Checking secrets context directly:"
