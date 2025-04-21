@@ -29,6 +29,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Debug Environment Variables
+        run: |
+          echo "R2_ENDPOINT_URL is set: ${{ env.R2_ENDPOINT_URL != '' }}"
+          echo "R2_ACCESS_KEY_ID is set: ${{ env.R2_ACCESS_KEY_ID != '' }}"
+          # DO NOT print the secret key!
+          echo "R2_BUCKET_NAME is set: ${{ env.R2_BUCKET_NAME != '' }}"
+          echo "R2_PUBLIC_BASE_URL is set: ${{ env.R2_PUBLIC_BASE_URL != '' }}"
+        env:
+          R2_ENDPOINT_URL: ${{ secrets.R2_ENDPOINT_URL }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+          R2_PUBLIC_BASE_URL: ${{ secrets.R2_PUBLIC_BASE_URL }}
+
       - name: Run script to generate JSON
         run: python generate_galleries.py
         env: # Use secrets, DO NOT HARDCODE VALUES HERE!
