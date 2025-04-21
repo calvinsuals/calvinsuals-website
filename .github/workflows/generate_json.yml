@@ -31,7 +31,7 @@ jobs:
 
       - name: Run script to generate JSON
         run: python generate_galleries.py
-        env:
+        env: # Use secrets, DO NOT HARDCODE VALUES HERE!
           R2_ENDPOINT_URL: ${{ secrets.R2_ENDPOINT_URL }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
