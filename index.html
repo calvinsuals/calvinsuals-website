@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CalvinSuals Photography</title>
+    <!-- 字体 (Add 600 weight for Montserrat) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Updated Montserrat to include 600 weight -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400&family=Montserrat:wght@300;400;500;600;700;800&family=Raleway:wght@300;400&family=Open+Sans:wght@300;400&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500&family=M+PLUS+Rounded+1c:wght@400;500&family=Varela+Round&family=Quicksand:wght@400;500&family=Comfortaa:wght@400;500&display=swap" rel="stylesheet">
     <!-- 样式 -->
     <!-- <link rel="stylesheet" href="navigation.css"> --> <!-- Removed as file does not exist -->
     <!-- <link rel="stylesheet" href="footer.css"> --> <!-- Removed as file does not exist -->
@@ -22,13 +28,16 @@
 
         /* Base Section Styling - Full Width Background */
         .section, .comparison-section, .contact-section, .footer, .hero {
-            width: 100%; /* Ensure sections span full width */
-            max-width: none !important; /* Remove any max-width */
-            margin-left: 0 !important; /* Remove specific margins */
+            width: 100%; 
+            max-width: none !important; 
+            margin-left: 0 !important; 
             margin-right: 0 !important;
-            padding-left: 0; /* Remove horizontal padding, keep vertical */
-            padding-right: 0;
-            box-sizing: border-box; /* Ensure padding is included correctly */
+            padding-left: 0 !important; 
+            padding-right: 0 !important;
+            box-sizing: border-box; 
+            /* 添加调试边框 - REMOVED */
+            /* border-top: 2px solid lime !important; */ 
+            /* border-bottom: 2px solid lime !important; */ 
         }
 
         /* Keep vertical padding where it was defined */
@@ -36,8 +45,10 @@
             padding-top: 60px;
             padding-bottom: 60px;
         }
-        .comparison-section { /* Assuming it uses .section base padding */
-            /* padding-top/bottom inherited or defined */
+        .comparison-section { 
+             padding-top: 60px;
+             padding-bottom: 60px;
+             /* 确保与 .section 一致 */
         }
         .contact-section {
             padding-top: 60px;
@@ -140,71 +151,129 @@
         /* 对比区容器宽度与其他区域对齐 */
         .comparison-container {
             max-width: 1400px; 
-            width: 95%; 
-            margin: 60px auto; /* 增加上下边距 */
-            padding-top: 30px;
-            padding-bottom: 80px; /* 增加底部 padding 给导航点留空间 */
-            position: relative; /* 保持相对定位 */
-        }
-
-        /* 强制显示对比区图片 & 设置宽高比 */
-        .comparison-wrapper img {
-            /* 移除之前的 !important 调试样式 */
-            display: block;
-            visibility: visible;
-            opacity: 1;
-            width: 100%;
-            height: 100%; 
-            object-fit: cover;
-            position: absolute; 
-            top: 0;
-            left: 0;
-            border-radius: 0 !important; /* 强制移除圆角 */
-            border: none; /* 移除调试边框 */
-        }
-        .comparison-wrapper {
-            /* 移除调试样式 */
-            /* min-height: 100px !important; */
-            overflow: hidden !important; 
-            /* border: none !important; */ 
+            width: 95%;       
+            margin: 60px auto; 
+            padding: 30px 0 50px; /* 调整上下 padding */
             position: relative; 
-            width: 100%; 
-            height: 0; 
-            border-radius: 0 !important; /* 强制移除圆角 */
-            box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23); /* 添加一点阴影 */
+            box-sizing: border-box; 
+            /* overflow: hidden; */ /* Removed to prevent shadow clipping */
+             /* 移除所有旧的 display, grid, flex 属性 */
+             /* display: grid !important; */ 
+             /* display: flex !important; */
+             /* grid-template-columns: none; */
         }
+        
+        /* 滑动容器样式 */
+ 
+        .comparison-slider.active-drag {
+            cursor: grabbing; /* Change cursor while dragging */
+        }
+        .comparison-slider::-webkit-scrollbar {
+            display: none; 
+        }
+        
+        /* 对比组样式 (所有屏幕尺寸统一) */
          .comparison-group {
-            /* 移除调试样式 */
-            /* min-width: 100px !important; */
-            /* border: none !important; */
-            position: relative; /* 添加相对定位 */
-            /* 在媒体查询中设置宽度 */
+            flex-basis: 50%; 
+            flex-shrink: 0; 
+            flex-grow: 0; 
+            width: 50%; 
+            /* scroll-snap-align: center !important; */ 
+            margin-left: 27.5%; 
+            margin-right: 22.5%; 
+            box-sizing: border-box;
+            position: relative; 
+            vertical-align: top !important; 
+            /* Remove padding, use pseudo-elements for spacing */
+            /* 
+            padding-top: 35px; 
+            padding-bottom: 55px; 
+            */
          }
-         /* 根据 JS 添加的类设置宽高比 */
-         .comparison-wrapper.landscape {
-             padding-bottom: 62.5%; /* 16:10 */
+         /* Add pseudo-elements for vertical spacing */
+         .comparison-group::before {
+             content: '';
+             display: block;
+             height: 40px; /* Further increased height */
          }
-         .comparison-wrapper.portrait {
-             padding-bottom: 137.5%; /* 8:11 */
+         .comparison-group::after {
+             content: '';
+             display: block;
+             height: 60px; /* Further increased height */
          }
+         /* Override right margin ONLY for the last item */
+         .comparison-group:last-child {
+             margin-right: 27.5%; 
+         }
+         
+         /* 对比包装器样式 (统一横向比例和直角) */
+         .comparison-wrapper {
+             position: relative; 
+             width: 100%; 
+             height: 0;
+             /* Remove margin */
+             /* margin-top: ...; */ 
+             /* margin-bottom: ...; */ 
+             border-radius: 0 !important; 
+             /* Remove filter, restore box-shadow */
+             /* filter: drop-shadow(...); */ 
+             /* Reduce blur radius significantly to prevent clipping */
+             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.45), 0 8px 15px rgba(0, 0, 0, 0.35); 
+             padding-bottom: 62.5% !important; 
+             transform: translateZ(0); /* Add back for potential rendering boost */
+         }
+         .comparison-wrapper img {
+             position: absolute; top: 0; left: 0;
+             width: 100%; height: 100%; 
+             object-fit: cover;
+             border-radius: 0 !important; 
+         }
+         /* (滑块样式保持不变) */
 
-        /* PC 端对比区布局 (基础 Flex 换行) */
-        @media screen and (min-width: 768px) {
+        /* PC 端对比区 Grid 布局 (调整为更灵活) */
+        @media screen and (min-width: 768px) { /* 应用于平板和 PC */
             .comparison-container {
-                display: flex;
-                flex-wrap: wrap; /* 允许换行 */
-                justify-content: center; /* 居中排列 */
-                align-items: flex-start; /* 顶部对齐 */
-                gap: 30px; /* 增大组之间的间距 */
+                display: flex; /* 改回 Flexbox，更适合数量不定的情况 */
+                flex-wrap: wrap; 
+                justify-content: center;
+                align-items: flex-start; 
+                /* 覆盖之前的 Grid 样式 */
+                grid-template-columns: none; 
             }
             .comparison-group {
-                /* 让浏览器自动计算宽度，尝试适应 */
-                flex: 1 1 40%; /* 允许放大缩小，基础宽度 40% 左右 */
-                max-width: 45%; /* 最大不超过 45%，确保一行最多两个（加上 gap） */
-                min-width: 300px; /* 设置一个最小宽度 */
+                flex: 1 1 300px; /* 允许伸缩，基础宽度 300px */
+                max-width: 45%;   /* 每行最多两个 */
+                min-width: 300px; 
+                 /* 移除 Grid 布局相关的样式 */
+                grid-column: auto;
+                grid-row: auto;
             }
-            /* (移除 PC 标题对齐的特殊规则，依赖基础规则) */
+            /* 移除 middle-column 布局 */
+            .comparison-middle-column { 
+                display: contents; 
+            }
+
+            /* 强制横竖图宽高比 */
+            .comparison-wrapper {
+                 position: relative; 
+                 width: 100%; 
+                 height: 0;
+                 border-radius: 0 !important; 
+                 /* box-shadow moved to group */
+            }
+            .comparison-wrapper.landscape {
+                padding-bottom: 62.5%; /* 16:10 */
+            }
+            /* 移除占位符边框 */
+            .placeholder-box {
+                 border: none;
+            }
+            /* 移除之前可能添加的调试边框 */
+             .comparison-wrapper, .comparison-group {
+                 border: none !important;
+             }
         }
+        /* --- 结束 PC/平板对比区布局 --- */
 
         /* 移动端对比区竖图比例修复 (保持) */
         @media screen and (max-width: 767px) {
@@ -244,7 +313,7 @@
         }
         /* 保留 About 区文本为深色 */
         .about-text-container {
-             color: #333;
+             color: #666;
         }
 
         /* 页脚样式调整 */
@@ -277,7 +346,7 @@
         
         body {
             font-family: 'Montserrat', sans-serif;
-            line-height: 1.6;
+            /* line-height: 1.6; */ /* Removed to align with other pages */
             color: #333; /* 默认深色文字 */
             
             
@@ -374,8 +443,11 @@
             background-color: rgba(0, 0, 0, 0.9);
             z-index: 1000;
             transform: translateY(-100%);
-            transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
+            /* Add opacity to the transition */
+            transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1),
+                        opacity 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
             visibility: hidden;
+            opacity: 0; /* Start transparent */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -384,6 +456,8 @@
         .menu-content.active {
             transform: translateY(0);
             visibility: visible;
+            opacity: 1; /* Become opaque */
+            /* No need to redefine transition here */
         }
         
         .menu-items {
@@ -410,6 +484,7 @@
             text-align: center;
             width: 100%;
             box-sizing: border-box;
+            line-height: normal; /* Explicitly set line-height */
         }
         
         .menu-items a:hover {
@@ -472,17 +547,21 @@
         }
         
         .hero-content .name {
-            font-size: 2.5rem;
+            /* font-size: 3rem; */ /* Removed previous size */
+            font-size: 4rem; /* Increased font size further */
             margin: 0;
             letter-spacing: 2px;
             text-transform: lowercase;
-            font-weight: 800;
+            /* font-weight: 700; */ /* Removed Bold */
+            font-weight: 600; /* Changed base to SemiBold */
             line-height: 1;
         }
         
         .hero-content .tagline {
-            font-size: 1.2rem;
-            margin-top: 40px;
+            /* font-size: 1.3rem; */ /* Removed previous size */
+            font-size: 1.4rem; /* Increased font size again */
+            /* margin-top: 80px; */ /* Removed previous value */
+            margin-top: 85px; /* Increased top margin slightly */
             opacity: 0.9;
             font-weight: 400;
             letter-spacing: 1.5px;
@@ -514,14 +593,18 @@
         @media screen and (max-width: 767px) {
             .hero-content .tagline {
                 font-size: 0.8rem !important;
-                margin-top: 20px !important; /* 减少上边距，上移3行 */
+                /* margin-top: 20px !important; */ /* Removed previous value */
+                margin-top: 40px !important; /* Increased top margin for Mobile */
                 padding: 0 10px;
                 line-height: 1.4;
                 white-space: nowrap;
                 letter-spacing: 0;
                 transform: scale(1);
                 text-align: center;
-                margin: 0 auto;
+                /* margin: 0 auto; */ /* Let margin-top take effect */
+                margin-left: auto; /* Keep horizontal centering */
+                margin-right: auto; /* Keep horizontal centering */
+                margin-bottom: 0; /* Ensure no bottom margin conflicts */
             }
 
             .hero-content .tagline::before,
@@ -735,83 +818,13 @@
             background-color: transparent; /* 改为透明背景 */
             padding: 60px 20px; 
             width: 100%;
-            margin-left: auto;
-            margin-right: auto;
-            max-width: 1800px; 
+            /* margin-left: auto !important; */ /* Removed: Let section be full width */
+            /* margin-right: auto !important; */ /* Removed: Let section be full width */
+            /* max-width: 1800px; */ /* Removed: Let section be full width */
             position: relative; /* 确保 section 有定位上下文 */
             z-index: 1; /* 确保在 hero 之下 (如果 hero 有 z-index) */
-        }
+        } /*
         
-        .comparison-container {
-            display: flex;
-            justify-content: center; /* 整个对比区居中 */
-            align-items: center; /* 纵向居中 */
-            white-space: normal;
-            overflow-x: visible;
-            padding: 0;
-            margin: 0 auto;
-            max-width: 80%; /* 调整为屏幕的80% */
-            padding-top: 30px; /* 增加顶部间距 */
-            padding-bottom: 30px; /* 增加底部间距 */
-        }
-        
-        .comparison-container::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
-        }
-        
-        .comparison-group {
-            display: inline-block;
-            vertical-align: top;
-            margin-right: 20px;
-            width: 90%; /* 增加宽度 */
-            white-space: normal;
-        }
-        
-        .comparison-group:nth-child(2) {
-            width: 95%; /* 横图组宽度增加 */
-            position: relative;
-            top: 20px; /* 向下移动，从50px减少到20px，使其更接近水平居中 */
-            margin-bottom: 20px; /* 补偿向下移动的空间 */
-        }
-        
-        .comparison-wrapper {
-            position: relative;
-            overflow: hidden;
-            border-radius: 0 !important; /* 确保直角 */
-            box-shadow: 0 20px 50px rgba(0,0,0,0.45), 0 10px 25px rgba(0,0,0,0.3); /* 恢复原始双层阴影效果 */
-            margin-bottom: 10px;
-            border: none; /* 移除边框 */
-            transform: perspective(1000px) translateZ(0); /* 增加透视效果 */
-        }
-        
-        /* 移动端横图：宽高比16:10 */
-        .comparison-wrapper.landscape {
-            width: 110%;
-            height: 0;
-            padding-bottom: 62.5%; /* 16:10 比例 = 10/16 = 0.625 = 62.5% */
-            max-width: 110%;
-            margin: 0 -5%; /* 使用负边距使图片居中 */
-            border-radius: 8px !important;
-            overflow: hidden; /* 确保圆角效果可见 */
-            position: relative; /* 添加相对定位 */
-        }
-        
-        /* 移动端竖图：宽高比8:11 */
-        .comparison-wrapper.portrait {
-            width: 85%;
-            height: 0;
-            padding-bottom: 137.5%; /* 精确比例 11/8 */
-            margin: 0 auto;
-        }
-        
-        .comparison-wrapper img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
         
         .before {
             z-index: 1;
@@ -822,7 +835,7 @@
             clip-path: inset(0 50% 0 0);
             will-change: clip-path; 
             transform: translateZ(0); /* 尝试硬件加速 */
-        }
+        
         
         .slider-handle {
             position: absolute;
@@ -1077,9 +1090,8 @@
         .contact-form {
             width: 100%;
             max-width: 500px; /* 恢复稍大一点的宽度 */
-            margin: 40px auto 0; /* 增加上边距并居中 */
-            position: relative;
-            padding-bottom: 70px; /* 调整按钮空间 */
+            margin: 40px auto; /* Keep top/bottom auto margin */
+            /* Explicitly removed background, padding, radius, shadow from form container */
         }
         
         .form-group {
@@ -1091,26 +1103,29 @@
             margin-bottom: 5px; 
             font-size: 0.9rem; /* 恢复稍大字体 */
             display: block; /* 确保标签占一行 */
+            color: #aaa !important; /* Force gray color for labels */
         }
         
         .form-group input,
         .form-group textarea {
             padding: 10px 12px; 
             border-radius: 6px; 
-            font-size: 0.9rem; /* 恢复稍大字体 */
-            width: 100%; /* 确保占满宽度 */
-            border: 1px solid rgba(255, 255, 255, 0.3); /* 使用半透明白色边框 */
-            background-color: rgba(255, 255, 255, 0.1); /* 半透明背景 */
-            color: #fff; /* 文字颜色改为白色 */
+            font-size: 0.9rem; 
+            width: 100%; 
+            border: 1px solid rgba(150, 150, 150, 0.3); /* Adjust border for gray text */
+            background-color: rgba(255, 255, 255, 0.05); /* Slightly less bright background */
+            color: #ccc; 
             transition: all 0.3s ease;
-            outline: none; /* 移除焦点时的默认轮廓 */
+            outline: none; 
+            /* box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); */ /* Remove inset shadow */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Add subtle outer shadow */
         }
         
         .form-group input:focus,
         .form-group textarea:focus {
-            border-color: rgba(255, 255, 255, 0.5); /* 聚焦时边框更明显 */
-            background-color: rgba(255, 255, 255, 0.15); /* 聚焦时稍微亮一点 */
-            box-shadow: 0 0 5px rgba(255, 255, 255, 0.2); /* 轻微发光效果 */
+            border-color: rgba(180, 180, 180, 0.5); /* Adjust focus border */
+            background-color: rgba(255, 255, 255, 0.1); /* Adjust focus background */
+             box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Keep outer shadow on focus */
         }
         
         .form-group input::placeholder,
@@ -1135,6 +1150,8 @@
             border: none;
             background-color: #e8e6e1; /* 默认按钮颜色 */
             color: #333;
+            font-family: 'Montserrat', sans-serif; /* Set font */
+            text-transform: uppercase; /* Set text to uppercase */
         }
          .submit-btn:hover {
              background-color: #dcdad7;
@@ -1165,7 +1182,7 @@
         .footer {
             position: static;
             background-color: transparent !important;
-            color: rgba(0, 0, 0, 0.7);
+            color: rgba(0, 0, 0, 0.7); /* Base color, opacity changed in p */
             text-align: center;
             padding: 15px 0;
             width: 100%;
@@ -1176,6 +1193,7 @@
         .footer p {
             margin: 0;
             font-size: 0.9rem;
+            color: rgba(0, 0, 0, 0.25); /* Change opacity to 25% */
         }
 
         @media (max-width: 767px) {
@@ -1185,7 +1203,7 @@
             }
             
             .footer p {
-                font-size: 0.8rem;
+                font-size: 0.55rem; /* Further reduced font size */
             }
         }
 
@@ -1230,326 +1248,22 @@
             transform: translateY(-3px);
         }
 
-        /* 修复手机端样式 */
+        /* 修复手机端样式 (合并后的单一媒体查询块) */
         @media screen and (max-width: 767px) {
-            /* 重置标题大小和位置 */
-            .section-title {
-                font-size: 1.5rem !important;
-                margin-left: calc(2% - 1px) !important; /* 统一所有标题的左边距 */
-                width: 97% !important; /* 统一所有标题的宽度 */
-                margin-bottom: 1.5rem;
-            }
-            
-            /* 减小section内边距 */
-            .section, 
-            .comparison-section,
-            .contact-section {
-                padding: 40px 15px !important;
-                width: 100% !important;
-            }
-            
-            /* 重置缩放和变换 */
-            html, body {
-                transform: none !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                zoom: 1 !important;
-                -moz-transform: none !important;
-                -webkit-transform: none !important;
-                overflow-x: hidden !important;
-            }
-            
-            body {
-                margin: 0 !important;
-                padding: 0 !important;
-                font-size: 14px !important;
-            }
+            /* ... existing styles ... */
             
             /* 重置hero区域尺寸 */
-            .hero {
-                height: 100vh;
-                max-height: 100vh;
-                width: 100% !important;
-            }
-            
-            .hero-container {
-                width: 100% !important;
-            }
-            
+            /* ... */
             .hero-content .name {
                 font-size: 2rem !important;
+                font-weight: 600; /* Changed mobile to SemiBold */
             }
             
             .hero-content .tagline {
-                font-size: 0.8rem !important;
-                margin-top: 20px !important;
-                padding: 0 10px;
-                line-height: 1.4;
-                white-space: nowrap;
-                letter-spacing: 0;
+            /* ... */
             }
-            
-            /* 重置标题大小 */
-            .section-title {
-                font-size: 1.5rem !important;
-                margin-left: calc(2% - 1px) !important; /* 统一所有标题的左边距 */
-                width: 97% !important; /* 统一所有标题的宽度 */
-                margin-bottom: 1.5rem;
-            }
-            
-            /* 减小section内边距 */
-            .section, 
-            .comparison-section,
-            .contact-section {
-                padding: 40px 15px !important;
-                width: 100% !important;
-            }
-            
-            /* 修复菜单尺寸 */
-            .menu-toggle {
-                top: 15px;
-                right: 15px;
-                width: 35px;
-                height: 35px;
-            }
-            
-            .menu-content {
-                width: 100% !important;
-                left: 0 !important;
-                margin-left: 0 !important;
-                height: 100%;
-                display: flex !important;
-                justify-content: center !important;
-                align-items: center !important;
-            }
-            
-            .menu-items {
-                height: auto !important;
-                max-width: 300px !important;
-            }
-            
-            .menu-items a {
-                font-size: 1.2rem;
-                padding: 12px 0;
-                margin: 8px 0;
-            }
-            
-            /* 移动端对比区优化 */
-            .comparison-container {
-                padding: 0 !important;
-                height: auto;
-                min-height: 450px;
-                overflow: hidden;
-                margin: 0 auto;
-                width: 100% !important;
-                position: relative;
-            }
-            
-            .comparison-group {
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                width: 100%;
-                height: 90%;
-                opacity: 0;
-                visibility: hidden;
-                transition: opacity 0.3s ease;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                margin: 0 auto;
-            }
-            
-            .comparison-group.active {
-                opacity: 1;
-                visibility: visible;
-            }
-            
-            /* 移动端阴影调整 */
-            .comparison-wrapper {
-                box-shadow: 0 2px 3px rgba(0,0,0,0.25), 0 1px 2px rgba(0,0,0,0.22) !important; /* 双层小阴影增强立体感 */
-                border: 1px solid rgba(0,0,0,0.03) !important; /* 微妙边框 */
-            }
-            
-            /* 移动端横图优化 */
-            .comparison-wrapper.landscape {
-                width: 130%;
-                height: 0;
-                padding-bottom: 62.5%;
-                margin: 0 -15%;
-                border-radius: 0 !important;
-                overflow: hidden;
-                position: relative;
-                /* 内嵌阴影增强立体感 */
-                background: linear-gradient(to bottom, #000, transparent 2px, transparent calc(100% - 2px), #000) !important;
-                background-size: 100% 100% !important;
-                background-repeat: no-repeat !important;
-            }
-            
-            /* 移动端竖图优化 */
-            .comparison-wrapper.portrait {
-                width: 85% !important;
-                height: 0 !important;
-                padding-bottom: 137.5% !important;
-                margin: 0 auto !important;
-                border-radius: 0 !important;
-                position: relative !important;
-                overflow: hidden !important;
-                /* 内嵌阴影增强立体感 */
-                background: linear-gradient(to bottom, #000, transparent 2px, transparent calc(100% - 2px), #000) !important;
-                background-size: 100% 100% !important;
-                background-repeat: no-repeat !important;
-            }
-            
-            /* 移动端导航按钮优化 */
-            .comparison-nav {
-                display: flex !important;
-                justify-content: center;
-                position: absolute;
-                bottom: 15px;
-                left: 0;
-                right: 0;
-                gap: 12px;
-                z-index: 10;
-                opacity: 1 !important;
-                visibility: visible !important;
-            }
-            
-            .comparison-nav-btn {
-                width: 10px; /* 保持尺寸 */
-                height: 10px;
-                border-radius: 50%;
-                background-color: rgba(204, 204, 204, 0.7); /* 灰色，稍透明 */
-                border: 1px solid rgba(51, 51, 51, 0.5); /* 添加边框增加可见性 */
-                padding: 0;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                opacity: 1 !important; /* 强制可见 */
-                visibility: visible !important;
-            }
-            
-            .comparison-nav-btn.active {
-                background-color: rgba(51, 51, 51, 0.9); /* 深色，稍透明 */
-                transform: scale(1.1);
-            }
-            
-            /* 移动端关于我区样式优化 */
-            #about {
-                padding: 40px 15px !important;
-            }
-            
-            .about-content {
-                gap: 15px;
-            }
-            
-            .about-image {
-                max-width: 200px;
-                height: 200px;
-            }
-            
-            .about-text {
-                padding: 0 10px;
-            }
-            
-            /* 移动端联系表单优化 */
-            .contact-form {
-                padding-bottom: 50px;
-            }
-            
-            .form-group {
-                margin-bottom: 12px;
-            }
-            
-            .form-group input,
-            .form-group textarea {
-                padding: 8px 10px;
-            }
-            
-            /* 重置变换 */
-            .hero-content, 
-            .gallery-container, 
-            .comparison-container, 
-            .about-content, 
-            .contact-container,
-            .footer {
-                transform: none !important;
-                width: 100% !important;
-            }
-            
-            /* 优化移动端轮播图 */
-            .gallery-preview {
-                max-width: 100%; /* 移动端使用全宽 */
-                margin-bottom: 25px; /* 减小底部间距 */
-            }
-            
-            .gallery-slide {
-                padding-bottom: 50%; /* 保持2:1比例 */
-                height: 0 !important;
-            }
-            
-            .gallery-slider {
-                border-radius: 5px; /* 减小圆角 */
-            }
-            
-            .more-projects {
-                margin-top: 15px; /* 减小间距 */
-                font-size: 0.8rem; /* 减小字体大小 */
-            }
-        }
 
-        /* 移动端样式 */
-        @media screen and (max-width: 767px) {
-            /* 移动端关于我区域样式 */
-            .about-content {
-                padding: 0 10px;
-                padding-top: 20px;
-                flex-direction: column; /* Stack image and text */
-                align-items: center;   /* Center items horizontally */
-                gap: 15px;
-            }
-            
-            .about-image {
-                width: 180px;
-                height: 180px;
-                margin: 0 auto 25px;
-                flex: none; /* Reset flex property for column layout */
-            }
-            
-            .about-text {
-                font-size: 0.95rem;
-                padding-left: 5%;
-                padding-right: 5%;
-                max-width: 100%;
-                margin: 0 auto;
-                text-align: center; /* Center text on mobile */
-                flex: none; /* Reset flex property for column layout */
-            }
-            
-            #about {
-                min-height: 600px; /* 增加最小高度 */
-                padding-bottom: 120px; /* 增加底部内边距，为社交图标留出更多空间 */
-            }
-            
-            #about .section-title {
-                margin-bottom: 20px;
-            }
-            
-            .about-social {
-                bottom: 40px; /* 将社交图标向下移动 */
-                gap: 15px;
-            }
-            
-            .about-social .social-link {
-                width: 35px;
-                height: 35px;
-            }
-            
-            .about-social svg {
-                width: 20px;
-                height: 20px;
-            }
+            /* ... other mobile styles ... */
         }
 
         /* 弹窗基础样式 */
@@ -1931,9 +1645,13 @@
             margin: 0 auto; /* 居中放置 */
             padding-left: 20px;
             padding-right: 20px;
-            color: #333; /* 确保文字颜色保持一致 */
-                font-size: 1.05rem;
-                line-height: 1.7;
+            color: #999; /* Changed to an even lighter gray */
+            font-size: 1.05rem;
+            line-height: 1.7;
+            font-family: 'Montserrat', sans-serif !important; /* Force font */
+        }
+        .about-text-container p {
+            font-family: 'Montserrat', sans-serif !important; /* Force font */
         }
 
         /* 移动端样式调整 */
@@ -1971,43 +1689,407 @@
             .section .section-title,
             .comparison-section .section-title,
             .contact-section .section-title {
-                margin-left: 5% !important; /* 统一所有标题的左边距 */
+                /* color: #222 !important; */ /* Revert dark gray */
+                color: #777 !important; /* Change title color to mid-gray */
+                margin-left: 5% !important; 
                 padding-left: 0 !important;
                 padding-right: 0 !important;
                 text-indent: 0 !important;
-                letter-spacing: normal !important;
+                letter-spacing: 2px !important; 
                 word-spacing: normal !important;
                 box-sizing: border-box !important;
                 width: auto !important;
                 display: inline-block !important;
                 overflow: visible !important;
                 position: relative !important;
+                /* font-family: 'Montserrat', sans-serif !important; */ 
             }
-            
-            /* 特殊处理：将automotive和portrait标题右移12px对齐 */
-            html body #automotive .section-title,
-            html body #portrait .section-title,
-            html body section#automotive .section-title,
-            html body section#portrait .section-title,
-            body .section#automotive .section-title,
-            body .section#portrait .section-title {
-                margin-left: calc(5% + 12px) !important; /* 整体右移12px */
-                position: relative !important;
-                left: 0 !important;
-            }
-            
-            /* 确保所有横线宽度一致 */
             body .section-title::after,
             body #automotive .section-title::after,
             body #portrait .section-title::after,
             body #comparison .section-title::after,
             body #about .section-title::after,
             body #contact .section-title::after {
-                width: 350px !important;
-                max-width: 350px !important;
+                 /* background-color: #222 !important; */ /* Revert dark gray */
+                 background-color: #777 !important; /* Change underline color to mid-gray */
+                 width: 350px !important;
+                 max-width: 350px !important;
+            }
+            
+            /* 特殊处理：将automotive, portrait, 和 comparison 标题右移12px对齐 */
+            html body #automotive .section-title,
+            html body #portrait .section-title,
+            html body #comparison .section-title, /* Added comparison */
+            html body section#automotive .section-title,
+            html body section#portrait .section-title,
+            html body section#comparison .section-title, /* Added comparison */
+            body .section#automotive .section-title,
+            body .section#portrait .section-title,
+            body .section#comparison .section-title { /* Added comparison */
+                margin-left: calc(5% + 12px) !important; /* 整体右移12px */
+                position: relative !important;
+                left: 0 !important;
+            }
+            
+            /* 确保所有横线宽度一致 (already covered above) */
+        }
+
+        /* --- 对比区占位符样式 - REMOVED --- */
+        /* .placeholder-box {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; font-weight: bold; color: rgba(0,0,0,0.7); 
+            text-align: center; z-index: 5; box-sizing: border-box; 
+            border: 2px dashed rgba(0,0,0,0.3); 
+        }
+        .placeholder-box.before { background-color: rgba(100, 100, 255, 0.6); }
+        .placeholder-box.after { background-color: rgba(100, 255, 100, 0.6); clip-path: inset(0 50% 0 0); }
+        .comparison-wrapper img.before { display: none !important; }
+        .comparison-wrapper img.after { z-index: -1; pointer-events: none; } */
+        /* --- 结束占位符样式 --- */
+        
+        /* 恢复 wrapper 的阴影 */
+        /* .comparison-wrapper {
+             /* ... 其他样式 ... * /
+             box-shadow: 0 25px 60px rgba(0,0,0,0.55), 0 15px 35px rgba(0,0,0,0.4); /* 恢复阴影 * /
+        } */ /* Shadow moved to slider */
+
+        /* ... */
+        /* --- PC/平板 对比区 Flex 布局 (放大图片) --- */
+        @media screen and (min-width: 768px) { 
+            /* Removing conflicting layout styles to ensure base slider applies */
+            /* .comparison-container related layout rules removed */
+            
+            /* Remove empty rule
+            .comparison-group {
+                 // Removing conflicting flex item styles
+                 // grid-column, grid-row, margin related rules removed
+                 // Keep any specific non-layout overrides if needed
+            }
+            */
+            /* Removing middle-column special handling if it existed */
+            
+            /* (宽高比样式保持不变 - these might need review later if portrait is used) */
+             .comparison-wrapper.landscape { padding-bottom: 62.5% !important; }
+             /* .comparison-wrapper.portrait { padding-bottom: 137.5% !important; } */ /* Removed portrait rule */
+
+             /* Hide comparison nav dots on desktop/tablet */
+            .comparison-nav {
+                display: none;
             }
         }
+        /* --- 结束 PC/平板对比区布局 --- */
+
+        /* (移除之前的 PC 端 Grid 布局媒体查询块) */
+        /* @media screen and (min-width: 1024px) { ... } */ 
+
+        /* ... 其他样式 ... */
+
+        /* --- 清理并重构对比区样式 --- */
+
+        /* 对比区外部容器 (保持宽度对齐) */
+        .comparison-container {
+            max-width: 1400px; 
+            width: 95%;       
+            /* margin: 60px auto; */ /* Temporarily remove top/bottom margin */
+            margin-left: auto !important; /* Explicitly center */
+            margin-right: auto !important; /* Explicitly center */
+            padding: 30px 0 50px; 
+            position: relative; 
+            box-sizing: border-box; 
+            /* overflow: hidden; */ /* Removed to prevent shadow clipping */
+            /* overflow-y: visible; */ /* Removed, let browser handle */
+             /* 移除所有旧的 display, grid, flex 属性 */
+             /* display: grid !important; */ 
+             /* display: flex !important; */
+             /* grid-template-columns: none; */
+        }
+
+        /* 滑动容器样式 */
+        .comparison-slider {
+            display: flex;
+            overflow-x: auto; 
+            /* overflow-y: visible; */ /* Removed, let browser handle */
+            /* scroll-snap-type: x mandatory; */ /* Removed to allow free scrolling */
+            -webkit-overflow-scrolling: touch; 
+            scrollbar-width: none; /* Hide Firefox scrollbar */
+            box-sizing: border-box; 
+            margin-top: 20px;
+            height: auto; 
+            width: 100%; 
+            align-items: flex-start !important; /* 修改：强制顶部对齐 */
+            cursor: grab; /* Add grab cursor */
+            /* Remove padding and shadow from slider */
+            /*
+            padding-top: 30px;
+            padding-bottom: 50px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.55), 0 15px 35px rgba(0,0,0,0.4);
+            background-color: transparent; 
+            */
+           padding: 0; /* Ensure slider itself has no padding */
+        }
+        .comparison-slider.active-drag {
+            cursor: grabbing; /* Change cursor while dragging */
+        }
+        .comparison-slider::-webkit-scrollbar {
+            display: none; 
+        }
+
+        /* 对比组样式 (所有屏幕尺寸统一) */
+         .comparison-group {
+            flex-basis: 50%; 
+            flex-shrink: 0; 
+            flex-grow: 0; 
+            width: 50%; 
+            /* scroll-snap-align: center !important; */ 
+            margin-left: 27.5%; 
+            margin-right: 22.5%; 
+            box-sizing: border-box;
+            position: relative; 
+            vertical-align: top !important; 
+            /* 
+            padding-top: 35px; 
+            padding-bottom: 55px; 
+            */
+         }
+         /* Add pseudo-elements for vertical spacing */
+         .comparison-group::before {
+             content: '';
+             display: block;
+             height: 40px; /* Further increased height */
+         }
+         .comparison-group::after {
+             content: '';
+             display: block;
+             height: 60px; /* Further increased height */
+         }
+         /* Override right margin ONLY for the last item */
+         .comparison-group:last-child {
+             margin-right: 27.5%; 
+         }
+         
+         /* 对比包装器样式 (统一横向比例和直角) */
+         .comparison-wrapper {
+             position: relative; 
+             width: 100%; 
+             height: 0;
+             /* Remove margin */
+             /* margin-top: ...; */ 
+             /* margin-bottom: ...; */ 
+             border-radius: 0 !important; 
+             /* Remove filter, restore box-shadow */
+             /* filter: drop-shadow(...); */ 
+             /* Reduce blur radius significantly to prevent clipping */
+             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.45), 0 8px 15px rgba(0, 0, 0, 0.35); 
+             padding-bottom: 62.5% !important; 
+             transform: translateZ(0); /* Add back for potential rendering boost */
+         }
+         .comparison-wrapper img {
+             position: absolute; top: 0; left: 0;
+             width: 100%; height: 100%; 
+             object-fit: cover;
+             border-radius: 0 !important; 
+         }
+         /* (滑块样式保持不变) */
+
+        /* --- 清理旧的媒体查询规则 --- */
+        /* @media screen and (min-width: 768px) { ... } */ /* 注释掉整个块 */
+        /* @media screen and (min-width: 1024px) { ... } */ /* 注释掉整个块 */
+        /* @media screen and (max-width: 767px) { ... } */ /* 注释掉与 comparison 相关的规则 */
+        @media screen and (max-width: 767px) {
+             /* --- Mobile Title Styles Override --- */
+             .section-title {
+                 font-size: 1.5rem !important; 
+                 margin-left: 15px !important; 
+                 width: auto !important; 
+                 display: block !important; 
+                 margin-bottom: 1.5rem;
+                 color: #777 !important; 
+                 letter-spacing: 1px !important; 
+             }
+             /* Force ALL section title underlines to gray on mobile */
+            body #automotive .section-title::after,
+            body #portrait .section-title::after,
+            body #comparison .section-title::after,
+            body #about .section-title::after,
+            body #contact .section-title::after,
+            .section .section-title::after, /* Fallback */
+            .comparison-section .section-title::after,
+            .contact-section .section-title::after {
+                background-color: #777 !important;
+                /* width: 80% !important; */ /* Removed percentage width */
+                width: 250px !important; /* Use fixed width matching max-width */
+                max-width: 250px !important; /* Keep max-width (or remove if width is fixed) */
+                left: 0 !important;
+            }
+            /* --- Override for About Me section title underline --- */
+            /* This rule is no longer needed as it should inherit the above */
+            /* body #about .section-title::after {
+                background-color: #777 !important;
+            } */
+             /* --- End Mobile Title Styles Override --- */
+
+             /* --- Mobile Comparison Styles --- */
+             /* Restore mobile layout rules */
+            /* Ensure container stacks children vertically */
+            .comparison-container {
+                 display: block !important; /* Force block display */
+                 flex-direction: column; 
+                 align-items: center; 
+                 width: 100% !important;
+                 margin: 0 auto;
+                 padding: 0 !important; 
+                 min-height: auto; 
+                 overflow: visible; /* Keep visible here for mobile container */
+             }
+            /* Keep slider scrollable horizontally */
+            .comparison-slider {
+                padding: 0; /* Explicitly remove padding */
+                /* scroll-snap-type: none; */ /* Ensure snap is off */
+                /* display: block; */
+                /* gap: 40px; */
+                /* scroll-snap-type: x mandatory; */ /* Ensure snap is off */
+            }
+             /* Let group inherit PC styles, remove snap align */
+            .comparison-group {
+                /* Remove ALL mobile specific layout overrides */
+                /* scroll-snap-align: center; */ /* Ensure snap align is off */
+                /* --- Add mobile specific size and margin overrides --- */
+                flex-basis: 78%;
+                width: 78%;
+                margin-left: 11%; /* Adjusted for centering (100-78)/2 */
+                margin-right: 0; /* Spacing provided by next item's margin-left */
+            }
+            .comparison-group:last-child {
+                 /* Override last-child margin for mobile */
+                 margin-right: 11%; /* Add right margin only to the last item */
+            }
+            /* Restore thumbnail nav display for mobile - Increase specificity */
+            body .comparison-thumbnail-nav { /* Added 'body' for specificity */
+                display: flex !important; 
+                justify-content: center; /* Changed to center */
+                max-width: 90%; 
+                flex-wrap: nowrap; 
+                margin-left: auto; 
+                margin-right: auto; 
+                width: auto; 
+                box-sizing: border-box; 
+                padding: 10px 0; 
+                margin-top: -12.5px; /* Adjusted to move up one thumbnail height (25 - 37.5) */
+                overflow-x: hidden; /* Ensure scroll is hidden */
+                gap: 8px; 
+            }
+            /* Restore thumbnail item styles for mobile */
+            .comparison-thumbnail-item {
+                 width: 60px !important;
+                 height: 37.5px !important;
+                 opacity: 0.7; 
+                 flex-shrink: 0; 
+            }
+            .comparison-thumbnail-item.active {
+                 opacity: 1 !important; 
+                 border-color: #fff !important;
+                 transform: scale(1.1) !important;
+            }
+             /* --- End Mobile Comparison Styles --- */
+        }
+        /* --- 结束清理 --- */
+
+        /* (占位符样式保持不变) */
+        /* .placeholder-box { ... } */
+
+        /* (标题颜色、页脚等样式保持不变) */
+        /* ... */
+
+        /* --- 对比区缩略图导航样式 --- */
+        .comparison-thumbnail-nav {
+            display: flex;
+            justify-content: center; /* Restore center alignment globally */
+            align-items: center;
+            gap: 10px; 
+            margin-top: 25px; 
+            padding: 10px 15px; /* Keep padding */
+            overflow-x: hidden; /* Ensure scroll is hidden */
+            scrollbar-width: none; 
+            -ms-overflow-style: none; 
+            width: 100%; 
+            max-width: 80%; 
+            margin-left: auto; 
+            margin-right: auto; 
+            box-sizing: border-box; 
+        }
+        .comparison-thumbnail-nav::-webkit-scrollbar {
+            display: none; /* 隐藏滚动条 (Webkit) */
+        }
+
+        .comparison-thumbnail-item {
+            width: 80px; /* 缩略图宽度 */
+            height: 50px; /* 缩略图高度 (大致 16:10) */
+            /* background-size: cover; */
+            background-size: contain; /* Change to contain */
+            background-position: center;
+            background-repeat: no-repeat; /* Add no-repeat */
+            border: 2px solid transparent; /* 普通状态边框 */
+            border-radius: 4px; /* 轻微圆角 */
+            cursor: pointer;
+            transition: border-color 0.3s ease, transform 0.3s ease, opacity 0.3s ease; /* 添加 opacity 过渡 */
+            flex-shrink: 0; /* 防止缩略图被压缩 */
+            opacity: 0.7; /* 普通状态稍暗 */
+        }
+
+        .comparison-thumbnail-item:hover {
+            border-color: rgba(255, 255, 255, 0.5); /* 悬停时边框 */
+            transform: scale(1.05); /* 轻微放大 */
+            opacity: 0.9;
+        }
+
+        .comparison-thumbnail-item.active {
+            border-color: #fff; /* 激活状态边框 */
+            opacity: 1; /* 激活状态完全不透明 */
+            transform: scale(1.1); /* 激活时更明显放大 */
+        }
+        /* --- 结束缩略图导航样式 --- */
+
+        /* 移动端关于我区样式优化 */
+         @media screen and (max-width: 767px) {
+            /* ... existing styles ... */
+            #about .section-title {
+                 /* margin-bottom: 20px; */ /* Removed previous value */
+                 margin-bottom: 40px; /* Increased margin to prevent overlap */
+            }
+            /* ... existing styles ... */
+        }
+
+        /* 移动端样式调整 */
+        @media screen and (max-width: 767px) {
+            /* ... existing styles ... */
+            .about-image-container {
+                width: 180px;
+                height: 180px;
+                /* margin: 0 auto 25px; */ /* Removed shorthand margin */
+                margin-top: 20px; /* Added margin-top */
+                margin-bottom: 25px; /* Kept margin-bottom */
+                margin-left: auto; /* Kept auto for centering */
+                margin-right: auto; /* Kept auto for centering */
+            }
+            /* ... existing styles ... */
+        }
+
+        @media screen and (max-width: 767px) {
+            /* ... existing styles ... */
+            /* 移动端联系表单优化 */
+            .contact-form {
+                padding-bottom: 50px;
+                /* max-width: 90%; */ /* Removed previous value */
+                max-width: 85%; /* Reduced max-width for more margin */
+                margin-left: auto; 
+                margin-right: auto; 
+            }
+            /* ... existing styles ... */
+        }
+
     </style>
+    
     
 </head>
 <body>
@@ -2199,5 +2281,6 @@
 
     <!-- 添加外部脚本链接 -->
     <script src="js/main.js" defer></script>
+
 </body>
 </html>
