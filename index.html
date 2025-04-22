@@ -2233,15 +2233,16 @@
             content: '< '; 
             position: absolute;
             top: 50%;
-            /* 定位在中心线左侧 */
-            right: 50%; /* 右边缘在中心线 */
-            margin-right: 6px; /* 向左推 (1px线宽一半 + 5px间距) */
-            transform: translateY(-50%);
+            left: 50%; /* 定位基点在中心线 */
+            /* 组合变换：先水平移到中心线左侧，再垂直居中箭头本身 */
+            transform: translateX(calc(-50% - 10px)) translateY(-50%); /* -50%自身宽度 + 向左偏移10px */
             color: rgba(255, 255, 255, 0.75); 
             font-size: 1.5rem;
-            line-height: 1;
-            z-index: 6; 
+            /* 移除 line-height: 1 */
+            z-index: 7; 
             pointer-events: none; 
+            text-shadow: none; /* 确保无阴影 */
+            font-weight: normal; /* 确保非粗体 */
         }
 
         /* ::after 绘制右箭头 '>' */
@@ -2249,17 +2250,16 @@
             content: ' >'; 
             position: absolute;
             top: 50%;
-            /* 定位在中心线右侧 */
-            left: 50%; /* 左边缘在中心线 */
-            margin-left: 6px; /* 向右推 (1px线宽一半 + 5px间距) */
-            transform: translateY(-50%);
+            left: 50%; /* 定位基点在中心线 */
+            /* 组合变换：先水平移到中心线右侧，再垂直居中箭头本身 */
+            transform: translateX(calc(-50% + 10px)) translateY(-50%); /* -50%自身宽度 + 向右偏移10px */
             color: rgba(255, 255, 255, 0.75); 
             font-size: 1.5rem;
-            font-weight: bold;
+            font-weight: normal; /* 移除粗体 */
             opacity: 1; 
             visibility: visible; 
-            text-shadow: none !important;
-            z-index: 6; 
+            text-shadow: none !important; /* 再次确保无阴影 */
+            z-index: 7; 
             pointer-events: none; 
         }
         /* --- 结束修复 --- */
@@ -2306,14 +2306,16 @@
             content: '< '; 
             position: absolute;
             top: 50%;
-            /* 定位在中心线左侧 */
-            left: 50%; 
-            transform: translate(-50%, -50%) translateX(-10px); /* (居中箭头 + 向左偏移) */
+            left: 50%; /* 定位基点在中心线 */
+            /* 组合变换：先水平移到中心线左侧，再垂直居中箭头本身 */
+            transform: translateX(calc(-50% - 10px)) translateY(-50%); /* -50%自身宽度 + 向左偏移10px */
             color: rgba(255, 255, 255, 0.75); 
             font-size: 1.5rem;
-            line-height: 1;
-            z-index: 7; /* 确保在细线之上 */
+            /* 移除 line-height: 1 */
+            z-index: 7; 
             pointer-events: none; 
+            text-shadow: none; /* 确保无阴影 */
+            font-weight: normal; /* 确保非粗体 */
         }
 
         /* .slider-handle::after: 右箭头 */
@@ -2321,16 +2323,16 @@
             content: ' >'; 
             position: absolute;
             top: 50%;
-             /* 定位在中心线右侧 */
-            left: 50%;
-            transform: translate(-50%, -50%) translateX(10px); /* (居中箭头 + 向右偏移) */
+            left: 50%; /* 定位基点在中心线 */
+            /* 组合变换：先水平移到中心线右侧，再垂直居中箭头本身 */
+            transform: translateX(calc(-50% + 10px)) translateY(-50%); /* -50%自身宽度 + 向右偏移10px */
             color: rgba(255, 255, 255, 0.75); 
             font-size: 1.5rem;
-            font-weight: bold;
+            font-weight: normal; /* 移除粗体 */
             opacity: 1; 
             visibility: visible; 
-            text-shadow: none !important;
-            z-index: 7; /* 确保在细线之上 */
+            text-shadow: none !important; /* 再次确保无阴影 */
+            z-index: 7; 
             pointer-events: none; 
         }
         /* --- 结束重构 --- */
