@@ -2137,60 +2137,48 @@
              如果 handle::before/::after 的箭头元素也用了 z-index，可能需要调整 */
         }
 
-        /* 确保滑块手柄本身的 z-index 足够高 和 样式 */
+        /* 修复滑块手柄样式和定位 */
         .slider-handle {
           z-index: 5; 
           touch-action: pan-y; 
-          /* 使用 padding 扩大点击区域 */
-          padding-left: 10px; 
-          padding-right: 10px;
-          /* 使背景透明 */
-          background-color: transparent;
-          /* 使用左边框绘制视觉细线 */
-          border-left: 2px solid #fff; 
-          /* 调整 transform 使边框居中 (原宽度2px, padding左右各10px, 总交互宽度22px) */
-          /* 新的中心点偏移 = 原偏移 (-50% of 2px = -1px) + 边框宽度的一半 (1px) + 左padding (10px) = -1px + 1px + 10px = +10px? 不对 */
-          /* 应该还是相对于元素原始位置的 50% */
-          /* Let's rethink: element has width 2px + 20px padding = 22px total width. */
-          /* Translate needs to move it left by half its *content* width (1px) */
-          /* transform: translateX(-1px); /* 尝试基于内容宽度居中 */ 
-          /* Simpler: Keep original transform and rely on visual appearance */
-          transform: translateX(-50%); /* 保留原居中方式，视觉上是细线 */
+          /* 定义可交互区域大小 - 使用宽度和透明背景 */
+          width: 22px; /* 例如: 视觉线2px + 左右各10px = 22px */
+          padding-left: 0; /* 移除内边距 */
+          padding-right: 0;
+          background-color: transparent; /* 背景透明 */
+          border-left: none; /* 移除边框线 */
           position: absolute;
           top: 0;
           bottom: 0;
           left: 50%;
+          /* 居中整个可交互区域 */
+          transform: translateX(-50%); 
           cursor: ew-resize;
           height: 100%; 
-          transform-origin: center; 
-          /* 移除 width: 2px，因为边框定义了视觉宽度 */
-          /* width: 2px; */ 
         }
 
-        /* 调整箭头定位，使其相对于视觉细线（现在是 border-left） */
-        .slider-handle::before { /* 左箭头 '<' */
-            content: '< '; 
+        /* 使用 ::before 绘制居中的视觉细线 */
+        .slider-handle::before {
+            content: ''; /* 清空箭头内容 */
             position: absolute;
-            top: 50%;
-            /* 定位在细线左侧 */
-            right: calc(100% - 10px - 1px + 8px); /* (100% - padding-left - border-width/2 + desired_offset) */ 
-            /* Simplified: Position relative to the padded box */
-            right: 12px; /* 尝试放在 padding 区域内，靠近左边缘 */
-            transform: translateY(-50%);
-            color: rgba(255, 255, 255, 0.75); 
-            font-size: 1.5rem;
-            line-height: 1;
-            z-index: 6; 
-            pointer-events: none; 
+            top: 0;
+            bottom: 0;
+            left: 50%; /* 相对于父元素 (.slider-handle) 居中 */
+            width: 2px; /* 线的宽度 */
+            background-color: #fff; /* 线的颜色 */
+            transform: translateX(-50%); /* 精确居中 2px 的线 */
+            z-index: 6; /* 在 handle 背景之上 */
+            pointer-events: none; /* 不响应鼠标事件 */
         }
-        .slider-handle::after { /* 右箭头 '>' */
+
+        /* 使用 ::after 绘制右箭头 '>' */
+        .slider-handle::after {
             content: ' >'; 
             position: absolute;
             top: 50%;
-            /* 定位在细线右侧 */
-            left: calc(1px + 8px); /* (border-width/2 + desired_offset) */ 
-            /* Simplified: Position relative to the padded box */
-            left: 12px; /* 尝试放在 padding 区域内，靠近右边缘 */
+            /* 定位在父元素 (.slider-handle) 的右侧，需要考虑父元素的宽度 */
+            /* 父元素宽度 22px, 中心线在 11px 处，箭头从中心线右侧 8px 开始？ */
+            left: calc(50% + 1px + 8px); /* (父元素中心 + 线宽一半 + 偏移量) */
             transform: translateY(-50%);
             color: rgba(255, 255, 255, 0.75); 
             font-size: 1.5rem;
@@ -2201,6 +2189,11 @@
             z-index: 6; 
             pointer-events: none; 
         }
+        
+        /* 需要一个单独的规则或修改 ::before 来绘制左箭头 '<' */
+        /* 为了简化，暂时只保留右箭头，如果需要左箭头，需要再加一个元素或修改 before */
+        /* 或者合并到 ::before 的 content 中? 不太好 */
+
         /* --- 结束修复 --- */
 
     </style>
