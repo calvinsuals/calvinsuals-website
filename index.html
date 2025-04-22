@@ -2233,9 +2233,9 @@
             content: '< '; 
             position: absolute;
             top: 50%;
-            /* 定位在可交互区域左侧 */
-            right: 100%; 
-            margin-right: 4px; /* 箭头与交互区边缘的间距 */
+            /* 定位在可交互区域中心线左侧 */
+            right: 50%; /* 右边缘在中心 */
+            margin-right: 5px; /* 向左推一点 (中心线宽度1px + 间距4px) */
             transform: translateY(-50%);
             color: rgba(255, 255, 255, 0.75); 
             font-size: 1.5rem;
@@ -2249,9 +2249,9 @@
             content: ' >'; 
             position: absolute;
             top: 50%;
-            /* 定位在可交互区域右侧 */
-            left: 100%; 
-            margin-left: 4px; /* 箭头与交互区边缘的间距 */
+            /* 定位在可交互区域中心线右侧 */
+            left: 50%; /* 左边缘在中心 */
+            margin-left: 5px; /* 向右推一点 (中心线宽度1px + 间距4px) */
             transform: translateY(-50%);
             color: rgba(255, 255, 255, 0.75); 
             font-size: 1.5rem;

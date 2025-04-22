@@ -385,41 +385,53 @@ function initializeThumbnailNav() {
     sliderContainer.removeEventListener('scroll', handleSliderScroll); // 移除旧监听器
     sliderContainer.addEventListener('scroll', handleSliderScroll);
 
+    // 存储当前激活的缩略图索引，用于滞后比较
+    let currentActiveThumbIndex = 0; 
+
     function handleSliderScroll() {
-        // 清除旧的 setTimeout (如果存在)
-        // clearTimeout(scrollTimeout);
-        // 不再使用 setTimeout 延迟执行
-        // scrollTimeout = setTimeout(() => { 
-            // 滚动时立即找出当前居中的 group
-            const sliderRect = sliderContainer.getBoundingClientRect();
-            const sliderCenter = sliderRect.left + sliderRect.width / 2;
-            let closestGroup = null;
-            let minDistance = Infinity;
+        const sliderRect = sliderContainer.getBoundingClientRect();
+        const sliderCenter = sliderRect.left + sliderRect.width / 2;
+        let newActiveIndex = -1;
+        let minDistance = Infinity;
+        let centerGroupIndex = -1; // 记录绝对居中的元素索引
 
-            document.querySelectorAll('.comparison-group').forEach(group => {
-                const groupRect = group.getBoundingClientRect();
-                // 如果元素不可见，则跳过
-                if (groupRect.width === 0 || groupRect.height === 0) return;
-                const groupCenter = groupRect.left + groupRect.width / 2;
-                const distance = Math.abs(sliderCenter - groupCenter);
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    closestGroup = group;
-                }
-            });
+        const groups = document.querySelectorAll('.comparison-group');
+        if (groups.length === 0) return;
 
-            if (closestGroup) {
-                const activeThumb = navContainer.querySelector(`.comparison-thumbnail-item[data-target-id="${closestGroup.id}"]`);
-                // 检查 activeThumb 是否存在且当前未激活
-                if (activeThumb && !activeThumb.classList.contains('active')) {
-                    console.log(`Slider scrolled, activating thumbnail for ${closestGroup.id}`);
-                    // 移除所有缩略图的激活状态
-                    thumbItems.forEach(t => t.classList.remove('active'));
-                    // 添加激活状态到找到的缩略图
-                    activeThumb.classList.add('active');
-                }
-            } 
-        // }, 150); // 移除延迟
+        // 遍历所有组，找到当前最居中的组，并判断是否需要切换激活状态
+        groups.forEach((group, index) => {
+            const groupRect = group.getBoundingClientRect();
+            if (groupRect.width === 0 || groupRect.height === 0) return;
+            const groupCenter = groupRect.left + groupRect.width / 2;
+            const distance = Math.abs(sliderCenter - groupCenter);
+            
+            // 找到绝对距离最近的组
+            if (distance < minDistance) {
+                minDistance = distance;
+                centerGroupIndex = index;
+            }
+        });
+
+        // 滞后逻辑: 只有当绝对居中的组不是当前已激活的组时，才更新激活索引
+        // （更精确的滞后可以计算中心点是否越过前后组的中间点，但先用这个简化版试试）
+        if (centerGroupIndex !== -1 && centerGroupIndex !== currentActiveThumbIndex) {
+            newActiveIndex = centerGroupIndex; 
+        }
+        
+        // 如果确定了新的激活索引，则更新高亮
+        if (newActiveIndex !== -1) {
+            const targetGroupId = groups[newActiveIndex].id;
+            const activeThumb = navContainer.querySelector(`.comparison-thumbnail-item[data-target-id="${targetGroupId}"]`);
+            if (activeThumb) {
+                console.log(`Slider scrolled, activating thumbnail for ${targetGroupId} (Index: ${newActiveIndex})`);
+                thumbItems.forEach(t => t.classList.remove('active'));
+                activeThumb.classList.add('active');
+                currentActiveThumbIndex = newActiveIndex; // 更新当前激活索引
+            } else {
+                console.warn(`Could not find thumbnail for target group ID: ${targetGroupId}`);
+            }
+        } 
+        // 如果没有确定新的激活索引 (即居中元素仍是当前激活元素)，则不执行任何操作，防止抖动
     }
     console.log("[Comparison] Thumbnail nav initialized.");
 }
