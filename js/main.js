@@ -120,12 +120,13 @@ function initializeComparison() {
         }, { passive: false }); // <-- 重要：设为 false，因为我们需要调用 preventDefault
 
         handle.addEventListener('touchmove', (e) => { 
+            // console.log('[Comparison TouchMove Listener] isResizing:', isResizing);
             if (!isResizing) return;
-            e.preventDefault(); 
+            // 移除 preventDefault，依赖 CSS 的 touch-action 属性
+            // e.preventDefault(); 
             if (e.touches.length > 0) moveHandler(e.touches[0].clientX); 
         }); 
-        window.addEventListener('touchend', endResize);
-        window.addEventListener('touchcancel', endResize);
+        // endResize 监听器保持在 window 上
 
         // --- 设置初始状态 ---
         const initialPercent = 50; 

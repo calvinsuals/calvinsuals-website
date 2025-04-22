@@ -2024,21 +2024,23 @@
             border: 2px solid transparent; /* 普通状态边框 */
             border-radius: 4px; /* 轻微圆角 */
             cursor: pointer;
-            transition: border-color 0.3s ease, transform 0.3s ease, opacity 0.3s ease; /* 添加 opacity 过渡 */
+            /* 移除 border-color 的过渡 */
+            transition: transform 0.3s ease, opacity 0.3s ease; 
             flex-shrink: 0; /* 防止缩略图被压缩 */
             opacity: 0.7; /* 普通状态稍暗 */
+             /* 保留强制宽高比和溢出隐藏 */
+             aspect-ratio: 16 / 10; 
+             overflow: hidden;      
         }
 
         .comparison-thumbnail-item:hover {
-            border-color: rgba(255, 255, 255, 0.5); /* 悬停时边框 */
             transform: scale(1.05); /* 轻微放大 */
             opacity: 0.9;
         }
 
         .comparison-thumbnail-item.active {
-            border-color: #fff; /* 激活状态边框 */
-            opacity: 1; /* 激活状态完全不透明 */
             transform: scale(1.1); /* 激活时更明显放大 */
+            opacity: 1; /* 激活状态完全不透明 */
         }
         /* --- 结束缩略图导航样式 --- */
 
@@ -2135,51 +2137,60 @@
              如果 handle::before/::after 的箭头元素也用了 z-index，可能需要调整 */
         }
 
-        /* 确保滑块手柄本身的 z-index 足够高 */
+        /* 确保滑块手柄本身的 z-index 足够高 和 样式 */
         .slider-handle {
-          z-index: 5; /* 确保手柄在伪元素之上 */
-          touch-action: pan-y; /* <-- 添加：允许垂直滚动，阻止水平默认触摸行为 */
-          /* 添加左右内边距以扩大点击范围 */
+          z-index: 5; 
+          touch-action: pan-y; 
+          /* 使用 padding 扩大点击区域 */
           padding-left: 10px; 
           padding-right: 10px;
-          /* 通过 box-sizing: content-box (默认) 或 border-box 调整 padding 效果 */
-          /* 如果是 border-box, 总宽度还是 width + padding */
-          /* 如果是 content-box, 总宽度是 width + padding */
-          /* Visual width is still determined by 'width' property if background isn't set on padding area */
-          width: 2px; /* 保持视觉宽度不变 */
-          /* 其他 .slider-handle 样式保持不变 (position, top, bottom, left, background-color, transform, cursor) */
+          /* 使背景透明 */
+          background-color: transparent;
+          /* 使用左边框绘制视觉细线 */
+          border-left: 2px solid #fff; 
+          /* 调整 transform 使边框居中 (原宽度2px, padding左右各10px, 总交互宽度22px) */
+          /* 新的中心点偏移 = 原偏移 (-50% of 2px = -1px) + 边框宽度的一半 (1px) + 左padding (10px) = -1px + 1px + 10px = +10px? 不对 */
+          /* 应该还是相对于元素原始位置的 50% */
+          /* Let's rethink: element has width 2px + 20px padding = 22px total width. */
+          /* Translate needs to move it left by half its *content* width (1px) */
+          /* transform: translateX(-1px); /* 尝试基于内容宽度居中 */ 
+          /* Simpler: Keep original transform and rely on visual appearance */
+          transform: translateX(-50%); /* 保留原居中方式，视觉上是细线 */
           position: absolute;
           top: 0;
           bottom: 0;
           left: 50%;
-          background-color: #fff;
-          transform: translateX(-50%) rotate(0deg) !important; /* 强制所有分隔线垂直 */
           cursor: ew-resize;
           height: 100%; 
           transform-origin: center; 
+          /* 移除 width: 2px，因为边框定义了视觉宽度 */
+          /* width: 2px; */ 
         }
 
-        /* 移除多余的确认箭头伪元素内容的注释 */
-        /* 再次确认箭头伪元素内容 */ 
-        /* 只保留箭头样式 */
-        .slider-handle::before {
+        /* 调整箭头定位，使其相对于视觉细线（现在是 border-left） */
+        .slider-handle::before { /* 左箭头 '<' */
             content: '< '; 
             position: absolute;
             top: 50%;
-            right: 8px;
+            /* 定位在细线左侧 */
+            right: calc(100% - 10px - 1px + 8px); /* (100% - padding-left - border-width/2 + desired_offset) */ 
+            /* Simplified: Position relative to the padded box */
+            right: 12px; /* 尝试放在 padding 区域内，靠近左边缘 */
             transform: translateY(-50%);
             color: rgba(255, 255, 255, 0.75); 
             font-size: 1.5rem;
             line-height: 1;
-            /* 其他必要的样式 */
-            z-index: 6; /* 确保箭头在 padding 区域之上 */
-            pointer-events: none; /* 箭头本身不响应点击 */
+            z-index: 6; 
+            pointer-events: none; 
         }
-        .slider-handle::after {
+        .slider-handle::after { /* 右箭头 '>' */
             content: ' >'; 
             position: absolute;
             top: 50%;
-            left: 8px; /* 箭头相对于 handle 原始宽度的位置 */
+            /* 定位在细线右侧 */
+            left: calc(1px + 8px); /* (border-width/2 + desired_offset) */ 
+            /* Simplified: Position relative to the padded box */
+            left: 12px; /* 尝试放在 padding 区域内，靠近右边缘 */
             transform: translateY(-50%);
             color: rgba(255, 255, 255, 0.75); 
             font-size: 1.5rem;
@@ -2187,8 +2198,8 @@
             opacity: 1; 
             visibility: visible; 
             text-shadow: none !important;
-            z-index: 6; /* 确保箭头在 padding 区域之上 */
-            pointer-events: none; /* 箭头本身不响应点击 */
+            z-index: 6; 
+            pointer-events: none; 
         }
         /* --- 结束修复 --- */
 
