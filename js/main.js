@@ -122,6 +122,12 @@ function initializeComparison() {
         }); 
         window.addEventListener('touchend', endResize);
         window.addEventListener('touchcancel', endResize);
+
+        // --- 设置初始状态 ---
+        const initialPercent = 50; 
+        handle.style.left = `${initialPercent}%`;
+        afterImage.style.clipPath = `inset(0 ${100 - initialPercent}% 0 0)`;
+        console.log(`[Comparison Init] Set initial state for ${wrapper.closest('.comparison-group')?.id || 'wrapper'} to ${initialPercent}%`);
     });
 }
 
@@ -248,6 +254,7 @@ async function loadAndInitComparison(jsonPath) {
 
                 const imgBefore = document.createElement('img');
                 imgBefore.alt = 'Before'; imgBefore.className = 'before'; imgBefore.loading = 'lazy';
+                imgBefore.draggable = false; // <-- 禁止拖拽
                 console.log(`[Comparison ${groupData.id}] 设置 Before src: ${groupData.before_src}`);
                 imgBefore.src = groupData.before_src;
                 imgBefore.onerror = () => { imgBefore.alt='Image not found'; imgBefore.src=''; console.error(`[Comparison ${groupData.id}] 加载 Before 图片失败: ${groupData.before_src}`);};
@@ -255,6 +262,7 @@ async function loadAndInitComparison(jsonPath) {
 
                 const imgAfter = document.createElement('img');
                 imgAfter.alt = 'After'; imgAfter.className = 'after'; imgAfter.loading = 'lazy';
+                imgAfter.draggable = false; // <-- 禁止拖拽
                 console.log(`[Comparison ${groupData.id}] 设置 After src: ${groupData.after_src}`);
                 imgAfter.src = groupData.after_src;
                 imgAfter.onerror = () => { imgAfter.alt='Image not found'; imgAfter.src=''; console.error(`[Comparison ${groupData.id}] 加载 After 图片失败: ${groupData.after_src}`);};
@@ -281,10 +289,10 @@ async function loadAndInitComparison(jsonPath) {
                 if (index === 0) { thumbItem.classList.add('active'); } // 默认激活第一个
 
                 const thumbImg = document.createElement('img');
-                thumbImg.src = groupData.before_src; // 使用 before 图片作为缩略图
+                thumbImg.src = groupData.after_src; // <-- 修改：使用 after 图片作为缩略图
                 thumbImg.alt = `Thumbnail for ${groupData.id}`;
                 thumbImg.loading = 'lazy';
-                thumbImg.onerror = () => { thumbImg.alt='Thumb not found'; thumbImg.src=''; console.error(`[Comparison ${groupData.id}] 加载 Thumbnail 图片失败: ${groupData.before_src}`); };
+                thumbImg.onerror = () => { thumbImg.alt='Thumb not found'; thumbImg.src=''; console.error(`[Comparison ${groupData.id}] 加载 Thumbnail 图片失败: ${groupData.after_src}`); };
                 
                 thumbItem.appendChild(thumbImg);
                 thumbnailFragment.appendChild(thumbItem); // 添加到缩略图的 fragment
@@ -349,9 +357,9 @@ function initializeThumbnailNav() {
 
         // 使用 scrollIntoView 替代之前的 scrollTo 计算
         targetGroup.scrollIntoView({
-            behavior: 'smooth',
-            inline: 'center', // 尝试水平居中
-            block: 'nearest'   // 保持垂直对齐
+            behavior: 'auto',
+            inline: 'center',
+            block: 'nearest'
         });
 
         /* // 旧的 scrollTo 计算 - 注释掉
@@ -527,8 +535,171 @@ function initializeDragScrolling() {
 
 
 // --- 其他函数 (轮播, 表单, 弹窗, 菜单) ---
-function initializeGallerySlider(slidesContainerId, navContainerId, slideCount) {
-    // ... Full function definition from HEAD ...
+function initializeGallerySlider(slidesId, dotsId) {
+    const slides = document.getElementById(slidesId);
+    const slideElements = slides.querySelectorAll('.gallery-slide');
+    const dots = document.querySelectorAll(`#${dotsId} .gallery-dot`);
+    if (!slides || dots.length === 0) return;
+    let currentIndex = 0;
+    let interval;
+    let isTransitioning = false; // 防止快速点击导致的问题
+    
+    // 克隆所有幻灯片用于真正的无限循环
+    const originalSlideCount = slideElements.length;
+    
+    // 克隆第一张到最后
+    if (slideElements.length > 0) {
+        const firstSlideClone = slideElements[0].cloneNode(true);
+        slides.appendChild(firstSlideClone);
+    }
+    
+    // 克隆最后一张到最前面（为向右循环准备）
+    if (slideElements.length > 0) {
+        const lastSlideClone = slideElements[originalSlideCount-1].cloneNode(true);
+        slides.insertBefore(lastSlideClone, slides.firstChild);
+        
+        // 初始化时要显示第一张原始幻灯片，所以需要向左偏移一个幻灯片宽度
+        slides.style.transform = `translateX(-100%)`;
+        currentIndex = 1; // 注意现在的索引从1开始（0是克隆的最后一张）
+    }
+    
+    // 优化渲染性能
+    slides.style.willChange = 'transform';
+    slides.style.backfaceVisibility = 'hidden';
+    slides.style.webkitBackfaceVisibility = 'hidden';
+    slides.style.transform = 'translateZ(0)';
+    slides.style.webkitTransform = 'translateZ(0)';
+    
+    // 延迟加载背景图片
+    function lazyLoadSlideImages() {
+        const allSlides = slides.querySelectorAll('.gallery-slide');
+        allSlides.forEach((slide, index) => {
+            // 如果有数据属性但没有设置背景图
+            if (slide.dataset.bgImage && !slide.style.backgroundImage) {
+                // 使用 IntersectionObserver 或自定义逻辑加载
+                // 简单实现：对于视口附近的图片进行加载
+                const proximity = Math.abs(index - currentIndex);
+                if (proximity <= 1) {  // 修改：只加载当前和前后紧邻的1张
+                    slide.style.backgroundImage = `url('${slide.dataset.bgImage}')`;
+                    
+                    // 异步预加载图片提高渲染性能
+                    setTimeout(() => {
+                        const img = new Image();
+                        img.src = slide.dataset.bgImage;
+                    }, 0);
+                }
+            }
+        });
+    }
+
+    function showSlide(index, animate = true) {
+        if (isTransitioning) return; // 如果正在过渡中，忽略请求
+        
+        isTransitioning = true;
+        
+        // 确保动画计时与过渡时间匹配
+        const transitionTime = 800; // 减少到0.8秒以提升流畅感
+        
+        if (!animate) {
+            slides.style.transition = 'none';
+        } else {
+            slides.style.transition = `transform ${transitionTime}ms cubic-bezier(0.23, 1, 0.32, 1)`;
+        }
+        
+        // 预先加载将要显示的幻灯片图像
+        const allSlides = slides.querySelectorAll('.gallery-slide');
+        if (allSlides[index] && allSlides[index].dataset.bgImage && !allSlides[index].style.backgroundImage) {
+            allSlides[index].style.backgroundImage = `url('${allSlides[index].dataset.bgImage}')`;
+        }
+        
+        // 调整index，考虑到前后各有一个克隆幻灯片
+        requestAnimationFrame(() => {
+            slides.style.transform = `translateX(-${index * 100}%)`;
+            
+            // 更新导航点状态 - 由于添加了前后克隆幻灯片，需要调整索引
+            dots.forEach(dot => dot.classList.remove('active'));
+            
+            // 计算对应的原始幻灯片索引（移除克隆幻灯片的影响）
+            let originalIndex = index - 1; // 因为第一个是克隆的最后一张
+            if (originalIndex < 0) originalIndex = originalSlideCount - 1;
+            if (originalIndex >= originalSlideCount) originalIndex = 0;
+            
+            if (dots[originalIndex]) {
+                dots[originalIndex].classList.add('active');
+            }
+            
+            // 无限循环逻辑：
+            // 如果滑动到了克隆幻灯片区域，滑动完成后无缝跳回实际位置
+            if (index <= 0) { // 如果到了最左边（克隆的最后一张）
+                setTimeout(() => {
+                    slides.style.transition = 'none';
+                    slides.style.transform = `translateX(-${originalSlideCount * 100}%)`;
+                    currentIndex = originalSlideCount; // 跳到最后一张实际幻灯片
+                    isTransitioning = false;
+                    
+                    // 预加载相邻幻灯片
+                    setTimeout(lazyLoadSlideImages, 100);
+                }, transitionTime);
+            } else if (index >= originalSlideCount + 1) { // 如果超过了最右边（克隆的第一张）
+                setTimeout(() => {
+                    slides.style.transition = 'none';
+                    slides.style.transform = `translateX(-100%)`;
+                    currentIndex = 1; // 跳回第一张实际幻灯片
+                    isTransitioning = false;
+                    
+                    // 预加载相邻幻灯片
+                    setTimeout(lazyLoadSlideImages, 100);
+                }, transitionTime);
+            } else {
+                currentIndex = index;
+                
+                // 过渡结束后重置标志
+                setTimeout(() => {
+                    isTransitioning = false;
+                    
+                    // 延迟加载相邻幻灯片
+                    lazyLoadSlideImages();
+                }, transitionTime);
+            }
+        });
+    }
+
+    function nextSlide() {
+        if (!isTransitioning) {
+            showSlide(currentIndex + 1);
+        }
+    }
+
+    function prevSlide() { // 为完整性添加，虽然目前未使用
+        if (!isTransitioning) {
+            showSlide(currentIndex - 1);
+        }
+    }
+
+    dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            if (!isTransitioning) {
+                clearInterval(interval);
+                // 点击导航点时，需要+1来考虑前面的克隆幻灯片
+                showSlide(index + 1);
+                startAutoSlide();
+            }
+        });
+    });
+
+    function startAutoSlide() {
+        // 清除旧的定时器（如果存在）
+        clearInterval(interval);
+        // 保持原有的8000ms速度
+        interval = setInterval(nextSlide, 8000);
+    }
+
+    // 初始加载相邻幻灯片
+    lazyLoadSlideImages();
+    
+    // 初始化第一张幻灯片位置
+    showSlide(currentIndex, false);
+    startAutoSlide();
 }
 // function initializeContactForm() { /* ... */ }
 // function showModal(modalId) { /* ... */ }
@@ -588,8 +759,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // *** 初始化调用 ***
     console.log("开始加载轮播图和对比区...");
-    loadGalleryImages('automotive-slides', 'automotive-nav', 'images/display_automotive.json', 5);
-    loadGalleryImages('portrait-slides', 'portrait-nav', 'images/display_portrait.json', 5);
+    loadGalleryImages('automotive-slides', 'automotive-nav', 'images/display_automotive.json');
+    loadGalleryImages('portrait-slides', 'portrait-nav', 'images/display_portrait.json');
     loadAndInitComparison('images/comparison_groups.json'); // 加载新的对比区
     // initializeContactForm(); // Commented out - function not defined
 
