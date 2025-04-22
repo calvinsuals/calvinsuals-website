@@ -401,7 +401,8 @@ function initializeThumbnailNav() {
     }
 
     // --- 修改滚动处理逻辑 --- 
-    sliderContainer.removeEventListener('scroll', handleSliderScroll); // 移除直接的滚动监听器
+    // 移除对已不存在的 handleSliderScroll 的 removeEventListener 调用
+    // sliderContainer.removeEventListener('scroll', handleSliderScroll); 
     // 清理旧的 throttled handler (如果存在)
     // sliderContainer.removeEventListener('scroll', throttledScrollHandler);
 
