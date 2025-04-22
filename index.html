@@ -2138,9 +2138,58 @@
         /* 确保滑块手柄本身的 z-index 足够高 */
         .slider-handle {
           z-index: 5; /* 确保手柄在伪元素之上 */
-          /* 其他 .slider-handle 样式保持不变 */
+          touch-action: pan-y; /* <-- 添加：允许垂直滚动，阻止水平默认触摸行为 */
+          /* 添加左右内边距以扩大点击范围 */
+          padding-left: 10px; 
+          padding-right: 10px;
+          /* 通过 box-sizing: content-box (默认) 或 border-box 调整 padding 效果 */
+          /* 如果是 border-box, 总宽度还是 width + padding */
+          /* 如果是 content-box, 总宽度是 width + padding */
+          /* Visual width is still determined by 'width' property if background isn't set on padding area */
+          width: 2px; /* 保持视觉宽度不变 */
+          /* 其他 .slider-handle 样式保持不变 (position, top, bottom, left, background-color, transform, cursor) */
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 50%;
+          background-color: #fff;
+          transform: translateX(-50%) rotate(0deg) !important; /* 强制所有分隔线垂直 */
+          cursor: ew-resize;
+          height: 100%; 
+          transform-origin: center; 
         }
 
+        /* 移除多余的确认箭头伪元素内容的注释 */
+        /* 再次确认箭头伪元素内容 */ 
+        /* 只保留箭头样式 */
+        .slider-handle::before {
+            content: '< '; 
+            position: absolute;
+            top: 50%;
+            right: 8px;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.75); 
+            font-size: 1.5rem;
+            line-height: 1;
+            /* 其他必要的样式 */
+            z-index: 6; /* 确保箭头在 padding 区域之上 */
+            pointer-events: none; /* 箭头本身不响应点击 */
+        }
+        .slider-handle::after {
+            content: ' >'; 
+            position: absolute;
+            top: 50%;
+            left: 8px; /* 箭头相对于 handle 原始宽度的位置 */
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.75); 
+            font-size: 1.5rem;
+            font-weight: bold;
+            opacity: 1; 
+            visibility: visible; 
+            text-shadow: none !important;
+            z-index: 6; /* 确保箭头在 padding 区域之上 */
+            pointer-events: none; /* 箭头本身不响应点击 */
+        }
         /* --- 结束修复 --- */
 
     </style>
