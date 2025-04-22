@@ -78,39 +78,50 @@ function initializeComparison() {
                 afterImage.style.clipPath = `inset(0 ${100 - clampedPercent}% 0 0)`;
             });
         };
-        const startResize = (e) => { isResizing = true; wrapper.classList.add('active'); };
-        const endResize = () => { if (!isResizing) return; isResizing = false; wrapper.classList.remove('active'); cancelAnimationFrame(animationFrameId); };
+        const startResize = (e) => { 
+            console.log('[Comparison StartResize] Setting isResizing = true');
+            isResizing = true; 
+            wrapper.classList.add('active'); 
+        };
+        const endResize = () => { 
+            if (!isResizing) return; 
+            console.log('[Comparison EndResize] Setting isResizing = false');
+            isResizing = false; 
+            wrapper.classList.remove('active'); 
+            cancelAnimationFrame(animationFrameId); 
+        };
 
         // 清理旧监听器（如果存在）
         handle.removeEventListener('mousedown', startResize);
         document.removeEventListener('mousemove', moveHandler); // 注意：全局监听器移除可能影响其他实例，最好绑定到特定元素或用标志位
-        document.removeEventListener('mouseup', endResize);
+        window.removeEventListener('mouseup', endResize);      // 使用 window 捕获释放
         handle.removeEventListener('touchstart', startResize);
         handle.removeEventListener('touchmove', moveHandler);
-        handle.removeEventListener('touchend', endResize);
-        handle.removeEventListener('touchcancel', endResize);
+        window.removeEventListener('touchend', endResize);     // 使用 window 捕获释放
+        window.removeEventListener('touchcancel', endResize);  // 使用 window 捕获释放
 
         // 重新绑定
         handle.addEventListener('mousedown', (e) => { e.preventDefault(); startResize(e); });
         // 将 mousemove 和 mouseup 绑定到 document 可能导致冲突，最好限定范围或在 up 时移除
         // 暂时保留 document 监听，但注意潜在问题
-        document.addEventListener('mousemove', (e) => { if(isResizing) moveHandler(e.clientX); });
+        document.addEventListener('mousemove', (e) => { 
+            if(isResizing) moveHandler(e.clientX); 
+        });
         window.addEventListener('mouseup', endResize); 
 
         // Touch listeners
         handle.addEventListener('touchstart', (e) => {
-            e.preventDefault(); // Prevent default scroll/zoom when starting on handle
-            e.stopPropagation(); // Still good practice
+            e.preventDefault(); 
+            e.stopPropagation();
             startResize(e);
-        } /* Removed passive: true implicitly by calling preventDefault */);
+        });
         handle.addEventListener('touchmove', (e) => { 
             if (!isResizing) return;
-            // We MUST preventDefault here too, as the touch sequence started on handle
             e.preventDefault(); 
             if (e.touches.length > 0) moveHandler(e.touches[0].clientX); 
         }); 
-        handle.addEventListener('touchend', endResize);
-        handle.addEventListener('touchcancel', endResize);
+        window.addEventListener('touchend', endResize);
+        window.addEventListener('touchcancel', endResize);
     });
 }
 
@@ -211,6 +222,7 @@ async function loadAndInitComparison(jsonPath) {
         console.log("[Comparison] 开始创建对比组占位符和缩略图...");
 
         const fragment = document.createDocumentFragment();
+        const thumbnailFragment = document.createDocumentFragment(); // <-- 创建缩略图的 fragment
 
         comparisonGroupsData.forEach((groupData, index) => {
             console.log(`[Comparison] ---- 开始处理 group ${index}, ID: ${groupData.id} ----`);
@@ -261,6 +273,24 @@ async function loadAndInitComparison(jsonPath) {
                 console.log(`[Comparison ${groupData.id}] 准备将 group 附加到 fragment...`);
                 fragment.appendChild(group);
                 console.log(`[Comparison ${groupData.id}] Group 已附加到 fragment.`);
+
+                // --- 创建并添加缩略图元素 ---
+                const thumbItem = document.createElement('div');
+                thumbItem.className = 'comparison-thumbnail-item';
+                thumbItem.dataset.targetId = group.id; // 链接到对应的 group
+                if (index === 0) { thumbItem.classList.add('active'); } // 默认激活第一个
+
+                const thumbImg = document.createElement('img');
+                thumbImg.src = groupData.before_src; // 使用 before 图片作为缩略图
+                thumbImg.alt = `Thumbnail for ${groupData.id}`;
+                thumbImg.loading = 'lazy';
+                thumbImg.onerror = () => { thumbImg.alt='Thumb not found'; thumbImg.src=''; console.error(`[Comparison ${groupData.id}] 加载 Thumbnail 图片失败: ${groupData.before_src}`); };
+                
+                thumbItem.appendChild(thumbImg);
+                thumbnailFragment.appendChild(thumbItem); // 添加到缩略图的 fragment
+                console.log(`[Comparison ${groupData.id}] Thumbnail item 创建并添加到 fragment.`);
+                // --- 结束 ---
+
             } catch (error) {
                  console.error(`[Comparison] 处理 group ${index} (ID: ${groupData.id}) 时发生严重错误:`, error);
                  console.error(error.stack);
@@ -271,6 +301,7 @@ async function loadAndInitComparison(jsonPath) {
         console.log("[Comparison] 循环结束. 将 slider 和 thumbnail nav 插入页面...");
         if(document.body.contains(container)) {
              sliderContainer.appendChild(fragment);
+             thumbnailNavContainer.appendChild(thumbnailFragment); // <-- 将缩略图 fragment 添加到导航容器
              container.appendChild(sliderContainer);        // 插入滑动容器
              container.appendChild(thumbnailNavContainer); // 插入缩略图导航容器
              console.log("[Comparison] Slider 和 Thumbnail Nav 已插入页面容器。准备初始化交互...");
