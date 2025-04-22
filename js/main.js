@@ -210,6 +210,8 @@ async function loadAndInitComparison(jsonPath) {
 
         console.log("[Comparison] 开始创建对比组占位符和缩略图...");
 
+        const fragment = document.createDocumentFragment();
+
         comparisonGroupsData.forEach((groupData, index) => {
             console.log(`[Comparison] ---- 开始处理 group ${index}, ID: ${groupData.id} ----`);
             // 现在需要 before_src 来生成缩略图
@@ -268,6 +270,7 @@ async function loadAndInitComparison(jsonPath) {
 
         console.log("[Comparison] 循环结束. 将 slider 和 thumbnail nav 插入页面...");
         if(document.body.contains(container)) {
+             sliderContainer.appendChild(fragment);
              container.appendChild(sliderContainer);        // 插入滑动容器
              container.appendChild(thumbnailNavContainer); // 插入缩略图导航容器
              console.log("[Comparison] Slider 和 Thumbnail Nav 已插入页面容器。准备初始化交互...");

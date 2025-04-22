@@ -5,39 +5,54 @@ import boto3 # 用于与 S3 兼容 API (如 R2) 交互
 from botocore.exceptions import NoCredentialsError, ClientError
 import traceback # 用于打印更详细的错误信息
 
-# --- 调试：打印环境变量 --- START ---
-print("--- Debugging Environment Variables --- START ---")
-print(f"Attempting to read R2_ENDPOINT_URL: {os.environ.get('R2_ENDPOINT_URL')}")
-print(f"Attempting to read R2_ACCESS_KEY_ID: {os.environ.get('R2_ACCESS_KEY_ID')}")
-# !! DO NOT PRINT SECRET KEY VALUE !!
-secret_key_set = os.environ.get("R2_SECRET_ACCESS_KEY") is not None
-print(f"Attempting to read R2_SECRET_ACCESS_KEY: Set = {secret_key_set}")
-print(f"Attempting to read R2_BUCKET_NAME: {os.environ.get('R2_BUCKET_NAME')}")
-print(f"Attempting to read R2_PUBLIC_BASE_URL: {os.environ.get('R2_PUBLIC_BASE_URL')}")
-print("--- Debugging Environment Variables --- END ---")
-# --- 调试：打印环境变量 --- END ---
+# --- 调试：打印所有可见的环境变量 --- START ---
+print("--- Debugging ALL Environment Variables --- START ---")
+sensitive_keys = ["R2_SECRET_ACCESS_KEY", "SECRET", "TOKEN", "PASSWORD", "KEY", "GITHUB_TOKEN"] # 敏感关键词列表
+for key, value in os.environ.items():
+    is_sensitive = False
+    key_upper = key.upper()
+    for sensitive in sensitive_keys:
+        if sensitive in key_upper:
+            is_sensitive = True
+            break
+    if is_sensitive:
+        print(f"ENV: {key}=*** (Exists)")
+    elif key.startswith("R2_") or key.startswith("INPUT_") or key.startswith("GITHUB_") or key == "CI":
+        # 只打印与 R2, Actions 输入, 或 CI 相关的非敏感变量，避免日志过长
+        print(f"ENV: {key}={value}")
+print("--- Debugging ALL Environment Variables --- END ---")
+# --- 调试结束 ---
 
 # --- 配置 ---
+# 本地 JSON 文件存放的基础路径 (相对于脚本)
 LOCAL_JSON_BASE_DIR = Path("images")
+
+# 需要处理的画廊类型及其在 R2 上的前缀
 GALLERY_CONFIG = {
     "automotive": {"prefix": "images/automotive/", "output_main": "galleries.json", "output_sub": "images.json"},
     "portrait":   {"prefix": "images/portrait/",   "output_main": "galleries.json", "output_sub": "images.json"}
 }
+
+# 需要处理的独立图片列表区域及其在 R2 上的前缀和本地输出文件名
 DISPLAY_CONFIG = {
     "display_automotive": {"prefix": "images/display/automotive display/", "output_json": "display_automotive.json"},
     "display_portrait":   {"prefix": "images/display/portrait display/",   "output_json": "display_portrait.json"}
 }
+
+# 需要处理的对比组区域及其在 R2 上的前缀和本地输出文件名
 COMPARISON_CONFIG = {
     "comparison_groups": {"prefix": "images/comparison/", "output_json": "comparison_groups.json"}
 }
+
 SUPPORTED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+# -------------
 
 # --- Cloudflare R2 配置 (从环境变量读取) ---
-R2_ENDPOINT_URL = os.environ.get("R2_ENDPOINT_URL")
-R2_ACCESS_KEY_ID = os.environ.get("R2_ACCESS_KEY_ID")
-R2_SECRET_ACCESS_KEY = os.environ.get("R2_SECRET_ACCESS_KEY")
-R2_BUCKET_NAME = os.environ.get("R2_BUCKET_NAME")
-R2_PUBLIC_BASE_URL = os.environ.get("R2_PUBLIC_BASE_URL")
+R2_ENDPOINT_URL = os.environ.get("R2_ENDPOINT_URL")         # 必须: R2 的 S3 API 端点, 例如 https://<ACCOUNT_ID>.r2.cloudflarestorage.com
+R2_ACCESS_KEY_ID = os.environ.get("R2_ACCESS_KEY_ID")       # 必须: 您生成的 API 令牌的 Access Key ID
+R2_SECRET_ACCESS_KEY = os.environ.get("R2_SECRET_ACCESS_KEY") # 必须: 您生成的 API 令牌的 Secret Access Key
+R2_BUCKET_NAME = os.environ.get("R2_BUCKET_NAME")           # 必须: 您的 R2 存储桶名称
+R2_PUBLIC_BASE_URL = os.environ.get("R2_PUBLIC_BASE_URL")     # 必须: R2 存储桶的公开访问基础 URL, 例如 https://pub-xxx.r2.dev 或您的自定义域 (结尾不要带 /)
 
 # 检查必要的 R2 配置是否存在
 missing_vars = []
@@ -49,12 +64,12 @@ if not R2_PUBLIC_BASE_URL: missing_vars.append("R2_PUBLIC_BASE_URL")
 
 if missing_vars:
     print(f"错误：缺少必要的 Cloudflare R2 环境变量配置！请设置: {', '.join(missing_vars)}")
-    exit(1)
+    exit(1) # 配置不全则退出脚本
 
 # --- 初始化 S3 客户端 ---
 s3_client = None
 try:
-    print("正在初始化 R2 客户端...")
+    print("正在初始化 R2 客户端...") # 新增
     s3_client = boto3.client(
         's3',
         endpoint_url=R2_ENDPOINT_URL,
@@ -65,11 +80,12 @@ try:
     print("尝试连接 Cloudflare R2 (跳过 ListBuckets 验证)...")
     print(f"  正在尝试获取存储桶 '{R2_BUCKET_NAME}' 的位置信息以验证连接...")
     response = s3_client.get_bucket_location(Bucket=R2_BUCKET_NAME)
-    print(f"  存储桶位置信息获取成功 (Status: {response.get('ResponseMetadata', {}).get('HTTPStatusCode')})。连接 R2 成功。")
+    print(f"  存储桶位置信息获取成功 (Status: {response.get('ResponseMetadata', {}).get('HTTPStatusCode')})。连接 R2 成功。") # 修改成功信息
 except Exception as e:
     print(f"错误: 初始化 R2 客户端时发生错误: {e}")
-    print(traceback.format_exc())
+    print(traceback.format_exc()) # 打印详细错误堆栈
     exit(1)
+# ------------------------
 
 def list_r2_image_urls(bucket: str, prefix: str) -> list[str]:
     """获取 R2 指定前缀下的图片公共 URL 列表"""
@@ -128,15 +144,16 @@ def get_r2_sub_prefixes(bucket: str, prefix: str) -> list[str]:
 def write_json_local(file_path: Path, data: object):
     """将数据写入本地 JSON 文件"""
     try:
+        # 确保父目录存在
         file_path.parent.mkdir(parents=True, exist_ok=True)
         script_dir = Path(__file__).parent
-        relative_path = file_path.relative_to(script_dir)
+        relative_path = file_path.relative_to(script_dir) # 尝试获取相对路径
         print(f"    DEBUG: 准备写入本地文件: '{relative_path}'")
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
         print(f"    DEBUG: 文件写入完成: '{relative_path}'")
-    except ValueError:
-        print(f"    DEBUG: 准备写入本地文件: '{file_path}'")
+    except ValueError: # 处理无法生成相对路径的情况（例如不同驱动器）
+        print(f"    DEBUG: 准备写入本地文件: '{file_path}'") # 打印绝对路径
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
         print(f"    DEBUG: 文件写入完成: '{file_path}'")
@@ -175,8 +192,11 @@ def main():
             image_urls = list_r2_image_urls(R2_BUCKET_NAME, r2_gallery_prefix)
 
             if image_urls:
+                # 在本地生成子画廊的 images.json
                 sub_json_path = local_gallery_type_path / gallery_id / config['output_sub']
                 write_json_local(sub_json_path, [{"images": image_urls}])
+
+                # 准备主列表信息
                 title = gallery_id.replace('_', ' ').title()
                 json_file_relative_path = f"{gallery_id}/{config['output_sub']}"
                 all_sub_galleries_info.append({
@@ -197,11 +217,12 @@ def main():
     # --- 处理独立图片列表区域 (主页轮播) ---
     for area_name, config in DISPLAY_CONFIG.items():
         r2_prefix = config['prefix']
-        local_json_path = local_base_json_dir / config['output_json']
+        local_json_path = local_base_json_dir / config['output_json'] # 直接输出到 images/ 目录下
         print(f"\n正在处理 '{area_name}' 区域 (从 R2:{R2_BUCKET_NAME} 前缀 '{r2_prefix}')")
 
         image_urls = list_r2_image_urls(R2_BUCKET_NAME, r2_prefix)
         if image_urls:
+            # 直接将 URL 列表写入 JSON 文件
             write_json_local(local_json_path, image_urls)
             print(f"  - 已更新本地 JSON '{local_json_path.relative_to(script_dir)}'")
         else:
@@ -224,7 +245,7 @@ def main():
              r2_group_prefix = f"{r2_prefix}{group_id}/"
              image_urls = list_r2_image_urls(R2_BUCKET_NAME, r2_group_prefix)
 
-             if len(image_urls) >= 2:
+             if len(image_urls) >= 2: # 确保至少有两张图片用于对比
                  before_url = image_urls[0]
                  after_url = image_urls[1]
                  all_comparison_groups_data.append({
