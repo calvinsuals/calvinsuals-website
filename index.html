@@ -2337,6 +2337,76 @@
         }
         /* --- 结束重构 --- */
 
+        /* --- Definitive Comparison Slider Handle Styles --- */
+
+        /* .slider-handle: 交互区域 */
+        .slider-handle {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 50%;
+          width: 30px; /* 增加交互宽度 */
+          transform: translateX(-50%); /* 居中交互区域 */
+          cursor: ew-resize;
+          z-index: 5;
+          touch-action: pan-y;
+          background-color: transparent; /* 必须透明 */
+          border: none; /* 无边框 */
+          padding: 0; /* 无内边距 */
+          height: 100%; /* 占满高度 */
+        }
+
+        /* .slider-handle .slider-line: 视觉中心线 */
+        .slider-handle .slider-line {
+          content: '';
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 50%; /* 在父元素中居中 */
+          width: 2px; /* 线的宽度 */
+          background-color: #fff; /* 线的颜色 */
+          transform: translateX(-50%); /* 精确居中线本身 */
+          z-index: 6; /* 在 handle 背景之上 */
+          pointer-events: none; /* 不响应事件 */
+        }
+
+        /* .slider-handle::before: 左箭头 '<' */
+        .slider-handle::before {
+          content: '< ';
+          position: absolute;
+          top: 50%; /* 垂直基线在中间 */
+          left: 50%; /* 水平基线在中心线 */
+          /* 变换：先水平移到中心线左侧，再垂直居中箭头 */
+          transform: translateX(calc(-50% - 15px)) translateY(-50%); /* 增加偏移距离 */
+          color: rgba(255, 255, 255, 0.85); /* 调整透明度 */
+          font-size: 1.6rem; /* 调整大小 */
+          font-weight: normal; /* 统一粗细 */
+          text-shadow: none; /* 无阴影 */
+          z-index: 7; /* 在细线之上 */
+          pointer-events: none; /* 不响应事件 */
+          line-height: normal; /* 使用默认行高 */
+        }
+
+        /* .slider-handle::after: 右箭头 '>' */
+        .slider-handle::after {
+          content: ' >';
+          position: absolute;
+          top: 50%; /* 垂直基线在中间 */
+          left: 50%; /* 水平基线在中心线 */
+          /* 变换：先水平移到中心线右侧，再垂直居中箭头 */
+          transform: translateX(calc(-50% + 15px)) translateY(-50%); /* 增加偏移距离 */
+          color: rgba(255, 255, 255, 0.85); /* 调整透明度 */
+          font-size: 1.6rem; /* 调整大小 */
+          font-weight: normal; /* 统一粗细 */
+          text-shadow: none; /* 无阴影 */
+          z-index: 7; /* 在细线之上 */
+          pointer-events: none; /* 不响应事件 */
+          line-height: normal; /* 使用默认行高 */
+          opacity: 1;
+          visibility: visible;
+        }
+        /* --- End Definitive Styles --- */
+
     </style>
     
     
