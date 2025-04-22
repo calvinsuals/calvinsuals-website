@@ -2063,15 +2063,17 @@
             position: absolute;
             top: 50%;
             left: 50%; 
-            /* 调整偏移值以求视觉对称，并确保垂直居中 */
-            transform: translateX(calc(-50% - 14px)) translateY(-50%); /* 尝试左移 14px */
+            transform: translateX(calc(-50% - 14px)) translateY(-50%); 
             color: rgba(255, 255, 255, 0.85); 
             font-size: 1.6rem; 
             font-weight: normal; 
             text-shadow: none; 
             z-index: 7; 
             pointer-events: none; 
-            line-height: normal; /* 确保默认行高 */
+            /* 尝试移除 line-height 并用 display block */
+            /* line-height: normal; */
+            display: block; /* 或者 inline-block */
+            height: auto; /* 确保高度自适应内容 */
         }
 
         /* .slider-handle::after: 右箭头 */
@@ -2080,15 +2082,17 @@
             position: absolute;
             top: 50%;
             left: 50%;
-             /* 调整偏移值以求视觉对称，并确保垂直居中 */
-            transform: translateX(calc(-50% + 14px)) translateY(-50%); /* 尝试右移 14px */
+            transform: translateX(calc(-50% + 14px)) translateY(-50%); 
             color: rgba(255, 255, 255, 0.85); 
             font-size: 1.6rem;
             font-weight: normal; 
             text-shadow: none; 
             z-index: 7; 
             pointer-events: none; 
-            line-height: normal; /* 确保默认行高 */
+            /* 尝试移除 line-height 并用 display block */
+            /* line-height: normal; */
+            display: block; /* 或者 inline-block */
+            height: auto; /* 确保高度自适应内容 */
             opacity: 1;
             visibility: visible;
         }

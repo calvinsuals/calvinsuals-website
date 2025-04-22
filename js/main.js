@@ -418,6 +418,7 @@ function initializeThumbnailNav() {
         const groups = document.querySelectorAll('.comparison-group');
         if (groups.length === 0) return;
 
+        // 1. 找到绝对距离最近的组
         groups.forEach((group, index) => {
             const groupRect = group.getBoundingClientRect();
             if (groupRect.width === 0 || groupRect.height === 0) return;
@@ -429,23 +430,37 @@ function initializeThumbnailNav() {
             }
         });
 
-        // 只有当找到的居中索引与当前激活的不同时才更新
+        // 2. 检查找到的组是否足够居中 (且不是当前激活的组)
         if (centerGroupIndex !== -1 && centerGroupIndex !== currentActiveThumbIndex) {
-            const targetGroupId = groups[centerGroupIndex].id;
-            const activeThumb = navContainer.querySelector(`.comparison-thumbnail-item[data-target-id="${targetGroupId}"]`);
-            if (activeThumb) {
-                console.log(`Updating active thumbnail to ${targetGroupId} (Index: ${centerGroupIndex})`);
-                thumbItems.forEach(t => t.classList.remove('active'));
-                activeThumb.classList.add('active');
-                currentActiveThumbIndex = centerGroupIndex; 
+            const targetGroup = groups[centerGroupIndex];
+            const targetGroupRect = targetGroup.getBoundingClientRect();
+            const targetGroupCenter = targetGroupRect.left + targetGroupRect.width / 2;
+            const centeringTolerance = targetGroupRect.width / 3; // 容差：中心点距离小于宽度的 1/3
+
+            console.log(`[Comparison Debounce] Center Group Index: ${centerGroupIndex}, Dist from Center: ${Math.abs(sliderCenter - targetGroupCenter)}, Tolerance: ${centeringTolerance}`);
+
+            // 3. 只有当足够居中时才更新高亮
+            if (Math.abs(sliderCenter - targetGroupCenter) < centeringTolerance) {
+                const targetGroupId = targetGroup.id;
+                const activeThumb = navContainer.querySelector(`.comparison-thumbnail-item[data-target-id="${targetGroupId}"]`);
+                if (activeThumb) {
+                    console.log(`Updating active thumbnail to ${targetGroupId} (Index: ${centerGroupIndex}) - Passed centering check.`);
+                    thumbItems.forEach(t => t.classList.remove('active'));
+                    activeThumb.classList.add('active');
+                    currentActiveThumbIndex = centerGroupIndex; 
+                } else {
+                    console.warn(`Could not find thumbnail for target group ID: ${targetGroupId}`);
+                }
             } else {
-                console.warn(`Could not find thumbnail for target group ID: ${targetGroupId}`);
+                 console.log(`Center group ${centerGroupIndex} not centered enough, highlight unchanged.`);
             }
-        } 
+        } else {
+             console.log(`Center group ${centerGroupIndex} is already active or invalid, highlight unchanged.`);
+        }
     }
 
-    // 创建 Debounced 版本的更新函数 (例如，滚动停止 200ms 后执行)
-    const debouncedUpdateHighlight = debounce(updateHighlight, 200);
+    // 创建 Debounced 版本的更新函数 (滚动停止 1500ms 后执行)
+    const debouncedUpdateHighlight = debounce(updateHighlight, 1500); // <-- 修改延迟为 1500ms
 
     // 绑定 Debounced 函数到 scroll 事件
     sliderContainer.addEventListener('scroll', debouncedUpdateHighlight);
