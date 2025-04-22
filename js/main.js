@@ -340,6 +340,21 @@ function initializeThumbnailNav() {
     const thumbItems = navContainer.querySelectorAll('.comparison-thumbnail-item');
     console.log(`[Comparison] 找到 ${thumbItems.length} 个缩略图导航项。`);
 
+    // --- 添加节流函数 ---
+    function throttle(func, limit) {
+        let inThrottle;
+        return function() {
+            const args = arguments;
+            const context = this;
+            if (!inThrottle) {
+                func.apply(context, args);
+                inThrottle = true;
+                setTimeout(() => inThrottle = false, limit);
+            }
+        }
+    }
+    // --- 结束节流函数 ---
+
     thumbItems.forEach((item) => {
         item.removeEventListener('click', handleThumbClick); // 移除旧监听器（如果重复初始化）
         item.addEventListener('click', handleThumbClick);
@@ -383,7 +398,12 @@ function initializeThumbnailNav() {
     // 添加滚动监听器，当用户手动滑动 slider 时，更新缩略图的激活状态
     let scrollTimeout;
     sliderContainer.removeEventListener('scroll', handleSliderScroll); // 移除旧监听器
-    sliderContainer.addEventListener('scroll', handleSliderScroll);
+    
+    // 创建节流版本的滚动处理函数 (例如，每 100ms 最多执行一次)
+    const throttledScrollHandler = throttle(handleSliderScroll, 100);
+    
+    // 绑定节流后的处理函数
+    sliderContainer.addEventListener('scroll', throttledScrollHandler);
 
     // 存储当前激活的缩略图索引，用于滞后比较
     let currentActiveThumbIndex = 0; 
