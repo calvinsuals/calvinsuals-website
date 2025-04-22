@@ -265,8 +265,13 @@ async function loadAndInitComparison(jsonPath) {
                 imgAfter.onerror = () => { imgAfter.alt='Image not found'; imgAfter.src=''; console.error(`[Comparison ${groupData.id}] 加载 After 图片失败: ${groupData.after_src}`);};
                 console.log(`[Comparison ${groupData.id}] After img 创建成功.`);
 
-                const sliderHandle = document.createElement('div'); sliderHandle.className = 'slider-handle';
-                console.log(`[Comparison ${groupData.id}] Handle div 创建成功.`);
+                const sliderHandle = document.createElement('div'); 
+                sliderHandle.className = 'slider-handle';
+                // 添加用于画线的内部 span
+                const sliderLine = document.createElement('span');
+                sliderLine.className = 'slider-line';
+                sliderHandle.appendChild(sliderLine); 
+                console.log(`[Comparison ${groupData.id}] Handle div (with line span) 创建成功.`);
 
                 wrapper.appendChild(imgBefore);
                 wrapper.appendChild(imgAfter);
@@ -381,9 +386,11 @@ function initializeThumbnailNav() {
     sliderContainer.addEventListener('scroll', handleSliderScroll);
 
     function handleSliderScroll() {
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => {
-            // 滚动停止后，找出当前居中的 group
+        // 清除旧的 setTimeout (如果存在)
+        // clearTimeout(scrollTimeout);
+        // 不再使用 setTimeout 延迟执行
+        // scrollTimeout = setTimeout(() => { 
+            // 滚动时立即找出当前居中的 group
             const sliderRect = sliderContainer.getBoundingClientRect();
             const sliderCenter = sliderRect.left + sliderRect.width / 2;
             let closestGroup = null;
@@ -391,6 +398,8 @@ function initializeThumbnailNav() {
 
             document.querySelectorAll('.comparison-group').forEach(group => {
                 const groupRect = group.getBoundingClientRect();
+                // 如果元素不可见，则跳过
+                if (groupRect.width === 0 || groupRect.height === 0) return;
                 const groupCenter = groupRect.left + groupRect.width / 2;
                 const distance = Math.abs(sliderCenter - groupCenter);
                 if (distance < minDistance) {
@@ -401,13 +410,16 @@ function initializeThumbnailNav() {
 
             if (closestGroup) {
                 const activeThumb = navContainer.querySelector(`.comparison-thumbnail-item[data-target-id="${closestGroup.id}"]`);
+                // 检查 activeThumb 是否存在且当前未激活
                 if (activeThumb && !activeThumb.classList.contains('active')) {
                     console.log(`Slider scrolled, activating thumbnail for ${closestGroup.id}`);
+                    // 移除所有缩略图的激活状态
                     thumbItems.forEach(t => t.classList.remove('active'));
+                    // 添加激活状态到找到的缩略图
                     activeThumb.classList.add('active');
                 }
-            }
-        }, 150); // 滚动停止后 150ms 再检测
+            } 
+        // }, 150); // 移除延迟
     }
     console.log("[Comparison] Thumbnail nav initialized.");
 }
