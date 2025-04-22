@@ -241,15 +241,7 @@ async function loadAndInitComparison(jsonPath) {
                 console.log(`[Comparison ${groupData.id}] Group div 创建成功.`);
 
                 const wrapper = document.createElement('div');
-                let orientationClass = '';
-                if (groupData.id === 'group_01' || groupData.id === 'group_04') {
-                    orientationClass = 'portrait';
-                } else if (groupData.id === 'group_02' || groupData.id === 'group_03') {
-                    orientationClass = 'landscape';
-                } else {
-                    console.warn(`[Comparison] 未知方向 for group ID: ${groupData.id}`);
-                }
-                wrapper.className = `comparison-wrapper ${orientationClass}`.trim();
+                wrapper.className = `comparison-wrapper`; // <-- 直接设置基础类
                 console.log(`[Comparison ${groupData.id}] Wrapper div 创建成功, class: ${wrapper.className}`);
 
                 const imgBefore = document.createElement('img');

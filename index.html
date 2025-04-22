@@ -2088,6 +2088,37 @@
             /* ... existing styles ... */
         }
 
+        /* --- 强制对比区和缩略图为 16:10 横向展示 --- */
+
+        /* 应用于对比区主图 (强制宽高比并裁剪) */
+        .comparison-wrapper img {
+          aspect-ratio: 16 / 10; /* 设置宽高比为 16:10 */
+          object-fit: cover;   /* 裁剪图片以填充容器 */
+          width: 100%;         /* 确保宽度撑满 */
+          height: 100%;        /* 确保高度撑满 */
+          /* 确保覆盖之前的样式 (如果需要) */
+          position: absolute; 
+          top: 0; 
+          left: 0;
+        }
+
+        /* 应用于缩略图容器 (设置宽高比和隐藏溢出) */
+        .comparison-thumbnail-item {
+          aspect-ratio: 16 / 10; /* 设置容器宽高比为 16:10 */
+          overflow: hidden;      /* 隐藏超出容器的图片部分 */
+          flex-shrink: 0;      /* 防止在 flex 布局中被压缩变形 */
+          /* 可能需要根据实际布局调整其他样式，如 margin, padding */
+        }
+
+        /* 应用于缩略图图片本身 (填充容器并裁剪) */
+        .comparison-thumbnail-item img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;   /* 裁剪图片以填充容器 */
+          display: block;        /* 移除图片底部可能存在的空隙 */
+        }
+        /* --- 结束添加 --- */
+
     </style>
     
     
