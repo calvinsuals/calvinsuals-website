@@ -164,15 +164,32 @@
         }
         
         /* 滑动容器样式 */
- 
+        .comparison-slider {
+            display: flex;
+            overflow-x: auto; 
+            -webkit-overflow-scrolling: touch; 
+            scrollbar-width: none; 
+            box-sizing: border-box; 
+            margin-top: 20px;
+            height: auto; 
+            width: 100%; 
+            align-items: flex-start !important; 
+            cursor: grab;
+            padding: 0; 
+            position: relative; /* <-- 确保有定位上下文 */
+        }
         .comparison-slider.active-drag {
-            cursor: grabbing; /* Change cursor while dragging */
+            cursor: grabbing; 
         }
         .comparison-slider::-webkit-scrollbar {
             display: none; 
         }
+
         
-        /* 对比组样式 (所有屏幕尺寸统一) */
+    
+        */
+
+        /* 对比组样式 (保持不变) */
          .comparison-group {
             flex-basis: 50%; 
             flex-shrink: 0; 
@@ -211,13 +228,7 @@
              position: relative; 
              width: 100%; 
              height: 0;
-             /* Remove margin */
-             /* margin-top: ...; */ 
-             /* margin-bottom: ...; */ 
              border-radius: 0 !important; 
-             /* Remove filter, restore box-shadow */
-             /* filter: drop-shadow(...); */ 
-             /* Reduce blur radius significantly to prevent clipping */
              box-shadow: 0 15px 30px rgba(0, 0, 0, 0.45), 0 8px 15px rgba(0, 0, 0, 0.35); 
              padding-bottom: 62.5% !important; 
              transform: translateZ(0); /* Add back for potential rendering boost */
@@ -275,22 +286,7 @@
         }
         /* --- 结束 PC/平板对比区布局 --- */
 
-        /* 移动端对比区竖图比例修复 (保持) */
-        @media screen and (max-width: 767px) {
-            .comparison-wrapper.portrait {
-                width: 85% !important; 
-                height: 0 !important;
-                padding-bottom: 137.5% !important; 
-            }
-            /* (手机端标题样式保持之前的修改) */
-             .section-title {
-                 font-size: 1.5rem !important;
-                 margin-left: 15px !important; 
-                 width: auto !important; 
-                 display: block !important; 
-                 margin-bottom: 1.5rem;
-             }
-        }
+        
 
         /* 调整 About 和 Contact 标题颜色 */
         #about .section-title,
@@ -418,7 +414,7 @@
             display: block;
             width: 100%;
             height: 2px;
-            background-color: white;
+            background-color: grey; /* <-- 修改颜色为灰色 */
             transition: all 0.3s;
         }
         
@@ -470,10 +466,11 @@
             max-width: 400px;
         }
         
-        .menu-items a {
+        /* 确保菜单项字体和大小 */
+        body .menu-items a { /* 增加 body 提高特异性 */
             color: white;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1.4rem;
+            font-family: 'Montserrat', sans-serif !important; /* 强制字体 */
+            font-size: 1.4rem !important;                   /* 强制基础大小 */
             text-decoration: none;
             padding: 15px 0;
             margin: 5px 0;
@@ -484,9 +481,19 @@
             text-align: center;
             width: 100%;
             box-sizing: border-box;
-            line-height: normal; /* Explicitly set line-height */
+            line-height: normal; 
         }
         
+        /* 确保移动端字体大小 */
+        @media screen and (max-width: 767px) {
+            body .menu-items a { /* 增加 body 提高特异性 */
+                font-size: 1.2rem !important; /* 强制移动端大小 */
+                padding: 12px 0;
+                margin: 8px 0;
+            }
+            /* ... 其他移动端样式 ... */
+        }
+
         .menu-items a:hover {
             transform: translateY(-3px);
         }
@@ -657,49 +664,7 @@
             text-align: left;
         }
         
-        /* 特殊处理 Contact 区标题颜色 */
-        #contact .section-title {
-            color: #fff; /* 联系区标题保持白色 */
-        }
-        #contact .section-title::after {
-            background-color: #fff; /* 联系区标题下划线保持白色 */
-            width: 350px; /* 确保一致性 */
-        }
         
-        /* portrait区域标题颜色改为白色 */
-        #portrait .section-title {
-            color: #fff;
-        }
-        
-        #portrait .section-title::after {
-            background-color: #fff;
-            width: 350px; /* 确保一致性 */
-        }
-        
-        /* about区域标题颜色也改为白色 */
-        #about .section-title {
-            color: #fff;
-        }
-        
-        #about .section-title::after {
-            background-color: #fff;
-            width: 350px; /* 确保一致性 */
-        }
-        
-        /* 移除之前PC端调整标题下方横线的宽度的设置 */
-        /* @media screen and (min-width: 768px) {
-            .section-title {
-                display: inline-block;
-                width: auto;
-                min-width: 180px; 
-            }
-            
-            .section-title::after {
-                width: 350px; 
-                max-width: 350px;
-                padding-right: 0;
-            }
-        } */
         
         /* 确保所有区域标题完全对齐（使用更精确的左边距） */
         #automotive .section-title,
@@ -713,20 +678,6 @@
             text-indent: 0 !important; 
         }
         
-        /* 删除之前不起作用的PC端和平板端特别调整 */
-        /* @media screen and (min-width: 768px) {
-            
-            .section-title {
-                margin-left: 5% !important; 
-                padding-left: 0 !important;
-                text-indent: 0 !important;
-            }
-            
-            #automotive .section-title,
-            #portrait .section-title {
-                margin-left: calc(5% - 5px) !important; 
-            }
-        } */
         
         .gallery-preview {
             margin-bottom: 40px;
@@ -818,9 +769,6 @@
             background-color: transparent; /* 改为透明背景 */
             padding: 60px 20px; 
             width: 100%;
-            /* margin-left: auto !important; */ /* Removed: Let section be full width */
-            /* margin-right: auto !important; */ /* Removed: Let section be full width */
-            /* max-width: 1800px; */ /* Removed: Let section be full width */
             position: relative; /* 确保 section 有定位上下文 */
             z-index: 1; /* 确保在 hero 之下 (如果 hero 有 z-index) */
         } /*
@@ -852,36 +800,7 @@
             transform: translateX(-50%) rotate(0deg); /* 强制垂直，防止旋转 */
         }
         
-        /* 修改滑块箭头 */
-        .slider-handle::before {
-            content: '< '; 
-            position: absolute;
-            top: 50%;
-            right: 8px;
-            transform: translateY(-50%);
-            color: rgba(255, 255, 255, 0.75); 
-            font-size: 1.5rem;
-            line-height: 1;
-            background-color: transparent !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
-            opacity: 1; 
-            visibility: visible;
-        }
-        
-        .slider-handle::after {
-            content: ' >'; 
-            position: absolute;
-            top: 50%;
-            left: 8px;
-            transform: translateY(-50%);
-            color: rgba(255, 255, 255, 0.75); 
-            font-size: 1.5rem;
-            font-weight: bold;
-            opacity: 1; 
-            visibility: visible; 
-            text-shadow: none !important;
-        }
+   
         
         /* 确保所有对比图的分隔线都是垂直的 */
         .comparison-wrapper .slider-handle {
@@ -1492,8 +1411,6 @@
             margin: 5px 0;
         }
 
-        /* 其他弹窗样式保持不变 */
-        /* ... (移除无效注释) ... */ 
 
         /* 社交媒体图标样式 */
         .social-link img {
@@ -1726,40 +1643,10 @@
             /* 确保所有横线宽度一致 (already covered above) */
         }
 
-        /* --- 对比区占位符样式 - REMOVED --- */
-        /* .placeholder-box {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; font-weight: bold; color: rgba(0,0,0,0.7); 
-            text-align: center; z-index: 5; box-sizing: border-box; 
-            border: 2px dashed rgba(0,0,0,0.3); 
-        }
-        .placeholder-box.before { background-color: rgba(100, 100, 255, 0.6); }
-        .placeholder-box.after { background-color: rgba(100, 255, 100, 0.6); clip-path: inset(0 50% 0 0); }
-        .comparison-wrapper img.before { display: none !important; }
-        .comparison-wrapper img.after { z-index: -1; pointer-events: none; } */
-        /* --- 结束占位符样式 --- */
-        
-        /* 恢复 wrapper 的阴影 */
-        /* .comparison-wrapper {
-             /* ... 其他样式 ... * /
-             box-shadow: 0 25px 60px rgba(0,0,0,0.55), 0 15px 35px rgba(0,0,0,0.4); /* 恢复阴影 * /
-        } */ /* Shadow moved to slider */
 
         /* ... */
         /* --- PC/平板 对比区 Flex 布局 (放大图片) --- */
         @media screen and (min-width: 768px) { 
-            /* Removing conflicting layout styles to ensure base slider applies */
-            /* .comparison-container related layout rules removed */
-            
-            /* Remove empty rule
-            .comparison-group {
-                 // Removing conflicting flex item styles
-                 // grid-column, grid-row, margin related rules removed
-                 // Keep any specific non-layout overrides if needed
-            }
-            */
-            /* Removing middle-column special handling if it existed */
             
             /* (宽高比样式保持不变 - these might need review later if portrait is used) */
              .comparison-wrapper.landscape { padding-bottom: 62.5% !important; }
@@ -1772,12 +1659,6 @@
         }
         /* --- 结束 PC/平板对比区布局 --- */
 
-        /* (移除之前的 PC 端 Grid 布局媒体查询块) */
-        /* @media screen and (min-width: 1024px) { ... } */ 
-
-        /* ... 其他样式 ... */
-
-        /* --- 清理并重构对比区样式 --- */
 
         /* 对比区外部容器 (保持宽度对齐) */
         .comparison-container {
@@ -1789,12 +1670,7 @@
             padding: 30px 0 50px; 
             position: relative; 
             box-sizing: border-box; 
-            /* overflow: hidden; */ /* Removed to prevent shadow clipping */
-            /* overflow-y: visible; */ /* Removed, let browser handle */
-             /* 移除所有旧的 display, grid, flex 属性 */
-             /* display: grid !important; */ 
-             /* display: flex !important; */
-             /* grid-template-columns: none; */
+            
         }
 
         /* 滑动容器样式 */
@@ -1811,13 +1687,6 @@
             width: 100%; 
             align-items: flex-start !important; /* 修改：强制顶部对齐 */
             cursor: grab; /* Add grab cursor */
-            /* Remove padding and shadow from slider */
-            /*
-            padding-top: 30px;
-            padding-bottom: 50px;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.55), 0 15px 35px rgba(0,0,0,0.4);
-            background-color: transparent; 
-            */
            padding: 0; /* Ensure slider itself has no padding */
         }
         .comparison-slider.active-drag {
@@ -1865,13 +1734,7 @@
              position: relative; 
              width: 100%; 
              height: 0;
-             /* Remove margin */
-             /* margin-top: ...; */ 
-             /* margin-bottom: ...; */ 
              border-radius: 0 !important; 
-             /* Remove filter, restore box-shadow */
-             /* filter: drop-shadow(...); */ 
-             /* Reduce blur radius significantly to prevent clipping */
              box-shadow: 0 15px 30px rgba(0, 0, 0, 0.45), 0 8px 15px rgba(0, 0, 0, 0.35); 
              padding-bottom: 62.5% !important; 
              transform: translateZ(0); /* Add back for potential rendering boost */
@@ -1884,10 +1747,6 @@
          }
          /* (滑块样式保持不变) */
 
-        /* --- 清理旧的媒体查询规则 --- */
-        /* @media screen and (min-width: 768px) { ... } */ /* 注释掉整个块 */
-        /* @media screen and (min-width: 1024px) { ... } */ /* 注释掉整个块 */
-        /* @media screen and (max-width: 767px) { ... } */ /* 注释掉与 comparison 相关的规则 */
         @media screen and (max-width: 767px) {
              /* --- Mobile Title Styles Override --- */
              .section-title {
@@ -1975,13 +1834,12 @@
             .comparison-thumbnail-item {
                  width: 60px !important;
                  height: 37.5px !important;
-                 opacity: 0.7; 
                  flex-shrink: 0; 
             }
+            /* 移动端激活状态：移除缩放 */
             .comparison-thumbnail-item.active {
                  opacity: 1 !important; 
                  border-color: #fff !important;
-                 transform: scale(1.1) !important;
             }
              /* --- End Mobile Comparison Styles --- */
         }
@@ -2016,7 +1874,6 @@
 
         /* .comparison-thumbnail-item: 普通状态 */
         .comparison-thumbnail-item {
-            /* ... (width, height, border, etc. as before) ... */
             width: 80px; 
             height: 50px; 
             background-size: contain; 
@@ -2025,9 +1882,8 @@
             border: 2px solid transparent;
             border-radius: 4px; 
             cursor: pointer;
-            transition: transform 0.3s ease, opacity 0.3s ease; /* 只保留 transform 和 opacity 过渡 */
+            transition: transform 0.3s ease; 
             flex-shrink: 0; 
-            opacity: 0.7; 
             aspect-ratio: 16 / 10; 
             overflow: hidden;      
         }
@@ -2040,76 +1896,34 @@
           display: block;        
         }
 
-        /* :hover 状态：只缩放和改变透明度，不改变边框 */
-        .comparison-thumbnail-item:hover {
-            transform: scale(1.05); 
-            opacity: 0.9;
-            /* 移除悬停边框变化 */
-            /* border-color: rgba(255, 255, 255, 0.5); */ 
-        }
 
-        /* .active 状态：只改变边框颜色和透明度，不缩放 */
+        /* .active 状态：只改变边框颜色 */
         .comparison-thumbnail-item.active {
             border-color: #fff; /* 激活状态白色边框 */
-            opacity: 1; 
-            transform: scale(1.0); /* 确保不缩放 */
+          
         }
         /* --- 结束缩略图导航样式 --- */
 
-        /* --- 再次调整箭头定位 --- */
-        /* .slider-handle::before: 左箭头 */
-        .slider-handle::before {
-            content: '< '; 
-            position: absolute;
-            top: 50%;
-            left: 50%; 
-            transform: translateX(calc(-50% - 14px)) translateY(-50%); 
-            color: rgba(255, 255, 255, 0.85); 
-            font-size: 1.6rem; 
-            font-weight: normal; 
-            text-shadow: none; 
-            z-index: 7; 
-            pointer-events: none; 
-            /* 尝试移除 line-height 并用 display block */
-            /* line-height: normal; */
-            display: block; /* 或者 inline-block */
-            height: auto; /* 确保高度自适应内容 */
-        }
-
-        /* .slider-handle::after: 右箭头 */
-        .slider-handle::after {
-            content: ' >'; 
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translateX(calc(-50% + 14px)) translateY(-50%); 
-            color: rgba(255, 255, 255, 0.85); 
-            font-size: 1.6rem;
-            font-weight: normal; 
-            text-shadow: none; 
-            z-index: 7; 
-            pointer-events: none; 
-            /* 尝试移除 line-height 并用 display block */
-            /* line-height: normal; */
-            display: block; /* 或者 inline-block */
-            height: auto; /* 确保高度自适应内容 */
-            opacity: 1;
-            visibility: visible;
-        }
-         /* --- 结束箭头调整 --- */
+     
 
         /* --- 移动端样式需要同步修改 --- */
         @media screen and (max-width: 767px) {
              /* ... 其他移动端样式 ... */
 
-             /* 移动端缩略图激活状态：也移除缩放 */
+            }
+            /* Restore thumbnail item styles for mobile */
+            .comparison-thumbnail-item {
+                 width: 60px !important;
+                 height: 37.5px !important;
+                 flex-shrink: 0; 
+            }
+            /* 移动端激活状态：移除缩放 */
             .comparison-thumbnail-item.active {
                  opacity: 1 !important; 
                  border-color: #fff !important;
-                 transform: scale(1.0) !important; /* 确保不缩放 */
             }
              /* --- End Mobile Comparison Styles --- */
-        }
+        
 
         /* 移动端关于我区样式优化 */
          @media screen and (max-width: 767px) {
@@ -2127,7 +1941,6 @@
             .about-image-container {
                 width: 180px;
                 height: 180px;
-                /* margin: 0 auto 25px; */ /* Removed shorthand margin */
                 margin-top: 20px; /* Added margin-top */
                 margin-bottom: 25px; /* Kept margin-bottom */
                 margin-left: auto; /* Kept auto for centering */
@@ -2141,7 +1954,6 @@
             /* 移动端联系表单优化 */
             .contact-form {
                 padding-bottom: 50px;
-                /* max-width: 90%; */ /* Removed previous value */
                 max-width: 85%; /* Reduced max-width for more margin */
                 margin-left: auto; 
                 margin-right: auto; 
@@ -2178,231 +1990,7 @@
           object-fit: cover;   /* 裁剪图片以填充容器 */
           display: block;        /* 移除图片底部可能存在的空隙 */
         }
-        /* --- 结束添加 --- */
-
-        /* --- 修复对比区图片拖动和滑块点击范围 --- */
-
-        /* 防止图片元素干扰鼠标事件 */
-        .comparison-wrapper img {
-          pointer-events: none; /* 事件穿透图片 */
-          user-select: none; /* 禁止选中文本（可选） */
-          -webkit-user-drag: none; /* 禁止拖拽 (WebKit) */
-        }
-
-        /* 扩大滑块手柄的可点击区域 */
-        .slider-handle::after { /* 使用 ::after 伪元素 */
-          content: ''; /* 必须有 content */
-          position: absolute;
-          top: 0;
-          left: -10px; /* 向左扩展 10px */
-          right: -10px; /* 向右扩展 10px */
-          bottom: 0;
-          /* background-color: rgba(255, 0, 0, 0.2); */ /* 取消注释以调试点击区域 */
-          cursor: ew-resize; /* 保持光标样式 */
-          z-index: 4; /* 确保在图片之上，但在箭头之下（如果箭头在 handle 内部）*/
-          /* 注意：::before/::after 的 z-index 作用域在父元素内，
-             如果 handle::before/::after 的箭头元素也用了 z-index，可能需要调整 */
-        }
-
-        /* 修复滑块手柄样式和定位 */
-        .slider-handle {
-          z-index: 5; 
-          touch-action: pan-y; 
-          /* 定义可交互区域大小 - 使用宽度和透明背景 */
-          width: 22px; /* 例如: 视觉线2px + 左右各10px = 22px */
-          padding-left: 0; /* 移除内边距 */
-          padding-right: 0;
-          background-color: transparent; /* 背景透明 */
-          border-left: none; /* 移除边框线 */
-          position: absolute;
-          top: 0;
-          bottom: 0;
-          left: 50%;
-          /* 居中整个可交互区域 */
-          transform: translateX(-50%); 
-          cursor: ew-resize;
-          height: 100%; 
-        }
-
-        /* 使用 ::before 绘制居中的视觉细线 */
-        .slider-handle::before {
-            content: ''; /* 清空箭头内容 */
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 50%; /* 相对于父元素 (.slider-handle) 居中 */
-            width: 2px; /* 线的宽度 */
-            background-color: #fff; /* 线的颜色 */
-            transform: translateX(-50%); /* 精确居中 2px 的线 */
-            z-index: 6; /* 在 handle 背景之上 */
-            pointer-events: none; /* 不响应鼠标事件 */
-        }
-
-        /* 使用 ::after 绘制右箭头 '>' */
-        .slider-handle::after {
-            content: ' >'; 
-            position: absolute;
-            top: 50%;
-            /* 定位在父元素 (.slider-handle) 的右侧，需要考虑父元素的宽度 */
-            /* 父元素宽度 22px, 中心线在 11px 处，箭头从中心线右侧 8px 开始？ */
-            left: calc(50% + 1px + 8px); /* (父元素中心 + 线宽一半 + 偏移量) */
-            transform: translateY(-50%);
-            color: rgba(255, 255, 255, 0.75); 
-            font-size: 1.5rem;
-            font-weight: bold;
-            opacity: 1; 
-            visibility: visible; 
-            text-shadow: none !important;
-            z-index: 6; 
-            pointer-events: none; 
-        }
-        
-        /* 需要一个单独的规则或修改 ::before 来绘制左箭头 '<' */
-        /* 为了简化，暂时只保留右箭头，如果需要左箭头，需要再加一个元素或修改 before */
-        /* 或者合并到 ::before 的 content 中? 不太好 */
-
-        /* --- 结束修复 --- */
-
-        /* 重构滑块手柄样式 */
-        .slider-handle {
-          z-index: 5; 
-          touch-action: pan-y; 
-          /* 定义可交互区域大小 */
-          width: 22px; 
-          background-color: transparent; /* 背景透明 */
-          border: none; /* 移除边框 */
-          padding: 0; /* 移除内边距 */
-          position: absolute;
-          top: 0;
-          bottom: 0;
-          left: 50%;
-          transform: translateX(-50%); 
-          cursor: ew-resize;
-          height: 100%; 
-        }
-
-        /* 新增：内部 span 用于绘制视觉细线 */
-        .slider-handle .slider-line {
-            content: ''; 
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 50%; 
-            width: 2px; 
-            background-color: #fff; 
-            transform: translateX(-50%); 
-            z-index: 6; 
-            pointer-events: none; 
-        }
-
-        /* 恢复 ::before 绘制左箭头 '< ' */
-        .slider-handle::before {
-            content: '< '; 
-            position: absolute;
-            top: 50%;
-            left: 50%; /* 定位基点在中心线 */
-            /* 组合变换：先水平移到中心线左侧，再垂直居中箭头本身 */
-            transform: translateX(calc(-50% - 10px)) translateY(-50%); /* -50%自身宽度 + 向左偏移10px */
-            color: rgba(255, 255, 255, 0.75); 
-            font-size: 1.5rem;
-            /* 移除 line-height: 1 */
-            z-index: 7; 
-            pointer-events: none; 
-            text-shadow: none; /* 确保无阴影 */
-            font-weight: normal; /* 确保非粗体 */
-        }
-
-        /* ::after 绘制右箭头 '>' */
-        .slider-handle::after {
-            content: ' >'; 
-            position: absolute;
-            top: 50%;
-            left: 50%; /* 定位基点在中心线 */
-            /* 组合变换：先水平移到中心线右侧，再垂直居中箭头本身 */
-            transform: translateX(calc(-50% + 10px)) translateY(-50%); /* -50%自身宽度 + 向右偏移10px */
-            color: rgba(255, 255, 255, 0.75); 
-            font-size: 1.5rem;
-            font-weight: normal; /* 移除粗体 */
-            opacity: 1; 
-            visibility: visible; 
-            text-shadow: none !important; /* 再次确保无阴影 */
-            z-index: 7; 
-            pointer-events: none; 
-        }
-        /* --- 结束修复 --- */
-
-        /* --- 清理并重构对比区滑块手柄样式 --- */
-
-        /* 移除所有旧的、冲突的 .slider-handle, ::before, ::after 规则 */
-        /* (这里假设之前的规则都被删除或注释掉了) */
-
-        /* .slider-handle: 交互区域 */
-        .slider-handle {
-          position: absolute;
-          top: 0;
-          bottom: 0;
-          left: 50%;
-          /* 定义可交互宽度 */
-          width: 24px; /* 例如: 线2px + 左右各11px */
-          transform: translateX(-50%); /* 居中整个交互区 */
-          cursor: ew-resize;
-          z-index: 5; 
-          touch-action: pan-y; 
-          background-color: transparent; /* 确保背景透明 */
-          border: none; /* 确保无边框 */
-          padding: 0; /* 确保无内边距 */
-          height: 100%; /* 确保占满高度 */
-        }
-
-        /* .slider-handle .slider-line: 视觉中心线 */
-        .slider-handle .slider-line {
-            content: ''; 
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 50%; 
-            width: 2px; 
-            background-color: #fff; 
-            transform: translateX(-50%); 
-            z-index: 6; 
-            pointer-events: none; 
-        }
-
-        /* .slider-handle::before: 左箭头 */
-        .slider-handle::before {
-            content: '< '; 
-            position: absolute;
-            top: 50%;
-            left: 50%; /* 定位基点在中心线 */
-            /* 组合变换：先水平移到中心线左侧，再垂直居中箭头本身 */
-            transform: translateX(calc(-50% - 10px)) translateY(-50%); /* -50%自身宽度 + 向左偏移10px */
-            color: rgba(255, 255, 255, 0.75); 
-            font-size: 1.5rem;
-            /* 移除 line-height: 1 */
-            z-index: 7; 
-            pointer-events: none; 
-            text-shadow: none; /* 确保无阴影 */
-            font-weight: normal; /* 确保非粗体 */
-        }
-
-        /* .slider-handle::after: 右箭头 */
-        .slider-handle::after {
-            content: ' >'; 
-            position: absolute;
-            top: 50%;
-            left: 50%; /* 定位基点在中心线 */
-            /* 组合变换：先水平移到中心线右侧，再垂直居中箭头本身 */
-            transform: translateX(calc(-50% + 10px)) translateY(-50%); /* -50%自身宽度 + 向右偏移10px */
-            color: rgba(255, 255, 255, 0.75); 
-            font-size: 1.5rem;
-            font-weight: normal; /* 移除粗体 */
-            opacity: 1; 
-            visibility: visible; 
-            text-shadow: none !important; /* 再次确保无阴影 */
-            z-index: 7; 
-            pointer-events: none; 
-        }
-        /* --- 结束重构 --- */
+      
 
         /* --- Definitive Comparison Slider Handle Styles --- */
 
@@ -2473,6 +2061,93 @@
           visibility: visible;
         }
         /* --- End Definitive Styles --- */
+
+        /* 移动端菜单样式 */
+        @media screen and (max-width: 767px) {
+            /* 移除移动端缩小汉堡包图标的规则 
+            .menu-toggle {
+                top: 15px;
+                right: 15px;
+                width: 35px;
+                height: 35px;
+            }
+            */
+            
+            .menu-content {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100vh;
+                background-color: rgba(0, 0, 0, 0.9);
+                z-index: 1000;
+                transform: translateY(-100%);
+                /* Add opacity to the transition */
+                transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1),
+                            opacity 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
+                visibility: hidden;
+                opacity: 0; /* Start transparent */
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            
+            .menu-content.active {
+                transform: translateY(0);
+                visibility: visible;
+                opacity: 1; /* Become opaque */
+                /* No need to redefine transition here */
+            }
+            
+            .menu-items {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                height: auto;
+                width: 100%;
+                max-width: 400px;
+            }
+            
+            .menu-items a {
+                color: white;
+                font-family: 'Montserrat', sans-serif;
+                font-size: 1.4rem;
+                text-decoration: none;
+                padding: 15px 0;
+                margin: 5px 0;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                position: relative;
+                transition: transform 0.3s ease;
+                text-align: center;
+                width: 100%;
+                box-sizing: border-box;
+                line-height: normal; /* Explicitly set line-height */
+            }
+            
+            .menu-items a:hover {
+                transform: translateY(-3px);
+            }
+            
+            .menu-items a::after {
+                content: '';
+                position: absolute;
+                width: 0;
+                height: 2px;
+                bottom: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: white;
+                transition: width 0.3s ease;
+            }
+            
+            .menu-items a:hover::after {
+                width: 60%;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
 
     </style>
     

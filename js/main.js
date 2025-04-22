@@ -115,7 +115,7 @@ function initializeComparison() {
             if (e.target === handle || handle.contains(e.target)) {
                 e.preventDefault(); // 阻止滚动等默认行为
                 e.stopPropagation(); 
-                startResize(e);
+            startResize(e);
             }
         }, { passive: false }); // <-- 重要：设为 false，因为我们需要调用 preventDefault
 
@@ -205,14 +205,12 @@ function initializeComparisonNav() {
  */
 async function loadAndInitComparison(jsonPath) {
     const container = document.getElementById('comparison-container-dynamic');
-    // 创建新的导航容器
     const thumbnailNavContainer = document.createElement('div');
     thumbnailNavContainer.className = 'comparison-thumbnail-nav';
-    thumbnailNavContainer.id = 'comparison-thumbnail-nav-dynamic'; // 给个 ID
+    thumbnailNavContainer.id = 'comparison-thumbnail-nav-dynamic'; 
 
     if (!container) { console.error('Comparison container not found.'); return; }
-
-    container.innerHTML = ''; // 清空主容器
+    container.innerHTML = ''; 
 
     console.log(`[Comparison] Loading groups from: ${jsonPath}`);
 
@@ -224,16 +222,12 @@ async function loadAndInitComparison(jsonPath) {
         console.log(`[Comparison] Found ${comparisonGroupsData.length} groups.`);
         if (comparisonGroupsData.length === 0) { container.innerHTML = '<p style="color: white; text-align: center;">No comparison groups.</p>'; return; }
 
-        // --- 创建滑动容器 ---
         const sliderContainer = document.createElement('div');
         sliderContainer.className = 'comparison-slider';
         console.log("[Comparison] 创建 comparison-slider div.");
-        // --- 结束 ---
-
-        console.log("[Comparison] 开始创建对比组占位符和缩略图...");
 
         const fragment = document.createDocumentFragment();
-        const thumbnailFragment = document.createDocumentFragment(); // <-- 创建缩略图的 fragment
+        const thumbnailFragment = document.createDocumentFragment(); 
 
         comparisonGroupsData.forEach((groupData, index) => {
             console.log(`[Comparison] ---- 开始处理 group ${index}, ID: ${groupData.id} ----`);
@@ -246,12 +240,12 @@ async function loadAndInitComparison(jsonPath) {
                 console.log(`[Comparison ${groupData.id}] Group div 创建成功.`);
 
                 const wrapper = document.createElement('div');
-                wrapper.className = `comparison-wrapper`; // <-- 直接设置基础类
+                wrapper.className = `comparison-wrapper`;
                 console.log(`[Comparison ${groupData.id}] Wrapper div 创建成功, class: ${wrapper.className}`);
 
                 const imgBefore = document.createElement('img');
                 imgBefore.alt = 'Before'; imgBefore.className = 'before'; imgBefore.loading = 'lazy';
-                imgBefore.draggable = false; // <-- 禁止拖拽
+                imgBefore.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 Before src: ${groupData.before_src}`);
                 imgBefore.src = groupData.before_src;
                 imgBefore.onerror = () => { imgBefore.alt='Image not found'; imgBefore.src=''; console.error(`[Comparison ${groupData.id}] 加载 Before 图片失败: ${groupData.before_src}`);};
@@ -259,7 +253,7 @@ async function loadAndInitComparison(jsonPath) {
 
                 const imgAfter = document.createElement('img');
                 imgAfter.alt = 'After'; imgAfter.className = 'after'; imgAfter.loading = 'lazy';
-                imgAfter.draggable = false; // <-- 禁止拖拽
+                imgAfter.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 After src: ${groupData.after_src}`);
                 imgAfter.src = groupData.after_src;
                 imgAfter.onerror = () => { imgAfter.alt='Image not found'; imgAfter.src=''; console.error(`[Comparison ${groupData.id}] 加载 After 图片失败: ${groupData.after_src}`);};
@@ -267,7 +261,6 @@ async function loadAndInitComparison(jsonPath) {
 
                 const sliderHandle = document.createElement('div'); 
                 sliderHandle.className = 'slider-handle';
-                // 添加用于画线的内部 span
                 const sliderLine = document.createElement('span');
                 sliderLine.className = 'slider-line';
                 sliderHandle.appendChild(sliderLine); 
@@ -287,17 +280,15 @@ async function loadAndInitComparison(jsonPath) {
                 // --- 创建并添加缩略图元素 ---
                 const thumbItem = document.createElement('div');
                 thumbItem.className = 'comparison-thumbnail-item';
-                thumbItem.dataset.targetId = group.id; // 链接到对应的 group
-                if (index === 0) { thumbItem.classList.add('active'); } // 默认激活第一个
-
+                thumbItem.dataset.targetId = group.id; 
+                if (index === 0) { thumbItem.classList.add('active'); } 
                 const thumbImg = document.createElement('img');
-                thumbImg.src = groupData.after_src; // <-- 修改：使用 after 图片作为缩略图
+                thumbImg.src = groupData.after_src; 
                 thumbImg.alt = `Thumbnail for ${groupData.id}`;
                 thumbImg.loading = 'lazy';
                 thumbImg.onerror = () => { thumbImg.alt='Thumb not found'; thumbImg.src=''; console.error(`[Comparison ${groupData.id}] 加载 Thumbnail 图片失败: ${groupData.after_src}`); };
-                
                 thumbItem.appendChild(thumbImg);
-                thumbnailFragment.appendChild(thumbItem); // 添加到缩略图的 fragment
+                thumbnailFragment.appendChild(thumbItem); 
                 console.log(`[Comparison ${groupData.id}] Thumbnail item 创建并添加到 fragment.`);
                 // --- 结束 ---
 
@@ -311,15 +302,16 @@ async function loadAndInitComparison(jsonPath) {
         console.log("[Comparison] 循环结束. 将 slider 和 thumbnail nav 插入页面...");
         if(document.body.contains(container)) {
              sliderContainer.appendChild(fragment);
-             thumbnailNavContainer.appendChild(thumbnailFragment); // <-- 将缩略图 fragment 添加到导航容器
-             container.appendChild(sliderContainer);        // 插入滑动容器
-             container.appendChild(thumbnailNavContainer); // 插入缩略图导航容器
-             console.log("[Comparison] Slider 和 Thumbnail Nav 已插入页面容器。准备初始化交互...");
+             thumbnailNavContainer.appendChild(thumbnailFragment); 
+             container.appendChild(sliderContainer);        
+             container.appendChild(thumbnailNavContainer); 
+             console.log("[Comparison] Slider 和 Thumbnail Nav 已插入页面容器。");
         } else { console.error("[Comparison] 主容器已不存在！"); }
 
+        // --- 初始化交互 --- 
         initializeComparison(); // 初始化滑块交互
-        initializeThumbnailNav(); // 初始化缩略图导航
-        initializeDragScrolling(); // <--- 添加调用：初始化拖动滚动
+        initializeThumbnailNav(sliderContainer, thumbnailNavContainer); // <-- 恢复：不再传递 groups
+        initializeDragScrolling(); // 初始化拖动滚动
 
         console.log(`[Comparison] Placeholder setup complete with horizontal slider and thumbnail nav.`);
 
@@ -327,20 +319,22 @@ async function loadAndInitComparison(jsonPath) {
 }
 
 /**
- * 新增：初始化缩略图导航交互
+ * 恢复使用 Debounce 初始化缩略图导航交互
  */
-function initializeThumbnailNav() {
-    console.log("[Comparison] initializeThumbnailNav 函数开始执行...");
-    const sliderContainer = document.querySelector('.comparison-slider');
-    const navContainer = document.getElementById('comparison-thumbnail-nav-dynamic');
+function initializeThumbnailNav(sliderContainer, navContainer) { // <-- 恢复函数签名
+    console.log("[Comparison Debounce] Initializing thumbnail nav with Debounce...");
+    // const sliderContainer = document.querySelector('.comparison-slider'); // 由参数传入
+    // const navContainer = document.getElementById('comparison-thumbnail-nav-dynamic'); // 由参数传入
     if (!sliderContainer || !navContainer) {
-        console.warn("Comparison slider or thumbnail nav container not found for init.");
+        console.warn("[Comparison Debounce] Slider or Nav container not found for init.");
         return;
     }
     const thumbItems = navContainer.querySelectorAll('.comparison-thumbnail-item');
-    console.log(`[Comparison] 找到 ${thumbItems.length} 个缩略图导航项。`);
+    if (thumbItems.length === 0) return;
+    
+    let currentActiveThumbIndex = 0; // 初始激活索引
 
-    // --- 添加 Debounce 函数 ---
+    // --- 添加 Debounce 函数 (如果之前被移除则加回) ---
     function debounce(func, wait) {
         let timeout;
         return function executedFunction(...args) {
@@ -354,8 +348,9 @@ function initializeThumbnailNav() {
     };
     // --- 结束 Debounce 函数 ---
 
-    thumbItems.forEach((item) => {
-        item.removeEventListener('click', handleThumbClick); 
+    // 点击缩略图逻辑 (保持不变)
+    thumbItems.forEach((item, index) => {
+        item.removeEventListener('click', handleThumbClick);
         item.addEventListener('click', handleThumbClick);
     });
 
@@ -363,112 +358,79 @@ function initializeThumbnailNav() {
         const clickedItem = event.currentTarget;
         const targetId = clickedItem.dataset.targetId;
         const targetGroup = document.getElementById(targetId);
-
-        if (!targetGroup) {
-            console.error(`Target comparison group #${targetId} not found.`);
-            return;
-        }
-
-        console.log(`Thumbnail clicked, scrolling to ${targetId}`);
-
-        // 使用 scrollIntoView 替代之前的 scrollTo 计算
-        targetGroup.scrollIntoView({
-            behavior: 'auto',
-            inline: 'center',
-            block: 'nearest'
-        });
-
-        /* // 旧的 scrollTo 计算 - 注释掉
-        // 计算滚动位置
-        const scrollLeftTarget = targetGroup.offsetLeft - sliderContainer.offsetLeft; // 基本目标位置
-        // 可能需要根据 slider 的 padding 和 group 的 margin 调整
-
-        sliderContainer.scrollTo({
-            left: scrollLeftTarget,
-            behavior: 'smooth'
-        });
-        */
-
-        // 更新激活状态
-        thumbItems.forEach(t => t.classList.remove('active'));
-        clickedItem.classList.add('active');
-        // 点击时也需要更新 currentActiveThumbIndex
+        if (!targetGroup) return;
+        targetGroup.scrollIntoView({ behavior: 'auto', inline: 'center', block: 'nearest' });
         const clickedIndex = Array.from(thumbItems).indexOf(clickedItem);
-        if (clickedIndex !== -1) {
-             currentActiveThumbIndex = clickedIndex;
-             console.log(`Thumbnail clicked, setting active index to ${currentActiveThumbIndex}`);
+        if (clickedIndex !== -1 && clickedIndex !== currentActiveThumbIndex) {
+            console.log(`[Comparison Debounce] Thumbnail clicked, updating active to index ${clickedIndex}`);
+            requestAnimationFrame(() => { 
+                 const currentActiveThumb = navContainer.querySelector('.comparison-thumbnail-item.active');
+                 if (currentActiveThumb) currentActiveThumb.classList.remove('active');
+                 clickedItem.classList.add('active');
+            });
+            currentActiveThumbIndex = clickedIndex;
         }
     }
 
-    // --- 修改滚动处理逻辑 --- 
-    // 移除对已不存在的 handleSliderScroll 的 removeEventListener 调用
-    // sliderContainer.removeEventListener('scroll', handleSliderScroll); 
-    // 清理旧的 throttled handler (如果存在)
-    // sliderContainer.removeEventListener('scroll', throttledScrollHandler);
-
-    let currentActiveThumbIndex = 0; 
-
-    // 更新高亮的逻辑 (提取出来，供 debounce 调用)
+    // --- 恢复滚动处理逻辑 --- 
+    
+    // 更新高亮的逻辑 (保持优化版本: requestAnimationFrame + 只操作必要元素)
     function updateHighlight() {
-        console.log("[Comparison] Debounced: Updating highlight after scroll stop.");
-        const sliderRect = sliderContainer.getBoundingClientRect();
-        const sliderCenter = sliderRect.left + sliderRect.width / 2;
+        // console.log("[Comparison] Debounced: Updating highlight after scroll stop.");
+            const sliderRect = sliderContainer.getBoundingClientRect();
+            const sliderCenter = sliderRect.left + sliderRect.width / 2;
         let centerGroupIndex = -1; 
-        let minDistance = Infinity;
-        const groups = document.querySelectorAll('.comparison-group');
+            let minDistance = Infinity;
+        const groups = sliderContainer.querySelectorAll('.comparison-group'); // 从 sliderContainer 获取 groups
         if (groups.length === 0) return;
 
-        // 1. 找到绝对距离最近的组
         groups.forEach((group, index) => {
-            const groupRect = group.getBoundingClientRect();
+                const groupRect = group.getBoundingClientRect();
             if (groupRect.width === 0 || groupRect.height === 0) return;
-            const groupCenter = groupRect.left + groupRect.width / 2;
-            const distance = Math.abs(sliderCenter - groupCenter);
-            if (distance < minDistance) {
-                minDistance = distance;
+                const groupCenter = groupRect.left + groupRect.width / 2;
+                const distance = Math.abs(sliderCenter - groupCenter);
+                if (distance < minDistance) {
+                    minDistance = distance;
                 centerGroupIndex = index;
             }
         });
 
-        // 2. 检查找到的组是否足够居中 (且不是当前激活的组)
         if (centerGroupIndex !== -1 && centerGroupIndex !== currentActiveThumbIndex) {
             const targetGroup = groups[centerGroupIndex];
             const targetGroupRect = targetGroup.getBoundingClientRect();
             const targetGroupCenter = targetGroupRect.left + targetGroupRect.width / 2;
-            const centeringTolerance = targetGroupRect.width / 3; // 容差：中心点距离小于宽度的 1/3
+            const centeringTolerance = targetGroupRect.width / 3; 
 
-            console.log(`[Comparison Debounce] Center Group Index: ${centerGroupIndex}, Dist from Center: ${Math.abs(sliderCenter - targetGroupCenter)}, Tolerance: ${centeringTolerance}`);
-
-            // 3. 只有当足够居中时才更新高亮
             if (Math.abs(sliderCenter - targetGroupCenter) < centeringTolerance) {
                 const targetGroupId = targetGroup.id;
-                const activeThumb = navContainer.querySelector(`.comparison-thumbnail-item[data-target-id="${targetGroupId}"]`);
-                if (activeThumb) {
-                    console.log(`Updating active thumbnail to ${targetGroupId} (Index: ${centerGroupIndex}) - Passed centering check.`);
-                    thumbItems.forEach(t => t.classList.remove('active'));
-                    activeThumb.classList.add('active');
-                    currentActiveThumbIndex = centerGroupIndex; 
-                } else {
+                const newActiveThumb = navContainer.querySelector(`.comparison-thumbnail-item[data-target-id="${targetGroupId}"]`);
+                const currentActiveThumb = navContainer.querySelector('.comparison-thumbnail-item.active');
+
+                if (newActiveThumb && newActiveThumb !== currentActiveThumb) {
+                    console.log(`Requesting highlight update to ${targetGroupId} (Index: ${centerGroupIndex})`);
+                    requestAnimationFrame(() => {
+                        if (currentActiveThumb) {
+                            currentActiveThumb.classList.remove('active');
+                        }
+                        newActiveThumb.classList.add('active');
+                        currentActiveThumbIndex = centerGroupIndex; 
+                        // console.log(`Highlight updated to ${targetGroupId}`);
+                    });
+                } else if (!newActiveThumb) {
                     console.warn(`Could not find thumbnail for target group ID: ${targetGroupId}`);
                 }
-            } else {
-                 console.log(`Center group ${centerGroupIndex} not centered enough, highlight unchanged.`);
-            }
-        } else {
-             console.log(`Center group ${centerGroupIndex} is already active or invalid, highlight unchanged.`);
-        }
+            } 
+        } 
     }
 
-    // 创建 Debounced 版本的更新函数 (滚动停止 1500ms 后执行)
-    const debouncedUpdateHighlight = debounce(updateHighlight, 1500); // <-- 修改延迟为 1500ms
+    // 创建 Debounced 版本的更新函数 (恢复 500ms 延迟，可调整)
+    const debouncedUpdateHighlight = debounce(updateHighlight, 500); 
 
     // 绑定 Debounced 函数到 scroll 事件
+    sliderContainer.removeEventListener('scroll', debouncedUpdateHighlight); // 确保移除旧的（以防万一）
     sliderContainer.addEventListener('scroll', debouncedUpdateHighlight);
     
-    // 移除旧的 handleSliderScroll 函数定义 (如果它只包含更新逻辑)
-    /* function handleSliderScroll() { ... } */
-
-    console.log("[Comparison] Thumbnail nav initialized with debounced highlight update.");
+    console.log("[Comparison Debounce] Thumbnail nav initialized with debounced highlight update.");
 }
 
 /**
