@@ -340,23 +340,22 @@ function initializeThumbnailNav() {
     const thumbItems = navContainer.querySelectorAll('.comparison-thumbnail-item');
     console.log(`[Comparison] 找到 ${thumbItems.length} 个缩略图导航项。`);
 
-    // --- 添加节流函数 ---
-    function throttle(func, limit) {
-        let inThrottle;
-        return function() {
-            const args = arguments;
-            const context = this;
-            if (!inThrottle) {
-                func.apply(context, args);
-                inThrottle = true;
-                setTimeout(() => inThrottle = false, limit);
-            }
-        }
-    }
-    // --- 结束节流函数 ---
+    // --- 添加 Debounce 函数 ---
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func.apply(this, args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    };
+    // --- 结束 Debounce 函数 ---
 
     thumbItems.forEach((item) => {
-        item.removeEventListener('click', handleThumbClick); // 移除旧监听器（如果重复初始化）
+        item.removeEventListener('click', handleThumbClick); 
         item.addEventListener('click', handleThumbClick);
     });
 
@@ -393,67 +392,67 @@ function initializeThumbnailNav() {
         // 更新激活状态
         thumbItems.forEach(t => t.classList.remove('active'));
         clickedItem.classList.add('active');
+        // 点击时也需要更新 currentActiveThumbIndex
+        const clickedIndex = Array.from(thumbItems).indexOf(clickedItem);
+        if (clickedIndex !== -1) {
+             currentActiveThumbIndex = clickedIndex;
+             console.log(`Thumbnail clicked, setting active index to ${currentActiveThumbIndex}`);
+        }
     }
 
-    // 添加滚动监听器，当用户手动滑动 slider 时，更新缩略图的激活状态
-    let scrollTimeout;
-    sliderContainer.removeEventListener('scroll', handleSliderScroll); // 移除旧监听器
-    
-    // 创建节流版本的滚动处理函数 (例如，每 100ms 最多执行一次)
-    const throttledScrollHandler = throttle(handleSliderScroll, 100);
-    
-    // 绑定节流后的处理函数
-    sliderContainer.addEventListener('scroll', throttledScrollHandler);
+    // --- 修改滚动处理逻辑 --- 
+    sliderContainer.removeEventListener('scroll', handleSliderScroll); // 移除直接的滚动监听器
+    // 清理旧的 throttled handler (如果存在)
+    // sliderContainer.removeEventListener('scroll', throttledScrollHandler);
 
-    // 存储当前激活的缩略图索引，用于滞后比较
     let currentActiveThumbIndex = 0; 
 
-    function handleSliderScroll() {
+    // 更新高亮的逻辑 (提取出来，供 debounce 调用)
+    function updateHighlight() {
+        console.log("[Comparison] Debounced: Updating highlight after scroll stop.");
         const sliderRect = sliderContainer.getBoundingClientRect();
         const sliderCenter = sliderRect.left + sliderRect.width / 2;
-        let newActiveIndex = -1;
+        let centerGroupIndex = -1; 
         let minDistance = Infinity;
-        let centerGroupIndex = -1; // 记录绝对居中的元素索引
-
         const groups = document.querySelectorAll('.comparison-group');
         if (groups.length === 0) return;
 
-        // 遍历所有组，找到当前最居中的组，并判断是否需要切换激活状态
         groups.forEach((group, index) => {
             const groupRect = group.getBoundingClientRect();
             if (groupRect.width === 0 || groupRect.height === 0) return;
             const groupCenter = groupRect.left + groupRect.width / 2;
             const distance = Math.abs(sliderCenter - groupCenter);
-            
-            // 找到绝对距离最近的组
             if (distance < minDistance) {
                 minDistance = distance;
                 centerGroupIndex = index;
             }
         });
 
-        // 滞后逻辑: 只有当绝对居中的组不是当前已激活的组时，才更新激活索引
-        // （更精确的滞后可以计算中心点是否越过前后组的中间点，但先用这个简化版试试）
+        // 只有当找到的居中索引与当前激活的不同时才更新
         if (centerGroupIndex !== -1 && centerGroupIndex !== currentActiveThumbIndex) {
-            newActiveIndex = centerGroupIndex; 
-        }
-        
-        // 如果确定了新的激活索引，则更新高亮
-        if (newActiveIndex !== -1) {
-            const targetGroupId = groups[newActiveIndex].id;
+            const targetGroupId = groups[centerGroupIndex].id;
             const activeThumb = navContainer.querySelector(`.comparison-thumbnail-item[data-target-id="${targetGroupId}"]`);
             if (activeThumb) {
-                console.log(`Slider scrolled, activating thumbnail for ${targetGroupId} (Index: ${newActiveIndex})`);
+                console.log(`Updating active thumbnail to ${targetGroupId} (Index: ${centerGroupIndex})`);
                 thumbItems.forEach(t => t.classList.remove('active'));
                 activeThumb.classList.add('active');
-                currentActiveThumbIndex = newActiveIndex; // 更新当前激活索引
+                currentActiveThumbIndex = centerGroupIndex; 
             } else {
                 console.warn(`Could not find thumbnail for target group ID: ${targetGroupId}`);
             }
         } 
-        // 如果没有确定新的激活索引 (即居中元素仍是当前激活元素)，则不执行任何操作，防止抖动
     }
-    console.log("[Comparison] Thumbnail nav initialized.");
+
+    // 创建 Debounced 版本的更新函数 (例如，滚动停止 200ms 后执行)
+    const debouncedUpdateHighlight = debounce(updateHighlight, 200);
+
+    // 绑定 Debounced 函数到 scroll 事件
+    sliderContainer.addEventListener('scroll', debouncedUpdateHighlight);
+    
+    // 移除旧的 handleSliderScroll 函数定义 (如果它只包含更新逻辑)
+    /* function handleSliderScroll() { ... } */
+
+    console.log("[Comparison] Thumbnail nav initialized with debounced highlight update.");
 }
 
 /**

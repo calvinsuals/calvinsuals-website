@@ -2264,6 +2264,77 @@
         }
         /* --- 结束修复 --- */
 
+        /* --- 清理并重构对比区滑块手柄样式 --- */
+
+        /* 移除所有旧的、冲突的 .slider-handle, ::before, ::after 规则 */
+        /* (这里假设之前的规则都被删除或注释掉了) */
+
+        /* .slider-handle: 交互区域 */
+        .slider-handle {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 50%;
+          /* 定义可交互宽度 */
+          width: 24px; /* 例如: 线2px + 左右各11px */
+          transform: translateX(-50%); /* 居中整个交互区 */
+          cursor: ew-resize;
+          z-index: 5; 
+          touch-action: pan-y; 
+          background-color: transparent; /* 确保背景透明 */
+          border: none; /* 确保无边框 */
+          padding: 0; /* 确保无内边距 */
+          height: 100%; /* 确保占满高度 */
+        }
+
+        /* .slider-handle .slider-line: 视觉中心线 */
+        .slider-handle .slider-line {
+            content: ''; 
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%; 
+            width: 2px; 
+            background-color: #fff; 
+            transform: translateX(-50%); 
+            z-index: 6; 
+            pointer-events: none; 
+        }
+
+        /* .slider-handle::before: 左箭头 */
+        .slider-handle::before {
+            content: '< '; 
+            position: absolute;
+            top: 50%;
+            /* 定位在中心线左侧 */
+            left: 50%; 
+            transform: translate(-50%, -50%) translateX(-10px); /* (居中箭头 + 向左偏移) */
+            color: rgba(255, 255, 255, 0.75); 
+            font-size: 1.5rem;
+            line-height: 1;
+            z-index: 7; /* 确保在细线之上 */
+            pointer-events: none; 
+        }
+
+        /* .slider-handle::after: 右箭头 */
+        .slider-handle::after {
+            content: ' >'; 
+            position: absolute;
+            top: 50%;
+             /* 定位在中心线右侧 */
+            left: 50%;
+            transform: translate(-50%, -50%) translateX(10px); /* (居中箭头 + 向右偏移) */
+            color: rgba(255, 255, 255, 0.75); 
+            font-size: 1.5rem;
+            font-weight: bold;
+            opacity: 1; 
+            visibility: visible; 
+            text-shadow: none !important;
+            z-index: 7; /* 确保在细线之上 */
+            pointer-events: none; 
+        }
+        /* --- 结束重构 --- */
+
     </style>
     
     
