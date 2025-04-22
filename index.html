@@ -852,9 +852,6 @@
             transform: translateX(-50%) rotate(0deg); /* 强制垂直，防止旋转 */
         }
         
-        .slider-handle::before, .slider-handle::after {
-        }
-        
         /* 修改滑块箭头 */
         .slider-handle::before {
             content: '< '; 
@@ -1259,11 +1256,6 @@
                 font-weight: 600; /* Changed mobile to SemiBold */
             }
             
-            .hero-content .tagline {
-            /* ... */
-            }
-
-            /* ... other mobile styles ... */
         }
 
         /* 弹窗基础样式 */
@@ -2118,6 +2110,38 @@
           display: block;        /* 移除图片底部可能存在的空隙 */
         }
         /* --- 结束添加 --- */
+
+        /* --- 修复对比区图片拖动和滑块点击范围 --- */
+
+        /* 防止图片元素干扰鼠标事件 */
+        .comparison-wrapper img {
+          pointer-events: none; /* 事件穿透图片 */
+          user-select: none; /* 禁止选中文本（可选） */
+          -webkit-user-drag: none; /* 禁止拖拽 (WebKit) */
+        }
+
+        /* 扩大滑块手柄的可点击区域 */
+        .slider-handle::after { /* 使用 ::after 伪元素 */
+          content: ''; /* 必须有 content */
+          position: absolute;
+          top: 0;
+          left: -10px; /* 向左扩展 10px */
+          right: -10px; /* 向右扩展 10px */
+          bottom: 0;
+          /* background-color: rgba(255, 0, 0, 0.2); */ /* 取消注释以调试点击区域 */
+          cursor: ew-resize; /* 保持光标样式 */
+          z-index: 4; /* 确保在图片之上，但在箭头之下（如果箭头在 handle 内部）*/
+          /* 注意：::before/::after 的 z-index 作用域在父元素内，
+             如果 handle::before/::after 的箭头元素也用了 z-index，可能需要调整 */
+        }
+
+        /* 确保滑块手柄本身的 z-index 足够高 */
+        .slider-handle {
+          z-index: 5; /* 确保手柄在伪元素之上 */
+          /* 其他 .slider-handle 样式保持不变 */
+        }
+
+        /* --- 结束修复 --- */
 
     </style>
     

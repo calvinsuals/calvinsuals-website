@@ -111,10 +111,14 @@ function initializeComparison() {
 
         // Touch listeners
         handle.addEventListener('touchstart', (e) => {
-            e.preventDefault(); 
-            e.stopPropagation();
-            startResize(e);
-        });
+            console.log('[Comparison Handle TouchStart]'); // 添加日志
+            if (e.target === handle || handle.contains(e.target)) {
+                e.preventDefault(); // 阻止滚动等默认行为
+                e.stopPropagation(); 
+                startResize(e);
+            }
+        }, { passive: false }); // <-- 重要：设为 false，因为我们需要调用 preventDefault
+
         handle.addEventListener('touchmove', (e) => { 
             if (!isResizing) return;
             e.preventDefault(); 
