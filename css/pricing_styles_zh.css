@@ -1058,9 +1058,7 @@ body:before {
     }
     
      /* Reset mobile specific background overrides for desktop */
-    #modal-terms.modal {
-        /* Remove any explicit mobile background settings if they exist for desktop */
-    }
+   
 }
 
 
@@ -1544,13 +1542,4 @@ body:before {
     transform: translateY(0px); /* Push down effect */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Reset shadow */
 }
-
-/* 确保移动端可以正确接收点击事件 */
-@media (max-width: 768px) {
-    .card.frozen .frozen-overlay {
-        pointer-events: all;
-    }
-}
-
-
 
