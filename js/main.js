@@ -462,69 +462,77 @@ function initializeDragScrolling() {
     let velocityX = 0;
     let lastX = 0;
     let lastTime = 0;
-    let momentum = null;
-    const friction = 0.92; // 摩擦系数，控制惯性滑动的减速程度
-    const bounceFactor = 0.3; // 弹性系数，超出边界时的反弹效果
-    
-    // 惯性滚动计算函数
+    let momentumID = null; // Changed variable name for clarity
+    const friction = 0.93; // 摩擦系数 (0.9 - 0.95 is usually good)
+    const minVelocity = 0.5; // Minimum velocity to continue momentum
+    const boostFactor = 0.8; // Touch velocity boost
+    let amplitude = 0; // For tracking momentum amplitude
+    let targetScrollLeft = 0; // Target position for momentum scroll
+    let frameTimestamp = 0;
+
+    function trackVelocity(e) {
+        const now = Date.now();
+        const elapsed = now - lastTime;
+        if (elapsed > 30) { // Avoid division by zero or stale data
+            const currentX = (e.touches ? e.touches[0].pageX : e.pageX);
+            const deltaX = currentX - lastX;
+            velocityX = (1000 * deltaX / (1 + elapsed)); // Velocity in pixels/sec
+            lastX = currentX;
+            lastTime = now;
+            // console.log("Velocity:", velocityX);
+        }
+    }
+
     function momentumScroll() {
-        if (Math.abs(velocityX) < 0.5 || !slider) {
-            momentum = null;
-            return;
+        if (!slider) return;
+        let elapsed = Date.now() - frameTimestamp;
+        frameTimestamp = Date.now();
+
+        let delta = amplitude * Math.exp(-elapsed / 325); // Exponential decay
+        if (delta > minVelocity || delta < -minVelocity) {
+            targetScrollLeft -= delta;
+            // Boundary check
+            targetScrollLeft = Math.max(0, Math.min(targetScrollLeft, slider.scrollWidth - slider.clientWidth));
+            slider.scrollLeft = targetScrollLeft;
+            momentumID = requestAnimationFrame(momentumScroll);
+        } else {
+            momentumID = null;
+            // Optional: Snap to nearest item after momentum stops
+            // snapToNearestItem(slider);
         }
-        
-        // 计算新的滚动位置
-        let newScrollLeft = slider.scrollLeft - velocityX;
-        
-        // 检查边界并应用反弹效果
-        if (newScrollLeft < 0) {
-            newScrollLeft = 0;
-            velocityX = velocityX * -bounceFactor;
-        } else if (newScrollLeft > (slider.scrollWidth - slider.clientWidth)) {
-            newScrollLeft = slider.scrollWidth - slider.clientWidth;
-            velocityX = velocityX * -bounceFactor;
+    }
+
+    function cancelMomentumTracking() {
+        if (momentumID !== null) {
+            cancelAnimationFrame(momentumID);
+            momentumID = null;
         }
-        
-        // 应用新的滚动位置
-        slider.scrollLeft = newScrollLeft;
-        
-        // 施加摩擦力减速
-        velocityX *= friction;
-        
-        // 继续滚动动画
-        momentum = requestAnimationFrame(momentumScroll);
     }
 
     // Mouse Events 
     slider.addEventListener('mousedown', (e) => {
         if (e.target.closest('.slider-handle')) return; 
-        
-        // 停止任何正在进行的惯性滚动
-        if (momentum) {
-            cancelAnimationFrame(momentum);
-            momentum = null;
-        }
-        
+        cancelMomentumTracking();
         isDown = true;
         isScrolling = false;
         slider.classList.add('active-drag');
         startX = e.pageX - slider.offsetLeft;
         scrollLeft = slider.scrollLeft;
-        
-        // 记录初始速度跟踪信息
         lastX = e.pageX;
         lastTime = Date.now();
-        velocityX = 0;
+        velocityX = amplitude = 0;
+        e.preventDefault(); // Prevent text selection/image drag
     });
     
     slider.addEventListener('mouseleave', () => {
         if (!isDown) return;
         isDown = false;
         slider.classList.remove('active-drag');
-        
-        // 如果正在滚动，启动惯性滚动
-        if (isScrolling && Math.abs(velocityX) > 0.5) {
-            momentum = requestAnimationFrame(momentumScroll);
+        if (isScrolling && Math.abs(velocityX) > 10) { // Start momentum only if scrolling occurred & velocity is significant
+            amplitude = boostFactor * velocityX;
+            targetScrollLeft = slider.scrollLeft;
+            frameTimestamp = Date.now();
+            momentumID = requestAnimationFrame(momentumScroll);
         }
     });
     
@@ -532,39 +540,27 @@ function initializeDragScrolling() {
         if (!isDown) return;
         isDown = false;
         slider.classList.remove('active-drag');
-        
-        // 如果正在滚动，启动惯性滚动
-        if (isScrolling && Math.abs(velocityX) > 0.5) {
-            momentum = requestAnimationFrame(momentumScroll);
+        if (isScrolling && Math.abs(velocityX) > 10) { 
+            amplitude = boostFactor * velocityX;
+            targetScrollLeft = slider.scrollLeft;
+            frameTimestamp = Date.now();
+            momentumID = requestAnimationFrame(momentumScroll);
         }
     });
     
     slider.addEventListener('mousemove', (e) => {
         if (!isDown) return;
-        
-        // 计算滚动速度
-        const now = Date.now();
-        const dt = now - lastTime;
-        if (dt > 0) {
-            const dx = e.pageX - lastX;
-            velocityX = dx * 0.5; // 调整系数控制惯性强度
-            lastX = e.pageX;
-            lastTime = now;
-        }
-        
-        // 检测是否应该开始滚动
+        trackVelocity(e);
         if (!isScrolling) {
             currentX = e.pageX - slider.offsetLeft;
-            const deltaX = Math.abs(currentX - startX);
-            if (deltaX > scrollThreshold) {
+            if (Math.abs(currentX - startX) > scrollThreshold) {
                 isScrolling = true;
             }
         }
-        
         if (isScrolling) {
             e.preventDefault();
             const x = e.pageX - slider.offsetLeft;
-            const walk = (x - startX) * 1.2; // 增加滚动系数，让滚动更快
+            const walk = (x - startX) * 1.2; // Keep sensitivity adjustment
             slider.scrollLeft = scrollLeft - walk;
         }
     });
@@ -572,33 +568,26 @@ function initializeDragScrolling() {
     // Touch Events 
     slider.addEventListener('touchstart', (e) => {
         if (e.target.closest('.slider-handle')) return;
-        
-        // 停止任何正在进行的惯性滚动
-        if (momentum) {
-            cancelAnimationFrame(momentum);
-            momentum = null;
-        }
-        
+        cancelMomentumTracking();
         isDown = true;
         isScrolling = false;
         startX = e.touches[0].pageX - slider.offsetLeft;
-        startY = e.touches[0].pageY;
+        startY = e.touches[0].pageY; // Remember Y for vertical scroll detection
         scrollLeft = slider.scrollLeft;
-        
-        // 记录初始速度跟踪信息
         lastX = e.touches[0].pageX;
         lastTime = Date.now();
-        velocityX = 0;
-    }, { passive: true });
+        velocityX = amplitude = 0;
+    }, { passive: true }); // Keep passive for performance unless preventDefault needed
 
     window.addEventListener('touchend', () => {
         if (!isDown) return;
         isDown = false;
         slider.classList.remove('active-drag');
-        
-        // 如果正在滚动，启动惯性滚动
-        if (isScrolling && Math.abs(velocityX) > 0.5) {
-            momentum = requestAnimationFrame(momentumScroll);
+        if (isScrolling && Math.abs(velocityX) > 10) { 
+            amplitude = boostFactor * velocityX;
+            targetScrollLeft = slider.scrollLeft;
+            frameTimestamp = Date.now();
+            momentumID = requestAnimationFrame(momentumScroll);
         }
     });
     
@@ -606,56 +595,46 @@ function initializeDragScrolling() {
         if (!isDown) return;
         isDown = false;
         slider.classList.remove('active-drag');
-        
-        if (momentum) {
-            cancelAnimationFrame(momentum);
-            momentum = null;
-        }
+        cancelMomentumTracking();
     });
 
     slider.addEventListener('touchmove', (e) => {
         if (!isDown) return;
-
-        // 计算滚动速度
-        const now = Date.now();
-        const dt = now - lastTime;
-        if (dt > 0) {
-            const dx = e.touches[0].pageX - lastX;
-            velocityX = dx * 0.8; // 触摸设备惯性更强
-            lastX = e.touches[0].pageX;
-            lastTime = now;
-        }
-
+        trackVelocity(e);
         currentX = e.touches[0].pageX - slider.offsetLeft;
-        currentY = e.touches[0].pageY;
+        currentY = e.touches[0].pageY; // Update current Y
         const deltaX = Math.abs(currentX - startX);
-        const deltaY = Math.abs(currentY - startY);
+        const deltaY = Math.abs(currentY - startY); // Calculate vertical delta
 
         if (!isScrolling) {
-            // 更容易触发横向滚动，降低横向滚动对垂直方向的要求
-            if (deltaX > scrollThreshold && deltaX > deltaY * 0.7) {
+            // Prioritize horizontal scroll if horizontal movement is greater
+            if (deltaX > scrollThreshold && deltaX > deltaY) { 
                 isScrolling = true;
                 slider.classList.add('active-drag');
-            } else if (deltaY > scrollThreshold * 1.5) {
-                // 如果垂直移动明显更大，用户可能想要滚动页面
-                isDown = false;
+                // If we are definitely scrolling horizontally, try to prevent vertical page scroll
+                // This requires the listener *not* to be passive.
+                // However, changing to non-passive might impact performance.
+                // Test with passive: true first. If vertical scroll is an issue, change to false.
+                // if (e.cancelable) e.preventDefault(); 
+            } else if (deltaY > scrollThreshold) {
+                // If vertical movement is significant first, let the page scroll normally.
+                isDown = false; // Release the drag lock
                 return;
             }
         }
 
         if (isScrolling) {
-            // 执行横向滚动，并增加移动倍率让滑动更灵敏
-            const walk = (currentX - startX) * 1.5;
+            // Only prevent default if we are sure we're scrolling horizontally
+            // Requires passive: false on this listener
+             if (e.cancelable) {
+                 e.preventDefault();
+             }
+            const walk = (currentX - startX) * 1.5; // Keep sensitivity
             slider.scrollLeft = scrollLeft - walk;
-            
-            // 尝试阻止页面滚动
-            if (e.cancelable) {
-                e.preventDefault();
-            }
         }
-    }, { passive: false }); // 改为非被动监听以支持preventDefault
+    }, { passive: false }); // Set to false to allow preventDefault when isScrolling
 
-    console.log("[Comparison] 已初始化增强的滑动效果，添加了惯性滚动");
+    console.log("[Comparison] Initialized enhanced drag scrolling with momentum.");
 }
 
 
