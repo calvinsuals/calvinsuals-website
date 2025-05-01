@@ -825,19 +825,22 @@ body:before {
     background: none !important;
     overflow: visible !important; /* 允许内容超出容器 */
     position: relative !important; /* 确保定位上下文正确 */
+    width: 100% !important; /* 确保容器宽度正确 */
 }
 
 .modal-payment-footer img { 
     height: auto !important; 
-    width: 120% !important; /* 设置宽度超出父容器 */
+    width: 150% !important; /* 增加宽度，让图片更明显地超出容器 */
     max-width: none !important; /* 移除最大宽度限制 */
-    margin-left: -10% !important; /* 负边距使图片居中 */
     display: block !important; 
     border-radius: 0 !important; 
     filter: brightness(1.1);
+    
+    /* 重新设置居中方法 */
     position: relative !important;
     left: 50% !important;
-    transform: translateX(-50%) !important; /* 使用transform实现精确居中 */
+    transform: translateX(-50%) !important;
+    margin: 0 !important; /* 移除所有边距干扰 */
 }
 
 /* 确保在移动端也能正常工作 */
@@ -847,7 +850,7 @@ body:before {
     }
     
     .modal-payment-footer img {
-        width: 140% !important; /* 在移动端设置更宽 */
+        width: 160% !important; /* 在移动端设置更宽 */
         max-width: none !important;
     }
 }
