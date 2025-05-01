@@ -462,12 +462,12 @@ function initializeDragScrolling() {
     let velocityX = 0;
     let lastX = 0;
     let lastTime = 0;
-    let momentumID = null; // Changed variable name for clarity
-    const friction = 0.93; // 摩擦系数 (0.9 - 0.95 is usually good)
-    const minVelocity = 0.5; // Minimum velocity to continue momentum
-    const boostFactor = 0.8; // Touch velocity boost
-    let amplitude = 0; // For tracking momentum amplitude
-    let targetScrollLeft = 0; // Target position for momentum scroll
+    let momentumID = null;
+    const friction = 0.95; // 增大摩擦力 (原 0.93)
+    const minVelocity = 0.5;
+    const boostFactor = 0.5; // 减小速度增益 (原 0.8)
+    let amplitude = 0;
+    let targetScrollLeft = 0;
     let frameTimestamp = 0;
 
     function trackVelocity(e) {
@@ -602,39 +602,31 @@ function initializeDragScrolling() {
         if (!isDown) return;
         trackVelocity(e);
         currentX = e.touches[0].pageX - slider.offsetLeft;
-        currentY = e.touches[0].pageY; // Update current Y
+        currentY = e.touches[0].pageY;
         const deltaX = Math.abs(currentX - startX);
-        const deltaY = Math.abs(currentY - startY); // Calculate vertical delta
+        const deltaY = Math.abs(currentY - startY);
 
         if (!isScrolling) {
-            // Prioritize horizontal scroll if horizontal movement is greater
             if (deltaX > scrollThreshold && deltaX > deltaY) { 
                 isScrolling = true;
                 slider.classList.add('active-drag');
-                // If we are definitely scrolling horizontally, try to prevent vertical page scroll
-                // This requires the listener *not* to be passive.
-                // However, changing to non-passive might impact performance.
-                // Test with passive: true first. If vertical scroll is an issue, change to false.
-                // if (e.cancelable) e.preventDefault(); 
             } else if (deltaY > scrollThreshold) {
-                // If vertical movement is significant first, let the page scroll normally.
-                isDown = false; // Release the drag lock
+                isDown = false;
                 return;
             }
         }
 
         if (isScrolling) {
-            // Only prevent default if we are sure we're scrolling horizontally
-            // Requires passive: false on this listener
              if (e.cancelable) {
                  e.preventDefault();
              }
-            const walk = (currentX - startX) * 1.5; // Keep sensitivity
+            // 减小 walk 系数，降低灵敏度 (原 1.5)
+            const walk = (currentX - startX) * 1.2; 
             slider.scrollLeft = scrollLeft - walk;
         }
-    }, { passive: false }); // Set to false to allow preventDefault when isScrolling
+    }, { passive: false });
 
-    console.log("[Comparison] Initialized enhanced drag scrolling with momentum.");
+    console.log("[Comparison] Initialized enhanced drag scrolling with adjusted momentum parameters.");
 }
 
 

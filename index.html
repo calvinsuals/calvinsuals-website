@@ -130,18 +130,22 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            transform: translateY(-100%); /* Start hidden above */
-            transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1); /* Smooth slide animation */
+            transform: translateY(-100%); /* Ensure initial transform for animation */
             visibility: hidden; /* Hide when inactive */
-            transform: translateZ(0); /* Promote to layer */
-            -webkit-transform: translateZ(0);
-            backface-visibility: hidden; /* Avoid flickering */
-            -webkit-backface-visibility: hidden;
+            /* Specify transitions for both transform and visibility (with delay for hiding) */
+            transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1), visibility 0s linear 0.4s;
+            /* REMOVING performance optimizations for testing */
+            /* transform: translateZ(0); */
+            /* -webkit-transform: translateZ(0); */
+            /* backface-visibility: hidden; */
+            /* -webkit-backface-visibility: hidden; */
         }
 
         .nav-menu.active {
             transform: translateY(0); /* Slide into view */
             visibility: visible; /* Make visible */
+            /* Ensure visibility transition is immediate when opening */
+            transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1), visibility 0s linear 0s;
         }
 
         /* Styling for links within the nav menu */
