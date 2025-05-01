@@ -483,16 +483,15 @@ function initializeDragScrolling() {
         const startPosition = slider.scrollLeft;
         const distance = targetScrollLeft - startPosition;
         const startTime = performance.now();
-        const duration = 15; // 稍微增加动画持续时间，但仍保持短暂
+        const duration = 5; // 极短的动画持续时间，感觉接近即时但保持丝滑
         
         function animateScroll(timestamp) {
             // 计算动画进度
             const elapsed = timestamp - startTime;
             const progress = Math.min(elapsed / duration, 1);
             
-            // 使用缓动函数使动画更丝滑 - 参考画廊页面的贝塞尔曲线
-            // 参考: cubic-bezier(0.23, 1, 0.32, 1)
-            const easeProgress = cubicBezier(0.23, 1, 0.32, 1, progress);
+            // 使用缓动函数使动画更丝滑
+            const easeProgress = progress; // 线性动画更直接响应
             
             // 计算当前位置
             const currentPosition = startPosition + distance * easeProgress;
@@ -509,24 +508,6 @@ function initializeDragScrolling() {
                 lastScrollLeft = targetScrollLeft;
                 animationId = null;
             }
-        }
-        
-        // 简化的贝塞尔曲线计算函数
-        function cubicBezier(p1x, p1y, p2x, p2y, t) {
-            // 三次贝塞尔曲线计算 (简化版，针对性能优化)
-            const cx = 3 * p1x;
-            const bx = 3 * (p2x - p1x) - cx;
-            const ax = 1 - cx - bx;
-            
-            const cy = 3 * p1y;
-            const by = 3 * (p2y - p1y) - cy;
-            const ay = 1 - cy - by;
-            
-            const tSquared = t * t;
-            const tCubed = tSquared * t;
-            
-            // 只返回y值，因为我们只需要时间进度到位移的映射
-            return ay * tCubed + by * tSquared + cy * t;
         }
         
         // 开始动画
@@ -589,11 +570,11 @@ function initializeDragScrolling() {
             e.preventDefault();
             const x = e.pageX - slider.offsetLeft;
             // 保持适中的速度系数
-            const walk = (x - startX) * 1.6; // 进一步降低速度系数，提高精确度
+            const walk = (x - startX) * 1.8; // 降低速度系数，从2.2降至1.8
             const targetScrollLeft = scrollLeft - walk;
             
-            // 使用平滑滚动代替直接设置，添加微弱的缓动效果
-            smoothScroll(targetScrollLeft);
+            // 直接设置位置而不是使用动画，提高直接感
+            slider.scrollLeft = targetScrollLeft;
         }
     });
 
@@ -659,11 +640,11 @@ function initializeDragScrolling() {
             }
             
             // 保持适中的响应系数
-            const walk = (currentX - startX) * 1.4; // 进一步降低速度系数，提高触摸精确度
+            const walk = (currentX - startX) * 1.6; // 降低速度系数，从2.0降至1.6
             const targetScrollLeft = scrollLeft - walk;
             
-            // 使用平滑滚动代替直接设置，添加微弱的缓动效果
-            smoothScroll(targetScrollLeft);
+            // 直接设置位置而不是使用动画，避免累积延迟
+            slider.scrollLeft = targetScrollLeft;
         }
     }, { passive: false });
 
