@@ -456,16 +456,16 @@ function initializeDragScrolling() {
     let startY, currentY;
     let scrollLeft;
     let isScrolling = false; // Flag to track if scrolling has started
-    const scrollThreshold = 5; // 增加阈值 (原 3)，使滑动不那么容易触发
+    const scrollThreshold = 3; // 降低阈值 (原 5)，使滑动更容易触发
     
     // 惯性滚动相关变量
     let velocityX = 0;
     let lastX = 0;
     let lastTime = 0;
     let momentumID = null;
-    const friction = 0.97; // 进一步增大摩擦力 (原 0.95)
+    const friction = 0.985; // 微调摩擦力 (原 0.97)，让滑动更顺滑
     const minVelocity = 0.5;
-    const boostFactor = 0.3; // 进一步减小速度增益 (原 0.5)
+    const boostFactor = 0.15; // 大幅减小速度增益 (原 0.3)，只保留少量惯性
     let amplitude = 0;
     let targetScrollLeft = 0;
     let frameTimestamp = 0;
@@ -476,7 +476,7 @@ function initializeDragScrolling() {
         if (elapsed > 30) { // Avoid division by zero or stale data
             const currentX = (e.touches ? e.touches[0].pageX : e.pageX);
             const deltaX = currentX - lastX;
-            velocityX = (1000 * deltaX / (1 + elapsed)) * 0.7; // 降低速度计算结果 (增加 *0.7 因子)
+            velocityX = (1000 * deltaX / (1 + elapsed)) * 0.9; // 提高速度计算结果 (原 0.7)
             lastX = currentX;
             lastTime = now;
             // console.log("Velocity:", velocityX);
@@ -488,7 +488,7 @@ function initializeDragScrolling() {
         let elapsed = Date.now() - frameTimestamp;
         frameTimestamp = Date.now();
 
-        let delta = amplitude * Math.exp(-elapsed / 375); // 增加衰减时间 (原 325)，让滚动更平缓
+        let delta = amplitude * Math.exp(-elapsed / 300); // 减少衰减时间 (原 375)，让滑动快速停止
         if (delta > minVelocity || delta < -minVelocity) {
             targetScrollLeft -= delta;
             // Boundary check
@@ -560,7 +560,7 @@ function initializeDragScrolling() {
         if (isScrolling) {
             e.preventDefault();
             const x = e.pageX - slider.offsetLeft;
-            const walk = (x - startX) * 0.8; // 降低灵敏度 (原 1.2)
+            const walk = (x - startX) * 1.5; // 提高灵敏度 (原 0.8)
             slider.scrollLeft = scrollLeft - walk;
         }
     });
@@ -627,14 +627,14 @@ function initializeDragScrolling() {
                  e.preventDefault();
              }
             // 降低滑动灵敏度
-            let walk = (currentX - startX) * 0.5; // 手机端进一步降低灵敏度 (原 1.2)
+            let walk = (currentX - startX) * 1.2; // 手机端提高灵敏度 (原 0.5)
             
-            // 随着移动次数增加，进一步降低灵敏度，实现更精细的控制
+            // 随着移动次数增加，改为更精细的控制
             if (touchMoveCount > 5) {
-                walk = (currentX - startX) * 0.4;
+                walk = (currentX - startX) * 0.9;
             }
             if (touchMoveCount > 10) {
-                walk = (currentX - startX) * 0.3;
+                walk = (currentX - startX) * 0.7;
             }
             
             slider.scrollLeft = scrollLeft - walk;
