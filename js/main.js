@@ -442,7 +442,7 @@ function initializeThumbnailNav(sliderContainer, navContainer) { // <-- 恢复�
 }
 
 /**
- * 初始化简单高速直接拖动滚动 - 完全移除惯性
+ * 优化滑动交互，提供丝滑体验，保持控制感
  */
 function initializeDragScrolling() {
     const slider = document.querySelector('.comparison-slider');
@@ -451,44 +451,72 @@ function initializeDragScrolling() {
         return;
     }
 
-    // 简化变量，移除所有惯性相关代码
+    // 核心变量
     let isDown = false;
     let startX, currentX;
     let startY, currentY;
     let scrollLeft;
     let isScrolling = false;
-    const scrollThreshold = 1; // 极低的触发阈值，即刻响应
+    let lastScrollLeft = 0;
+    let animationId = null;
+    const scrollThreshold = 2; // 适当的触发阈值
     
-    // 移除所有惯性相关变量和函数
+    // 使用requestAnimationFrame实现丝滑滚动
+    function smoothScroll(targetScrollLeft) {
+        if (animationId) {
+            cancelAnimationFrame(animationId);
+        }
+
+        // 当前位置与目标位置相同，无需滚动
+        if (Math.abs(slider.scrollLeft - targetScrollLeft) < 0.5) {
+            return;
+        }
+
+        // 平滑过渡而不引入惯性
+        function animateScroll() {
+            // 丝滑地更新滚动位置
+            slider.scrollLeft = targetScrollLeft;
+            lastScrollLeft = targetScrollLeft;
+        }
+        
+        // 使用requestAnimationFrame确保丝滑渲染
+        animationId = requestAnimationFrame(animateScroll);
+    }
     
-    // Mouse Events - 简化并大幅提高速度  
+    // Mouse Events - 优化响应性和丝滑感
     slider.addEventListener('mousedown', (e) => {
         // 忽略滑块手柄上的点击
         if (e.target.closest('.slider-handle')) return; 
+        
+        if (animationId) {
+            cancelAnimationFrame(animationId);
+            animationId = null;
+        }
         
         isDown = true;
         isScrolling = false;
         slider.classList.add('active-drag');
         startX = e.pageX - slider.offsetLeft;
         scrollLeft = slider.scrollLeft;
+        lastScrollLeft = slider.scrollLeft;
         e.preventDefault(); // 防止文本选择
     });
     
-    // 简化鼠标离开事件
+    // 优化鼠标离开事件
     slider.addEventListener('mouseleave', () => {
         if (!isDown) return;
         isDown = false;
         slider.classList.remove('active-drag');
     });
     
-    // 简化鼠标释放事件
+    // 优化鼠标释放事件
     window.addEventListener('mouseup', () => {
         if (!isDown) return;
         isDown = false;
         slider.classList.remove('active-drag');
     });
     
-    // 鼠标移动事件 - 增加速度系数
+    // 鼠标移动事件 - 降低速度并优化平滑度
     slider.addEventListener('mousemove', (e) => {
         if (!isDown) return;
         
@@ -502,38 +530,47 @@ function initializeDragScrolling() {
         if (isScrolling) {
             e.preventDefault();
             const x = e.pageX - slider.offsetLeft;
-            // 极大提高速度系数，提供立即响应
-            const walk = (x - startX) * 4.5; // 超高速度系数
-            slider.scrollLeft = scrollLeft - walk;
+            // 降低速度系数，提供更适中的响应
+            const walk = (x - startX) * 2.2; // 适中速度系数
+            const targetScrollLeft = scrollLeft - walk;
+            
+            // 使用平滑滚动而不是直接设置
+            smoothScroll(targetScrollLeft);
         }
     });
 
-    // Touch Events - 同样简化并提高速度
+    // Touch Events - 同样优化平滑度和速度
     slider.addEventListener('touchstart', (e) => {
         if (e.target.closest('.slider-handle')) return;
+        
+        if (animationId) {
+            cancelAnimationFrame(animationId);
+            animationId = null;
+        }
         
         isDown = true;
         isScrolling = false;
         startX = e.touches[0].pageX - slider.offsetLeft;
-        startY = e.touches[0].pageY; // 记住Y用于检测垂直滚动
+        startY = e.touches[0].pageY; 
         scrollLeft = slider.scrollLeft;
+        lastScrollLeft = slider.scrollLeft;
     }, { passive: true });
 
-    // 简化触摸结束事件
+    // 优化触摸结束事件
     window.addEventListener('touchend', () => {
         if (!isDown) return;
         isDown = false;
         slider.classList.remove('active-drag');
     });
     
-    // 简化触摸取消事件
+    // 优化触摸取消事件
     window.addEventListener('touchcancel', () => {
         if (!isDown) return;
         isDown = false;
         slider.classList.remove('active-drag');
     });
 
-    // 触摸移动事件 - 超高速响应
+    // 触摸移动事件 - 增强丝滑度
     slider.addEventListener('touchmove', (e) => {
         if (!isDown) return;
         
@@ -557,13 +594,21 @@ function initializeDragScrolling() {
                 e.preventDefault();
             }
             
-            // 超高速响应系数
-            const walk = (currentX - startX) * 4.0; // 直接响应，无惯性
-            slider.scrollLeft = scrollLeft - walk;
+            // 更为适中的响应系数
+            const walk = (currentX - startX) * 2.0; // 适中的响应速度
+            const targetScrollLeft = scrollLeft - walk;
+            
+            // 使用平滑滚动
+            smoothScroll(targetScrollLeft);
         }
     }, { passive: false });
 
-    console.log("[Comparison] 已初始化全新直接高速滑动，移除所有惯性");
+    // 增加事件监听器以处理滚动事件
+    slider.addEventListener('scroll', () => {
+        lastScrollLeft = slider.scrollLeft;
+    }, { passive: true });
+
+    console.log("[Comparison] 已优化滑动交互：更丝滑、更适中的速度，保持直接控制感");
 }
 
 
