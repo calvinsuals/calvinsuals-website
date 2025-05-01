@@ -61,8 +61,35 @@ function initCardModalInteraction() {
         if (modal) {
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden'; // 禁止 body 滚动
+            document.body.style.position = 'fixed'; // 固定body位置
+            document.body.style.width = '100%'; // 保持宽度100%
+            document.body.style.top = `-${window.scrollY}px`; // 记住当前滚动位置
+            document.body.dataset.scrollY = window.scrollY; // 存储滚动位置
+            
             setTimeout(() => {
                 modal.classList.add('is-visible');
+                
+                // 添加模态窗口内触摸事件处理
+                const modalContent = modal.querySelector('.modal-content');
+                const modalBody = modal.querySelector('.modal-body');
+                const modalFooter = modal.querySelector('.modal-payment-footer');
+                
+                if (modalContent && isTouchDevice) {
+                    // 防止模态窗口内的触摸事件冒泡到body
+                    modalContent.addEventListener('touchmove', function(e) {
+                        // 只允许modal-body区域滚动
+                        if (!modalBody.contains(e.target) && !e.target.closest('.modal-body')) {
+                            e.preventDefault();
+                        }
+                    }, { passive: false });
+                    
+                    // 特别处理底部支付图标区域
+                    if (modalFooter) {
+                        modalFooter.addEventListener('touchmove', function(e) {
+                            e.preventDefault(); // 阻止底部区域的滑动
+                        }, { passive: false });
+                    }
+                }
             }, 10);
             lastModalOpenTime = Date.now();
             console.log(`打开模态窗口: ${fullModalId}`);
@@ -76,10 +103,28 @@ function initCardModalInteraction() {
         if (modal) {
             const modalId = modal.id;
             modal.classList.remove('is-visible');
+            
+            // 移除触摸事件监听器
+            const modalContent = modal.querySelector('.modal-content');
+            const modalFooter = modal.querySelector('.modal-payment-footer');
+            
+            if (modalContent && isTouchDevice) {
+                const newModalContent = modalContent.cloneNode(true);
+                modalContent.parentNode.replaceChild(newModalContent, modalContent);
+            }
+            
             setTimeout(() => {
                 modal.style.display = 'none';
+                
+                // 恢复body滚动状态
+                const scrollY = parseInt(document.body.dataset.scrollY || '0');
+                document.body.style.position = '';
+                document.body.style.width = '';
+                document.body.style.top = '';
+                document.body.style.overflow = '';
+                window.scrollTo(0, scrollY);
+                
             }, 300); // 等待动画完成
-            document.body.style.overflow = ''; // 恢复 body 滚动
             console.log(`关闭模态窗口: ${modalId}`);
 
             // 关闭时重新冻结对应的卡片

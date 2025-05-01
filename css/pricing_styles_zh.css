@@ -776,15 +776,14 @@ body:before {
 
 /* Modal Body (Handles PC scroll visually hidden) - DEFAULT */
 .modal-body {
-    padding: 10px 30px !important; /* Adjust padding */
-    overflow-y: auto !important; /* Allow scrolling */
-    flex-grow: 1 !important;
-    color: var(--modal-text-color) !important;
-    text-shadow: var(--modal-text-shadow);
-    line-height: 1.7;
-    font-size: 1rem;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none;  /* IE 10+ */
+    flex: 1 1 auto;
+    padding: 15px 20px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* 增强iOS滚动体验 */
+    overscroll-behavior: contain; /* 防止滚动传播 */
+    max-height: calc(100dvh - 180px); /* 限制最大高度，留出头部和底部空间 */
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent; /* Firefox */
 }
 .modal-body::-webkit-scrollbar { display: none; } /* Webkit */
 .modal-body h4 {
@@ -845,13 +844,62 @@ body:before {
 
 /* 确保在移动端也能正常工作 */
 @media (max-width: 875px) {
+    .modal {
+        /* 确保弹窗固定且占满整个视口 */
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        height: 100dvh !important;
+        z-index: 1100 !important;
+        
+        /* 防止弹窗内容滑动影响整个页面 */
+        touch-action: none; /* 禁用默认触摸行为 */
+        overscroll-behavior: contain; /* 防止滚动传播 */
+        
+        /* 之前的样式保持不变 */
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 20px !important;
+    }
+    
+    .modal-content {
+        /* 确保内容区域正确定位和滚动 */
+        position: relative;
+        max-height: calc(100dvh - 40px); /* 40px为上下padding总和 */
+        display: flex;
+        flex-direction: column;
+        width: 90%;
+        max-width: 460px;
+        background: rgba(45, 45, 45, 0.8);
+        border-radius: 15px;
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+        overflow: hidden; /* 重要：确保内容不会超出边界 */
+        overscroll-behavior: contain; /* 防止滚动传播 */
+    }
+    
+    .modal-body {
+        /* 确保内容区域可滚动 */
+        max-height: calc(100dvh - 180px); /* 减去头部和底部的高度 */
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; /* 隐藏滚动条 */
+        overscroll-behavior: contain; /* 防止滚动传播 */
+    }
+    
     .modal-payment-footer {
-        overflow: visible !important;
+        /* 确保底部区域固定且不可滚动 */
+        position: relative;
+        overflow: visible !important; /* 允许图片超出显示 */
+        pointer-events: none; /* 防止触摸事件，解决滑动问题 */
     }
     
     .modal-payment-footer img {
-        width: 160% !important; /* 在移动端设置更宽 */
-        max-width: none !important;
+        /* 保持图片可见但不接收触摸事件 */
+        pointer-events: none;
     }
 }
 
