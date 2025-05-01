@@ -14,19 +14,56 @@ document.addEventListener('DOMContentLoaded', function() {
             // document.body.style.overflow = isActive ? 'hidden' : '';
         });
 
-        // Close menu when a link is clicked (especially for same-page or JS nav)
+        // 处理菜单链接点击事件
         const menuLinks = navMenu.querySelectorAll('a');
         menuLinks.forEach(link => {
-            // Check if it's a same-page anchor or a JS function call
+            // 获取链接的href属性
             const href = link.getAttribute('href');
-            if (href && (href.startsWith('#') || href.startsWith('javascript:'))) {
-                link.addEventListener('click', () => {
-                    // Only close if the menu is actually active
-                    if (navMenu.classList.contains('active')) {
-                        navToggle.classList.remove('active');
-                        navMenu.classList.remove('active');
-                        navToggle.setAttribute('aria-expanded', 'false');
-                        // document.body.style.overflow = ''; // Restore scrolling
+            if (href) {
+                // 对所有链接添加点击事件处理
+                link.addEventListener('click', function(e) {
+                    // 如果不是页内链接或js函数调用，则需特殊处理
+                    if (!href.startsWith('#') && !href.startsWith('javascript:')) {
+                        // 阻止默认行为
+                        e.preventDefault();
+                        
+                        // 添加hover效果类以触发下划线动画
+                        this.classList.add('hover-effect');
+                        
+                        // 动画完成后再跳转
+                        setTimeout(() => {
+                            // 关闭菜单
+                            if (navMenu.classList.contains('active')) {
+                                navToggle.classList.remove('active');
+                                navMenu.classList.remove('active');
+                                navToggle.setAttribute('aria-expanded', 'false');
+                            }
+                            
+                            // 跳转到目标页面
+                            window.location.href = href;
+                        }, 300); // 等待动画完成（300ms）
+                    } else if (href.startsWith('#')) {
+                        // 页内导航链接处理
+                        e.preventDefault();
+                        const targetId = href.substring(1);
+                        
+                        // 关闭菜单
+                        if (navMenu.classList.contains('active')) {
+                            navToggle.classList.remove('active');
+                            navMenu.classList.remove('active');
+                            navToggle.setAttribute('aria-expanded', 'false');
+                        }
+                        
+                        // 滚动到目标位置
+                        scrollToElement(targetId);
+                    } else if (href.startsWith('javascript:')) {
+                        // JavaScript调用链接处理
+                        // 关闭菜单
+                        if (navMenu.classList.contains('active')) {
+                            navToggle.classList.remove('active');
+                            navMenu.classList.remove('active');
+                            navToggle.setAttribute('aria-expanded', 'false');
+                        }
                     }
                 });
             }
@@ -38,6 +75,16 @@ document.addEventListener('DOMContentLoaded', function() {
              console.warn("Navigation toggle button (.nav-toggle) or menu (.nav-menu) element not found or mismatched.");
         }
     }
+    
+    // 添加自定义样式到<head>
+    const customStyle = document.createElement('style');
+    customStyle.innerHTML = `
+        .nav-menu a.hover-effect::after {
+            width: calc(100% - 60px) !important;
+            transition: width 0.3s ease !important;
+        }
+    `;
+    document.head.appendChild(customStyle);
     // --- Menu Toggle Logic --- END ---
 
     // 检查URL参数中是否包含导航信息

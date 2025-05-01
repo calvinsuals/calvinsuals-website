@@ -816,8 +816,30 @@ body:before {
 .close-modal:hover { background-color: rgba(0,0,0,0.5) !important; transform: scale(1.1); }
 
 /* Payment Footer - DEFAULT */
-.modal-payment-footer { padding: 20px 0 0; margin-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.15); flex-shrink: 0; text-align: center; background: none !important; }
-.modal-payment-footer img { height: 35px !important; width: auto !important; max-width: 90% !important; margin: 0 auto !important; padding: 0 !important; display: block !important; border-radius: 0 !important; filter: brightness(1.1); }
+.modal-payment-footer { 
+    padding: 20px 0 0; 
+    margin-top: 15px; 
+    border-top: 1px solid rgba(255, 255, 255, 0.15); 
+    flex-shrink: 0; 
+    text-align: center; 
+    background: none !important; 
+    overflow: visible !important;
+    width: 100%;
+    position: relative;
+}
+.modal-payment-footer img { 
+    height: auto !important; 
+    width: 150% !important; 
+    max-width: none !important; 
+    margin: 0 !important; 
+    padding: 0 !important; 
+    display: block !important; 
+    border-radius: 0 !important; 
+    filter: brightness(1.1);
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
 
 /* --- Overrides for #modal-terms (Base Styles) --- */
 #modal-terms .modal-content {
