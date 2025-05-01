@@ -17,395 +17,68 @@
     <!-- <link rel="stylesheet" href="styles.css"> --> <!-- Removed as file does not exist -->
     <!-- <link rel="stylesheet" href="gallery.css"> -->
     <!-- <link rel="stylesheet" href="automotive.css"> --> 
+    <link rel="stylesheet" href="css/style_v6.css">
+    <!-- 添加自定义字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Resetting base styles for consistent full-width */
-        html, body {
-            width: 100%;
-            overflow-x: hidden;
-            margin: 0;
-            padding: 0;
+        /* --- Variables & Base (Consistent across pages) --- */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #333 0%, #ddd 100%); /* Dark Grey to Light Grey */
+            --text-color-dark-bg: #f5f5f5; /* Off-white text for dark backgrounds */
+            --text-color-light-bg: #333; /* Dark text for light backgrounds */
+            --footer-bg: rgba(208, 204, 200, 0.7); /* Semi-transparent footer background */
+            --shadow-light: rgba(0, 0, 0, 0.1);
+            --shadow-medium: rgba(0, 0, 0, 0.2);
+            --shadow-dark: rgba(0, 0, 0, 0.3);
+            --border-radius: 8px;
+            --font-body: 'Montserrat', sans-serif;
         }
 
-        /* Base Section Styling - Full Width Background */
-        .section, .comparison-section, .contact-section, .footer, .hero {
-            width: 100%; 
-            max-width: none !important; 
-            margin-left: 0 !important; 
-            margin-right: 0 !important;
-            padding-left: 0 !important; 
-            padding-right: 0 !important;
-            box-sizing: border-box; 
-            /* 添加调试边框 - REMOVED */
-            /* border-top: 2px solid lime !important; */ 
-            /* border-bottom: 2px solid lime !important; */ 
-        }
-
-        /* Keep vertical padding where it was defined */
-        .section {
-            padding-top: 60px;
-            padding-bottom: 60px;
-        }
-        .comparison-section { 
-             padding-top: 60px;
-             padding-bottom: 60px;
-             /* 确保与 .section 一致 */
-        }
-        .contact-section {
-            padding-top: 60px;
-            padding-bottom: 60px;
-        }
-        .footer {
-            padding-top: 40px;
-            padding-bottom: 40px;
-        }
-        .hero {
-            /* height styles remain */
-            /* background styles remain */
-            /* position styles remain */
-            /* display flex styles remain */
-            margin: 0 auto; /* This should have been removed, correcting now */
-        }
-
-        /* Apply max-width and centering to INNER content containers */
-
-        /* Hero Inner Content */
-        .hero-container {
-            max-width: 1800px;
-            width: 90%; /* Use percentage for smaller screens */
-            margin: 0 auto;
-            text-align: center;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Section Title Centering (already mostly correct) */
-        .section-title {
-            color: #000; /* 标题改为黑色以适应不同背景 */
-            position: relative;
-            width: auto; /* 自适应内容宽度 */
-            display: inline-block;
-            margin-left: 5%; /* 统一的左边距 */
-            margin-right: auto;
-            padding-bottom: 0.5rem;
-            text-transform: uppercase;
-            font-size: 1.8rem;
-            margin-bottom: 50px;
-            text-align: left;
-        }
-        
-        /* 统一横线长度为350px */
-        .section-title::after {
-            background-color: #000; /* 标题下划线也改为黑色 */
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 350px; /* 调整为350px */
-            height: 2px;
-        }
-
-        /* Gallery Inner Content */
-        .carousel-container {
-            max-width: 1800px; /* Align with other sections */
-            width: 95%; /* Adjust width as needed for padding */
-            margin: 0 auto;
-            position: relative;
-        }
-
-        /* About Inner Content */
-        /* Need to adjust .about-content (>=768px) */
-        @media screen and (min-width: 768px) {
-            .about-content {
-                display: flex;
-                justify-content: center; /* 居中显示 */
-                align-items: center;
-                gap: 30px;
-                max-width: 1600px; /* 增加最大宽度 */
-                margin: 0 auto;
-                padding-top: 30px; /* 添加顶部内边距 */
-                width: 90%; /* 确保在移动设备上有边距 */
-            }
-            /* Keep .about-image and .about-text styles, but remove margin-left from text */
-            .about-image {
-                width: 280px;
-                height: 280px;
-                min-width: 280px;
-                min-height: 280px;
-                flex-basis: 280px;
-                margin: 0; /* Remove margin-top */
-                flex-shrink: 0;
-                /* ... rest of styles ... */
-            }
-            .about-text {
-                flex: 1; /* 弹性伸缩 */
-                text-align: left;
-                padding: 0;
-                max-width: 800px; /* 设置文本最大宽度 */
-                margin: 0; /* 移除边距 */
-                font-size: 1.05rem;
-                line-height: 1.7;
-            }
-        }
-
-        /* Comparison Inner Content */
-        /* 对比区容器宽度与其他区域对齐 */
-        .comparison-container {
-            max-width: 1400px; 
-            width: 95%;       
-            margin: 0 auto !important; /* 修改：统一设置外边距 */
-            padding: 30px 0 50px; 
-            position: relative; 
-            box-sizing: border-box; 
-        }
-        
-        /* 滑动容器样式 */
-        .comparison-slider {
-            display: flex;
-            overflow-x: auto; 
-            -webkit-overflow-scrolling: touch; 
-            scrollbar-width: none;
-            box-sizing: border-box; 
-            margin-top: 20px;
-            height: auto; 
-            width: 100%; 
-            align-items: flex-start !important;
-            cursor: grab;
-            padding: 0;
-            scroll-padding-left: 27.5%; /* 添加：滚动内边距，确保第一张图片居中 */
-            scroll-padding-right: 27.5%; /* 添加：滚动内边距，确保最后一张图片居中 */
-        }
-        .comparison-slider.active-drag {
-            cursor: grabbing; 
-        }
-        .comparison-slider::-webkit-scrollbar {
-            display: none; 
-        }
-
-        /* 对比组样式 (所有屏幕尺寸统一) */
-         .comparison-group {
-            flex: 0 0 45%;
-            width: 45%;
-            margin: 0 27.5%; /* 修改：统一设置左右外边距 */
-            box-sizing: border-box;
-            position: relative; 
-            vertical-align: top !important;
-        }
-         /* Add pseudo-elements for vertical spacing */
-         .comparison-group::before {
-             content: '';
-             display: block;
-             height: 40px; /* Further increased height */
-         }
-         .comparison-group::after {
-             content: '';
-             display: block;
-             height: 60px; /* Further increased height */
-         }
-         /* Override right margin ONLY for the last item */
-         .comparison-group:last-child {
-             margin-right: 27.5%; /* 保持一致的右侧外边距 */
-         }
-         
-         /* 添加一个新的规则，确保滑动容器能够完全滚动到最后 */
-         .comparison-slider::after {
-             content: '';
-             display: block;
-             flex: 0 0 5%;
-             width: 5%;
-             height: 1px; /* 最小高度 */
-             opacity: 0;
-             pointer-events: none;
-         }
-         
-         /* 删除滑动吸附，改用硬性限制 */
-         .comparison-slider {
-             /* 移除 scroll-snap-type */
-             scroll-behavior: auto; /* 防止平滑滚动造成的反弹效果 */
-             overscroll-behavior-x: none; /* 防止过度滑动 */
-             max-width: 100%;
-             overflow-x: auto;
-         }
-         
-          
-             /* 移除 scroll-snap-align */
-         
-         /* 对比包装器样式 (统一横向比例和直角) */
-         .comparison-wrapper {
-             position: relative; 
-             width: 100%; 
-             height: 0;
-             border-radius: 0 !important; 
-             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.45), 0 8px 15px rgba(0, 0, 0, 0.35); 
-             padding-bottom: 62.5% !important; 
-             transform: translateZ(0); /* Add back for potential rendering boost */
-         }
-         .comparison-wrapper img {
-             position: absolute; top: 0; left: 0;
-             width: 100%; height: 100%; 
-             object-fit: cover;
-             border-radius: 0 !important; 
-         }
-         /* (滑块样式保持不变) */
-
-        /* PC 端对比区 Grid 布局 (调整为更灵活) */
-        @media screen and (min-width: 768px) { /* 应用于平板和 PC */
-            .comparison-container {
-                display: flex; /* 改回 Flexbox，更适合数量不定的情况 */
-                flex-wrap: wrap; 
-                justify-content: center;
-                align-items: flex-start; 
-                /* 覆盖之前的 Grid 样式 */
-                grid-template-columns: none; 
-            }
-            .comparison-group {
-                flex: 1 1 300px; /* 允许伸缩，基础宽度 300px */
-                max-width: 45%;   /* 每行最多两个 */
-                min-width: 300px; 
-                 /* 移除 Grid 布局相关的样式 */
-                grid-column: auto;
-                grid-row: auto;
-            }
-            /* 移除 middle-column 布局 */
-            .comparison-middle-column { 
-                display: contents; 
-            }
-
-            /* 强制横竖图宽高比 */
-            .comparison-wrapper {
-                 position: relative; 
-                 width: 100%; 
-                 height: 0;
-                 border-radius: 0 !important; 
-                 /* box-shadow moved to group */
-            }
-            .comparison-wrapper.landscape {
-                padding-bottom: 62.5%; /* 16:10 */
-            }
-            /* 移除占位符边框 */
-            .placeholder-box {
-                 border: none;
-            }
-            /* 移除之前可能添加的调试边框 */
-             .comparison-wrapper, .comparison-group {
-                 border: none !important;
-             }
-        }
-        /* --- 结束 PC/平板对比区布局 --- */
-
-        
-
-        /* 调整 About 和 Contact 标题颜色 */
-        #about .section-title,
-        #contact .section-title {
-            color: #333; /* 改为深灰色以适应浅色背景 */
-        }
-        #about .section-title::after,
-        #contact .section-title::after {
-            background-color: #333; /* 下划线也改为深灰色 */
-        }
-        /* 保留 Contact 区内部文字为白色 */
-        #contact .form-group label,
-        #contact .form-group input,
-        #contact .form-group textarea {
-            color: #fff;
-        }
-        #contact .form-group input::placeholder,
-        #contact .form-group textarea::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-        /* 保留 About 区文本为深色 */
-        .about-text-container {
-             color: #666;
-        }
-
-        /* 页脚样式调整 */
-        .footer {
-            background-color: transparent !important; 
-            color: rgba(51, 51, 51, 0.6); /* 降低文字透明度 (比 0.7 更低) */
-            font-family: 'Montserrat', sans-serif !important; /* 强制字体 */
-        }
-        .footer p {
-             font-family: 'Montserrat', sans-serif !important; /* 强制字体 */
-        }
-
-        /* 基础样式 */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        html {
-            /* background-color: #d8d6d1; */ /* 不再需要html背景 */
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-            width: 100%;
-            height: 100%;
-            position: relative;
-            z-index: 0;
-        }
-        
+        /* --- General Body Styling --- */
         body {
-            font-family: 'Montserrat', sans-serif;
-            /* line-height: 1.6; */ /* Removed to align with other pages */
-            color: #333; /* 默认深色文字 */
-            
-            
-            /* --- 新的渐变背景 --- */
-            background-image: linear-gradient(
-                to bottom, 
-                #282828 0%,  /* 起始深灰 */
-                #404040 20%, /* 过渡到中灰 */
-                #707070 45%, /* 过渡到中浅灰 */
-                #b0b0b0 65%, /* 过渡到浅灰 */
-                #e0e0e0 85%, /* 过渡到非常浅的灰 */
-                #f8f8f8 100% /* 结束接近白色 */
-            );
-            background-color: #f8f8f8; /* 备用 */
-            background-repeat: no-repeat;
-            background-attachment: scroll;
-            min-height: 100vh; 
-            background-size: 100% 300vh; /* 调整渐变长度 */
-
-            /* 其他 body 样式 */
-            width: 100%;
-            overflow-x: hidden;
+            font-family: var(--font-body);
+            color: var(--text-color-light-bg); /* Default text color for lighter sections */
+            line-height: 1.6;
             margin: 0;
             padding: 0;
-            position: relative;
-            z-index: 1;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            position: relative; /* Needed for absolute positioning inside */
+            background-color: #333; /* Base background color */
         }
         
-        img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-        }
-        
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-        
-        /* 导航菜单样式 */
-        .main-nav {
+        /* --- Fixed Background Gradient --- */
+        .background-gradient {
             position: fixed;
             top: 0;
             left: 0;
+            right: 0;
+            bottom: 0;
             width: 100%;
-            z-index: 1000;
+            height: 100vh;
+            z-index: -1;
+            background: var(--primary-gradient);
+            transition: none;
+            transform: translate3d(0,0,0);
+            -webkit-transform: translate3d(0,0,0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            perspective: 1000;
+            -webkit-perspective: 1000;
         }
         
-        .nav-container {
-            position: relative;
+        /* --- Reset Box Model --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
-        
-        .menu-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1001;
+
+        /* --- Navigation (Unified Styles based on pricing.html) --- */
+        .nav-toggle {
+            position: fixed !important; /* Use !important cautiously */
+            top: 20px !important;
+            right: 20px !important;
+            z-index: 1001 !important; /* Ensure it's above most content */
             width: 40px;
             height: 40px;
             cursor: pointer;
@@ -414,119 +87,104 @@
             justify-content: space-around;
             padding: 10px 5px;
             background-color: transparent;
+            /* Reset browser default button styles */
+            appearance: none;
+            -webkit-appearance: none; /* For Safari/Chrome */
+            border: none;
+            background: none; /* Ensure no background image/color */
+            transform: translateZ(0); /* Promote to layer for performance */
+            -webkit-transform: translateZ(0);
+            backface-visibility: hidden; /* Avoid flickering */
+            -webkit-backface-visibility: hidden;
         }
-        
-        .menu-toggle span {
+
+        .nav-toggle span {
             display: block;
             width: 100%;
             height: 2px;
-            background-color: grey; /* <-- 修改颜色为灰色 */
+            background-color: grey; /* Unified to grey for index/automotive */
             transition: all 0.3s;
         }
         
-        .menu-toggle.active span:nth-child(1) {
+        .nav-toggle.active span:nth-child(1) {
             transform: translateY(8px) rotate(45deg);
         }
         
-        .menu-toggle.active span:nth-child(2) {
+        .nav-toggle.active span:nth-child(2) {
             opacity: 0;
         }
         
-        .menu-toggle.active span:nth-child(3) {
+        .nav-toggle.active span:nth-child(3) {
             transform: translateY(-8px) rotate(-45deg);
         }
         
-        .menu-content {
+        .nav-menu {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100vh;
-            background-color: rgba(0, 0, 0, 0.9);
-            z-index: 1000;
-            transform: translateY(-100%);
-            /* Add opacity to the transition */
-            transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1),
-                        opacity 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
-            visibility: hidden;
-            opacity: 0; /* Start transparent */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .menu-content.active {
-            transform: translateY(0);
-            visibility: visible;
-            opacity: 1; /* Become opaque */
-            /* No need to redefine transition here */
-        }
-        
-        .menu-items {
+            height: 100vh; /* Full viewport height */
+            background-color: rgba(0, 0, 0, 0.9); /* Dark semi-transparent background */
+            z-index: 1000; /* Below the toggle button */
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: auto;
-            width: 100%;
-            max-width: 400px;
-            margin-top: -30px;
+            transform: translateY(-100%); /* Start hidden above */
+            transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1); /* Smooth slide animation */
+            visibility: hidden; /* Hide when inactive */
+            transform: translateZ(0); /* Promote to layer */
+            -webkit-transform: translateZ(0);
+            backface-visibility: hidden; /* Avoid flickering */
+            -webkit-backface-visibility: hidden;
         }
-        
-        /* 确保菜单项字体和大小 */
-        body .menu-items a { /* 增加 body 提高特异性 */
+
+        .nav-menu.active {
+            transform: translateY(0); /* Slide into view */
+            visibility: visible; /* Make visible */
+        }
+
+        /* Styling for links within the nav menu */
+        .nav-menu a {
             color: white;
-            font-family: 'Montserrat', sans-serif !important; /* 强制字体 */
-            font-size: 1.4rem !important;                   /* 强制基础大小 */
-            font-weight: 400 !important;                    /* <-- 改回 400 */
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.4rem; /* Menu item font size */
+            font-weight: 400 !important; /* Use 400 weight */
             text-decoration: none;
-            padding: 15px 0;
-            margin: 5px 0;
+            padding: 15px 30px; /* Padding around text */
+            margin: 5px 0; /* Spacing between items */
             text-transform: uppercase;
             letter-spacing: 2px;
-            position: relative;
-            transition: transform 0.3s ease;
-            text-align: center;
-            width: 100%;
-            box-sizing: border-box;
-            line-height: normal; 
+            position: relative; /* For the underline pseudo-element */
+            transition: transform 0.3s ease; /* Hover effect */
         }
 
-        /* CALVINSUALS 特殊样式 */
-        body .menu-items a:first-child {
-            font-size: 1.8rem !important;
-        }
-        
-        /* 确保移动端字体大小 */
-        @media screen and (max-width: 767px) {
-            body .menu-items a { /* 增加 body 提高特异性 */
-                font-size: 1.2rem !important; /* 强制移动端大小 */
-                padding: 12px 0;
-                margin: 8px 0;
-            }
-            /* ... 其他移动端样式 ... */
+        /* CALVINSUALS specific style */
+        .nav-menu a:first-child {
+            font-size: 1.8rem !important; /* Larger size for brand name */
+            margin-top: -30px; /* Adjust vertical position */
         }
 
-        .menu-items a:hover {
-            transform: translateY(-3px);
+        /* Hover effect for menu items */
+        .nav-menu a:hover {
+            transform: translateY(-3px); /* Slight lift on hover */
         }
-        
-        .menu-items a::after {
+
+        /* Underline effect - initial state */
+        .nav-menu a::after {
             content: '';
             position: absolute;
-            width: 0;
+            width: 0; /* Start with zero width */
             height: 2px;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
+            bottom: 10px; /* Position below text */
+            left: 30px; /* Align with padding */
             background-color: white;
-            transition: width 0.3s ease;
+            transition: width 0.3s ease; /* Animate width change */
         }
-        
-        .menu-items a:hover::after {
-            width: 60%;
-            left: 50%;
-            transform: translateX(-50%);
+
+        /* Underline effect - hover state */
+        .nav-menu a:hover::after {
+            width: calc(100% - 60px); /* Expand to text width (total width - padding * 2) */
         }
         
         /* Hero 区域 - Apply Max Width and Center */
@@ -2113,95 +1771,19 @@
 
         /* 移动端菜单样式 */
         @media screen and (max-width: 767px) {
-            /* 移除移动端缩小汉堡包图标的规则 
-            .menu-toggle {
-                top: 15px;
-                right: 15px;
-                width: 35px;
-                height: 35px;
+            /* --- Mobile Nav Styles (Copied from pricing page @media max-width: 875px) --- */
+            .nav-menu a {
+                font-size: 1.2rem !important;
             }
-            */
+            .nav-toggle { /* Adjustments for mobile if needed, matching pricing.html */
+                width: 40px !important;
+                height: 40px !important;
+                top: 20px !important;
+                right: 20px !important;
+            }
+            /* --- End Mobile Nav Styles --- */
             
-            .menu-content {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100vh;
-                background-color: rgba(0, 0, 0, 0.9);
-                z-index: 1000;
-                transform: translateY(-100%);
-                /* Add opacity to the transition */
-                transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1),
-                            opacity 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
-                visibility: hidden;
-                opacity: 0; /* Start transparent */
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-            
-            .menu-content.active {
-                transform: translateY(0);
-                visibility: visible;
-                opacity: 1; /* Become opaque */
-                /* No need to redefine transition here */
-            }
-            
-            .menu-items {
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                height: auto;
-                width: 100%;
-                max-width: 400px;
-                margin-top: -30px;
-            }
-            
-            .menu-items a {
-                color: white;
-                font-family: 'Montserrat', sans-serif;
-                font-size: 1.4rem;
-                text-decoration: none;
-                padding: 15px 0;
-                margin: 5px 0;
-                text-transform: uppercase;
-                letter-spacing: 2px;
-                position: relative;
-                transition: transform 0.3s ease;
-                text-align: center;
-                width: 100%;
-                box-sizing: border-box;
-                line-height: normal; /* Explicitly set line-height */
-            }
-
-            /* CALVINSUALS 特殊样式 */
-            body .menu-items a:first-child {
-                font-size: 1.8rem !important;
-            }
-            
-            .menu-items a:hover {
-                transform: translateY(-3px);
-            }
-            
-            .menu-items a::after {
-                content: '';
-                position: absolute;
-                width: 0;
-                height: 2px;
-                bottom: 10px;
-                left: 50%;
-                transform: translateX(-50%);
-                background-color: white;
-                transition: width 0.3s ease;
-            }
-            
-            .menu-items a:hover::after {
-                width: 60%;
-                left: 50%;
-                transform: translateX(-50%);
-            }
+            /* REMOVED old mobile menu styles for .menu-content and .menu-items */
         }
 
         /* 锚点高亮样式 */
@@ -2247,30 +1829,30 @@
     
 </head>
 <body>
-    <!-- 导航菜单 -->
-    <nav class="main-nav">
-        <div class="nav-container">
-            <div class="menu-toggle">
+    <!-- 添加固定背景层 -->
+    <div class="background-gradient"></div>
+    
+    <!-- 导航菜单 Toggle Button (using <button>) -->
+    <button class="nav-toggle" aria-label="切换导航" aria-expanded="false">
                 <span></span>
                 <span></span>
                 <span></span>
-            </div>
-            <div class="menu-content">
-                <div class="menu-items">
-                    <a href="#hero">CALVINSUALS</a>
-                    <br>
+    </button>
+    
+    <!-- 导航菜单 (using <nav>) -->
+    <nav class="nav-menu">
+        <!-- Links directly inside nav -->
+        <a href="index.html" style="font-size: 1.8rem; margin-top: -30px;">CALVINSUALS</a> 
+        <br> <!-- Keep line break if needed for spacing -->
                     <a href="automotive.html">AUTOMOTIVE</a>
                     <a href="portrait.html">PORTRAIT</a>
                     <a href="pricing.html">PRICING</a>
-                    <a href="#about">ABOUT</a>
-                    <a href="#contact">CONTACT</a>
-                </div>
-            </div>
-        </div>
+        <a href="javascript:void(0)" onclick="return navigateToMainSection('about')">ABOUT</a>
+        <a href="javascript:void(0)" onclick="return navigateToMainSection('contact')">CONTACT</a>
     </nav>
 
     <!-- Hero Section -->
-    <section id="hero" class="hero">
+    <section class="hero" id="hero">
         <div class="hero-container">
             <div class="hero-content">
                 <h1 class="name text-white">CalvinSuals</h1>
@@ -2440,7 +2022,57 @@
 
     <!-- 锚点定位修复脚本 -->
     <script>
-        // 不再需要这段脚本，功能已移至navigation.js
+        // REMOVED Inline Menu toggle functionality - now handled by navigation.js
+
+        // REMOVED Inline Smooth scrolling for internal links - now handled by navigation.js
+
+        // REMOVED Inline Function to navigate to main section - now handled by navigation.js
+
+        // Gallery Slider Logic (Keep this if it's specific to index.html)
+        const sliders = document.querySelectorAll('.gallery-slider');
+        sliders.forEach(slider => {
+            const slides = slider.querySelector('.gallery-slides');
+            const images = slides.querySelectorAll('.gallery-slide');
+            let currentIndex = 0;
+            const intervalTime = 4000; // 4 seconds
+
+            // Make sure there are images before starting interval
+            if (images.length > 0) {
+                function nextSlide() {
+                    currentIndex = (currentIndex + 1) % images.length;
+                    slides.style.transform = `translateX(-${currentIndex * 100}%)`;
+                }
+                setInterval(nextSlide, intervalTime);
+            }
+        });
+        
+        // Intersection Observer for fade-in effect (Keep this if specific to index.html)
+        const sections = document.querySelectorAll('.section, .comparison-section, .about-section, .contact-section, .footer');
+        const observerOptions = {
+            root: null, // relative to the viewport
+            rootMargin: '0px',
+            threshold: 0.1 // trigger when 10% of the element is visible
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = 1;
+                    entry.target.style.transform = 'translateY(0)';
+                    // Optional: unobserve after animation
+                    // observer.unobserve(entry.target); 
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => {
+            // Initial state before animation
+            section.style.opacity = 0;
+            section.style.transform = 'translateY(20px)';
+            section.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+            observer.observe(section);
+        });
+
     </script>
 
 </body>
