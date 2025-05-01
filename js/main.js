@@ -461,25 +461,56 @@ function initializeDragScrolling() {
     let animationId = null;
     const scrollThreshold = 2; // 适当的触发阈值
     
-    // 使用requestAnimationFrame实现丝滑滚动
+    // 添加硬件加速
+    slider.style.willChange = 'transform';
+    slider.style.transform = 'translateZ(0)';
+    slider.style.webkitTransform = 'translateZ(0)';
+    slider.style.backfaceVisibility = 'hidden';
+    slider.style.webkitBackfaceVisibility = 'hidden';
+    
+    // 优化的动画滚动函数 - 使用动画插值
     function smoothScroll(targetScrollLeft) {
         if (animationId) {
             cancelAnimationFrame(animationId);
         }
 
-        // 当前位置与目标位置相同，无需滚动
+        // 避免微小变化引起的频繁渲染
         if (Math.abs(slider.scrollLeft - targetScrollLeft) < 0.5) {
             return;
         }
-
-        // 平滑过渡而不引入惯性
-        function animateScroll() {
-            // 丝滑地更新滚动位置
-            slider.scrollLeft = targetScrollLeft;
-            lastScrollLeft = targetScrollLeft;
+        
+        // 记录动画起始时间和位置
+        const startPosition = slider.scrollLeft;
+        const distance = targetScrollLeft - startPosition;
+        const startTime = performance.now();
+        const duration = 5; // 极短的动画持续时间，感觉接近即时但保持丝滑
+        
+        function animateScroll(timestamp) {
+            // 计算动画进度
+            const elapsed = timestamp - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            // 使用缓动函数使动画更丝滑
+            const easeProgress = progress; // 线性动画更直接响应
+            
+            // 计算当前位置
+            const currentPosition = startPosition + distance * easeProgress;
+            
+            // 直接设置滚动位置
+            slider.scrollLeft = currentPosition;
+            
+            // 动画未完成，继续请求下一帧
+            if (progress < 1) {
+                animationId = requestAnimationFrame(animateScroll);
+            } else {
+                // 动画完成，确保精确到达目标位置
+                slider.scrollLeft = targetScrollLeft;
+                lastScrollLeft = targetScrollLeft;
+                animationId = null;
+            }
         }
         
-        // 使用requestAnimationFrame确保丝滑渲染
+        // 开始动画
         animationId = requestAnimationFrame(animateScroll);
     }
     
@@ -516,9 +547,17 @@ function initializeDragScrolling() {
         slider.classList.remove('active-drag');
     });
     
-    // 鼠标移动事件 - 降低速度并优化平滑度
+    // 使用节流优化的鼠标移动事件处理函数
+    let lastMoveTime = 0;
+    const moveThrottle = 5; // 节流时间（毫秒）- 保持非常低以确保响应性
+    
     slider.addEventListener('mousemove', (e) => {
         if (!isDown) return;
+        
+        // 最基本的节流，避免过于频繁的计算
+        const now = performance.now();
+        if (now - lastMoveTime < moveThrottle) return;
+        lastMoveTime = now;
         
         if (!isScrolling) {
             currentX = e.pageX - slider.offsetLeft;
@@ -530,12 +569,12 @@ function initializeDragScrolling() {
         if (isScrolling) {
             e.preventDefault();
             const x = e.pageX - slider.offsetLeft;
-            // 降低速度系数，提供更适中的响应
-            const walk = (x - startX) * 2.2; // 适中速度系数
+            // 保持适中的速度系数
+            const walk = (x - startX) * 2.2;
             const targetScrollLeft = scrollLeft - walk;
             
-            // 使用平滑滚动而不是直接设置
-            smoothScroll(targetScrollLeft);
+            // 直接设置位置而不是使用动画，提高直接感
+            slider.scrollLeft = targetScrollLeft;
         }
     });
 
@@ -570,9 +609,15 @@ function initializeDragScrolling() {
         slider.classList.remove('active-drag');
     });
 
-    // 触摸移动事件 - 增强丝滑度
+    // 触摸移动事件优化
+    let lastTouchMoveTime = 0;
     slider.addEventListener('touchmove', (e) => {
         if (!isDown) return;
+        
+        // 最基本的节流，避免过于频繁的计算
+        const now = performance.now();
+        if (now - lastTouchMoveTime < moveThrottle) return;
+        lastTouchMoveTime = now;
         
         currentX = e.touches[0].pageX - slider.offsetLeft;
         currentY = e.touches[0].pageY;
@@ -594,21 +639,21 @@ function initializeDragScrolling() {
                 e.preventDefault();
             }
             
-            // 更为适中的响应系数
-            const walk = (currentX - startX) * 2.0; // 适中的响应速度
+            // 保持适中的响应系数
+            const walk = (currentX - startX) * 2.0;
             const targetScrollLeft = scrollLeft - walk;
             
-            // 使用平滑滚动
-            smoothScroll(targetScrollLeft);
+            // 直接设置位置而不是使用动画，避免累积延迟
+            slider.scrollLeft = targetScrollLeft;
         }
     }, { passive: false });
 
-    // 增加事件监听器以处理滚动事件
+    // 优化滚动处理
     slider.addEventListener('scroll', () => {
         lastScrollLeft = slider.scrollLeft;
     }, { passive: true });
 
-    console.log("[Comparison] 已优化滑动交互：更丝滑、更适中的速度，保持直接控制感");
+    console.log("[Comparison] 已大幅优化滑动交互：添加硬件加速，降低计算量，提高滚动流畅度");
 }
 
 
