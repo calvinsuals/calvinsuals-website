@@ -887,6 +887,10 @@ body:before {
     .nav-menu a {
         font-size: 1.2rem !important;
     }
+    /* Ensure CALVINSUALS link retains larger size on mobile */
+    .nav-menu a:first-child {
+        font-size: 1.8rem !important; 
+    }
     .nav-toggle { /* From original 768px block */
         width: 40px !important;
         height: 40px !important;
