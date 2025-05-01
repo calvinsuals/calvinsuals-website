@@ -1,5 +1,45 @@
 // 导航控制脚本 - 处理跨页面精确定位
 document.addEventListener('DOMContentLoaded', function() {
+    // --- Menu Toggle Logic --- START ---
+    const navToggle = document.querySelector('.nav-toggle');
+    const navMenu = document.querySelector('.nav-menu');
+
+    if (navToggle && navMenu) {
+        navToggle.addEventListener('click', () => {
+            const isActive = navToggle.classList.toggle('active');
+            navMenu.classList.toggle('active');
+            navToggle.setAttribute('aria-expanded', isActive);
+
+            // Optional: Body overflow control (add if needed)
+            // document.body.style.overflow = isActive ? 'hidden' : '';
+        });
+
+        // Close menu when a link is clicked (especially for same-page or JS nav)
+        const menuLinks = navMenu.querySelectorAll('a');
+        menuLinks.forEach(link => {
+            // Check if it's a same-page anchor or a JS function call
+            const href = link.getAttribute('href');
+            if (href && (href.startsWith('#') || href.startsWith('javascript:'))) {
+                link.addEventListener('click', () => {
+                    // Only close if the menu is actually active
+                    if (navMenu.classList.contains('active')) {
+                        navToggle.classList.remove('active');
+                        navMenu.classList.remove('active');
+                        navToggle.setAttribute('aria-expanded', 'false');
+                        // document.body.style.overflow = ''; // Restore scrolling
+                    }
+                });
+            }
+        });
+    } else {
+        // Only log error if *both* elements are expected but not found
+        // This prevents errors on pages without this specific nav structure
+        if (document.querySelector('.nav-toggle') || document.querySelector('.nav-menu')){
+             console.warn("Navigation toggle button (.nav-toggle) or menu (.nav-menu) element not found or mismatched.");
+        }
+    }
+    // --- Menu Toggle Logic --- END ---
+
     // 检查URL参数中是否包含导航信息
     const urlParams = new URLSearchParams(window.location.search);
     const navigateTo = urlParams.get('section');

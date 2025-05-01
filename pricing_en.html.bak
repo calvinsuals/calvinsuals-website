@@ -15,13 +15,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/pricing_styles_en.css">
+    <link rel="stylesheet" href="css/pricing_styles.css">
 
 </head>
 <body>
-
-    <!-- 添加固定背景层 -->
-    <div class="background-gradient"></div>
 
     <!-- Navigation Toggle Button -->
     <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
@@ -39,18 +36,18 @@
     
     <!-- Navigation Menu (Hidden by default) -->
     <nav class="nav-menu">
-        <a href="index.html#hero" style="font-size: 1.8rem; margin-top: -30px;">CALVINSUALS</a>
-        <br>
+        <a href="index.html">HOME</a>
         <a href="automotive.html">AUTOMOTIVE</a>
         <a href="portrait.html">PORTRAIT</a>
-        <a href="javascript:void(0)" onclick="return navigateToMainSection('about')">ABOUT</a>
-        <a href="javascript:void(0)" onclick="return navigateToMainSection('contact')">CONTACT</a>
+        <a href="#" class="active">PRICING</a> <!-- Link to self initially -->
+        <a href="index.html#about">ABOUT</a>
+        <a href="index.html#contact">CONTACT</a>
     </nav>
     
     <!-- Page Header -->
     <header class="header">
         <div class="header-container">
-            <h1 class="page-title">AUTOMOTIVE & MOTORCYCLE</h1>
+            <h1 class="page-title">AUTOMOBILE & MOTORCYCLE</h1>
             <h2 class="page-subtitle">PHOTOGRAPHY PRICING</h2>
         </div>
     </header>
@@ -97,7 +94,7 @@
                  <div class="card-features">
                      <ul> 
                          <li>Interior & Exterior Shots</li>
-                         <li>In&Exterior Detail Shots</li>
+                         <li>Detail Shots (Interior/Exterior)</li>
                          <li>Refined Color Grading</li>
                          <li>Ideal Introduction</li>
                      </ul>
@@ -145,10 +142,10 @@
                             </div>
                             <div class="card-features">
                                  <ul>
-                                     <li>Focus on Dynamic Shots</li>
-                                     <li>Refined Color Grading</li>
-                                     <li>Detailed Editing</li>
-                                     <li>Capture Unique Details</li>
+                                     <li>Focus on Dynamic Rolling Shots</li>
+                                     <li>Captures Vehicle in Motion</li>
+                                     <li>Highlights Speed & Action</li>
+                                     <li>Requires Chase Car Setup</li>
                                  </ul>
                             </div>
                             <div class="card-bottom">
@@ -162,7 +159,7 @@
              <!-- Custom/Follow Package Card (Remains 5th, but now inside wrapper) -->
              <div class="card digital five pricing-card" data-modal-target="follow">
                  <div class="frozen-overlay">
-                     <span class="frozen-package-name">CUSTOMIZED SERVICE</span>
+                     <span class="frozen-package-name">CUSTOM PACKAGE</span>
                      <span class="frozen-cta">Touch / Click</span>
                  </div>
                  <div class="card-top">
@@ -173,7 +170,7 @@
                          <li>Fully Customized Service</li>
                          <li>Customized Shooting Plan</li>
                          <li>Customized Duration</li>
-                         <li>Events / Follow Shoot</li>
+                         <li>Events / Follow / Special Projects</li>
                      </ul>
             </div>
                 <div class="card-bottom">
@@ -208,11 +205,10 @@
                 </div>
             <div class="modal-body">
                     <p class="modal-text"><strong>PRICING OPTIONS:</strong></p>
-                    <ul><li>PACKAGE 1 - $ 219 / 6 PICS</li>
-                        <li>PACKAGE 2 - $ 319 / 9 PICS</li></ul>
+                    <ul><li>PACKAGE 1 - $ 220 / 6 PICS</li><li>PACKAGE 2 - $ 349 / 9 PICS</li><li>PACKAGE 3 - $ 439 / 15 PICS</li></ul>
                 <div class="item-divider"></div>
                     <h4>ADDITIONAL SERVICES</h4>
-                    <ul><li>LIGHTPAINT SHOT - $25/PIC</li><li>RAIN & SNOW SHOTS - $30/PER TIME</li><li>PORTRAIT ADD ON - $50/PPL</li><li>ADDITIONAL PHOTOS - $20/PIC</li></ul>
+                    <ul><li>LIGHTPAINT SHOT - $25/PIC</li><li>RAIN & SNOW SHOTS - $30/PER TIME</li><li>PORTRAIT ADD ON - $50/PPL</li><li>ADDITIONAL EDITED PHOTOS - $20/PIC</li></ul>
                     <div class="item-divider"></div>
                     <p class="modal-text small-text">
                         All listed prices are based on a single vehicle. For sessions involving multiple vehicles, an additional charge of $90 per vehicle will apply, with one complimentary group photo included. The number of final images delivered is fixed. Additional photos may be arranged upon request for an extra fee (advance notice is required). Outdoor sessions cannot be conducted during periods of heavy rain or snow. Certain locations may incur additional fees. All such charges will be clearly communicated in advance.
@@ -227,9 +223,8 @@
                 <div class="modal-header"><h3 class="modal-title">BASIC PACKAGE</h3><button type="button" class="close-modal">&times;</button></div>
             <div class="modal-body">
                     <p class="modal-text"><strong>PRICING OPTIONS:</strong></p>
-                    <ul><li>STATIC PACKAGE - $ 189 / 15 PICS</li>
-                        <li>STATIC AND ROLLING PACKAGE - $ 299 / 20 PICS</li></ul>
-                    <div class="item-divider"></div><h4>ADDITIONAL SERVICES</h4><ul><li>ROLLING SHOTS - $80/PRE TIME</li><li>LIGHTPAINT SHOT - $25/PIC</li><li>RAIN & SNOW SHOTS - $30/PER TIME</li><li>PORTRAIT ADD ON - $50/PPL</li><li>ADDITIONAL PHOTOS - $20/PIC</li></ul>
+                    <ul><li>STATIC PACKAGE - $ 189 / 15 PICS</li><li>STATIC AND ROLLING PACKAGE - $ 279 / 20 PICS</li></ul>
+                    <div class="item-divider"></div><h4>ADDITIONAL SERVICES</h4><ul><li>ROLLING SHOTS - $80/PRE TIME</li><li>LIGHTPAINT SHOT - $25/PIC</li><li>RAIN & SNOW SHOTS - $30/PER TIME</li><li>PORTRAIT ADD ON - $50/PPL</li><li>ADDITIONAL EDITED PHOTOS - $20/PIC</li></ul>
                     <div class="item-divider"></div><p class="modal-text small-text">
                         All listed prices are based on a single vehicle. For sessions involving multiple vehicles, an additional charge of $90 per vehicle will apply, with one complimentary group photo included. The number of final images delivered is fixed. Additional photos may be arranged upon request for an extra fee (advance notice is required). Outdoor sessions cannot be conducted during periods of heavy rain or snow. Certain locations may incur additional fees. All such charges will be clearly communicated in advance.
                     </p>
@@ -243,10 +238,8 @@
                 <div class="modal-header"><h3 class="modal-title">ADVANCED PACKAGE</h3><button type="button" class="close-modal">&times;</button></div>
             <div class="modal-body">
                     <p class="modal-text"><strong>PRICING OPTIONS:</strong></p>
-                    <ul><li>PACKAGE 1 - $ 225 / 9 PICS</li>
-                        <li>PACKAGE 2 - $ 359 / 15 PICS</li>
-                        <li>PACKAGE 3 - $ 400 / 20 PICS</li></ul>
-                    <div class="item-divider"></div><h4>ADDITIONAL SERVICES</h4><ul><li>ROLLING SHOTS - $80/PER TIME</li><li>LIGHTPAINT SHOT - $25/PIC</li><li>RAIN & SNOW SHOTS - $30/PER TIME</li><li>PORTRAIT ADD ON - $50/PPL</li><li>ADDITIONAL PHOTOS - $20/PIC</li></ul>
+                    <ul><li>PACKAGE 1 - $ 225 / 9 PICS</li><li>PACKAGE 2 - $ 360 / 15 PICS</li><li>PACKAGE 3 - $ 400 / 20 PICS</li></ul>
+                    <div class="item-divider"></div><h4>ADDITIONAL SERVICES</h4><ul><li>ROLLING SHOTS - $80/PER TIME</li><li>LIGHTPAINT SHOT - $25/PIC</li><li>RAIN & SNOW SHOTS - $30/PER TIME</li><li>PORTRAIT ADD ON - $50/PPL</li><li>ADDITIONAL EDITED PHOTOS - $20/PIC</li></ul>
                     <div class="item-divider"></div><p class="modal-text small-text">
                         All listed prices are based on a single vehicle. For sessions involving multiple vehicles, an additional charge of $90 per vehicle will apply, with one complimentary group photo included. The number of final images delivered is fixed. Additional photos may be arranged upon request for an extra fee (advance notice is required). Outdoor sessions cannot be conducted during periods of heavy rain or snow. Certain locations may incur additional fees. All such charges will be clearly communicated in advance.
                     </p>
@@ -260,11 +253,8 @@
                 <div class="modal-header"><h3 class="modal-title">MOTORCYCLE PACKAGE</h3><button type="button" class="close-modal">&times;</button></div>
             <div class="modal-body">
                     <p class="modal-text"><strong>PRICING OPTIONS:</strong></p>
-                    <ul><li>STATIC PACKAGE 1 - $ 189 / 9 PICS</li>
-                        <li>STATIC PACKAGE 2 - $ 279 / 15 PICS</li>
-                        <li>STATIC PACKAGE 3 - $ 389 / 20 PICS</li>
-                        <li>ONLY ROLLING CHECK ROLLING PACKAGE</li></ul>
-                    <div class="item-divider"></div><h4>ADDITIONAL SERVICES</h4><ul><li>ROLLING SHOTS - $80/PRE TIME</li><li>LIGHTPAINT SHOT - $25/PIC</li><li>RAIN & SNOW SHOTS - $30/PER TIME</li><li>PORTRAIT ADD ON - $50/PPL</li><li>ADDITIONAL PHOTOS - $20/PIC</li></ul>
+                    <ul><li>STATIC PACKAGE 1 - $ 189 / 9 PICS</li><li>STATIC PACKAGE 2 - $ 279 / 20 PICS</li><li>ROLLING PACKAGE 1 - $ 190 / 6 PICS</li><li>ROLLING PACKAGE 2 - $ 280 / 9 PICS</li></ul>
+                    <div class="item-divider"></div><h4>ADDITIONAL SERVICES</h4><ul><li>ROLLING SHOTS - $80/PRE TIME</li><li>LIGHTPAINT SHOT - $25/PIC</li><li>RAIN & SNOW SHOTS - $30/PER TIME</li><li>PORTRAIT ADD ON - $50/PPL</li><li>ADDITIONAL EDITED PHOTOS - $20/PIC</li></ul>
                     <div class="item-divider"></div><p class="modal-text small-text">
                         All listed prices are based on a single vehicle. For sessions involving multiple vehicles, an additional charge of $90 per vehicle will apply, with one complimentary group photo included. The number of final images delivered is fixed. Additional photos may be arranged upon request for an extra fee (advance notice is required). Outdoor sessions cannot be conducted during periods of heavy rain or snow. Certain locations may incur additional fees. All such charges will be clearly communicated in advance.
                     </p>
@@ -272,15 +262,13 @@
                  <div class="modal-footer-content modal-payment-footer"></div>
         </div>
     </div>
-        <!-- Customized Service Modal -->
+        <!-- Follow Modal -->
         <div class="modal" id="modal-follow" style="display: none;">
         <div class="modal-content">
-                <div class="modal-header"><h3 class="modal-title">CUSTOMIZED SERVICE</h3><button type="button" class="close-modal">&times;</button></div>
+                <div class="modal-header"><h3 class="modal-title">CUSTOM PACKAGE</h3><button type="button" class="close-modal">&times;</button></div>
             <div class="modal-body">
                      <p class="modal-text"><strong>HOURLY RATES:</strong></p>
-                    <ul><li>WITHIN 2 HRS - $ 180/PRE HOUR</li>
-                        <li>OVER 3 HRS - $ 160/PRE HOUR</li>
-                        <li>OVER 5 HRS - $ 120/PRE HOUR</li></ul>
+                    <ul><li>WITHIN 2 HRS - $ 180/PRE HOUR</li><li>OVER 3 HRS - $ 140/PRE HOUR</li><li>OVER 5 HRS - $ 100/PRE HOUR</li></ul>
                 <div class="item-divider"></div>
                     <p class="modal-text small-text">
                         All-inclusive customized service for long-distance shoots/events. No restrictions on vehicles/people. Customize photo count, delivery time, raw file needs. Timing: photographer departure to return. Overage <30min rounds up to 30min; >30min rounds up to 60min.
@@ -297,13 +285,7 @@
                     <div class="notice-section"><h3>Booking Process</h3><ul><li>50% deposit required to book; shoot date confirmed upon receipt. Deposit valid 180 days.</li></ul></div>
                     <div class="notice-section"><h3>Delivery Time</h3><ul><li>Starts after balance payment. Normally 14 days (excl. holidays). Expedited: $30/7 days, $50/3 days (photo count dependent). Final edited photos provided (raw files extra charge for auto/moto).</li></ul></div>
                     <div class="notice-section"><h3>Photo Details</h3><ul><li>Inquire for additional edits/raw images. Photos deleted 24hrs after final delivery; no copies kept.</li></ul></div>
-                    <div class="notice-section"><h3>Other Terms</h3>
-                        <ul><li><strong>Cancellations/No-Shows:</strong> Deposit forfeited, non-refundable.</li>
-                            <li><strong>Rescheduling:</strong> One reschedule allowed free >48hrs prior. Within 48hrs not accepted. Each subsequent reschedule incurs 50% deposit penalty. Booking auto-canceled & deposit forfeited if full deposit unpaid in 90 days.</li>
-                            <li><strong>Weather:</strong> Reschedule may be allowed without penalty in extreme weather (subject to approval).</li>
-                            <li><strong>Liability:</strong> Photographer not responsible for damages/accidents during shoot.</li>
-                            <li><strong>Social Media Use:</strong> Additional $30 fee if you don't want photos posted.</li>
-                            <li><strong>Intellectual Property:</strong> Images property of photographer. Client gets personal use license; commercial use requires prior approval & possible fees.</li></ul></div>
+                    <div class="notice-section"><h3>Other Terms</h3><ul><li><strong>Cancellations/No-Shows:</strong> Deposit forfeited, non-refundable.</li><li><strong>Rescheduling:</strong> One reschedule allowed free >48hrs prior. Within 48hrs not accepted. Each subsequent reschedule incurs 50% deposit penalty. Booking auto-canceled & deposit forfeited if full deposit unpaid in 90 days.</li><li><strong>Weather:</strong> Reschedule may be allowed without penalty in extreme weather (subject to approval).</li><li><strong>Liability:</strong> Photographer not responsible for damages/accidents during shoot.</li><li><strong>Social Media Use:</strong> Additional $30 fee if you don't want photos posted.</li><li><strong>Intellectual Property:</strong> Images property of photographer. Client gets personal use license; commercial use requires prior approval & possible fees.</li></ul></div>
             </div>
                  <div class="modal-footer-content modal-payment-footer">
                      <p class="disclaimer-text">Please ensure you have read all terms. In case of any dispute, the final interpretation right belongs to calvinsuals</p>
@@ -313,11 +295,11 @@
     
     </div>
     
+    <!-- Bootstrap JS (Optional, if needed for components later) -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> -->
+    
     <!-- Custom JS -->
     <script src="js/pricing_script.js"></script>
-
-    <!-- Navigation JS (Common navigation logic) -->
-    <script src="js/navigation.js" defer></script>
 
 </body>
 </html>

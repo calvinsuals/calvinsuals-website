@@ -355,3 +355,188 @@
     ...
 }
 */
+
+/* --- Unified Navigation Styles --- */
+.nav-toggle {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    z-index: 1001 !important;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 10px 5px;
+    background-color: transparent;
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    background: none;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+.nav-toggle span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background-color: grey; /* Set icon color to grey */
+    transition: all 0.3s;
+}
+
+.nav-toggle.active span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+
+.nav-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.nav-toggle.active span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+}
+
+.nav-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transform: translateY(-100%);
+    transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
+    visibility: hidden;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+.nav-menu.active {
+    transform: translateY(0);
+    visibility: visible;
+}
+
+.nav-menu a {
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 400 !important;
+    text-decoration: none;
+    padding: 15px 30px;
+    margin: 5px 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.nav-menu a:first-child {
+    font-size: 1.8rem !important;
+    margin-top: -30px;
+}
+
+.nav-menu a:hover {
+    transform: translateY(-3px);
+}
+
+.nav-menu a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 10px;
+    left: 30px;
+    background-color: white;
+    transition: width 0.3s ease;
+}
+
+.nav-menu a:hover::after {
+    width: calc(100% - 60px);
+}
+/* --- End Unified Navigation Styles --- */
+
+/* Mobile Navigation Styles */
+@media (max-width: 767px) { /* Or use 875px if consistent */
+    .nav-menu a {
+        font-size: 1.2rem !important;
+    }
+    .nav-menu a:first-child {
+        font-size: 1.8rem !important; /* Ensure CALVINSUALS retains size */
+    }
+    .nav-toggle {
+        width: 40px !important;
+        height: 40px !important;
+        top: 20px !important;
+        right: 20px !important;
+    }
+
+    .automotive-page .title-background {
+        padding-left: 40px;
+        padding-top: 60px;
+        margin-top: 20px;
+        height: 25vh;
+    }
+    
+    .automotive-page .title-text {
+        font-size: 1.8em !important;
+        letter-spacing: 1.5px !important;
+        font-weight: 600 !important;
+    }
+    
+    .showcase-wrapper {
+        margin-top: -20vh;
+    }
+
+    .showcase-container {
+        width: 280px;
+        max-width: 280px;
+    }
+    
+    .car-gallery {
+        width: 280px;
+    }
+    
+    .car-gallery > img {
+        width: 280px;
+        height: 350px;
+    }
+
+    .gallery-background::after {
+        width: 340px;
+        bottom: 65px;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 
+            0 0 20px 3px rgba(255, 255, 255, 0.7),
+            0 0 15px 2px rgba(255, 255, 255, 0.5),
+            0 0 10px 1px rgba(255, 255, 255, 0.3);
+    }
+
+    .gallery-background::before {
+        width: 280px;
+        bottom: 35px;
+        background: linear-gradient(to right, 
+            transparent, 
+            rgba(255,255,255,0.3),
+            transparent
+        );
+    }
+
+    .gallery-background {
+        padding-bottom: 80px;
+        margin-bottom: 80px;
+    }
+
+    .showcase-section:last-child {
+        margin-bottom: 60px;
+    }
+}

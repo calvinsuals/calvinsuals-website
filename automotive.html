@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>汽车项目 - calvinsuals</title>
+    <title>CALVINSUALS - AUTOMOTIVE PROJECTS</title>
     <!-- 字体 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -138,14 +138,15 @@
             font-size: 1.4rem;
             font-weight: 400 !important;
             text-decoration: none;
-            padding: 15px 0;
+            padding: 15px 30px;
             margin: 5px 0;
             text-transform: uppercase;
             letter-spacing: 2px;
             position: relative;
             transition: transform 0.3s ease;
             text-align: center;
-            width: 100%;
+            width: auto;
+            display: inline-block;
             box-sizing: border-box;
             line-height: normal;
         }
@@ -160,16 +161,16 @@
             width: 0;
             height: 2px;
             bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
+            left: 30px;
             background-color: white;
             transition: width 0.3s ease;
+            transform: none;
         }
         
         .menu-items a:hover::after {
-            width: 60%;
-            left: 50%;
-            transform: translateX(-50%);
+            width: calc(100% - 60px);
+            left: 30px !important;
+            transform: none !important;
         }
         
         /* 电脑端菜单样式 */
@@ -206,14 +207,6 @@
                 transform: translateX(0);
                 left: 0;
                 right: 0;
-            }
-            
-            .menu-items a {
-                text-align: center;
-                width: 100%;
-                padding: 15px 0;
-                margin: 5px 0;
-                font-size: 1.4rem;
             }
         }
         
@@ -372,28 +365,27 @@
                 margin: 0 auto;
             }
         }
+
+        /* REMOVED Unified Navigation Styles - Moved to automotive.css */
+        /* REMOVED Mobile Nav Styles Media Query */
+
     </style>
 </head>
 <body class="automotive-page">
-    <!-- 导航菜单 -->
-    <nav class="main-nav">
-        <div class="nav-container">
-            <div class="menu-toggle">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-            <div class="menu-content">
-                <div class="menu-items">
-                    <a href="index.html" style="font-size: 1.8rem; margin-top: -30px;">CALVINSUALS</a>
-                    <br>
-                    <a href="portrait.html">PORTRAIT</a>
-                    <a href="pricing.html">PRICING</a>
-                    <a href="javascript:void(0)" onclick="return navigateToMainSection('about')">ABOUT</a>
-                    <a href="javascript:void(0)" onclick="return navigateToMainSection('contact')">CONTACT</a>
-                </div>
-            </div>
-        </div>
+    <!-- 导航菜单 (Unified Structure) -->
+    <button class="nav-toggle" aria-label="切换导航" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    <nav class="nav-menu">
+        <!-- Links directly inside nav -->
+        <a href="index.html" style="font-size: 1.8rem; margin-top: -30px;">CALVINSUALS</a>
+        <br>
+        <a href="portrait.html">PORTRAIT</a>
+        <a href="pricing.html">PRICING</a>
+        <a href="javascript:void(0)" onclick="return navigateToMainSection('about')">ABOUT</a>
+        <a href="javascript:void(0)" onclick="return navigateToMainSection('contact')">CONTACT</a>
     </nav>
 
     <!-- 标题背景区域 -->
@@ -413,46 +405,15 @@
         <p>Website design and development: calvinsuals.</p>
     </footer>
 
-    <!-- 导航JS -->
-    <script src="js/navigation.js" defer></script>
+    <!-- 导航JS (Should use unified logic, consider moving to shared JS file) -->
+    <script src="js/navigation.js" defer></script> 
 
     <script>
-        // Revised Menu Control Code
-        const menuToggle = document.querySelector('.menu-toggle'); // Use querySelector for class
-        const menuContent = document.querySelector('.menu-content'); // Use querySelector for class
+        // REMOVED Unified Menu toggle functionality - now handled by navigation.js
+        
+        // REMOVED Function to navigate to main section - now handled by navigation.js
 
-        if (menuToggle && menuContent) { // Check if elements exist
-            menuToggle.addEventListener('click', () => {
-                menuToggle.classList.toggle('active'); // Toggle active state on the button
-                menuContent.classList.toggle('active'); // Toggle active state on the menu content
-                // Optional: Add visibility control based on active class if CSS doesn't handle it
-                 if (!menuContent.classList.contains('active')) {
-                     // Small delay to allow animation before hiding completely
-                     setTimeout(() => {
-                         menuContent.style.visibility = 'hidden';
-                     }, 400); // Match CSS transition duration if any
-                 } else {
-                     menuContent.style.visibility = 'visible';
-                 }
-            });
-
-            // Optional: Close menu when a link is clicked
-            const menuItems = document.querySelectorAll('.menu-items a');
-            menuItems.forEach(item => {
-                item.addEventListener('click', () => {
-                    menuToggle.classList.remove('active');
-                    menuContent.classList.remove('active');
-                     setTimeout(() => {
-                         menuContent.style.visibility = 'hidden';
-                     }, 400);
-                });
-            });
-
-        } else {
-            console.error('Error: Menu toggle button (.menu-toggle) or menu content (.menu-content) not found.');
-        }
-
-        // --- 新的子画廊加载代码 ---
+        // --- 子画廊加载代码 (Keep this - specific to automotive.html) ---
         async function displaySubGalleries(galleryType) {
             const mainContainer = document.getElementById('gallery-sections-container');
             if (!mainContainer) {
@@ -640,7 +601,7 @@
             }
         }
 
-        // --- 拖动滚动功能 (确保目标是 .car-gallery) ---
+        // --- 拖动滚动功能 (Keep this - specific to automotive.html) ---
         function initializeDragScroll(element) { // element is now .car-gallery
             if (!element) return;
                     let isDown = false;
@@ -699,9 +660,11 @@
              element.style.cursor = 'grab';
         }
 
-        // --- 页面加载时调用 ---
+        // --- 页面加载时调用 (Keep this - specific to automotive.html) ---
         document.addEventListener('DOMContentLoaded', () => {
             displaySubGalleries('automotive'); // 指定画廊类型为 'automotive'
+            // Note: Menu toggle and scroll logic are now in navigation.js
+            // and will also run on DOMContentLoaded from there.
         });
 
     </script>

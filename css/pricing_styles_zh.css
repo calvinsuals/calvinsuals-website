@@ -62,7 +62,7 @@ body {
     left: 0 !important;
     top: 0 !important;
     width: 100% !important;
-    height: 100% !important;
+    height: 100dvh !important; /* <<< Use dvh unit for dynamic height */
     overflow: hidden !important;
     
     /* 多层背景方案，消除断层问题 */
@@ -887,6 +887,10 @@ body:before {
     .nav-menu a {
         font-size: 1.2rem !important;
     }
+    /* Ensure CALVINSUALS link retains larger size on mobile */
+    .nav-menu a:first-child {
+        font-size: 1.8rem !important; 
+    }
     .nav-toggle { /* From original 768px block */
         width: 40px !important;
         height: 40px !important;
@@ -1008,6 +1012,7 @@ body:before {
         overflow-y: auto !important;
         padding: 5vh 10px !important; 
         align-items: flex-start !important; 
+        height: 100dvh !important; /* <<< Use dvh unit here too */
         /* Revert background and filter to desktop values */
         backdrop-filter: blur(25px) !important; /* Desktop value */
         -webkit-backdrop-filter: blur(25px) !important; /* Desktop value */

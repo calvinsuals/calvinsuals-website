@@ -493,15 +493,17 @@
             font-size: 1.4rem;
             font-weight: 400 !important;
             text-decoration: none;
-            padding: 15px 0;
+            padding: 15px 30px;
             margin: 5px 0;
             text-transform: uppercase;
             letter-spacing: 2px;
             position: relative;
             transition: transform 0.3s ease;
             text-align: center;
-            width: 100%;
+            width: auto;
+            display: inline-block;
             box-sizing: border-box;
+            line-height: normal;
         }
         
         .menu-items a:hover {
@@ -514,16 +516,16 @@
             width: 0;
             height: 2px;
             bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
+            left: 30px;
             background-color: white;
             transition: width 0.3s ease;
+            transform: none;
         }
         
         .menu-items a:hover::after {
-            width: 60%;
-            left: 50%;
-            transform: translateX(-50%);
+            width: calc(100% - 60px);
+            left: 30px !important;
+            transform: none !important;
         }
         
         /* 电脑端菜单样式 */
@@ -560,14 +562,6 @@
                 transform: translateX(0);
                 left: 0;
                 right: 0;
-            }
-            
-            .menu-items a {
-                text-align: center;
-                width: 100%;
-                padding: 15px 0;
-                margin: 5px 0;
-                font-size: 1.4rem;
             }
         }
         
@@ -738,33 +732,23 @@
                 margin: 0 auto;
             }
         }
-
-        /* Force hamburger icon color to grey */
-        body.portrait-page .menu-toggle span { /* Increased specificity */
-            background-color: grey !important; 
-        }
     </style>
 </head>
 <body class="portrait-page">
-    <!-- 导航菜单 -->
-    <nav class="main-nav">
-        <div class="nav-container">
-            <div class="menu-toggle">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-            <div class="menu-content">
-                <div class="menu-items">
-                    <a href="index.html" style="font-size: 1.8rem; margin-top: -30px;">CALVINSUALS</a>
-                    <br>
-                    <a href="automotive.html">AUTOMOTIVE</a>
-                    <a href="pricing.html">PRICING</a>
-                    <a href="javascript:void(0)" onclick="return navigateToMainSection('about')">ABOUT</a>
-                    <a href="javascript:void(0)" onclick="return navigateToMainSection('contact')">CONTACT</a>
-                </div>
-            </div>
-        </div>
+    <!-- 导航菜单 (Unified Structure) -->
+    <button class="nav-toggle" aria-label="切换导航" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    <nav class="nav-menu">
+        <!-- Links directly inside nav -->
+        <a href="index.html" style="font-size: 1.8rem; margin-top: -30px;">CALVINSUALS</a>
+        <br>
+        <a href="automotive.html">AUTOMOTIVE</a>
+        <a href="pricing.html">PRICING</a>
+        <a href="javascript:void(0)" onclick="return navigateToMainSection('about')">ABOUT</a>
+        <a href="javascript:void(0)" onclick="return navigateToMainSection('contact')">CONTACT</a>
     </nav>
 
     <!-- 页面标题 -->
@@ -785,42 +769,9 @@
     <script src="js/navigation.js" defer></script>
 
     <script>
-        // Revised Menu Control Code
-        const menuToggle = document.querySelector('.menu-toggle'); // Use querySelector for class
-        const menuContent = document.querySelector('.menu-content'); // Use querySelector for class
+        // REMOVED Inline Menu Control Code - Handled by navigation.js
 
-        if (menuToggle && menuContent) { // Check if elements exist
-            menuToggle.addEventListener('click', () => {
-                menuToggle.classList.toggle('active'); // Toggle active state on the button
-                menuContent.classList.toggle('active'); // Toggle active state on the menu content
-                // Optional: Add visibility control based on active class if CSS doesn't handle it
-                 if (!menuContent.classList.contains('active')) {
-                     // Small delay to allow animation before hiding completely
-                     setTimeout(() => {
-                         menuContent.style.visibility = 'hidden';
-                     }, 400); // Match CSS transition duration if any
-                 } else {
-                     menuContent.style.visibility = 'visible';
-                 }
-            });
-
-            // Optional: Close menu when a link is clicked
-            const menuItems = document.querySelectorAll('.menu-items a');
-            menuItems.forEach(item => {
-                item.addEventListener('click', () => {
-                    menuToggle.classList.remove('active');
-                    menuContent.classList.remove('active');
-                     setTimeout(() => {
-                         menuContent.style.visibility = 'hidden';
-                     }, 400);
-                });
-            });
-
-        } else {
-            console.error('Error: Menu toggle button (.menu-toggle) or menu content (.menu-content) not found.');
-        }
-
-        // --- 新的子画廊加载代码 (与 automotive 页面完全一致的结构) ---
+        // --- 子画廊加载代码 (Keep this - specific to portrait.html) ---
         async function displaySubGalleries(galleryType) {
             const mainContainer = document.getElementById('gallery-sections-container');
             if (!mainContainer) {
@@ -958,7 +909,7 @@
             }
         }
 
-        // --- 拖动滚动功能 (确保目标是 .car-gallery) ---
+        // --- 拖动滚动功能 (Keep this - specific to portrait.html) ---
         function initializeDragScroll(element) { // element is now .car-gallery
             if (!element) return;
                     let isDown = false;
@@ -1017,9 +968,10 @@
              element.style.cursor = 'grab';
         }
 
-        // --- 页面加载时调用 ---
+        // --- 页面加载时调用 (Keep this - specific to portrait.html) ---
         document.addEventListener('DOMContentLoaded', () => {
             displaySubGalleries('portrait'); // 指定画廊类型为 'portrait'
+            // Note: Menu toggle and scroll logic are now in navigation.js
         });
     </script>
 </body>
