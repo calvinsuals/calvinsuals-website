@@ -30,7 +30,8 @@
             margin: 0;
             padding: 0;
             font-family: 'Roboto', sans-serif;
-            background-color: #a89b8d;
+            /* Removed conflicting inline background-color */
+            /* background-color: #a89b8d; */
             color: #ffffff;
             width: 100%; /* Prevent default horizontal scrollbar */
             overflow-x: hidden; /* Prevent body scroll globally */
@@ -40,9 +41,6 @@
             overflow-x: hidden;
         }
 
-        body.portrait-page {
-            background-color: #a89b8d;
-        }
         
         .projects-page {
             padding: 0;
@@ -758,12 +756,12 @@
             </div>
             <div class="menu-content">
                 <div class="menu-items">
-                    <a href="index.html">HOME</a>
+                    <a href="index.html" style="font-size: 1.8rem; margin-top: -30px;">CALVINSUALS</a>
+                    <br>
                     <a href="automotive.html">AUTOMOTIVE</a>
-                    <a href="portrait.html" class="active">PORTRAIT</a>
                     <a href="pricing.html">PRICING</a>
-                    <a href="index.html#about">ABOUT</a>
-                    <a href="index.html#contact">CONTACT</a>
+                    <a href="javascript:void(0)" onclick="return navigateToMainSection('about')">ABOUT</a>
+                    <a href="javascript:void(0)" onclick="return navigateToMainSection('contact')">CONTACT</a>
                 </div>
             </div>
         </div>
@@ -782,6 +780,9 @@
         <p>&copy; 2025 calvinsuals. All photography works and website content are copyrighted by the author.</p>
         <p>Website design and development: calvinsuals.</p>
     </footer>
+
+    <!-- 导航JS -->
+    <script src="js/navigation.js" defer></script>
 
     <script>
         // Revised Menu Control Code
@@ -878,84 +879,69 @@
                         } else {
                              console.warn(`[${galleryType}] JSON data for ${subGalleryTitle} is not a valid array or is empty.`);
                         }
-
                         // --- 创建 HTML 结构 (使用 automotive.css 的类名) ---
-                        if (subGalleryImages.length > 0) {
+                        if (subGalleryImages.length > 0) { 
                             const showcaseSection = document.createElement('section');
                             showcaseSection.classList.add('showcase-section');
                             showcaseSection.id = `showcase-${subGalleryId}`;
 
-                            // 1. showcase-container 包裹画廊
-                            const showcaseContainer = document.createElement('div');
-                            showcaseContainer.classList.add('showcase-container');
-                            showcaseSection.appendChild(showcaseContainer);
-
-                            // 2. gallery-background 用于发光条
                             const galleryBackground = document.createElement('div');
                             galleryBackground.classList.add('gallery-background');
-                            showcaseContainer.appendChild(galleryBackground);
+                            showcaseSection.appendChild(galleryBackground);
 
-                            // 3. car-gallery-container 作为实际画廊背景和阴影
+                            const showcaseContainer = document.createElement('div');
+                            showcaseContainer.classList.add('showcase-container');
+                            galleryBackground.appendChild(showcaseContainer);
+
                             const galleryContainer = document.createElement('div');
                             galleryContainer.classList.add('car-gallery-container'); 
                             galleryContainer.id = `subgallery-${subGalleryId}`;
-                            galleryBackground.appendChild(galleryContainer);
+                            showcaseContainer.appendChild(galleryContainer);
 
-                            // 4. car-gallery 作为图片滚动容器
                             const imageScrollContainer = document.createElement('div');
-                            imageScrollContainer.classList.add('car-gallery'); 
+                            imageScrollContainer.classList.add('car-gallery');
                             galleryContainer.appendChild(imageScrollContainer);
 
                             subGalleryImages.forEach((imageName, index) => {
-                                if (typeof imageName !== 'string' || imageName.trim() === '') {
-                                    console.warn(`[${galleryType} - ${subGalleryTitle}] Invalid image name found at index ${index}:`, imageName);
-                                    return;
-                                }
-                                const imagePath = `${subGalleryPath}/${imageName}`;
-
                                 // 直接创建 img 元素并添加到 car-gallery
                                 const imgElement = document.createElement('img');
-                                imgElement.src = imageName;
+                                // !!! 直接使用 R2 URL !!!
+                                imgElement.src = imageName; // 使用从 JSON 读取的 R2 URL
                                 imgElement.alt = `${subGalleryTitle} - Image ${index + 1}`;
                                 imgElement.loading = 'lazy';
 
                                 imgElement.onerror = () => {
-                                    console.error(`[${galleryType} - ${subGalleryTitle}] Image failed to load: ${imageName}`);
+                                    // !!! 修改错误日志中的路径 !!!
+                                    console.error(`[${galleryType} - ${subGalleryTitle}] Image failed to load: ${imageName}`); // 打印 R2 URL
                                     imgElement.alt = `Failed to load ${imageName}`;
                                     imgElement.style.display = 'none';
                                 };
-                                
                                 imageScrollContainer.appendChild(imgElement);
                             });
 
-                            mainContainer.appendChild(showcaseSection);
-                            console.log(`[${galleryType}] Added AUTOMOTIVE styled section for sub-gallery: ${subGalleryTitle}`);
-                            // *** 重新启用拖动滚动功能，目标是 .car-gallery ***
-                            initializeDragScroll(imageScrollContainer); 
+                            mainContainer.appendChild(showcaseSection); // Add the whole section
+                            console.log(`[${galleryType}] Added styled section for sub-gallery: ${subGalleryTitle}`);
+                            initializeDragScroll(imageScrollContainer); // Target .car-gallery for scroll
                         } else {
-                            // --- 占位符逻辑 (也使用 automotive 结构) ---
-                            console.log(`[${galleryType}] Skipping section for sub-gallery ${subGalleryTitle} as it has no images.`);
+                            // --- 占位符逻辑 (也使用新结构) ---
+                             console.log(`[${galleryType}] Skipping section for sub-gallery ${subGalleryTitle} as it has no images.`);
                              const showcaseSection = document.createElement('section');
                              showcaseSection.classList.add('showcase-section');
-                             showcaseSection.id = `showcase-${subGalleryId}`;
-
-                             const showcaseContainer = document.createElement('div');
+                            
+                            const showcaseContainer = document.createElement('div');
                              showcaseContainer.classList.add('showcase-container');
                              showcaseSection.appendChild(showcaseContainer);
+
+                             const placeholderContainer = document.createElement('div');
+                             placeholderContainer.classList.add('car-gallery-container'); // Use the styled container
+                             showcaseContainer.appendChild(placeholderContainer);
                             
-                             const galleryBackground = document.createElement('div');
-                             galleryBackground.classList.add('gallery-background');
-                             showcaseContainer.appendChild(galleryBackground);
-
-                             const galleryContainer = document.createElement('div');
-                             galleryContainer.classList.add('car-gallery-container');
-                             galleryBackground.appendChild(galleryContainer);
-
-                             const placeholderText = document.createElement('p');
-                             placeholderText.classList.add('gallery-placeholder'); 
-                             placeholderText.textContent = '此画廊暂无图片。';
-                             galleryContainer.appendChild(placeholderText);
-                             mainContainer.appendChild(showcaseSection);
+                            const placeholderText = document.createElement('p');
+                            placeholderText.classList.add('gallery-placeholder');
+                            placeholderText.textContent = '此画廊暂无图片。';
+                            placeholderContainer.appendChild(placeholderText);
+                            
+                            mainContainer.appendChild(showcaseSection);
                         }
                          // --- HTML 结构创建结束 ---
 
@@ -967,7 +953,7 @@
                 console.log(`[${galleryType}] Finished processing all sub-galleries.`);
 
             } catch (error) {
-                console.error(`Error loading main gallery list ${mainGalleryListFile}:`, error);
+                console.error(`Error loading gallery data for ${galleryType}:`, error);
                 mainContainer.innerHTML = '<p class="gallery-placeholder">加载画廊列表时出错。请检查控制台获取详细信息。</p>';
             }
         }
@@ -989,12 +975,13 @@
                 scrollLeft = element.scrollLeft;
                 element.style.cursor = 'grabbing';
                 element.style.userSelect = 'none';
-                // 阻止浏览器默认的图片拖拽行为
-                e.preventDefault(); 
+                // 阻止浏览器默认的图片拖拽行为，这很重要
+                e.preventDefault();
             });
 
             // Mouse Leave: Stop dragging if mouse leaves the element while pressed
             element.addEventListener('mouseleave', () => {
+                // 只有在鼠标按下的情况下离开才重置状态
                         if (!isDown) return;
                         isDown = false;
                 element.classList.remove('active-drag');
@@ -1004,10 +991,13 @@
 
             // *** Global Mouse Up: Stop dragging wherever the mouse is released ***
                     window.addEventListener('mouseup', (e) => { 
+                // 只响应左键抬起
                         if (e.button !== 0) return; 
+                // 只有在鼠标是按下状态时才处理抬起
                 if (!isDown) return;
                         isDown = false;
-                if (element.classList.contains('active-drag')) {
+                // 确保样式在 window 抬起时也被重置
+                 if (element.classList.contains('active-drag')) {
                      element.classList.remove('active-drag');
                      element.style.cursor = 'grab';
                      element.style.removeProperty('user-select');
@@ -1016,9 +1006,10 @@
 
             // Mouse Move: Perform scrolling only if dragging
             element.addEventListener('mousemove', (e) => {
-                if (!isDown) return; 
+                if (!isDown) return;
+                // 不需要再次 preventDefault，因为 mousedown 时已经阻止了
                 const x = e.pageX - element.offsetLeft;
-                const walk = (x - startX) * 1; 
+                const walk = (x - startX) * 1; // 使用上次调整的灵敏度
                 element.scrollLeft = scrollLeft - walk;
             });
 
@@ -1028,7 +1019,7 @@
 
         // --- 页面加载时调用 ---
         document.addEventListener('DOMContentLoaded', () => {
-            displaySubGalleries('portrait'); 
+            displaySubGalleries('portrait'); // 指定画廊类型为 'portrait'
         });
     </script>
 </body>

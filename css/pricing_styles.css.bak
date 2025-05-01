@@ -1,0 +1,1491 @@
+/* Pricing Page Styles */
+
+/* --- Variables & Base --- */
+:root {
+    --bg-color: #e0dcd8;
+    --text-color: #3f3a3a; /* Darker text for better contrast */
+    --primary-accent: #a89b8c; /* Muted accent color */
+    --card-bg: #fdfcfb; /* Very light card background */
+    --footer-bg: #d0ccc8;
+    --shadow-light: rgba(0, 0, 0, 0.08);
+    --shadow-medium: rgba(0, 0, 0, 0.12);
+    --shadow-dark: rgba(0, 0, 0, 0.3);
+    --border-radius: 10px; /* Reset back to 10px as in example */
+    --font-body: 'Montserrat', sans-serif;
+    --primary-gradient: linear-gradient(135deg, #333 0%, #ddd 100%); /* Stronger Dark Grey to Light Grey */
+    --modal-overlay-bg: rgba(40, 40, 40, 0.65); /* Slightly adjusted alpha */
+    --modal-text-color: #f5f5f5; /* Off-white for text */
+    --modal-text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    --title-gradient: linear-gradient(135deg, #aaa 0%, #eee 50%, #aaa 100%); /* Example: Silver/Grey Gradient */
+}
+
+body {
+    font-family: var(--font-body);
+    background: var(--primary-gradient);
+    background-attachment: fixed; /* Keep gradient fixed */
+    color: var(--text-color);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    overflow-x: hidden;
+    position: relative;
+    width: 100vw;
+    max-width: 100%;
+    background: var(--primary-gradient);
+    background-attachment: fixed; /* Keep gradient fixed */
+    min-height: 100%; /* Ensure gradient covers full height */
+}
+
+.container { 
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+/* --- Header --- */
+.header {
+    padding-top: 90px !important; /* Increased top padding */
+    padding-bottom: 30px !important; /* Keep bottom padding */
+    margin-bottom: 30px !important; /* Adjust margin before content */
+    text-align: center;
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    box-shadow: none;
+    border-bottom: none;
+}
+
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.page-title {
+    font-size: 2.8rem;
+    font-weight: 300;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+    background: var(--title-gradient);
+    background-size: 200% 200%;
+    animation: gradientShift 4s ease infinite;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-stroke: 0.3px rgba(0,0,0,0.2);
+    text-shadow: none;
+    padding: 10px 0;
+    text-align: center;
+}
+
+.page-subtitle {
+    font-size: 1.1rem !important;
+    font-weight: 400 !important;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    opacity: 0.85;
+    margin-bottom: 40px;
+    padding: 5px 0;
+    text-align: center;
+    background: var(--title-gradient);
+    background-size: 200% 200%;
+    animation: gradientShift 4s ease infinite;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-stroke: 0.2px rgba(0,0,0,0.15);
+    text-shadow: none;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* --- Navigation --- */
+/* Styles copied from pricing.html <style> block, but positioning reverted to original pricing_styles.css */
+.nav-toggle {
+    position: fixed !important; /* Reverted */
+    top: 20px !important; /* Changed from 25px to 20px */
+    right: 20px !important; /* Changed from 25px to 20px */
+    z-index: 1050 !important; /* Reverted */
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 10px 5px;
+    background-color: transparent;
+    /* Reset browser default button styles */
+    appearance: none;
+    -webkit-appearance: none; /* For Safari/Chrome */
+    border: none;
+    background: none; /* Ensure no background image/color */
+}
+
+.nav-toggle span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background-color: grey; /* <-- 修改颜色为灰色 */
+    transition: all 0.3s;
+}
+
+.nav-toggle.active span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+
+.nav-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.nav-toggle.active span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+}
+
+.nav-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transform: translateY(-100%);
+    transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
+    visibility: hidden;
+}
+
+.nav-menu.active {
+    transform: translateY(0);
+    visibility: visible;
+}
+
+.nav-menu a {
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 400 !important; /* <-- 改为 400 */
+    text-decoration: none;
+    padding: 15px 30px;
+    margin: 5px 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.nav-menu a:hover {
+    transform: translateY(-3px);
+}
+
+.nav-menu a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 10px;
+    left: 30px;
+    background-color: white;
+    transition: width 0.3s ease;
+}
+
+.nav-menu a:hover::after {
+    width: calc(100% - 60px);
+}
+/* End of styles copied from pricing.html <style> block */
+
+/* --- Language Switch --- */
+/* Styles copied from pricing.html <style> block */
+.lang-switch {
+    position: fixed;
+    top: 18px;
+    right: 70px;
+    width: auto;
+    height: 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    cursor: pointer;
+    background: transparent;
+    border-radius: 20px;
+    font-weight: 400;
+    font-size: 13px;
+    color: white;
+    opacity: 0.85;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    padding: 0 12px;
+    border: none;
+    outline: none;
+    font-family: 'Montserrat', sans-serif;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+
+.lang-switch:hover {
+    transform: translateY(-3px);
+    opacity: 1;
+}
+
+.lang-switch:hover .current {
+    color: #ffffff;
+}
+
+.lang-switch .current {
+    margin-right: 5px;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.lang-switch .divider {
+    margin: 0 4px;
+    opacity: 0.4;
+    font-weight: 300;
+}
+
+.lang-switch span {
+    position: relative;
+    font-size: 12px;
+}
+
+.lang-switch span:after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 1px;
+    bottom: -2px;
+    left: 0;
+    background-color: #ffffff;
+    transition: width 0.3s ease;
+}
+
+.lang-switch:hover span:after {
+    width: 100%;
+}
+/* End of Language Switch styles copied from pricing.html */
+
+/* --- Footer --- */
+.footer {
+    position: relative;
+    width: 100% !important;
+    margin-top: 60px;
+    background-color: transparent !important;
+    color: inherit;
+    text-align: center;
+    padding: 15px 20px;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.footer p {
+    margin: 2px 0;
+    opacity: 0.6;
+    color: inherit;
+    text-shadow: none;
+}
+
+/* --- Main Pricing Area --- */
+.pricing-container {
+    max-width: 1100px; 
+    margin: 0 auto 60px; 
+    padding: 0 20px; 
+}
+
+/* Use card-wrapper from example for vertical stacking */
+.card-wrapper {
+    box-sizing: border-box;
+    gap: 30px; 
+    display: flex; 
+    flex-direction: column;
+    align-items: center; 
+    margin-bottom: 40px; 
+}
+
+/* --- NEW Simplified Card Styles --- */
+
+/* Base dimensions and container setup for our pricing cards */
+.pricing-card { /* Using .pricing-card as the primary selector */
+    width: 360px;
+    height: 227px;
+    max-width: 90%; /* Keep basic responsiveness */
+    min-width: 311px; /* Keep basic responsiveness */
+    position: relative; /* Needed for potential internal positioning later */
+    overflow: hidden; /* Crucial for background clipping with border-radius */
+    border-radius: var(--border-radius); /* Use the defined border radius */
+    display: grid; /* Restore grid layout */ 
+    grid-template-rows: auto 1fr auto; /* Restore grid rows */
+    font-family: var(--font-body); /* Use defined font */
+    box-sizing: border-box;
+    margin-bottom: 24px; /* Spacing between cards */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25), 0 4px 8px rgba(0, 0, 0, 0.15); /* Darker and slightly larger shadow */
+    background: transparent !important; /* Override any inherited background color */
+    transition: box-shadow 0.3s ease, filter 0.3s ease; /* Add transition for shadow and filter */
+}
+
+/* Add outer glow effect when NOT frozen */
+.pricing-card:not(.frozen) {
+    /* Example glow - adjust color and size as needed */
+    box-shadow: 
+        0 0 15px 5px rgba(255, 255, 255, 0.3), /* Outer white glow (kept the same) */
+        0 10px 25px rgba(0, 0, 0, 0.3); /* Darker active base shadow */
+}
+
+/* Styles specific to cards with background images */
+.pricing-card.digital {
+    background-size: cover !important; /* Ensure background covers the area */
+    background-position: center center !important; /* Center the background */
+    background-repeat: no-repeat !important; /* Prevent tiling */
+    color: #1a1d21; /* Set default text color for light backgrounds */
+    background-image: none; /* Default reset */
+}
+
+/* Define the actual background images for each theme */
+.pricing-card.digital.two { background-image: url("https://assets.codepen.io/14762/snowy-mint.jpg") !important; }
+.pricing-card.digital.three { background-image: url("https://assets.codepen.io/14762/columbia-blue.jpg") !important; }
+.pricing-card.digital.four { background-image: url("https://assets.codepen.io/14762/tonys-pink.jpg") !important; }
+.pricing-card.digital.five { background-image: url("https://assets.codepen.io/14762/buttercup.jpg") !important; }
+.pricing-card.digital.six { background-image: url("https://assets.codepen.io/14762/snowy-mint.jpg") !important; } /* Assuming six uses snowy-mint */
+
+/* Remove keyframes for the gradient animation */
+/*
+@keyframes cardGradient {
+  0% { background-position: 0% 10%; }
+  50% { background-position: 100% 91%; }
+  100% { background-position: 0% 10%; }
+}
+*/
+
+/* Remove gradient overlay/reflection from ::after */
+.card.digital::after { 
+     content: ""; 
+     width: 100%; 
+     height: 100%; 
+     left: 0%; 
+     top: 0%;  
+     border-radius: var(--border-radius); /* Use card's border radius */
+     /* Restore original complex gradient */
+     /* background: linear-gradient(...) */ /* Removed */
+     /* background-size: 150% 150%; */ /* Removed */
+     /* animation: cardGradient 45s ease-in-out infinite; */ /* Removed */
+     position: absolute; 
+     pointer-events: none;
+     z-index: 0; /* Keep behind ::before and content */
+ }
+
+/* Ensure pseudo-element is set up for inner glow */
+.card.digital::before { 
+    content: ""; 
+    width: 100%; 
+    height: 100%; 
+    /* box-shadow: 0 -1px 0 0 rgb(255 255 255 / 90%), 0 1px 0 0 rgb(0 0 0 / 20%); */ /* Original shadow commented out */
+    opacity: 0; /* <<< Default hidden */
+    position: absolute; 
+    left: 0%; 
+    top: 0%;  
+    z-index: 1; /* <<< Above background, below content */
+    border-radius: var(--border-radius); /* Use card's border radius */
+    pointer-events: none;
+    /* display: none; */ /* Ensure this is not active */
+    box-shadow: inset 0 0 12px 5px rgba(255, 255, 255, 0.35); /* <<< INNER glow effect */
+    transition: opacity 0.3s ease; /* <<< Smooth transition */
+}
+
+/* Show inner glow when card is not frozen */
+.pricing-card.digital:not(.frozen)::before {
+    opacity: 1;
+}
+
+/* Card Top section */
+.card-top {
+    grid-row: 1; 
+    display: flex;
+    justify-content: space-between; /* Pushes content apart */
+    align-items: flex-start;
+    z-index: 2; 
+    margin-bottom: -3px; /* 减少与下方内容的间距 */
+}
+/* Style the span inside card-top */
+.card-top span { 
+    font-size: 14px; /* Increased font size */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700; /* Increased font weight */
+    opacity: 0.9;
+    background-color: rgba(255,255,255,0.3); /* Add subtle bg to tag */
+    padding: 2px 8px; /* Adjusted padding slightly */
+    border-radius: 4px;
+    margin-top: 15px; /* <<< Increased top margin again */
+    margin-left: 15px; /* <<< Increased left margin again */
+}
+
+/* Card Bottom section */
+.card-bottom {
+    grid-row: 3; 
+    display: flex;
+    justify-content: space-between; /* Restore */
+    align-items: flex-end; /* Restore */
+    z-index: 2;
+}
+
+/* Card Name/Title Area */
+.card-name {
+    display: grid;
+    gap: 4px; 
+    text-align: left; 
+}
+.card-name p {
+    margin: 0;
+    font-size: 15px; 
+    letter-spacing: 0.5px; 
+    text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+    font-weight: 600;
+    max-width: 220px; /* Adjust width */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.card-name p:first-child { /* This is the sub-title/time */
+    font-weight: 400;
+    font-size: 10px;
+    text-transform: uppercase;
+    opacity: 0.8;
+    letter-spacing: 1px;
+}
+/* p:last-child is the main title */
+.card-name p:last-child {
+    font-size: 17px; /* Slightly larger font size */
+    /* margin-top: 3px; */ /* <<< Removed top margin */
+    /* Inherit other styles like text-shadow, font-weight, overflow etc. */
+}
+
+/* Card Features Section */
+.card-features {
+    grid-row: 2; /* Place in the middle row */
+    display: flex; /* Use Flexbox */
+    align-items: center; /* Vertically center flex items (the ul) */
+    justify-content: center; /* Horizontally center flex items (the ul) */
+    z-index: 2;
+    padding: 2px 0 12px 0; /* 减少顶部内边距，增加底部内边距 */
+    margin-top: -12px; /* 进一步向上移动整个特性部分 */
+    overflow: hidden; /* Prevent text overflow issues */
+    text-align: center; /* Keep text-align for fallback */
+}
+
+.card-features ul {
+    list-style: none;
+    padding: 0; 
+    margin: 0;
+    display: inline-block; /* Allow text-align center to work */
+    max-width: 85%; /* Adjust max-width for centering multi-line items */
+    text-align: center; /* Center text within the ul */
+}
+
+.card-features li {
+    font-size: 12px; 
+    color: inherit; 
+    opacity: 0.8; 
+    margin-bottom: 4px; /* Slightly reduced space */
+    text-shadow: 0 1px 1px rgba(0,0,0,0.1); 
+    background-color: rgba(255, 255, 255, 0.2); 
+    padding: 2px 8px; 
+    border-radius: 3px; 
+    display: block; /* <<< Ensure each item takes full width */
+    text-align: center; 
+    white-space: normal; /* <<< Allow text wrapping if needed */
+}
+
+.card-features li:last-child {
+    margin-bottom: 0;
+}
+
+/* --- Frozen Effect Styles --- */
+
+/* Ensure content is above overlay - Add transition for hiding */
+.card-top,
+.card-features,
+.card-bottom,
+.card-cta { /* Include CTA since it's absolutely positioned */
+    position: relative; /* Needed for z-index stacking */
+    z-index: 2;
+    opacity: 1; /* Default opacity */
+    transition: opacity 0.3s ease; /* Transition for hiding */
+}
+
+/* The overlay element */
+.frozen-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.1); 
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 1; 
+    opacity: 0; 
+    pointer-events: none; 
+    transition: opacity 0.3s ease;
+    border-radius: var(--border-radius); /* Restore radius */
+}
+
+/* Style for the package name on the overlay */
+.frozen-package-name {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3; /* Above overlay, below original content when shown */
+    font-size: 16px; /* Adjust size as needed */
+    font-weight: 700;
+    color: #aaa; /* Lighter grey color */
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.3s ease;
+    text-transform: uppercase;
+    text-align: center;
+    pointer-events: none; /* Prevent interaction */
+    white-space: nowrap; /* Ensure single line display */
+}
+
+/* Style for the new 'Touch / Click' CTA on the overlay */
+.frozen-cta {
+    position: absolute;
+    bottom: 20px; /* Position near the bottom */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    font-size: 10px; /* Smaller font size */
+    font-weight: 500;
+    color: #aaa; /* Match package name color */
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.3s ease 0.1s; /* Slight delay on transition */
+    text-transform: uppercase;
+    text-align: center;
+    pointer-events: none;
+    letter-spacing: 0.5px;
+}
+
+/* Styles for the card when frozen */
+.card.frozen {
+    filter: grayscale(100%); /* Re-add grayscale filter */
+    /* No transition needed here anymore */
+}
+
+/* Hide original content when card is frozen */
+.card.frozen .card-top,
+.card.frozen .card-features,
+.card.frozen .card-bottom,
+.card.frozen .card-cta {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Show the overlay when the card is frozen */
+.card.frozen .frozen-overlay {
+    opacity: 1;
+    pointer-events: auto; /* Allow overlay to block interactions with hidden content if needed */
+}
+
+/* Show the package name on the overlay when card is frozen */
+.card.frozen .frozen-package-name {
+    opacity: 1;
+}
+
+/* Show the CTA text on the overlay when card is frozen */
+.card.frozen .frozen-cta {
+    opacity: 0.7; /* Make it slightly less prominent than the title */
+}
+
+/* Override frozen styles on hover (JS will remove .frozen class, but this is a fallback/alternative) */
+.card.frozen:hover .frozen-overlay {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* --- Keep Responsive Grid Adjustments (Now applies to .card-wrapper indirectly) --- */
+@media (max-width: 992px) { 
+    /* Use Flexbox for card layout on tablet */
+    .card-wrapper {
+        display: flex;
+        flex-wrap: wrap; /* Allow wrapping */
+        justify-content: center; /* Center items horizontally */
+        gap: 30px; /* Adjust gap between cards */
+    }
+     .pricing-container {
+        max-width: 800px; /* Adjust container width for tablet */
+    }
+     /* Optional: Adjust card size slightly if needed for 2 columns */
+     /* .pricing-card { max-width: 350px; } */
+}
+@media (max-width: 768px) { 
+     .pricing-container {
+        max-width: 500px;
+        padding: 0 15px;
+    }
+     .pricing-grid {
+        grid-template-columns: 1fr; 
+        gap: 20px;
+     }
+}
+
+
+/* Modal Container (Overlay & Blur) - DEFAULT (Applies to PC and is base for Mobile) */
+.modal {
+    display: none; 
+    position: fixed !important; 
+    z-index: 1100 !important; /* << INCREASED z-index */
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important; /* << PC: Prevent overlay scroll */
+    background-color: var(--modal-overlay-bg) !important;
+    backdrop-filter: blur(12px); 
+    -webkit-backdrop-filter: blur(12px); 
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+    display: flex !important; 
+    align-items: center !important; 
+    justify-content: center !important; 
+    padding: 20px !important; 
+}
+.modal.is-visible { opacity: 1; visibility: visible; transition: opacity 0.3s ease, visibility 0s linear 0s; }
+
+/* Modal Content Box (Transparent container) - DEFAULT */
+.modal-content {
+    position: relative !important; 
+    width: auto !important; 
+    max-width: 600px !important; /* Default Max width */
+    max-height: 90vh !important; /* Default Max height */
+    background-color: transparent !important; 
+    border: none !important; 
+    box-shadow: none !important; 
+    padding: 0 !important; 
+    display: flex !important; 
+    flex-direction: column !important;
+    overflow: hidden !important; /* Hide overflow, body scrolls */
+    transform: none !important;
+    margin: 0 auto !important; /* Center */
+    text-align: center; /* Default Center align text */
+    border-radius: 0 !important; /* No radius by default */
+}
+
+/* Modal Header (Minimal) - DEFAULT */
+.modal-header { padding: 0 0 20px 0 !important; border-bottom: 1px solid rgba(255,255,255,0.15) !important; flex-shrink: 0; text-align: center; }
+.modal-title { font-size: 1.6rem !important; font-weight: 600 !important; margin: 0 auto !important; color: var(--modal-text-color) !important; text-shadow: var(--modal-text-shadow); }
+
+/* Modal Body (Handles PC scroll visually hidden) - DEFAULT */
+.modal-body {
+    padding: 10px 30px !important; /* Adjust padding */ 
+    overflow-y: auto !important; /* Allow scrolling */
+    flex-grow: 1 !important; 
+    color: var(--modal-text-color) !important; 
+    text-shadow: var(--modal-text-shadow);
+    line-height: 1.7;
+    font-size: 1rem;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE 10+ */
+}
+.modal-body::-webkit-scrollbar { display: none; } /* Webkit */
+.modal-body h4 { 
+    font-size: 0.95rem !important; /* Slightly smaller */
+    font-weight: 500 !important; /* Less bold */
+    margin: 30px 0 12px !important; /* Adjust spacing to match text above */
+    color: var(--modal-text-color) !important; 
+    text-transform: uppercase !important; 
+    letter-spacing: 0.8px; /* Adjust spacing */
+    opacity: 0.9; /* Slightly less emphasis */
+    text-shadow: var(--modal-text-shadow);
+}
+
+/* Add style for the small text paragraph */
+.modal-body .small-text {
+    font-size: 0.8rem !important; /* << Further reduced size */
+    opacity: 0.75 !important; /* Slightly more faded */
+    line-height: 1.5 !important; 
+    margin-top: 25px !important; 
+}
+
+.modal-body ul { list-style: none; padding-left: 0; margin-bottom: 20px; display: inline-block; text-align: center; }
+.modal-body li { margin-bottom: 10px; font-size: 1rem; }
+.modal-body li::before { content: none; }
+.item-divider { height: 1px; background-color: rgba(255, 255, 255, 0.2); margin: 30px auto; width: 60%; display: block; }
+
+/* Modal Close Button - DEFAULT */
+.close-modal { position: fixed !important; top: 20px !important; right: 20px !important; z-index: 1055 !important; background: rgba(0,0,0,0.3) !important; border: none; border-radius: 50%; color: white !important; font-size: 1.3rem; font-weight: bold; line-height: 1; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; }
+.close-modal:hover { background-color: rgba(0,0,0,0.5) !important; transform: scale(1.1); }
+
+/* Payment Footer - DEFAULT */
+.modal-payment-footer { padding: 20px 0 0; margin-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.15); flex-shrink: 0; text-align: center; background: none !important; }
+.modal-payment-footer img { height: 35px !important; width: auto !important; max-width: 90% !important; margin: 0 auto !important; padding: 0 !important; display: block !important; border-radius: 0 !important; filter: brightness(1.1); }
+
+/* --- Overrides for #modal-terms (Applies on ALL screen sizes) --- */
+#modal-terms .modal-content {
+    max-width: 750px !important; /* Wider */
+    max-height: 90vh !important; /* Limit height */
+    text-align: left !important; /* <<< Left Align ALL content */
+}
+#modal-terms .modal-header { text-align: left !important; border-bottom: 1px solid rgba(255,255,255,0.2) !important; padding: 20px 30px 10px !important; }
+#modal-terms .modal-title { text-align: left !important; font-size: 1.4rem !important; }
+#modal-terms .modal-body {
+    text-align: left !important; 
+    overflow-y: auto !important; /* <<<< INTERNAL SCROLL always */
+    padding: 20px 30px !important; 
+    font-size: 0.85rem; 
+     /* Keep scrollbar style */
+    &::-webkit-scrollbar { width: 6px; }
+    &::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.3); border-radius: 3px; }
+    &::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.5); }
+}
+#modal-terms .modal-body h4 { 
+    font-size: 0.9rem !important; /* << SMALLER subtitle */
+    text-align: left !important;
+    margin: 20px 0 8px !important; 
+    color: var(--modal-text-color) !important; 
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.95;
+    font-weight: 600;
+}
+#modal-terms .modal-body ul { text-align: left !important; padding-left: 20px !important; list-style: disc !important; }
+#modal-terms .modal-body li { text-align: left !important; font-size: 0.85rem !important; padding-left: 0 !important; }
+#modal-terms .modal-body li::before { content: '\2022'; color: rgba(245, 245, 245, 0.7); display: inline-block; width: 1em; margin-left: -1.2em; position: absolute; left: 0; }
+#modal-terms .item-divider { display: none !important; } 
+#modal-terms .modal-footer { display: block !important; /* Ensure footer shows */ position: relative !important; border-top: 1px solid rgba(255,255,255,0.15) !important; padding: 15px 30px !important; background-color: transparent !important; }
+#modal-terms .disclaimer-text { font-size: 0.8rem !important; color: var(--modal-text-color) !important; opacity: 0.7 !important; font-style: italic !important; text-shadow: var(--modal-text-shadow); }
+#modal-terms .modal-payment-footer img { display: none !important; } /* Ensure no image */
+
+/* Style for the section headings inside terms modal */
+#modal-terms .notice-section h3 { 
+    font-size: 1.1rem !important; /* << SMALLER than modal-title */
+    font-weight: 600 !important;
+    margin: 20px 0 8px !important; 
+    color: var(--modal-text-color) !important; 
+    text-shadow: var(--modal-text-shadow);
+    text-align: left !important;
+    text-transform: none !important; /* Remove uppercase if not desired */
+    letter-spacing: 0.5px;
+    opacity: 0.95;
+}
+
+/* --- MOBILE ONLY Overrides (@media max-width: 768px) --- */
+@media (max-width: 768px) {
+    /* Adjust base elements for mobile */
+    .header { 
+        padding-top: 160px !important; /* << SIGNIFICANTLY INCREASED padding */
+        padding-bottom: 30px !important; 
+        min-height: auto !important; 
+        margin-bottom: 20px; 
+    }
+    .header-container { padding: 0 10px !important; }
+    .page-title { font-size: 1.6rem !important; margin: 15px 0 8px !important; letter-spacing: 1.5px; }
+    .page-subtitle { font-size: 1.0rem !important; margin-bottom: 20px !important; letter-spacing: 1px; }
+    /* Mobile Nav Menu Link Size - Re-added for consistency with other pages */
+    .nav-menu a {
+        font-size: 1.2rem !important; 
+    }
+    
+    /* Mobile Nav Toggle Size - Reverted positioning part, kept size */
+    .nav-toggle {
+        width: 40px !important;
+        height: 40px !important;
+        /* Removed top/right override to inherit desktop positioning */
+        top: 15px !important; /* Add mobile positioning */
+        right: 15px !important; /* Add mobile positioning */
+    }
+
+    /* Mobile Lang Switch - Copied from pricing.html */
+    .lang-switch {
+        top: 18px;
+        right: 60px;
+        height: 35px;
+        font-size: 10px;
+        padding: 0 10px;
+        letter-spacing: 0.6px;
+    }
+    .lang-switch span {
+        font-size: 10px;
+    }
+
+    .pricing-container { max-width: 500px; padding: 0 15px; }
+    .cta-button { width: 100%; max-width: 300px; }
+    .cta-section p { margin-bottom: 8px !important; }
+    
+    /* Mobile Modal: Page Scroll (except terms) */
+    .modal {
+        overflow-y: auto !important; /* <<<< ALLOW OVERLAY SCROLL */
+        padding: 5vh 10px !important; 
+        align-items: flex-start !important; 
+        backdrop-filter: blur(8px); 
+        -webkit-backdrop-filter: blur(8px);
+    }
+    .modal-content {
+        position: relative !important; 
+        max-width: 95% !important; /* Adjust max width for general mobile */
+        width: 500px !important; /* Set a width to work with margin auto */
+        max-height: none !important; /* << No max height */
+        overflow-y: visible !important; /* << No internal scroll */
+        padding-bottom: 5vh; 
+        margin: 0 auto !important; /* Center */
+    }
+     .modal-body {
+        overflow-y: visible !important; /* << Ensure no internal scroll */
+        padding: 15px 20px !important; 
+        font-size: 0.9rem !important; 
+    }
+     .modal-body li { font-size: 0.9rem !important; }
+     .modal-payment-footer {
+        display: flex !important; 
+        align-items: center !important; 
+        justify-content: center !important; 
+        height: 45px !important; /* << Fixed height */
+        min-height: 0; /* Remove min-height */
+        overflow: hidden !important; /* << Hide overflow */
+        padding: 0 !important; /* Remove padding */
+        width: 100%; 
+        border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+        background: none !important;
+        position: relative !important; 
+        flex-shrink: 0;
+    }
+    .modal-payment-footer img {
+         display: block !important; 
+         height: 100% !important; /* Fill container height */
+         width: auto !important;   /* Maintain aspect ratio */
+         max-width: none !important; /* << REMOVED max-width limit */
+         margin: 0 auto !important; 
+         padding: 0 !important;
+         border-radius: 0 !important;
+    }
+    .item-divider {
+        display: block !important; 
+        width: 75% !important;   
+        max-width: 250px !important;
+        margin: 20px auto !important; 
+        height: 1px !important; 
+        background-color: rgba(255, 255, 255, 0.3) !important; 
+        opacity: 0.7 !important; 
+    }
+    .close-modal { top: 15px !important; right: 15px !important; width: 30px; height: 30px; font-size: 1.2rem; }
+    
+    /* Mobile #modal-terms: Internal Scroll, Keep styles from default */
+    #modal-terms.modal {
+        overflow: hidden !important; /* << Terms overlay NO scroll */
+        align-items: center !important; /* << Center content box */
+        padding: 15px !important; 
+    }
+    #modal-terms .modal-content {
+        /* Keep limited size & internal scroll setup */
+        max-width: 95% !important; 
+        max-height: 88vh !important; 
+        overflow: hidden !important; /* Container hides overflow */
+        /* Keep text-align: left from default */
+        /* Ensure width allows margin:auto to work */
+         width: auto !important; 
+         margin: auto !important;
+         padding: 0 !important; /* Reset padding */
+    }
+     #modal-terms .modal-header { 
+         padding: 15px 20px 10px !important; 
+         border-bottom: 1px solid rgba(255,255,255,0.2) !important; 
+         /* Inherit text styles */
+     }
+     #modal-terms .modal-title { 
+         font-size: 1.2rem !important; /* Mobile title size */
+         /* Inherit text styles */
+     }
+     #modal-terms .modal-body {
+         overflow-y: auto !important; /* <<<< INTERNAL SCROLL */
+         padding: 15px 20px !important; 
+         margin-bottom: 0 !important; /* Footer is relative */
+         font-size: 0.8rem !important; 
+         line-height: 1.6;
+         flex-grow: 1;
+         /* Inherit text styles */
+         /* Keep scrollbar styles */
+         &::-webkit-scrollbar { width: 6px; }
+         &::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.4); border-radius: 3px; }
+         &::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.6); }
+     }
+      #modal-terms .modal-body h4 { 
+          font-size: 0.85rem !important; 
+          margin: 25px 0 10px !important; 
+      }
+      #modal-terms .modal-body .small-text {
+          font-size: 0.7rem !important; /* << Further reduced */
+          margin-top: 20px !important;
+      }
+      #modal-terms .modal-body li { 
+          font-size: 0.8rem !important; 
+          /* Inherit text styles */
+      }
+      #modal-terms .modal-body li::before { content: '\2022'; color: rgba(245, 245, 245, 0.7); display: inline-block; width: 1em; margin-left: -1.2em; position: absolute; left: 0; }
+      #modal-terms .item-divider { display: none !important; } 
+
+     #modal-terms .modal-footer { 
+          position: absolute !important; 
+          bottom: 0 !important; left: 0 !important; width: 100% !important; 
+          padding: 30px 20px 15px !important; /* << SIGNIFICANTLY INCREASED top padding */
+          background-color: #f0f2f5 !important; 
+          border-top: 1px solid #dee2e6 !important;
+          z-index: 10;
+          border-bottom-left-radius: var(--border-radius) !important; 
+          border-bottom-right-radius: var(--border-radius) !important;
+          text-align: center;
+          display: block !important; /* Ensure visible */
+     }
+     #modal-terms .disclaimer-text { 
+          display: block !important; 
+          /* padding-top: 15px !important; */ /* REMOVED - Use footer padding */
+          font-size: 0.6rem !important; 
+          color: var(--modal-text-color) !important; /* << RESTORE Light text color */
+          opacity: 0.9 !important; 
+          font-style: italic !important; /* Restore italic */
+          text-shadow: var(--modal-text-shadow); /* << RESTORE text shadow */
+          margin: 0 !important; /* Ensure no extra margin */
+     }
+}
+
+/* --- Small Mobile Overrides (max-width: 480px) --- */
+@media (max-width: 480px) {
+     /* Keep existing header adjustments */
+    .header { padding-top: 140px !important; padding-bottom: 20px !important; }
+    .header h1, .page-title { font-size: 1.3rem !important; margin: 10px 0 5px !important; letter-spacing: 1px; }
+    .header h2, .page-subtitle { font-size: 0.9rem !important; margin-bottom: 15px !important; letter-spacing: 0.8px; }
+    /* 移除旧的padding设置，避免冲突 */
+    /* .pricing-card { padding: 25px 20px; } */ 
+    .cta-button { max-width: 250px; font-size: 0.9rem; padding: 10px 20px; }
+
+    /* Adjust card size and padding for small mobile */
+    .pricing-card {
+        max-width: 300px; 
+        min-height: 180px; /* 减少最小高度 */
+        padding: 10px; /* 减少内边距 */
+    }
+
+    /* Ensure card-top is in row 1 */
+    .card-top {
+        grid-row: 1;
+        margin-left: -2px; /* 向左移动2px */
+        margin-top: -4px; /* 向上移动4px */
+    }
+    /* Ensure card-features is in row 2 */
+    .card-features {
+        grid-row: 2;
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        padding: 10px 0 15px 0; /* 恢复手机端的内边距 */
+        margin-bottom: 5px; /* 保持底部外边距 */
+        margin-top: 0; /* 重置上边距，覆盖电脑端的负边距 */
+    }
+    
+    /* 调整card-features中的列表项 */
+    .card-features ul {
+        margin-bottom: 5px; /* 增加列表底部间距 */
+    }
+    
+    .card-features li {
+        margin-bottom: 3px; /* 减小列表项间距，整体更紧凑 */
+    }
+
+    /* Ensure card-bottom is in row 3 and aligned to bottom */
+    .card-bottom {
+        grid-row: 3;
+        display: block; 
+        position: absolute; /* 使用绝对定位 */
+        width: calc(100% - 20px); /* 考虑减少的卡片内边距 */
+        bottom: 4px; /* 轻微上移底部区域 */
+        left: 10px; /* 对应减少的左边距 */
+        right: 10px; /* 对应减少的右边距 */
+        margin: 0; /* 移除所有边距 */
+        padding: 0; /* 移除所有内边距 */
+        z-index: 2; /* 低于CTA文本 */
+    }
+
+    .card-name {
+        margin-bottom: 4px; /* Reduced space */
+    }
+
+    /* 调整小屏幕下的CTA文本 */
+    .card-cta { 
+        font-size: 6px;
+        position: absolute; /* 保持绝对定位 */
+        bottom: 3px; /* 调整底部位置 */
+        left: 0;
+        right: 0;
+        margin: 0; /* 移除所有边距 */
+        z-index: 10 !important; /* 确保在移动端也有最高层级 */
+    }
+
+    /* 确保card-bottom不会遮挡CTA文本 */
+    .card-bottom {
+        z-index: 2; /* 低于CTA文本 */
+    }
+
+    /* 进一步减少小屏幕下标签的边距 */
+    .card-top span {
+        margin-top: 2px;
+        margin-left: 2px;
+        font-size: 12px; /* 保持较小字体大小 */
+    }
+
+    /* Modal text adjustments */
+     .modal-body { padding: 15px !important; font-size: 0.9rem !important; }
+     .modal-body li { font-size: 0.9rem !important; }
+     .modal-title { font-size: 1.3rem !important; } /* Adjust title size */
+     /* Terms modal specific text adjustments */
+     #modal-terms .modal-title { font-size: 1.0rem !important; } 
+     #modal-terms .modal-body { font-size: 0.75rem !important; }
+     #modal-terms .modal-body li { font-size: 0.75rem !important; }
+     #modal-terms .disclaimer-text { font-size: 0.65rem !important; }
+     #modal-terms .notice-section h3 { font-size: 0.9rem !important; }
+}
+
+
+
+ /* <<< Re-commented out tablet breakpoint */
+
+@media (max-width: 768px) { 
+     .pricing-container {
+        max-width: 500px;
+        padding: 0 15px;
+    }
+     .pricing-grid {
+        grid-template-columns: 1fr; 
+        gap: 20px;
+     }
+}
+
+/* --- Other Mobile Adjustments --- */
+/* ... Keep existing mobile header, nav, etc. adjustments ... */
+@media (max-width: 768px) {
+    /* Mobile Nav Menu Link Size - Re-added for consistency */
+    .nav-menu a {
+        font-size: 1.2rem !important; 
+    }
+    /* Mobile Lang Switch - REMOVED as it's handled above */
+    /* .lang-switch { top: 23px; right: 60px; height: 35px; font-size: 10px; padding: 0 10px; letter-spacing: 0.6px; } */
+    /* .lang-switch span { font-size: 10px; } */
+    .header { 
+        padding-top: 160px !important; /* << SIGNIFICANTLY INCREASED padding */
+        padding-bottom: 30px !important; 
+        min-height: auto !important; 
+        margin-bottom: 20px; 
+    }
+    .header-container { padding: 0 10px !important; }
+    .header h1, .page-title { font-size: 1.6rem !important; margin: 15px 0 8px !important; letter-spacing: 1.5px; }
+    .header h2, .page-subtitle { font-size: 1.0rem !important; margin-bottom: 20px !important; letter-spacing: 1px; }
+    .cta-button { width: 100%; max-width: 300px; }
+    .cta-section p { margin-bottom: 8px !important; }
+    /* .item-divider { margin: 8px 0 15px 0; } */ /* Removed, potentially conflicting */
+}
+@media (max-width: 480px) {
+    .header { padding-top: 140px !important; padding-bottom: 20px !important; }
+    .header h1, .page-title { font-size: 1.3rem !important; margin: 10px 0 5px !important; letter-spacing: 1px; }
+    .header h2, .page-subtitle { font-size: 0.9rem !important; margin-bottom: 15px !important; letter-spacing: 0.8px; }
+    .pricing-card { padding: 25px 20px; }
+    .cta-button { max-width: 250px; font-size: 0.9rem; padding: 10px 20px; }
+}
+
+
+
+/* --- Overrides for #modal-terms --- */
+
+/* Ensure Terms modal overlay allows internal scroll */
+#modal-terms.modal {
+    overflow: hidden !important; /* Overlay does not scroll */
+}
+
+/* Terms Content Box: Transparent, limited size, internal scroll */
+#modal-terms .modal-content {
+    background-color: transparent !important; 
+    box-shadow: none !important; 
+    border: none !important; 
+    max-width: 750px !important; /* Keep it wider */
+    max-height: 90vh !important; /* Keep height limit */
+    overflow: hidden !important; /* Container hides overflow */
+    text-align: left !important; /* <<< Left Align */
+}
+
+#modal-terms .modal-header {
+    text-align: left !important; 
+    padding: 20px 30px 10px !important; 
+    border-bottom: 1px solid rgba(255,255,255,0.2) !important; 
+}
+
+#modal-terms .modal-title {
+    text-align: left !important; 
+    font-size: 1.4rem !important; 
+    color: var(--modal-text-color) !important; 
+    text-shadow: var(--modal-text-shadow);
+}
+
+#modal-terms .modal-body {
+    text-align: left !important; 
+    overflow-y: auto !important; /* <<<< INTERNAL SCROLL */
+    padding: 20px 30px !important; 
+    color: var(--modal-text-color) !important; 
+    text-shadow: var(--modal-text-shadow);
+    font-size: 0.85rem; 
+    /* Keep subtle scrollbar */
+    &::-webkit-scrollbar { width: 6px; }
+    &::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.3); border-radius: 3px; }
+    &::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.5); }
+}
+
+#modal-terms .modal-body h4 { 
+    font-size: 0.9rem !important; /* Smaller on mobile */
+    margin: 20px 0 8px !important; 
+    color: var(--modal-text-color) !important; 
+    text-shadow: var(--modal-text-shadow); 
+    font-weight: 600;
+    text-align: left !important; 
+}
+
+#modal-terms .modal-body ul { 
+    text-align: left !important; 
+    padding-left: 20px !important; 
+    list-style: disc !important; 
+    margin-bottom: 15px;
+}
+
+#modal-terms .modal-body li { 
+    text-align: left !important; 
+    font-size: 0.85rem !important; 
+    padding-left: 0 !important; 
+    margin-bottom: 6px;
+    line-height: 1.6;
+}
+#modal-terms .modal-body li::before { content: '\2022'; color: rgba(245, 245, 245, 0.7); display: inline-block; width: 1em; margin-left: -1.2em; position: absolute; left: 0; }
+#modal-terms .item-divider { display: none !important; } 
+
+#modal-terms .modal-footer {
+     position: absolute !important; 
+     bottom: 0 !important; left: 0 !important; width: 100% !important; 
+     padding: 20px 20px !important; /* << Increased padding */
+     background-color: #f0f2f5 !important; 
+     border-top: 1px solid #dee2e6 !important;
+     z-index: 10;
+     border-bottom-left-radius: var(--border-radius) !important; 
+     border-bottom-right-radius: var(--border-radius) !important;
+     text-align: center;
+}
+#modal-terms .disclaimer-text { 
+    font-size: 0.8rem !important; 
+    color: var(--modal-text-color) !important; 
+    opacity: 0.7 !important; 
+    font-style: italic !important; 
+    text-shadow: var(--modal-text-shadow);
+}
+
+/* Style for the section headings inside terms modal */
+#modal-terms .notice-section h3 { 
+    font-size: 1.1rem !important; /* << SMALLER than modal-title */
+    font-weight: 600 !important;
+    margin: 20px 0 8px !important; 
+    color: var(--modal-text-color) !important; 
+    text-shadow: var(--modal-text-shadow);
+    text-align: left !important; 
+    text-transform: none !important; /* Remove uppercase if not desired */
+    letter-spacing: 0.5px;
+    opacity: 0.95;
+}
+
+/* --- MOBILE Overrides --- */
+@media (max-width: 768px) {
+    /* General mobile modal (page scroll) */
+    .modal { 
+        overflow-y: auto !important; /* Allow overlay scroll */
+        padding: 5vh 10px !important; 
+        align-items: flex-start !important; 
+        /* ... other modal styles ... */
+    }
+    .modal-content { 
+        background-color: transparent !important; /* Ensure transparent */
+        box-shadow: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+         /* ... other mobile .modal-content styles ... */
+         position: relative !important; 
+         width: 95% !important; 
+         max-width: 450px !important; 
+         margin: 0 auto !important; 
+         height: auto !important; 
+         max-height: none !important; 
+         overflow-y: visible !important; 
+         padding-bottom: 5vh; 
+         transform: none !important; 
+         top: auto !important; 
+         left: auto !important;
+    }
+    .modal-body {
+        overflow-y: visible !important; /* No internal scroll */
+        text-align: center !important; /* Center text for general modals */
+        color: var(--modal-text-color) !important; /* Light text */
+        text-shadow: var(--modal-text-shadow);
+        /* ... */
+    }
+    .modal-title {
+        color: var(--modal-text-color) !important; 
+        text-shadow: var(--modal-text-shadow);
+         /* ... */
+    }
+    
+    /* Overrides for #modal-terms on mobile */
+    #modal-terms.modal {
+        overflow: hidden !important; 
+        align-items: center !important; 
+        padding: 15px !important; 
+    }
+    #modal-terms .modal-content {
+        /* Styles for transparent look, size limits, internal scroll setup */
+        background-color: transparent !important; /* << TRANSPARENT */
+        box-shadow: none !important; /* << NO SHADOW */
+        border: none !important; /* << NO BORDER */
+        border-radius: 0 !important; /* << NO RADIUS */
+        max-width: 95% !important; 
+        max-height: 88vh !important; 
+        overflow: hidden !important; 
+        padding: 0 !important;
+        display: flex !important; 
+        flex-direction: column !important; 
+        position: relative !important; 
+        transform: none !important;
+        margin: auto !important; 
+        text-align: left !important;
+    }
+     #modal-terms .modal-header { 
+        padding: 15px 20px 10px !important; 
+        text-align: left !important; 
+        border-bottom: 1px solid rgba(255,255,255,0.2) !important; 
+        color: var(--modal-text-color) !important; 
+        text-shadow: var(--modal-text-shadow);
+        flex-shrink: 0;
+     }
+     #modal-terms .modal-title { 
+         font-size: 1.1rem !important; 
+         text-align: left !important; 
+         color: var(--modal-text-color) !important; 
+         text-shadow: var(--modal-text-shadow); 
+     }
+     #modal-terms .modal-body {
+         overflow-y: auto !important; /* INTERNAL SCROLL */
+         padding: 15px 20px !important; 
+         margin-bottom: 0 !important; 
+         font-size: 0.8rem !important; 
+         text-align: left !important;
+         color: var(--modal-text-color) !important; /* Light text */
+         text-shadow: var(--modal-text-shadow); 
+         line-height: 1.6;
+         flex-grow: 1;
+         scrollbar-width: thin; /* Optional: thin scrollbar */
+         scrollbar-color: rgba(255,255,255,0.4) transparent; /* Optional: styled scrollbar */
+         &::-webkit-scrollbar { width: 6px; }
+         &::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.4); border-radius: 3px; }
+         &::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.6); }
+     }
+      #modal-terms .modal-body h4 { 
+          font-size: 0.9rem !important; /* << Ensure smaller than title */
+          color: var(--modal-text-color) !important; 
+          text-shadow: var(--modal-text-shadow); 
+          margin: 15px 0 5px !important; 
+          text-align: left !important; 
+          font-weight: 600;
+      } 
+      #modal-terms .modal-body li { 
+          font-size: 0.8rem !important; 
+          color: var(--modal-text-color) !important; 
+          line-height: 1.5; /* Adjust line-height if needed */
+      }
+      #modal-terms .modal-body li::before { content: '\2022'; color: rgba(245, 245, 245, 0.7); margin-right: 8px;}
+      #modal-terms .item-divider { display: none !important; } 
+
+     #modal-terms .modal-footer { 
+          position: absolute !important; 
+          bottom: 0 !important; left: 0 !important; width: 100% !important; 
+          padding: 30px 20px 15px !important; /* << SIGNIFICANTLY INCREASED top padding */
+          background-color: #f0f2f5 !important; 
+          border-top: 1px solid #dee2e6 !important;
+          z-index: 10;
+          border-bottom-left-radius: var(--border-radius) !important; 
+          border-bottom-right-radius: var(--border-radius) !important;
+          text-align: center;
+          display: block !important; /* Ensure visible */
+     }
+     #modal-terms .disclaimer-text { 
+          display: block !important; 
+          /* padding-top: 15px !important; */ /* REMOVED - Use footer padding */
+          font-size: 0.6rem !important; 
+          color: var(--modal-text-color) !important; /* << RESTORE Light text color */
+          opacity: 0.9 !important; 
+          font-style: italic !important; /* Restore italic */
+          text-shadow: var(--modal-text-shadow); /* << RESTORE text shadow */
+          margin: 0 !important; /* Ensure no extra margin */
+     }
+} 
+
+/* --- Card CTA Text --- */
+.card-cta {
+    font-size: 9px; 
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: inherit; 
+    opacity: 0.5; 
+    margin-bottom: 0; 
+    text-align: center; 
+    z-index: 10 !important; /* 增加z-index确保显示在最上层 */
+    position: absolute; /* PC端保持绝对定位 */
+    bottom: 5px;
+    left: 0;
+    right: 0; 
+    text-shadow: 0 1px 1px rgba(0,0,0,0.1); 
+    pointer-events: none; /* 确保不会阻挡交互 */
+}
+
+/* 添加玻璃反光效果 */
+.pricing-card::after {
+    content: "";
+    width: 100%;
+    height: 100%;
+    left: 0%;
+    top: 0%;
+    border-radius: var(--border-radius);
+    background: linear-gradient(
+        120deg,
+        rgba(255, 255, 255, 0.02) 30%,
+        rgba(255, 255, 255, 0.25) 40%,
+        rgba(255, 255, 255, 0.08) 40%
+      ),
+      linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.3));
+    background-size: 150% 150%;
+    animation: cardGradient 45s ease-in-out infinite;
+    position: absolute;
+    pointer-events: none;
+    z-index: 1; /* 位于背景之上，内容之下 */
+}
+
+/* 添加动画效果 */
+@keyframes cardGradient {
+    0% { background-position: 0% 10%; }
+    50% { background-position: 100% 91%; }
+    100% { background-position: 0% 10%; }
+}
+
+/* 确保冻结卡片也有玻璃效果 */
+.card.frozen::after {
+    content: "";
+    width: 100%;
+    height: 100%;
+    left: 0%;
+    top: 0%;
+    border-radius: var(--border-radius);
+    background: linear-gradient(
+        120deg,
+        rgba(255, 255, 255, 0.02) 30%,
+        rgba(255, 255, 255, 0.25) 40%,
+        rgba(255, 255, 255, 0.08) 40%
+      ),
+      linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.3));
+    background-size: 150% 150%;
+    animation: cardGradient 45s ease-in-out infinite;
+    position: absolute;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.6; /* 冻结状态下稍微降低透明度 */
+}
+
+/* 添加玻璃光泽效果 */
+.pricing-card::before {
+    content: "";
+    width: 100%;
+    height: 100%;
+    left: 0%;
+    top: 0%;
+    position: absolute;
+    border-radius: var(--border-radius);
+    box-shadow: 0 -1px 0 0 rgba(255, 255, 255, 0.9), 0 1px 0 0 rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* 确保移动端也有相同效果 */
+@media (max-width: 768px) {
+    /* ... existing code ... */
+    
+    /* 保留玻璃反光效果在移动端 */
+    .pricing-card::after,
+    .card.frozen::after {
+        background: linear-gradient(
+            120deg,
+            rgba(255, 255, 255, 0.02) 30%,
+            rgba(255, 255, 255, 0.25) 40%,
+            rgba(255, 255, 255, 0.08) 40%
+        ),
+        linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.3));
+        background-size: 150% 150%;
+        animation: cardGradient 45s ease-in-out infinite;
+    }
+}
+
+/* --- Terms Button (#terms-button) --- */
+#terms-button {
+    /* display: inline-block;  Removed - button is inline-block by default */
+    margin-top: 40px; /* Space above the button */
+    margin-bottom: 60px; /* Space below the button */
+    padding: 12px 30px; /* Button padding */
+    font-family: var(--font-body);
+    font-size: 0.9rem; /* Button text size */
+    font-weight: 500; /* Button text weight */
+    color: #f5f5f5; /* Light text color */
+    background-color: rgba(0, 0, 0, 0.25); /* Semi-transparent dark background */
+    border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle light border */
+    border-radius: 25px; /* Rounded corners */
+    text-decoration: none;
+    text-transform: uppercase; /* Uppercase text */
+    letter-spacing: 1px; /* Letter spacing */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    backdrop-filter: blur(5px); /* Frosted glass effect */
+    -webkit-backdrop-filter: blur(5px);
+    /* Center the button horizontally */
+    display: block; /* Make it a block to take width */
+    width: fit-content; /* Size based on content */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#terms-button:hover {
+    background-color: rgba(0, 0, 0, 0.4); /* Darker background on hover */
+    border-color: rgba(255, 255, 255, 0.4); /* Brighter border on hover */
+    transform: translateY(-2px); /* Slight lift effect */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Stronger shadow on hover */
+}
+
+#terms-button:active {
+    transform: translateY(0px); /* Push down effect */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Reset shadow */
+}
+

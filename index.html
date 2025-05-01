@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh" style="scroll-behavior: smooth;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CalvinSuals Photography</title>
+    <title>calvinsuals Photography</title>
     <!-- 字体 (Add 600 weight for Montserrat) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -152,15 +152,10 @@
         .comparison-container {
             max-width: 1400px; 
             width: 95%;       
-            margin: 60px auto; 
-            padding: 30px 0 50px; /* 调整上下 padding */
+            margin: 0 auto !important; /* 修改：统一设置外边距 */
+            padding: 30px 0 50px; 
             position: relative; 
             box-sizing: border-box; 
-            /* overflow: hidden; */ /* Removed to prevent shadow clipping */
-             /* 移除所有旧的 display, grid, flex 属性 */
-             /* display: grid !important; */ 
-             /* display: flex !important; */
-             /* grid-template-columns: none; */
         }
         
         /* 滑动容器样式 */
@@ -168,15 +163,16 @@
             display: flex;
             overflow-x: auto; 
             -webkit-overflow-scrolling: touch; 
-            scrollbar-width: none; 
+            scrollbar-width: none;
             box-sizing: border-box; 
             margin-top: 20px;
             height: auto; 
             width: 100%; 
-            align-items: flex-start !important; 
+            align-items: flex-start !important;
             cursor: grab;
-            padding: 0; 
-            position: relative; /* <-- 确保有定位上下文 */
+            padding: 0;
+            scroll-padding-left: 27.5%; /* 添加：滚动内边距，确保第一张图片居中 */
+            scroll-padding-right: 27.5%; /* 添加：滚动内边距，确保最后一张图片居中 */
         }
         .comparison-slider.active-drag {
             cursor: grabbing; 
@@ -185,28 +181,15 @@
             display: none; 
         }
 
-        
-    
-        */
-
-        /* 对比组样式 (保持不变) */
+        /* 对比组样式 (所有屏幕尺寸统一) */
          .comparison-group {
-            flex-basis: 50%; 
-            flex-shrink: 0; 
-            flex-grow: 0; 
-            width: 50%; 
-            /* scroll-snap-align: center !important; */ 
-            margin-left: 27.5%; 
-            margin-right: 22.5%; 
+            flex: 0 0 45%;
+            width: 45%;
+            margin: 0 27.5%; /* 修改：统一设置左右外边距 */
             box-sizing: border-box;
             position: relative; 
-            vertical-align: top !important; 
-            /* Remove padding, use pseudo-elements for spacing */
-            /* 
-            padding-top: 35px; 
-            padding-bottom: 55px; 
-            */
-         }
+            vertical-align: top !important;
+        }
          /* Add pseudo-elements for vertical spacing */
          .comparison-group::before {
              content: '';
@@ -220,8 +203,31 @@
          }
          /* Override right margin ONLY for the last item */
          .comparison-group:last-child {
-             margin-right: 27.5%; 
+             margin-right: 27.5%; /* 保持一致的右侧外边距 */
          }
+         
+         /* 添加一个新的规则，确保滑动容器能够完全滚动到最后 */
+         .comparison-slider::after {
+             content: '';
+             display: block;
+             flex: 0 0 5%;
+             width: 5%;
+             height: 1px; /* 最小高度 */
+             opacity: 0;
+             pointer-events: none;
+         }
+         
+         /* 删除滑动吸附，改用硬性限制 */
+         .comparison-slider {
+             /* 移除 scroll-snap-type */
+             scroll-behavior: auto; /* 防止平滑滚动造成的反弹效果 */
+             overscroll-behavior-x: none; /* 防止过度滑动 */
+             max-width: 100%;
+             overflow-x: auto;
+         }
+         
+          
+             /* 移除 scroll-snap-align */
          
          /* 对比包装器样式 (统一横向比例和直角) */
          .comparison-wrapper {
@@ -464,6 +470,7 @@
             height: auto;
             width: 100%;
             max-width: 400px;
+            margin-top: -30px;
         }
         
         /* 确保菜单项字体和大小 */
@@ -483,6 +490,11 @@
             width: 100%;
             box-sizing: border-box;
             line-height: normal; 
+        }
+
+        /* CALVINSUALS 特殊样式 */
+        body .menu-items a:first-child {
+            font-size: 1.8rem !important;
         }
         
         /* 确保移动端字体大小 */
@@ -620,6 +632,7 @@
                 display: none; /* 移动端隐藏装饰线 */
             }
         }
+        
         
         /* 确保所有区域保持透明，没有自己的背景色 */
         .section, .comparison-section, .contact-section, .hero, .footer,
@@ -774,33 +787,6 @@
             z-index: 1; /* 确保在 hero 之下 (如果 hero 有 z-index) */
         } /*
         
-        
-        .before {
-            z-index: 1;
-        }
-        
-        .after {
-            z-index: 2;
-            clip-path: inset(0 50% 0 0);
-            will-change: clip-path; 
-            transform: translateZ(0); /* 尝试硬件加速 */
-        
-        
-        .slider-handle {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 50%;
-            width: 2px; /* 保持宽度一致 */
-            background-color: #fff;
-            transform: translateX(-50%);
-            z-index: 3;
-            cursor: ew-resize;
-            height: 100%; /* 确保高度为100% */
-            transform-origin: center; /* 确保变换起点在中心 */
-            transform: translateX(-50%) rotate(0deg); /* 强制垂直，防止旋转 */
-        }
-        
    
         
         /* 确保所有对比图的分隔线都是垂直的 */
@@ -925,6 +911,7 @@
                 flex: 1; /* 弹性伸缩 */
                 text-align: left;
                 padding: 0;
+                padding-top: 50px; /* 添加顶部内边距 */
                 max-width: 800px; /* 设置文本最大宽度 */
                 margin: 0; /* 移除边距 */
                 font-size: 1.05rem;
@@ -1369,7 +1356,8 @@
         #wechatModal .modal-content {
             background-color: #07C160;
             color: white;
-            width: 300px; /* 缩小弹窗宽度 */
+            width: 90%; /* 改为百分比宽度 */
+            max-width: 400px; /* 最大宽度限制 */
             padding: 15px; /* 减小内边距 */
         }
 
@@ -1397,15 +1385,19 @@
         #wechatModal .copy-button:hover {
             background-color: #f0f0f0;
         }
-
+        
         #wechatModal .modal-images {
             margin-bottom: 10px;
             margin-top: 10px;
         }
-
+    
+        
         #wechatModal .modal-images img {
-            max-width: 250px; /* 限制二维码图片宽度 */
+            max-width: 280px; /* 限制二维码图片最大宽度 */
+            width: 100%; /* 使图片宽度填充容器 */
+            height: auto; /* 保持宽高比 */
             margin: 0 auto;
+            display: block; /* 确保块级显示以接受margin */
         }
 
         #wechatModal .modal-text {
@@ -1523,20 +1515,21 @@
 
         /* 重新设计about区域布局，将头像和文本分开 */
         .about-wrapper {
-                position: relative;
+            position: relative;
             width: 100%;
             max-width: 1800px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 30px 20px 0; /* 增加顶部内边距，向下移动整体内容 */
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column; /* 改为纵向布局 */
+            align-items: center; /* 水平居中 */
         }
         
         .about-image-container {
-                position: relative;
+            position: relative;
             width: 280px;
             height: 280px;
-            margin-left: 5%; /* 与标题对齐 */
+            margin: 0 auto 30px; /* 居中并添加底部间距 */
             overflow: hidden;
             border-radius: 50%;
         }
@@ -1548,20 +1541,64 @@
             border-radius: 50%;
         }
         
+        /* 桌面端about区域样式调整 */
+        @media screen and (min-width: 768px) {
+            /* 覆盖之前的横向布局样式 */
+            .about-wrapper {
+                flex-direction: column; /* 确保纵向布局 */
+                align-items: center; /* 确保水平居中 */
+                padding-top: 50px; /* 在PC端增加更多顶部间距 */
+            }
+            
+            .about-image-container {
+                width: 280px;
+                height: 280px;
+                margin: 0 auto 30px; /* 居中并添加底部间距 */
+            }
+            
+            .about-text-container {
+                padding-top: 20px; /* 减少顶部内边距，因为已经有图片底部间距 */
+                max-width: 800px;
+                width: 100%;
+                margin: 0 auto;
+                text-align: center;
+            }
+            
+            /* 移除可能影响布局的旧样式 */
+            .about-content {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .about-image {
+                margin-right: 0; /* 移除右边距 */
+                margin-bottom: 30px; /* 添加底部间距 */
+            }
+            
+            .about-text {
+                margin-left: 0; /* 移除左边距 */
+                text-align: center;
+            }
+        }
+
+        /* 基础的about-text-container样式 */
         .about-text-container {
             position: relative;
-                flex: 1;
+            flex: 1;
             max-width: 800px;
             margin: 0 auto; /* 居中放置 */
-            padding-left: 20px;
-            padding-right: 20px;
+            padding-left: 10px; /* 减少左侧内边距 */
+            padding-right: 10px; /* 同时减少右侧内边距保持对称 */
+            padding-top: 40px; /* 添加顶部内边距 */
             color: #999; /* Changed to an even lighter gray */
             font-size: 1.05rem;
             line-height: 1.7;
             font-family: 'Montserrat', sans-serif !important; /* Force font */
+            text-align: center; /* 文本居中对齐 */
         }
         .about-text-container p {
             font-family: 'Montserrat', sans-serif !important; /* Force font */
+            text-align: center; /* 确保段落也居中对齐 */
         }
 
         /* 移动端样式调整 */
@@ -1665,33 +1702,30 @@
         .comparison-container {
             max-width: 1400px; 
             width: 95%;       
-            /* margin: 60px auto; */ /* Temporarily remove top/bottom margin */
-            margin-left: auto !important; /* Explicitly center */
-            margin-right: auto !important; /* Explicitly center */
+            margin: 0 auto !important; /* 修改：统一设置外边距 */
             padding: 30px 0 50px; 
             position: relative; 
             box-sizing: border-box; 
-            
         }
 
         /* 滑动容器样式 */
         .comparison-slider {
             display: flex;
             overflow-x: auto; 
-            /* overflow-y: visible; */ /* Removed, let browser handle */
-            /* scroll-snap-type: x mandatory; */ /* Removed to allow free scrolling */
             -webkit-overflow-scrolling: touch; 
-            scrollbar-width: none; /* Hide Firefox scrollbar */
+            scrollbar-width: none;
             box-sizing: border-box; 
             margin-top: 20px;
             height: auto; 
             width: 100%; 
-            align-items: flex-start !important; /* 修改：强制顶部对齐 */
-            cursor: grab; /* Add grab cursor */
-           padding: 0; /* Ensure slider itself has no padding */
+            align-items: flex-start !important;
+            cursor: grab;
+            padding: 0;
+            scroll-padding-left: 27.5%; /* 添加：滚动内边距，确保第一张图片居中 */
+            scroll-padding-right: 27.5%; /* 添加：滚动内边距，确保最后一张图片居中 */
         }
         .comparison-slider.active-drag {
-            cursor: grabbing; /* Change cursor while dragging */
+            cursor: grabbing; 
         }
         .comparison-slider::-webkit-scrollbar {
             display: none; 
@@ -1699,21 +1733,13 @@
 
         /* 对比组样式 (所有屏幕尺寸统一) */
          .comparison-group {
-            flex-basis: 50%; 
-            flex-shrink: 0; 
-            flex-grow: 0; 
-            width: 50%; 
-            /* scroll-snap-align: center !important; */ 
-            margin-left: 27.5%; 
-            margin-right: 22.5%; 
+            flex: 0 0 45%;
+            width: 45%;
+            margin: 0 27.5%; /* 修改：统一设置左右外边距 */
             box-sizing: border-box;
             position: relative; 
-            vertical-align: top !important; 
-            /* 
-            padding-top: 35px; 
-            padding-bottom: 55px; 
-            */
-         }
+            vertical-align: top !important;
+        }
          /* Add pseudo-elements for vertical spacing */
          .comparison-group::before {
              content: '';
@@ -1727,8 +1753,30 @@
          }
          /* Override right margin ONLY for the last item */
          .comparison-group:last-child {
-             margin-right: 27.5%; 
+             margin-right: 27.5%; /* 保持一致的右侧外边距 */
          }
+         
+         /* 添加一个新的规则，确保滑动容器能够完全滚动到最后 */
+         .comparison-slider::after {
+             content: '';
+             display: block;
+             flex: 0 0 0.01%;
+             width: 0.01%;
+             height: 1px; /* 最小高度 */
+             opacity: 0;
+             pointer-events: none;
+         }
+         
+         /* 删除滑动吸附，改用硬性限制 */
+         .comparison-slider {
+             /* 移除 scroll-snap-type */
+             scroll-behavior: auto; /* 防止平滑滚动造成的反弹效果 */
+             overscroll-behavior-x: none; /* 防止过度滑动 */
+             max-width: 100%;
+             overflow-x: auto;
+         }
+         
+         
          
          /* 对比包装器样式 (统一横向比例和直角) */
          .comparison-wrapper {
@@ -2108,6 +2156,7 @@
                 height: auto;
                 width: 100%;
                 max-width: 400px;
+                margin-top: -30px;
             }
             
             .menu-items a {
@@ -2125,6 +2174,11 @@
                 width: 100%;
                 box-sizing: border-box;
                 line-height: normal; /* Explicitly set line-height */
+            }
+
+            /* CALVINSUALS 特殊样式 */
+            body .menu-items a:first-child {
+                font-size: 1.8rem !important;
             }
             
             .menu-items a:hover {
@@ -2150,6 +2204,44 @@
             }
         }
 
+        /* 锚点高亮样式 */
+        .anchor-highlight, .target-highlight {
+            animation: highlight-pulse 2s ease-out;
+        }
+        
+        @keyframes highlight-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(255,255,255,0); }
+            100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+        }
+
+        /* 桌面端about-text-container样式调整 */
+        @media screen and (min-width: 768px) {
+            .about-text-container {
+                padding-top: 50px; /* 在电脑端增加更多顶部内边距 */
+                padding-left: 10px; /* 确保桌面端也减少左侧内边距 */
+                padding-right: 10px; /* 同时减少右侧内边距保持对称 */
+            }
+            
+            /* 调整桌面端的about-text样式 */
+            .about-text {
+                padding-left: 10px; /* 减少左侧内边距 */
+                padding-right: 10px; /* 保持对称 */
+            }
+        }
+
+        /* 小屏幕上的调整 */
+        @media screen and (max-width: 480px) {
+            #wechatModal .modal-content {
+                width: 95%; /* 在小屏幕上占据更多宽度 */
+                padding: 12px; /* 减小内边距 */
+            }
+            
+            #wechatModal .modal-images {
+                width: 100%; /* 确保图片容器填满弹窗 */
+            }
+        }
+
     </style>
     
     
@@ -2165,7 +2257,8 @@
             </div>
             <div class="menu-content">
                 <div class="menu-items">
-                    <a href="index.html" class="active">HOME</a>
+                    <a href="#hero">CALVINSUALS</a>
+                    <br>
                     <a href="automotive.html">AUTOMOTIVE</a>
                     <a href="portrait.html">PORTRAIT</a>
                     <a href="pricing.html">PRICING</a>
@@ -2176,8 +2269,8 @@
         </div>
     </nav>
 
-    <!-- Hero 区域 -->
-    <section class="hero" id="home">
+    <!-- Hero Section -->
+    <section id="hero" class="hero">
         <div class="hero-container">
             <div class="hero-content">
                 <h1 class="name text-white">CalvinSuals</h1>
@@ -2301,7 +2394,7 @@
     <div class="modal-overlay" id="xiaohongshuModal" onclick="this.style.display='none';">
         <div class="modal-content" onclick="event.stopPropagation();">
             <span class="modal-close" onclick="document.getElementById('xiaohongshuModal').style.display='none';">&times;</span>
-            <h3 class="modal-title">小红书账号</h3>
+            <h3 class="modal-title"></h3>
             <div class="modal-images">
                 <a href="https://www.xiaohongshu.com/user/profile/5b5699c311be104a66c9ec6a" target="_blank">
                     <img src="images/about/01/小红书1.jpg" alt="小红书截图1" onerror="this.style.display='none'">
@@ -2317,7 +2410,7 @@
     <div class="modal-overlay" id="wechatModal" onclick="this.style.display='none';">
         <div class="modal-content" onclick="event.stopPropagation();">
             <span class="modal-close" onclick="document.getElementById('wechatModal').style.display='none';">&times;</span>
-            <h3 class="modal-title">微信联系</h3>
+            <h3 class="modal-title"></h3>
             <div class="modal-images">
                 <img src="images/about/01/二维码.jpg" alt="微信二维码" onerror="this.style.display='none'">
             </div>
@@ -2343,6 +2436,12 @@
 
     <!-- 添加外部脚本链接 -->
     <script src="js/main.js" defer></script>
+    <script src="js/navigation.js" defer></script>
+
+    <!-- 锚点定位修复脚本 -->
+    <script>
+        // 不再需要这段脚本，功能已移至navigation.js
+    </script>
 
 </body>
 </html>

@@ -1,0 +1,1210 @@
+/* Pricing Page Styles */
+
+/* --- Variables & Base --- */
+:root {
+    --bg-color: #e0dcd8;
+    --text-color: #3f3a3a; /* Darker text for better contrast */
+    --primary-accent: #a89b8c; /* Muted accent color */
+    --card-bg: #fdfcfb; /* Very light card background */
+    --footer-bg: #d0ccc8;
+    --shadow-light: rgba(0, 0, 0, 0.08);
+    --shadow-medium: rgba(0, 0, 0, 0.12);
+    --shadow-dark: rgba(0, 0, 0, 0.3);
+    --border-radius: 10px; /* Reset back to 10px as in example */
+    --font-body: 'Montserrat', sans-serif;
+    --primary-gradient: linear-gradient(135deg, #333 0%, #ddd 100%); /* Stronger Dark Grey to Light Grey */
+    --modal-overlay-bg: rgba(40, 40, 40, 0.65); /* Slightly adjusted alpha */
+    --modal-text-color: #f5f5f5; /* Off-white for text */
+    --modal-text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    --title-gradient: linear-gradient(135deg, #aaa 0%, #eee 50%, #aaa 100%); /* Example: Silver/Grey Gradient */
+}
+
+body {
+    font-family: var(--font-body);
+    color: var(--text-color);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+    /* 使用单色背景替代渐变，防止滚动残影 */
+    background-color: #333;
+    position: relative;
+}
+
+/* 恢复背景渐变层，移除噪点纹理和透明度 */
+.background-gradient {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: -1;
+    background: var(--primary-gradient);
+    transition: none;
+    transform: translate3d(0,0,0);
+    -webkit-transform: translate3d(0,0,0);
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    -ms-backface-visibility: hidden;
+    backface-visibility: hidden;
+    perspective: 1000;
+    -webkit-perspective: 1000;
+    /* 移除噪点纹理和透明度设置 */
+}
+
+/* Modal Container (Overlay & Blur) - DEFAULT (Applies to PC and is base for Mobile) */
+.modal {
+    display: none; 
+    position: fixed !important; 
+    z-index: 1100 !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+    
+    /* 多层背景方案，消除断层问题 */
+    background-color: rgba(25, 25, 25, 0.55) !important; /* 稍微降低背景不透明度 */
+    
+    /* 组合多种图层构建更加稳定的毛玻璃效果 */
+    /* 第一层：添加微妙噪点纹理 */
+    background-image: url("data:image/png;base64,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") !important;
+    
+    /* 保留其他弹窗设置 */
+    box-shadow: inset 0 0 200px 100px rgba(25, 25, 25, 0.3);
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    will-change: backdrop-filter, opacity;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+    display: flex !important; 
+    align-items: center !important; 
+    justify-content: center !important; 
+    padding: 20px !important; 
+}
+    
+/* Modal pseudo-elements (moved outside .modal for clarity) */
+.modal::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        backdrop-filter: blur(10px) brightness(1.05);
+        -webkit-backdrop-filter: blur(10px) brightness(1.05);
+        z-index: -1;
+        opacity: 0.6;
+    }
+.modal::after {
+        content: "";
+        position: absolute;
+        top: -1px;
+        left: -1px;
+        right: -1px;
+        bottom: -1px;
+        background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent 50%, rgba(255,255,255,0.05));
+        z-index: -2;
+        pointer-events: none;
+    }
+
+
+/* 修改html/body样式，去除可能引起冲突的背景设置 */
+html, body {
+    overflow-x: hidden;
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    /* 移除背景设置 */
+    background: none !important;
+    background-attachment: initial !important;
+    background-image: none !important;
+    min-height: 100%;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+}
+
+/* 移除之前添加的body:before */
+body:before {
+    display: none !important;
+    content: none !important;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: transform; /* 提示浏览器此元素将有变换 */
+}
+
+/* --- Header --- */
+.header {
+    padding-top: 90px !important; /* Increased top padding */
+    padding-bottom: 30px !important; /* Keep bottom padding */
+    margin-bottom: 30px !important; /* Adjust margin before content */
+    text-align: center;
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    box-shadow: none;
+    border-bottom: none;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    will-change: transform;
+}
+
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.page-title {
+    font-size: 2.8rem;
+    font-weight: 300;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+    background: var(--title-gradient);
+    background-size: 200% 200%;
+    animation: gradientShift 4s ease infinite;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-stroke: 0.3px rgba(0,0,0,0.2);
+    text-shadow: none;
+    padding: 10px 0;
+    text-align: center;
+}
+
+.page-subtitle {
+    font-size: 1.1rem !important;
+    font-weight: 400 !important;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    opacity: 0.85;
+    margin-bottom: 40px;
+    padding: 5px 0;
+    text-align: center;
+    background: var(--title-gradient);
+    background-size: 200% 200%;
+    animation: gradientShift 4s ease infinite;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-stroke: 0.2px rgba(0,0,0,0.15);
+    text-shadow: none;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* --- Navigation --- */
+/* Styles copied from pricing.html <style> block, but positioning reverted to original pricing_styles.css */
+.nav-toggle {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    z-index: 1001 !important; /* 修改为1001以与其他页面一致 */
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 10px 5px;
+    background-color: transparent;
+    /* Reset browser default button styles */
+    appearance: none;
+    -webkit-appearance: none; /* For Safari/Chrome */
+    border: none;
+    background: none; /* Ensure no background image/color */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+.nav-toggle span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background-color: white;
+    transition: all 0.3s;
+}
+
+.nav-toggle.active span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+
+.nav-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.nav-toggle.active span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+}
+
+.nav-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transform: translateY(-100%);
+    transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
+    visibility: hidden;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+.nav-menu.active {
+    transform: translateY(0);
+    visibility: visible;
+}
+
+.nav-menu a {
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 400 !important; /* <-- 改为 400 */
+    text-decoration: none;
+    padding: 15px 30px;
+    margin: 5px 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.nav-menu a:hover {
+    transform: translateY(-3px);
+}
+
+.nav-menu a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 10px;
+    left: 30px;
+    background-color: white;
+    transition: width 0.3s ease;
+}
+
+.nav-menu a:hover::after {
+    width: calc(100% - 60px);
+}
+/* End of styles copied from pricing.html <style> block */
+
+/* --- Language Switch --- */
+.lang-switch {
+    position: fixed;
+    top: 23px; /* 调整到与汉堡包中间线对齐 */
+    right: 70px;
+    width: auto;
+    height: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    cursor: pointer;
+    background: transparent;
+    border-radius: 20px;
+    font-weight: 400;
+    font-size: 13px;
+    color: white;
+    opacity: 0.85;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    padding: 0 12px;
+    border: none;
+    outline: none;
+    font-family: 'Montserrat', sans-serif;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+.lang-switch:hover {
+    transform: translateY(-3px);
+    opacity: 1;
+}
+
+.lang-switch:hover .current {
+    color: #ffffff;
+}
+
+.lang-switch .current {
+    margin-right: 5px;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.lang-switch .divider {
+    margin: 0 4px;
+    opacity: 0.4;
+    font-weight: 300;
+}
+
+.lang-switch span {
+    position: relative;
+    font-size: 12px;
+}
+
+.lang-switch span:after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 1px;
+    bottom: -2px;
+    left: 0;
+    background-color: #ffffff;
+    transition: width 0.3s ease;
+}
+
+.lang-switch:hover span:after {
+    width: 100%;
+}
+
+/* --- Footer --- */
+.footer {
+    position: relative;
+    width: 100% !important;
+    margin-top: 60px;
+    background-color: transparent !important;
+    color: inherit;
+    text-align: center;
+    padding: 15px 20px;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.footer p {
+    margin: 2px 0;
+    opacity: 0.6;
+    color: inherit;
+    text-shadow: none;
+}
+
+/* --- Main Pricing Area --- */
+.pricing-container {
+    max-width: 1100px;
+    margin: 0 auto 60px;
+    padding: 0 20px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: transform;
+}
+
+/* Use card-wrapper from example for vertical stacking */
+.card-wrapper {
+    box-sizing: border-box;
+    gap: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 40px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: transform;
+}
+
+/* --- NEW Simplified Card Styles --- */
+
+/* Base dimensions and container setup for our pricing cards */
+.pricing-card {
+    width: 360px;
+    height: 227px;
+    max-width: 90%; /* Keep basic responsiveness */
+    min-width: 311px; /* Keep basic responsiveness */
+    position: relative; /* Needed for potential internal positioning later */
+    overflow: hidden; /* Crucial for background clipping with border-radius */
+    border-radius: var(--border-radius); /* Use the defined border radius */
+    display: grid; /* Restore grid layout */
+    grid-template-rows: auto 1fr auto; /* Restore grid rows */
+    font-family: var(--font-body); /* Use defined font */
+    box-sizing: border-box;
+    margin-bottom: 24px; /* Spacing between cards */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25), 0 4px 8px rgba(0, 0, 0, 0.15); /* Darker and slightly larger shadow */
+    background: transparent !important; /* Override any inherited background color */
+    transition: box-shadow 0.3s ease, filter 0.3s ease; /* Add transition for shadow and filter */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    will-change: transform, opacity;
+    perspective: 1000;
+    -webkit-perspective: 1000;
+}
+
+/* Add outer glow effect when NOT frozen */
+.pricing-card:not(.frozen) {
+    /* Example glow - adjust color and size as needed */
+    box-shadow:
+        0 0 15px 5px rgba(255, 255, 255, 0.3), /* Outer white glow (kept the same) */
+        0 10px 25px rgba(0, 0, 0, 0.3); /* Darker active base shadow */
+}
+
+/* Styles specific to cards with background images */
+.pricing-card.digital {
+    background-size: cover !important; /* Ensure background covers the area */
+    background-position: center center !important; /* Center the background */
+    background-repeat: no-repeat !important; /* Prevent tiling */
+    color: #1a1d21; /* Set default text color for light backgrounds */
+    background-image: none; /* Default reset */
+}
+
+/* Define the actual background images for each theme */
+.pricing-card.digital.one { background-image: url("../images/pricing icons/columbia-blue.jpg") !important; } /* 更新为本地图片 */
+.pricing-card.digital.two { background-image: url("../images/pricing icons/snowy-mint.jpg") !important; } /* 更新为本地图片 */
+.pricing-card.digital.three { background-image: url("../images/pricing icons/honeysuckle.jpg") !important; } /* 更新为本地图片 */
+.pricing-card.digital.four { background-image: url("../images/pricing icons/tonys-pink.jpg") !important; } /* 更新为本地图片 */
+.pricing-card.digital.five { background-image: url("../images/pricing icons/buttercup.jpg") !important; } /* 更新为本地图片 */
+.pricing-card.digital.six { background-image: url("../images/pricing icons/cream-whisper.jpg") !important; } /* 更新为本地图片 */
+.pricing-card.digital.seven { background-image: url("../images/pricing icons/my-pink.jpg") !important; } /* 更新为本地图片 */
+.pricing-card.digital.eight { background-image: url("../images/pricing icons/egg-sour.jpg") !important; } /* 更新为本地图片 */
+
+/* Pseudo-element for inner glow */
+.card.digital::before {
+    content: "";
+    width: 100%;
+    height: 100%;
+    opacity: 0; /* <<< Default hidden */
+    position: absolute;
+    left: 0%;
+    top: 0%;
+    z-index: 1; /* <<< Above background, below content */
+    border-radius: var(--border-radius); /* Use card's border radius */
+    pointer-events: none;
+    box-shadow: inset 0 0 12px 5px rgba(255, 255, 255, 0.35); /* <<< INNER glow effect */
+    transition: opacity 0.3s ease; /* <<< Smooth transition */
+}
+
+/* Show inner glow when card is not frozen */
+.pricing-card.digital:not(.frozen)::before {
+    opacity: 1;
+}
+
+/* Card Top section */
+.card-top {
+    grid-row: 1;
+    display: flex;
+    justify-content: space-between; /* Pushes content apart */
+    align-items: flex-start;
+    z-index: 2;
+    margin-bottom: -3px; /* 减少与下方内容的间距 */
+}
+/* Style the span inside card-top */
+.card-top span {
+    font-size: 14px; /* Increased font size */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700; /* Increased font weight */
+    opacity: 0.9;
+    background-color: rgba(255,255,255,0.3); /* Add subtle bg to tag */
+    padding: 2px 8px; /* Adjusted padding slightly */
+    border-radius: 4px;
+    margin-top: 15px; /* <<< Increased top margin again */
+    margin-left: 15px; /* <<< Increased left margin again */
+}
+
+/* Card Bottom section */
+.card-bottom {
+    grid-row: 3;
+    display: flex;
+    justify-content: space-between; /* Restore */
+    align-items: flex-end; /* Restore */
+    z-index: 2;
+}
+
+/* Card Name/Title Area */
+.card-name {
+    display: grid;
+    gap: 4px;
+    text-align: left;
+}
+.card-name p {
+    margin: 0;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+    font-weight: 600;
+    max-width: 220px; /* Adjust width */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.card-name p:first-child { /* This is the sub-title/time */
+    font-weight: 400;
+    font-size: 10px;
+    text-transform: uppercase;
+    opacity: 0.8;
+    letter-spacing: 1px;
+}
+/* p:last-child is the main title */
+.card-name p:last-child {
+    font-size: 17px; /* Slightly larger font size */
+}
+
+/* Card Features Section */
+.card-features {
+    grid-row: 2; /* Place in the middle row */
+    display: flex; /* Use Flexbox */
+    align-items: center; /* Vertically center flex items (the ul) */
+    justify-content: center; /* Horizontally center flex items (the ul) */
+    z-index: 2;
+    padding: 2px 0 12px 0; /* 减少顶部内边距，增加底部内边距 */
+    margin-top: -12px; /* 进一步向上移动整个特性部分 */
+    overflow: hidden; /* Prevent text overflow issues */
+    text-align: center; /* Keep text-align for fallback */
+}
+
+.card-features ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: inline-block; /* Allow text-align center to work */
+    max-width: 85%; /* Adjust max-width for centering multi-line items */
+    text-align: center; /* Center text within the ul */
+}
+
+.card-features li {
+    font-size: 12px;
+    color: inherit;
+    opacity: 0.8;
+    margin-bottom: 4px; /* Slightly reduced space */
+    text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 3px;
+    display: block; /* <<< Ensure each item takes full width */
+    text-align: center;
+    white-space: normal; /* <<< Allow text wrapping if needed */
+}
+
+.card-features li:last-child {
+    margin-bottom: 0;
+}
+
+/* --- Frozen Effect Styles --- */
+
+/* Ensure content is above overlay - Add transition for hiding */
+.card-top,
+.card-features,
+.card-bottom,
+.card-cta { /* Include CTA since it's absolutely positioned */
+    position: relative; /* Needed for z-index stacking */
+    z-index: 2;
+    opacity: 1; /* Default opacity */
+    transition: opacity 0.3s ease; /* Transition for hiding */
+}
+
+/* The overlay element */
+.frozen-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 1; /* Reverted z-index */
+    opacity: 0;
+    pointer-events: none; /* 默认不允许交互 */
+    transition: opacity 0.3s ease;
+    border-radius: var(--border-radius);
+}
+
+/* Style for the package name on the overlay */
+.frozen-package-name {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3; /* Reverted z-index */
+    font-size: 16px; /* Adjust size as needed */
+    font-weight: 700;
+    color: #aaa; /* Lighter grey color */
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.3s ease;
+    text-transform: uppercase;
+    text-align: center;
+    pointer-events: none; /* Prevent interaction */
+    white-space: nowrap; /* Ensure single line display */
+}
+
+/* Style for the new 'Touch / Click' CTA on the overlay */
+.frozen-cta {
+    position: absolute;
+    bottom: 20px; /* Position near the bottom */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3; /* Reverted z-index */
+    font-size: 10px; /* Smaller font size */
+    font-weight: 500;
+    color: #aaa; /* Match package name color */
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.3s ease 0.1s; /* Slight delay on transition */
+    text-transform: uppercase;
+    text-align: center;
+    pointer-events: none;
+    letter-spacing: 0.5px;
+}
+
+/* Styles for the card when frozen */
+.card.frozen {
+    filter: grayscale(100%); /* Re-add grayscale filter */
+}
+
+/* Hide original content when card is frozen */
+.card.frozen .card-top,
+.card.frozen .card-features,
+.card.frozen .card-bottom,
+.card.frozen .card-cta {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Show the overlay when the card is frozen */
+.card.frozen .frozen-overlay {
+    opacity: 1;
+    pointer-events: all; /* 改为all，确保可以接收所有类型的事件 */
+}
+
+/* Show the package name on the overlay when card is frozen */
+.card.frozen .frozen-package-name {
+    opacity: 1;
+}
+
+/* Show the CTA text on the overlay when card is frozen */
+.card.frozen .frozen-cta {
+    opacity: 0.7; /* Make it slightly less prominent than the title */
+}
+
+/* Override frozen styles on hover (JS will remove .frozen class, but this is a fallback/alternative) */
+.card.frozen:hover .frozen-overlay {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* --- Tablet Responsive Adjustments --- */
+@media (max-width: 992px) {
+    /* Use Flexbox for card layout on tablet */
+    .card-wrapper {
+        display: flex;
+        flex-wrap: wrap; /* Allow wrapping */
+        justify-content: center; /* Center items horizontally */
+        gap: 30px; /* Adjust gap between cards */
+    }
+     .pricing-container {
+        max-width: 800px; /* Adjust container width for tablet */
+    }
+}
+
+/* --- Modal Base Styles --- */
+.modal.is-visible {
+     opacity: 1;
+     visibility: visible;
+     transition: opacity 0.3s ease, visibility 0s linear 0s;
+}
+
+/* Modal Content Box (Transparent container) - DEFAULT */
+.modal-content {
+    position: relative !important; 
+    width: auto !important; 
+    max-width: 600px !important; /* Default Max width */
+    max-height: 90vh !important; /* Default Max height */
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important; 
+    display: flex !important; 
+    flex-direction: column !important;
+    overflow: hidden !important; /* Hide overflow, body scrolls */
+    transform: none !important;
+    margin: 0 auto !important; /* Center */
+    text-align: center; /* Default Center align text */
+    border-radius: 0 !important; /* No radius by default */
+}
+
+/* Modal Header (Minimal) - DEFAULT */
+.modal-header { padding: 0 0 20px 0 !important; border-bottom: 1px solid rgba(255,255,255,0.15) !important; flex-shrink: 0; text-align: center; }
+.modal-title { font-size: 1.6rem !important; font-weight: 600 !important; margin: 0 auto !important; color: var(--modal-text-color) !important; text-shadow: var(--modal-text-shadow); }
+
+/* Modal Body (Handles PC scroll visually hidden) - DEFAULT */
+.modal-body {
+    padding: 10px 30px !important; /* Adjust padding */
+    overflow-y: auto !important; /* Allow scrolling */
+    flex-grow: 1 !important;
+    color: var(--modal-text-color) !important;
+    text-shadow: var(--modal-text-shadow);
+    line-height: 1.7;
+    font-size: 1rem;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE 10+ */
+}
+.modal-body::-webkit-scrollbar { display: none; } /* Webkit */
+.modal-body h4 {
+    font-size: 0.95rem !important; /* Slightly smaller */
+    font-weight: 500 !important; /* Less bold */
+    margin: 30px 0 12px !important; /* Adjust spacing to match text above */
+    color: var(--modal-text-color) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.8px; /* Adjust spacing */
+    opacity: 0.9; /* Slightly less emphasis */
+    text-shadow: var(--modal-text-shadow);
+}
+
+/* Add style for the small text paragraph */
+.modal-body .small-text {
+    font-size: 0.8rem !important; /* << Further reduced size */
+    opacity: 0.75 !important; /* Slightly more faded */
+    line-height: 1.5 !important;
+    margin-top: 25px !important;
+}
+
+.modal-body ul { list-style: none; padding-left: 0; margin-bottom: 20px; display: inline-block; text-align: center; }
+.modal-body li { margin-bottom: 10px; font-size: 1rem; }
+.modal-body li::before { content: none; }
+.item-divider { height: 1px; background-color: rgba(255, 255, 255, 0.2); margin: 30px auto; width: 60%; display: block; }
+
+/* Modal Close Button - DEFAULT */
+.close-modal { position: fixed !important; top: 20px !important; right: 20px !important; z-index: 1055 !important; background: rgba(0,0,0,0.3) !important; border: none; border-radius: 50%; color: white !important; font-size: 1.3rem; font-weight: bold; line-height: 1; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; }
+.close-modal:hover { background-color: rgba(0,0,0,0.5) !important; transform: scale(1.1); }
+
+/* Payment Footer - DEFAULT */
+.modal-payment-footer { padding: 20px 0 0; margin-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.15); flex-shrink: 0; text-align: center; background: none !important; }
+.modal-payment-footer img { height: 35px !important; width: auto !important; max-width: 90% !important; margin: 0 auto !important; padding: 0 !important; display: block !important; border-radius: 0 !important; filter: brightness(1.1); }
+
+/* --- Overrides for #modal-terms (Base Styles) --- */
+#modal-terms .modal-content {
+    max-width: 750px !important;
+    max-height: 90vh !important;
+    text-align: left !important;
+}
+#modal-terms .modal-header { text-align: left !important; border-bottom: 1px solid rgba(255,255,255,0.2) !important; padding: 20px 30px 10px !important; }
+#modal-terms .modal-title { text-align: left !important; font-size: 1.4rem !important; }
+#modal-terms .modal-body {
+    text-align: left !important; 
+    overflow-y: auto !important;
+    padding: 20px 30px !important; 
+    font-size: 0.85rem; 
+}
+#modal-terms .modal-body::-webkit-scrollbar { width: 6px; }
+#modal-terms .modal-body::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.3); border-radius: 3px; }
+#modal-terms .modal-body::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.5); }
+#modal-terms .modal-body h4 { 
+    font-size: 0.9rem !important;
+    text-align: left !important;
+    margin: 20px 0 8px !important; 
+    color: var(--modal-text-color) !important; 
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.95;
+    font-weight: 600;
+}
+#modal-terms .modal-body ul { text-align: left !important; padding-left: 20px !important; list-style: disc !important; }
+#modal-terms .modal-body li { text-align: left !important; font-size: 0.85rem !important; padding-left: 0 !important; margin-bottom: 6px; line-height: 1.6;}
+#modal-terms .modal-body li::before { content: '\2022'; color: rgba(245, 245, 245, 0.7); display: inline-block; width: 1em; margin-left: -1.2em; position: absolute; left: 0; }
+#modal-terms .item-divider { display: none !important; } 
+#modal-terms .modal-footer { display: block !important; position: relative !important; border-top: 1px solid rgba(255,255,255,0.15) !important; padding: 15px 30px !important; background-color: transparent !important; }
+#modal-terms .disclaimer-text { font-size: 0.8rem !important; color: var(--modal-text-color) !important; opacity: 0.7 !important; font-style: italic !important; text-shadow: var(--modal-text-shadow); }
+#modal-terms .modal-payment-footer img { display: none !important; }
+
+/* Style for the section headings inside terms modal */
+#modal-terms .notice-section h3 { 
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    margin: 20px 0 8px !important; 
+    color: var(--modal-text-color) !important; 
+    text-shadow: var(--modal-text-shadow);
+    text-align: left !important;
+    text-transform: none !important;
+    letter-spacing: 0.5px;
+    opacity: 0.95;
+}
+
+/* --- MOBILE ONLY Overrides (@media max-width: 875px) --- */
+/* Combined styles from previous 768px and 480px blocks */
+@media (max-width: 875px) {
+    /* Base elements */
+    .header {
+        padding-top: 140px !important; /* Applied 480px rule */
+        padding-bottom: 20px !important; /* Applied 480px rule */
+        min-height: auto !important;
+        margin-bottom: 20px;
+    }
+    .header-container { padding: 0 10px !important; }
+    .page-title {
+         font-size: 1.3rem !important; /* Applied 480px rule */
+         margin: 10px 0 5px !important; /* Applied 480px rule */
+         letter-spacing: 1px; /* Applied 480px rule */
+    }
+    .page-subtitle {
+         font-size: 0.9rem !important; /* Applied 480px rule */
+         margin-bottom: 15px !important; /* Applied 480px rule */
+         letter-spacing: 0.8px; /* Applied 480px rule */
+    }
+    .nav-menu a {
+        font-size: 1.2rem !important;
+    }
+    .nav-toggle { /* From original 768px block */
+        width: 40px !important;
+        height: 40px !important;
+        top: 20px !important;
+        right: 20px !important;
+    }
+    .lang-switch {
+        top: 23px;
+        right: 60px;
+        height: 35px;
+        font-size: 10px;
+        padding: 0 10px;
+        letter-spacing: 0.6px;
+    }
+    .lang-switch span {
+        font-size: 10px;
+    }
+    .pricing-container {
+        max-width: 500px;
+        padding: 0 15px;
+    }
+    .cta-button {
+        width: 100%;
+        max-width: 250px; /* Applied 480px rule */
+        font-size: 0.9rem; /* Applied 480px rule */
+        padding: 10px 20px; /* Applied 480px rule */
+     }
+    .cta-section p { margin-bottom: 8px !important; }
+
+    /* Pricing Card adjustments (prioritizing 480px rules) */
+    .pricing-card {
+        max-width: 300px; /* 480px */
+        min-height: 180px; /* 480px */
+        padding: 10px; /* 480px */
+    }
+    .card-top {
+        grid-row: 1;
+        margin-left: -2px; /* 480px */
+        margin-top: -4px; /* 480px */
+    }
+     .card-top span { /* Combined */
+        margin-top: 2px;  /* 480px */
+        margin-left: 2px; /* 480px */
+        font-size: 12px;  /* 480px */
+    }
+    .card-features {
+        grid-row: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 0 15px 0; /* 480px */
+        margin-bottom: 5px; /* 480px */
+        margin-top: 0; /* 480px */
+    }
+    .card-features ul {
+        margin-bottom: 5px; /* 480px */
+    }
+    .card-features li {
+        margin-bottom: 3px; /* 480px */
+        font-size: 0.9rem !important; /* 480px */
+        line-height: 1.4 !important; /* 480px */
+    }
+    .card-bottom {
+        grid-row: 3;
+        display: block;
+        position: absolute; /* 480px */
+        width: calc(100% - 20px); /* 480px */
+        bottom: 4px; /* 480px */
+        left: 10px; /* 480px */
+        right: 10px; /* 480px */
+        margin: 0; /* 480px */
+        padding: 0; /* 480px */
+        z-index: 2; /* 480px */
+    }
+    .card-name {
+        margin-bottom: 4px; /* 480px */
+    }
+     .card-name p {
+        font-size: 1rem !important; /* 480px */
+    }
+    .card-name p:first-child {
+        font-size: 0.85rem !important; /* 480px */
+    }
+    .card-cta {
+        font-size: 6px; /* 480px */
+        position: absolute; /* 480px */
+        bottom: 3px; /* 480px */
+        left: 0; /* 480px */
+        right: 0; /* 480px */
+        margin: 0; /* 480px */
+        z-index: 10 !important; /* 480px */
+    }
+    .frozen-cta {
+        font-size: 6px; /* 480px */
+    }
+    .card.frozen .frozen-overlay {
+        pointer-events: all; /* Ensure clickable */
+    }
+    .pricing-grid { /* From original 768px */
+        grid-template-columns: 1fr;
+        gap: 20px;
+     }
+    /* Glass effect on mobile */
+    .pricing-card::after,
+    .card.frozen::after {
+        background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.05) 0%,
+            rgba(255, 255, 255, 0.15) 50%,
+            rgba(255, 255, 255, 0.05) 100%
+        );
+        background-size: 200% 200%;
+        animation: cardGradient 15s linear infinite;
+}
+
+    /* Modal adjustments - Reverting to match desktop styles */
+    .modal {
+        /* Keep mobile layout adjustments */
+        overflow-y: auto !important;
+        padding: 5vh 10px !important; 
+        align-items: flex-start !important; 
+        /* Revert background and filter to desktop values */
+        backdrop-filter: blur(25px) !important; /* Desktop value */
+        -webkit-backdrop-filter: blur(25px) !important; /* Desktop value */
+        background-color: rgba(25, 25, 25, 0.55) !important; /* Desktop value */
+        /* Keep noise texture */
+        background-image: url("data:image/png;base64,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") !important;
+    }
+    /* Remove the rule that hides pseudo-elements to match desktop */
+    /* .modal::before, .modal::after {
+        display: none;
+    } */
+
+    /* ... other modal styles ... */
+
+} /* Closing brace for @media (max-width: 875px) */
+
+/* --- Card CTA Text --- */
+.card-cta {
+    font-size: 9px; 
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: inherit; 
+    opacity: 0.5; 
+    margin-bottom: 0; 
+    text-align: center; 
+    z-index: 10 !important; /* 增加z-index确保显示在最上层 */
+    position: absolute; /* PC端保持绝对定位 */
+    bottom: 5px;
+    left: 0;
+    right: 0; 
+    text-shadow: 0 1px 1px rgba(0,0,0,0.1); 
+    pointer-events: none; /* 确保不会阻挡交互 */
+}
+
+/* 添加玻璃反光效果 */
+.pricing-card::after {
+    content: "";
+    width: 100%;
+    height: 100%;
+    left: 0%;
+    top: 0%;
+    border-radius: var(--border-radius);
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.05) 100%
+    );
+    background-size: 200% 200%;
+    animation: cardGradient 15s linear infinite;
+    position: absolute;
+    pointer-events: none;
+    z-index: 1; /* 位于背景之上，内容之下 */
+}
+
+/* 添加动画效果 */
+@keyframes cardGradient {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 100% 100%; }
+}
+
+/* 确保冻结卡片也有玻璃效果 */
+.card.frozen::after {
+    content: "";
+    width: 100%;
+    height: 100%;
+    left: 0%;
+    top: 0%;
+    border-radius: var(--border-radius);
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.05) 100%
+    );
+    background-size: 200% 200%;
+    animation: cardGradient 15s linear infinite;
+    position: absolute;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.6; /* 冻结状态下稍微降低透明度 */
+}
+
+/* 添加玻璃光泽效果 */
+.pricing-card::before {
+    content: "";
+    width: 100%;
+    height: 100%;
+    left: 0%;
+    top: 0%;
+    position: absolute;
+    border-radius: var(--border-radius);
+    box-shadow: 0 -1px 0 0 rgba(255, 255, 255, 0.9), 0 1px 0 0 rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* 确保移动端也有相同效果 */
+    .pricing-card::after,
+    .card.frozen::after {
+        background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.05) 0%,
+            rgba(255, 255, 255, 0.15) 50%,
+            rgba(255, 255, 255, 0.05) 100%
+        );
+        background-size: 200% 200%;
+        animation: cardGradient 15s linear infinite;
+}
+
+
+/* --- Terms Button (#terms-button) --- */
+#terms-button {
+    /* display: inline-block;  Removed - button is inline-block by default */
+    margin-top: 40px; /* Space above the button */
+    margin-bottom: 60px; /* Space below the button */
+    padding: 12px 30px; /* Button padding */
+    font-family: var(--font-body);
+    font-size: 0.9rem; /* Button text size */
+    font-weight: 500; /* Button text weight */
+    color: #f5f5f5; /* Light text color */
+    background-color: rgba(0, 0, 0, 0.25); /* Semi-transparent dark background */
+    border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle light border */
+    border-radius: 25px; /* Rounded corners */
+    text-decoration: none;
+    text-transform: uppercase; /* Uppercase text */
+    letter-spacing: 1px; /* Letter spacing */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    backdrop-filter: blur(5px); /* Frosted glass effect */
+    -webkit-backdrop-filter: blur(5px);
+    /* Center the button horizontally */
+    display: block; /* Make it a block to take width */
+    width: fit-content; /* Size based on content */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#terms-button:hover {
+    background-color: rgba(0, 0, 0, 0.4); /* Darker background on hover */
+    border-color: rgba(255, 255, 255, 0.4); /* Brighter border on hover */
+    transform: translateY(-2px); /* Slight lift effect */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Stronger shadow on hover */
+}
+
+#terms-button:active {
+    transform: translateY(0px); /* Push down effect */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Reset shadow */
+}
+
+
+/* ... existing code ... */
+
+@media (max-width: 875px) {
+    .pricing-card {
+        padding: 25px 20px;
+    }
+    
+    .card-name p {
+        font-size: 1.1rem !important; /* 增加标题大小 */
+    }
+    
+    .card-name p:first-child {
+        font-size: 0.9rem !important; /* 调整副标题大小 */
+    }
+    
+    .card-features li {
+        font-size: 0.95rem !important; /* 增加特性文本大小 */
+        line-height: 1.5 !important;
+    }
+    
+    .card-bottom {
+        padding-top: 20px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .pricing-card {
+        padding: 20px 15px;
+    }
+    
+    .card-name p {
+        font-size: 1rem !important;
+    }
+    
+    .card-name p:first-child {
+        font-size: 0.85rem !important;
+    }
+    
+    .card-features li {
+        font-size: 0.9rem !important;
+        line-height: 1.4 !important;
+    }
+    
+    .card-bottom {
+        padding-top: 15px !important;
+    }
+} 

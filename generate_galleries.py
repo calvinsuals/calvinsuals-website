@@ -5,23 +5,17 @@ import boto3 # 用于与 S3 兼容 API (如 R2) 交互
 from botocore.exceptions import NoCredentialsError, ClientError
 import traceback # 用于打印更详细的错误信息
 
-# --- 调试：打印所有可见的环境变量 --- START ---
-print("--- Debugging ALL Environment Variables --- START ---")
-sensitive_keys = ["R2_SECRET_ACCESS_KEY", "SECRET", "TOKEN", "PASSWORD", "KEY", "GITHUB_TOKEN"] # 敏感关键词列表
-for key, value in os.environ.items():
-    is_sensitive = False
-    key_upper = key.upper()
-    for sensitive in sensitive_keys:
-        if sensitive in key_upper:
-            is_sensitive = True
-            break
-    if is_sensitive:
-        print(f"ENV: {key}=*** (Exists)")
-    elif key.startswith("R2_") or key.startswith("INPUT_") or key.startswith("GITHUB_") or key == "CI":
-        # 只打印与 R2, Actions 输入, 或 CI 相关的非敏感变量，避免日志过长
-        print(f"ENV: {key}={value}")
-print("--- Debugging ALL Environment Variables --- END ---")
-# --- 调试结束 ---
+# --- 调试：打印环境变量 --- START ---
+print("--- Debugging Environment Variables --- START ---")
+print(f"Attempting to read R2_ENDPOINT_URL: {os.environ.get('R2_ENDPOINT_URL')}")
+print(f"Attempting to read R2_ACCESS_KEY_ID: {os.environ.get('R2_ACCESS_KEY_ID')}")
+# !! DO NOT PRINT SECRET KEY VALUE !!
+secret_key_set = os.environ.get("R2_SECRET_ACCESS_KEY") is not None
+print(f"Attempting to read R2_SECRET_ACCESS_KEY: Set = {secret_key_set}")
+print(f"Attempting to read R2_BUCKET_NAME: {os.environ.get('R2_BUCKET_NAME')}")
+print(f"Attempting to read R2_PUBLIC_BASE_URL: {os.environ.get('R2_PUBLIC_BASE_URL')}")
+print("--- Debugging Environment Variables --- END ---")
+# --- 调试：打印环境变量 --- END ---
 
 # --- 配置 ---
 # 本地 JSON 文件存放的基础路径 (相对于脚本)

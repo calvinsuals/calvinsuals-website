@@ -1,10 +1,14 @@
 /* 人像摄影页面样式 */
+body.portrait-page {
+    /* Apply the desired gradient directly to the body */
+    background: linear-gradient(to bottom, #efefef, #555555) !important; 
+    color: #ffffff; /* Keep text color */
+    min-height: 100vh; /* Ensure body covers full viewport height */
+}
+
 .portrait-page {
-    /* background-color: #a89b8d; 保留原背景色 */
-    /* background: #a89b8d; 强制使用这个背景 */
-    /* background: linear-gradient(to bottom, #cccccc, #888888); /* 浅灰到中冷灰渐变 */
-    /* background: linear-gradient(to bottom, #e0e0e0, #666666); /* 增加对比度：更浅的灰 (#e0e0e0) 到更深的冷灰 (#666666) */
-    background: linear-gradient(to bottom, #efefef, #555555); /* 再次增加对比度：非常浅的灰 (#efefef) 到更深的冷灰 (#555555) */
+    /* Ensure the wrapper div has no background of its own */
+    background: none !important;
     color: #ffffff;
 }
 
@@ -360,23 +364,3 @@
     margin-bottom: 100px;
 }
 
-/* 移除不再使用的规则 */
-/*
-.showcase-container::after,
-.showcase-container::before {
-    display: none;
-}
-*/
-
-/* 移除旧的人像画廊规则 */
-/*
-.gallery-container {
-    ...
-}
-.projects-grid {
-    ...
-}
-.project-item {
-    ...
-}
-*/

@@ -30,7 +30,7 @@
             margin: 0;
             padding: 0;
             font-family: 'Roboto', sans-serif;
-            background-color: #a89b8d;
+           
             color: #ffffff;
             width: 100%;
             overflow-x: hidden;
@@ -40,9 +40,6 @@
             overflow-x: hidden;
         }
 
-        body.automotive-page {
-            background-color: #a89b8d;
-        }
         
         .projects-page {
             padding: 0;
@@ -388,12 +385,12 @@
             </div>
             <div class="menu-content">
                 <div class="menu-items">
-                    <a href="index.html">HOME</a>
-                    <a href="automotive.html" class="active">AUTOMOTIVE</a>
+                    <a href="index.html" style="font-size: 1.8rem; margin-top: -30px;">CALVINSUALS</a>
+                    <br>
                     <a href="portrait.html">PORTRAIT</a>
                     <a href="pricing.html">PRICING</a>
-                    <a href="index.html#about">ABOUT</a>
-                    <a href="index.html#contact">CONTACT</a>
+                    <a href="javascript:void(0)" onclick="return navigateToMainSection('about')">ABOUT</a>
+                    <a href="javascript:void(0)" onclick="return navigateToMainSection('contact')">CONTACT</a>
                 </div>
             </div>
         </div>
@@ -415,6 +412,9 @@
         <p>&copy; 2025 calvinsuals. All photography works and website content are copyrighted by the author.</p>
         <p>Website design and development: calvinsuals.</p>
     </footer>
+
+    <!-- 导航JS -->
+    <script src="js/navigation.js" defer></script>
 
     <script>
         // Revised Menu Control Code
