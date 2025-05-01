@@ -456,19 +456,20 @@ function initializeDragScrolling() {
     let startY, currentY;
     let scrollLeft;
     let isScrolling = false; // Flag to track if scrolling has started
-    const scrollThreshold = 5; // 增加阈值 (原 3)，使滑动不那么容易触发
+    const scrollThreshold = 10; // 大幅增加阈值，更难触发滑动
     
-    // 惯性滚动相关变量
+    // 惯性滚动相关变量（大幅降低影响）
     let velocityX = 0;
     let lastX = 0;
     let lastTime = 0;
     let momentumID = null;
-    const friction = 0.97; // 进一步增大摩擦力 (原 0.95)
-    const minVelocity = 0.5;
-    const boostFactor = 0.3; // 进一步减小速度增益 (原 0.5)
+    const friction = 0.99; // 极大地增加摩擦力，几乎消除惯性
+    const minVelocity = 0.1; // 极小的最小速度阈值，让惯性很快停止
+    const boostFactor = 0.05; // 极小的速度增益，几乎消除惯性
     let amplitude = 0;
     let targetScrollLeft = 0;
     let frameTimestamp = 0;
+    let lastTouchDistance = 0; // 跟踪最后触摸距离，用于中断判断
 
     function trackVelocity(e) {
         const now = Date.now();
@@ -476,19 +477,21 @@ function initializeDragScrolling() {
         if (elapsed > 30) { // Avoid division by zero or stale data
             const currentX = (e.touches ? e.touches[0].pageX : e.pageX);
             const deltaX = currentX - lastX;
-            velocityX = (1000 * deltaX / (1 + elapsed)) * 0.7; // 降低速度计算结果 (增加 *0.7 因子)
+            // 极大降低速度计算结果
+            velocityX = (1000 * deltaX / (1 + elapsed)) * 0.1;
             lastX = currentX;
             lastTime = now;
-            // console.log("Velocity:", velocityX);
         }
     }
 
+    // 几乎移除惯性滚动效果
     function momentumScroll() {
         if (!slider) return;
         let elapsed = Date.now() - frameTimestamp;
         frameTimestamp = Date.now();
 
-        let delta = amplitude * Math.exp(-elapsed / 375); // 增加衰减时间 (原 325)，让滚动更平缓
+        // 极短的衰减时间，让滚动几乎立即停止
+        let delta = amplitude * Math.exp(-elapsed / 100);
         if (delta > minVelocity || delta < -minVelocity) {
             targetScrollLeft -= delta;
             // Boundary check
@@ -497,8 +500,6 @@ function initializeDragScrolling() {
             momentumID = requestAnimationFrame(momentumScroll);
         } else {
             momentumID = null;
-            // Optional: Snap to nearest item after momentum stops
-            // snapToNearestItem(slider);
         }
     }
 
@@ -528,7 +529,8 @@ function initializeDragScrolling() {
         if (!isDown) return;
         isDown = false;
         slider.classList.remove('active-drag');
-        if (isScrolling && Math.abs(velocityX) > 15) { // 调高速度阈值 (原 10)
+        // 大幅增加速度阈值，基本上禁用惯性
+        if (isScrolling && Math.abs(velocityX) > 50) {
             amplitude = boostFactor * velocityX;
             targetScrollLeft = slider.scrollLeft;
             frameTimestamp = Date.now();
@@ -540,7 +542,8 @@ function initializeDragScrolling() {
         if (!isDown) return;
         isDown = false;
         slider.classList.remove('active-drag');
-        if (isScrolling && Math.abs(velocityX) > 15) { // 调高速度阈值 (原 10) 
+        // 大幅增加速度阈值，基本上禁用惯性
+        if (isScrolling && Math.abs(velocityX) > 50) {
             amplitude = boostFactor * velocityX;
             targetScrollLeft = slider.scrollLeft;
             frameTimestamp = Date.now();
@@ -560,7 +563,8 @@ function initializeDragScrolling() {
         if (isScrolling) {
             e.preventDefault();
             const x = e.pageX - slider.offsetLeft;
-            const walk = (x - startX) * 0.8; // 降低灵敏度 (原 1.2)
+            // 进一步降低灵敏度
+            const walk = (x - startX) * 0.2;
             slider.scrollLeft = scrollLeft - walk;
         }
     });
@@ -581,13 +585,37 @@ function initializeDragScrolling() {
         lastX = e.touches[0].pageX;
         lastTime = Date.now();
         velocityX = amplitude = 0;
-    }, { passive: true }); // Keep passive for performance unless preventDefault needed
+        lastTouchDistance = 0;
+    }, { passive: true });
+
+    // 添加触摸中断检测，让用户可以在滚动过程中轻松停止
+    function detectTouchStop(currentX) {
+        const distance = Math.abs(currentX - lastX);
+        const now = Date.now();
+        const timeDiff = now - lastTime;
+        
+        // 如果用户手指停下来或移动非常慢，则中断惯性
+        if (distance < 1 && timeDiff > 50) {
+            cancelMomentumTracking();
+            return true;
+        }
+        
+        // 如果用户手指移动方向突然改变，也中断惯性
+        if (lastTouchDistance > 0 && (currentX - lastX) * lastTouchDistance < 0) {
+            cancelMomentumTracking();
+            return true;
+        }
+        
+        lastTouchDistance = currentX - lastX;
+        return false;
+    }
 
     window.addEventListener('touchend', () => {
         if (!isDown) return;
         isDown = false;
         slider.classList.remove('active-drag');
-        if (isScrolling && Math.abs(velocityX) > 15) { // 调高速度阈值 (原 10)
+        // 几乎禁用惯性滚动，除非非常快速的滑动
+        if (isScrolling && Math.abs(velocityX) > 100) {
             amplitude = boostFactor * velocityX;
             targetScrollLeft = slider.scrollLeft;
             frameTimestamp = Date.now();
@@ -605,6 +633,12 @@ function initializeDragScrolling() {
     slider.addEventListener('touchmove', (e) => {
         if (!isDown) return;
         touchMoveCount++; // 增加移动计数
+        
+        // 检测手指是否停止或改变方向
+        if (e.touches.length > 0) {
+            const currentTouchX = e.touches[0].pageX;
+            detectTouchStop(currentTouchX);
+        }
         
         trackVelocity(e);
         currentX = e.touches[0].pageX - slider.offsetLeft;
@@ -626,22 +660,26 @@ function initializeDragScrolling() {
              if (e.cancelable) {
                  e.preventDefault();
              }
-            // 降低滑动灵敏度
-            let walk = (currentX - startX) * 0.5; // 手机端进一步降低灵敏度 (原 1.2)
+            // 大幅降低滑动灵敏度
+            let walk = (currentX - startX) * 0.1;
             
-            // 随着移动次数增加，进一步降低灵敏度，实现更精细的控制
+            // 随着移动次数增加，保持较低灵敏度
             if (touchMoveCount > 5) {
-                walk = (currentX - startX) * 0.4;
+                walk = (currentX - startX) * 0.08;
             }
             if (touchMoveCount > 10) {
-                walk = (currentX - startX) * 0.3;
+                walk = (currentX - startX) * 0.06;
             }
+            
+            // 应用阻尼系数，让滑动感觉更加可控
+            const dampingFactor = Math.min(1, 0.8 + (touchMoveCount * 0.01));
+            walk = walk * dampingFactor;
             
             slider.scrollLeft = scrollLeft - walk;
         }
     }, { passive: false });
 
-    console.log("[Comparison] Initialized enhanced drag scrolling with reduced sensitivity for mobile.");
+    console.log("[Comparison] Initialized drag scrolling with almost no momentum for precise control.");
 }
 
 
