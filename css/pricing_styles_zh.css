@@ -1568,7 +1568,7 @@ body:before {
 }
 
 .close-modal { 
-    position: fixed !important;
+    position: absolute !important;
     top: 15px !important; 
     right: 15px !important; 
     width: 30px !important; 
