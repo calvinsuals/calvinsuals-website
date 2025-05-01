@@ -67,17 +67,25 @@ function initializeComparison() {
 
         const moveHandler = (clientX) => {
             if (!isResizing) return;
-            cancelAnimationFrame(animationFrameId);
-            animationFrameId = requestAnimationFrame(() => {
-                const rect = wrapper.getBoundingClientRect();
-                if(!rect || rect.width <= 0) return;
-                const x = Math.min(Math.max(0, clientX - rect.left), rect.width);
-                const percent = (x / rect.width) * 100;
-                const clampedPercent = Math.max(0, Math.min(100, percent));
-                handle.style.left = `${clampedPercent}%`;
-                afterImage.style.clipPath = `inset(0 ${100 - clampedPercent}% 0 0)`;
-            });
+            
+            // 直接更新位置，不使用requestAnimationFrame来提高响应速度
+            const rect = wrapper.getBoundingClientRect();
+            if(!rect || rect.width <= 0) return;
+            
+            // 计算位置时增加一个灵敏度因子，使移动更快速
+            const sensitivityFactor = 1.2; // 增加灵敏度，值越大移动越敏感
+            const rawX = clientX - rect.left;
+            // 应用灵敏度因子，并确保结果在容器范围内
+            const x = Math.min(Math.max(0, rawX * sensitivityFactor), rect.width);
+            const percent = (x / rect.width) * 100;
+            const clampedPercent = Math.max(0, Math.min(100, percent));
+            
+            // 直接设置样式而不是等待动画帧
+            handle.style.left = `${clampedPercent}%`;
+            afterImage.style.clipPath = `inset(0 ${100 - clampedPercent}% 0 0)`;
         };
+        
+        // 其余代码保持不变
         const startResize = (e) => { 
             console.log('[Comparison StartResize] Setting isResizing = true');
             isResizing = true; 
