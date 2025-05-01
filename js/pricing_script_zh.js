@@ -96,10 +96,10 @@ function initCardModalInteraction() {
         }
     }
 
-    // 检查是否为大屏幕桌面设备
+    // 检查是否为非触屏设备（鼠标操作）
     function isLargeDesktop() {
-        // 简单检查：宽度 > 1680px。如果需要，可以考虑添加触摸检测。
-        return window.innerWidth > 1680; 
+        // 检测设备是否为非触屏设备，不再依赖屏幕宽度
+        return !('ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0);
     }
 
     // 获取所有卡片

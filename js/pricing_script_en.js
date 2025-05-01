@@ -55,11 +55,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Helper function to check for large desktop (potential non-touch)
+    // Helper function to check for non-touch device (mouse operation)
     function isLargeDesktop() {
-        // Simple check: width > 1680px. Consider adding touch detection if needed.
-        // e.g., return window.innerWidth > 1680 && !('ontouchstart' in window || navigator.maxTouchPoints);
-        return window.innerWidth > 1680; 
+        // Detect if device is non-touch, no longer dependent on screen width
+        return !('ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0);
     }
 
     // --- Event Listeners --- 
