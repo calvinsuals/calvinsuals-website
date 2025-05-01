@@ -456,16 +456,16 @@ function initializeDragScrolling() {
     let startY, currentY;
     let scrollLeft;
     let isScrolling = false; // Flag to track if scrolling has started
-    const scrollThreshold = 3; // 降低阈值 (原 5)，使滑动更容易触发
+    const scrollThreshold = 2; // 进一步降低阈值，使滑动更容易触发
     
     // 惯性滚动相关变量
     let velocityX = 0;
     let lastX = 0;
     let lastTime = 0;
     let momentumID = null;
-    const friction = 0.985; // 微调摩擦力 (原 0.97)，让滑动更顺滑
+    const friction = 0.99; // 极大增加摩擦力，几乎立即停止
     const minVelocity = 0.5;
-    const boostFactor = 0.15; // 大幅减小速度增益 (原 0.3)，只保留少量惯性
+    const boostFactor = 0.03; // 几乎移除所有惯性
     let amplitude = 0;
     let targetScrollLeft = 0;
     let frameTimestamp = 0;
@@ -476,7 +476,7 @@ function initializeDragScrolling() {
         if (elapsed > 30) { // Avoid division by zero or stale data
             const currentX = (e.touches ? e.touches[0].pageX : e.pageX);
             const deltaX = currentX - lastX;
-            velocityX = (1000 * deltaX / (1 + elapsed)) * 0.9; // 提高速度计算结果 (原 0.7)
+            velocityX = (1000 * deltaX / (1 + elapsed)) * 0.5; // 大幅降低速度计算结果
             lastX = currentX;
             lastTime = now;
             // console.log("Velocity:", velocityX);
@@ -488,7 +488,7 @@ function initializeDragScrolling() {
         let elapsed = Date.now() - frameTimestamp;
         frameTimestamp = Date.now();
 
-        let delta = amplitude * Math.exp(-elapsed / 300); // 减少衰减时间 (原 375)，让滑动快速停止
+        let delta = amplitude * Math.exp(-elapsed / 150); // 极大减少衰减时间，几乎立即停止
         if (delta > minVelocity || delta < -minVelocity) {
             targetScrollLeft -= delta;
             // Boundary check
@@ -497,8 +497,6 @@ function initializeDragScrolling() {
             momentumID = requestAnimationFrame(momentumScroll);
         } else {
             momentumID = null;
-            // Optional: Snap to nearest item after momentum stops
-            // snapToNearestItem(slider);
         }
     }
 
@@ -540,7 +538,7 @@ function initializeDragScrolling() {
         if (!isDown) return;
         isDown = false;
         slider.classList.remove('active-drag');
-        if (isScrolling && Math.abs(velocityX) > 15) { // 调高速度阈值 (原 10) 
+        if (isScrolling && Math.abs(velocityX) > 30) { // 大幅提高速度阈值，减少惯性触发
             amplitude = boostFactor * velocityX;
             targetScrollLeft = slider.scrollLeft;
             frameTimestamp = Date.now();
@@ -560,7 +558,7 @@ function initializeDragScrolling() {
         if (isScrolling) {
             e.preventDefault();
             const x = e.pageX - slider.offsetLeft;
-            const walk = (x - startX) * 1.5; // 提高灵敏度 (原 0.8)
+            const walk = (x - startX) * 3.0; // 极大提高灵敏度，使滑动速度增加几倍
             slider.scrollLeft = scrollLeft - walk;
         }
     });
@@ -587,7 +585,7 @@ function initializeDragScrolling() {
         if (!isDown) return;
         isDown = false;
         slider.classList.remove('active-drag');
-        if (isScrolling && Math.abs(velocityX) > 15) { // 调高速度阈值 (原 10)
+        if (isScrolling && Math.abs(velocityX) > 30) { // 大幅提高速度阈值，减少惯性触发
             amplitude = boostFactor * velocityX;
             targetScrollLeft = slider.scrollLeft;
             frameTimestamp = Date.now();
@@ -626,15 +624,15 @@ function initializeDragScrolling() {
              if (e.cancelable) {
                  e.preventDefault();
              }
-            // 降低滑动灵敏度
-            let walk = (currentX - startX) * 1.2; // 手机端提高灵敏度 (原 0.5)
+            // 极大提高滑动灵敏度
+            let walk = (currentX - startX) * 2.5; // 手机端大幅提高灵敏度
             
             // 随着移动次数增加，改为更精细的控制
             if (touchMoveCount > 5) {
-                walk = (currentX - startX) * 0.9;
+                walk = (currentX - startX) * 2.0;
             }
             if (touchMoveCount > 10) {
-                walk = (currentX - startX) * 0.7;
+                walk = (currentX - startX) * 1.5;
             }
             
             slider.scrollLeft = scrollLeft - walk;
