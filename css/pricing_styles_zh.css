@@ -948,7 +948,26 @@ body:before {
 .item-divider { height: 1px; background-color: rgba(255, 255, 255, 0.2); margin: 30px auto; width: 60%; display: block; }
 
 /* Modal Close Button - DEFAULT */
-.close-modal { position: fixed !important; top: 20px !important; right: 20px !important; z-index: 1055 !important; background: rgba(0,0,0,0.3) !important; border: none; border-radius: 50%; color: white !important; font-size: 1.3rem; font-weight: bold; line-height: 1; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; }
+.close-modal { 
+    position: fixed !important; 
+    top: 20px !important; 
+    right: 20px !important; 
+    z-index: 1101 !important; /* <<< INCREASED z-index (was 1055) */
+    background: rgba(0,0,0,0.3) !important; 
+    border: none; 
+    border-radius: 50%; 
+    color: white !important;
+    font-size: 1.3rem;
+    font-weight: bold;
+    line-height: 1;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
 .close-modal:hover { background-color: rgba(0,0,0,0.5) !important; transform: scale(1.1); }
 
 /* Payment Footer - DEFAULT */
@@ -1613,7 +1632,7 @@ body:before {
     font-size: 1.2rem !important;
     background: rgba(0,0,0,0.3) !important; 
     color: white !important;
-    z-index: 1055 !important; 
+    z-index: 1101 !important; /* <<< INCREASED z-index (was 1055) */
     border-radius: 50% !important;
     display: flex !important;
     align-items: center !important;
@@ -1623,16 +1642,20 @@ body:before {
     line-height: 1 !important;
     opacity: 1 !important;
     visibility: visible !important;
+    overflow: visible !important; /* <<< Added to prevent clipping */
+    pointer-events: auto !important; /* Ensure clickable */
+    box-shadow: 0 0 5px rgba(0,0,0,0.2) !important; /* Keep shadow */
 }
 
 /* 修复移动端模态窗口可能导致的按钮遮挡问题 */
 @media (max-width: 875px) {
     .modal {
         overflow-y: auto !important; 
+        overflow-x: visible !important; /* <<< Ensure horizontal overflow is not hidden */
         padding: 5vh 10px !important; 
         align-items: flex-start !important; 
         /* 确保模态窗口不会遮挡关闭按钮 */
-        padding-top: 50px !important; /* 为按钮留出足够空间 */
+        padding-top: 50px !important; /* 保留为按钮留出空间 */
     }
 }
 
