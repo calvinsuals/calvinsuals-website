@@ -98,8 +98,16 @@ function initCardModalInteraction() {
 
     // 检查是否为非触屏设备（鼠标操作）
     function isLargeDesktop() {
-        // 检测设备是否为非触屏设备，不再依赖屏幕宽度
-        return !('ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0);
+        // 更可靠的非触屏设备检测方法
+        // 主要检测触摸能力而不是屏幕尺寸
+        const hasTouchCapability = 'ontouchstart' in window || 
+                                 navigator.maxTouchPoints > 0 || 
+                                 navigator.msMaxTouchPoints > 0 ||
+                                 (window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
+
+        // 返回：是否没有触摸能力或明确使用精确指针设备
+        return !hasTouchCapability || 
+               (window.matchMedia && window.matchMedia("(pointer: fine)").matches);
     }
 
     // 获取所有卡片
@@ -117,7 +125,7 @@ function initCardModalInteraction() {
         allCards.forEach(card => {
             card.classList.add('frozen');
 
-            // 仅为大屏幕桌面设备添加鼠标悬停监听器
+            // 仅为非触屏设备添加鼠标悬停监听器
             card.addEventListener('mouseenter', () => {
                 if (isLargeDesktop()) { 
                     unfreezeCard(card);
@@ -139,21 +147,43 @@ function initCardModalInteraction() {
 
             const modalTarget = clickedCard.dataset.modalTarget;
             const isFrozen = clickedCard.classList.contains('frozen');
+            
+            // 检测是否为触屏设备
+            const isTouchDevice = !isLargeDesktop();
 
-            if (isFrozen) {
-                // 第一次点击冻结卡片：解冻当前卡片，冻结其他卡片
-                allCards.forEach(card => {
-                    if (card === clickedCard) {
-                        unfreezeCard(card);
+            // 鼠标设备：无论卡片状态，点击都打开模态框
+            // 触屏设备：保持两步操作（第一步解冻，第二步打开）
+            if (isTouchDevice) {
+                // 触屏设备的两步操作逻辑
+                if (isFrozen) {
+                    // 第一次点击：解冻当前卡片，冻结其他卡片
+                    allCards.forEach(card => {
+                        if (card === clickedCard) {
+                            unfreezeCard(card);
+                        } else {
+                            freezeCard(card);
+                        }
+                    });
+                } else {
+                    // 第二次点击：打开模态窗口
+                    if (modalTarget) {
+                        openModalById(modalTarget);
                     } else {
-                        freezeCard(card);
+                        console.warn('卡片缺少data-modal-target属性');
                     }
-                });
+                }
             } else {
-                // 第二次点击解冻卡片：打开模态框
+                // 鼠标设备：点击即打开模态窗口
+                if (isFrozen) {
+                    // 先解冻卡片，然后打开模态窗口
+                    unfreezeCard(clickedCard);
+                }
+                
                 if (modalTarget) {
-                    // 中文版直接使用 modalTarget
-                    openModalById(modalTarget); 
+                    // 短暂延迟以便用户可以看到解冻动画
+                    setTimeout(() => {
+                        openModalById(modalTarget);
+                    }, 100);
                 } else {
                     console.warn('卡片缺少data-modal-target属性');
                 }

@@ -57,8 +57,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Helper function to check for non-touch device (mouse operation)
     function isLargeDesktop() {
-        // Detect if device is non-touch, no longer dependent on screen width
-        return !('ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0);
+        // 更简化的检测方法：只基于触摸能力检测，不再使用屏幕尺寸
+        const hasTouchCapability = 'ontouchstart' in window || 
+                        navigator.maxTouchPoints > 0 || 
+                        navigator.msMaxTouchPoints > 0 ||
+                        (window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
+                        
+        // 返回设备是否没有触摸能力或使用精确指针
+        return !hasTouchCapability || 
+               (window.matchMedia && window.matchMedia("(pointer: fine)").matches);
     }
 
     // --- Event Listeners --- 

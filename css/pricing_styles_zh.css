@@ -1058,9 +1058,7 @@ body:before {
     }
     
      /* Reset mobile specific background overrides for desktop */
-    #modal-terms.modal {
-        /* Remove any explicit mobile background settings if they exist for desktop */
-    }
+   
 }
 
 
@@ -1286,6 +1284,25 @@ body:before {
     .cta-button { width: 100%; max-width: 300px; }
     .cta-section p { margin-bottom: 8px !important; }
     /* .item-divider { margin: 8px 0 15px 0; } */ /* Removed, potentially conflicting */
+    
+    /* 增强移动端关闭按钮的样式 */
+    .close-modal { 
+        position: fixed !important;
+        top: 15px !important; 
+        right: 15px !important; 
+        width: 30px !important; 
+        height: 30px !important; 
+        font-size: 1.2rem !important;
+        background: rgba(0,0,0,0.3) !important; 
+        color: white !important;
+        z-index: 1055 !important; 
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        border: none !important;
+    }
     
     /* Add mobile card sizing to match EN version */
     .pricing-card {
@@ -1544,13 +1561,4 @@ body:before {
     transform: translateY(0px); /* Push down effect */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Reset shadow */
 }
-
-/* 确保移动端可以正确接收点击事件 */
-@media (max-width: 768px) {
-    .card.frozen .frozen-overlay {
-        pointer-events: all;
-    }
-}
-
-
 
