@@ -570,7 +570,7 @@ function initializeDragScrolling() {
             e.preventDefault();
             const x = e.pageX - slider.offsetLeft;
             // 保持适中的速度系数
-            const walk = (x - startX) * 2.2;
+            const walk = (x - startX) * 1.8; // 降低速度系数，从2.2降至1.8
             const targetScrollLeft = scrollLeft - walk;
             
             // 直接设置位置而不是使用动画，提高直接感
@@ -640,7 +640,7 @@ function initializeDragScrolling() {
             }
             
             // 保持适中的响应系数
-            const walk = (currentX - startX) * 2.0;
+            const walk = (currentX - startX) * 1.6; // 降低速度系数，从2.0降至1.6
             const targetScrollLeft = scrollLeft - walk;
             
             // 直接设置位置而不是使用动画，避免累积延迟
