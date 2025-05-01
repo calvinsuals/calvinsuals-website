@@ -1562,3 +1562,59 @@ body:before {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Reset shadow */
 }
 
+.item-divider {
+    margin: 15px auto !important;
+    width: 80% !important;
+}
+
+.close-modal { 
+    top: 15px !important; 
+    right: 15px !important; 
+    width: 30px !important; 
+    height: 30px !important; 
+    font-size: 1.2rem !important;
+    background: rgba(0,0,0,0.3) !important; 
+    color: white !important;
+    z-index: 1055 !important; 
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    border: none !important;
+}
+
+.modal-payment-footer img {
+    height: 30px !important;
+    max-width: 80% !important;
+    margin: 0 auto !important;
+    filter: brightness(1.05);
+}
+
+.item-divider {
+    margin: 15px auto !important;
+    width: 80% !important;
+}
+
+/* 完整定义移动端关闭按钮样式 */
+.close-modal { 
+    position: fixed !important;
+    top: 15px !important; 
+    right: 15px !important; 
+    width: 30px !important; 
+    height: 30px !important; 
+    font-size: 1.2rem !important;
+    background: rgba(0,0,0,0.3) !important; 
+    color: white !important;
+    z-index: 1055 !important; 
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    border: none !important;
+    line-height: 1 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
