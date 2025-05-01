@@ -83,13 +83,14 @@ body {
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0s linear 0.3s;
-    display: flex; /* Removed !important */
+    display: flex !important; 
     align-items: center !important; 
     justify-content: center !important; 
-    padding: 20px !important;
+    padding: 20px !important; 
+}
     
-    /* 保留伪元素设置 */
-    &::before {
+/* Modal pseudo-elements (moved outside .modal for clarity) */
+.modal::before {
         content: "";
         position: absolute;
         top: 0;
@@ -101,8 +102,7 @@ body {
         z-index: -1;
         opacity: 0.6;
     }
-    
-    &::after {
+.modal::after {
         content: "";
         position: absolute;
         top: -1px;
@@ -113,30 +113,7 @@ body {
         z-index: -2;
         pointer-events: none;
     }
-}
 
-/* Mobile Specific Overrides */
-@media (max-width: 768px) {
-    .modal {
-        overflow-y: auto !important; /* 允许滚动 */
-        padding: 5vh 10px !important; 
-        align-items: flex-start !important; 
-        
-        /* 改为与桌面端完全一致的设置 */
-        backdrop-filter: blur(25px) !important;
-        -webkit-backdrop-filter: blur(25px) !important;
-        background-color: rgba(25, 25, 25, 0.55) !important; /* 与桌面端一致 */
-        box-shadow: inset 0 0 200px 100px rgba(25, 25, 25, 0.3);
-        
-        /* 保留噪点纹理 */
-        background-image: url("data:image/png;base64,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") !important;
-        
-        /* 不移除伪元素，与桌面端保持一致 */
-        &::before, &::after {
-            display: block;
-        }
-    }
-}
 
 /* 修改html/body样式，去除可能引起冲突的背景设置 */
 html, body {
@@ -288,16 +265,6 @@ body:before {
 
 .nav-toggle.active span:nth-child(3) {
     transform: translateY(-8px) rotate(-45deg);
-}
-
-/* 移动端样式 */
-@media (max-width: 768px) {
-    .nav-toggle {
-        top: 20px !important; /* 保持与桌面端一致 */
-        right: 20px !important; /* 保持与桌面端一致 */
-        width: 40px !important;
-        height: 40px !important;
-    }
 }
 
 .nav-menu {
@@ -535,38 +502,11 @@ body:before {
 .pricing-card.digital.seven { background-image: url("../images/pricing icons/my-pink.jpg") !important; } /* 更新为本地图片 */
 .pricing-card.digital.eight { background-image: url("../images/pricing icons/egg-sour.jpg") !important; } /* 更新为本地图片 */
 
-/* Remove keyframes for the gradient animation */
-/*
-@keyframes cardGradient {
-  0% { background-position: 0% 10%; }
-  50% { background-position: 100% 91%; }
-  100% { background-position: 0% 10%; }
-}
-*/
-
-/* Remove gradient overlay/reflection from ::after */
-.card.digital::after {
-     content: "";
-     width: 100%;
-     height: 100%;
-     left: 0%;
-     top: 0%;
-     border-radius: var(--border-radius); /* Use card's border radius */
-     /* Restore original complex gradient */
-     /* background: linear-gradient(...) */ /* Removed */
-     /* background-size: 150% 150%; */ /* Removed */
-     /* animation: cardGradient 45s ease-in-out infinite; */ /* Removed */
-     position: absolute;
-     pointer-events: none;
-     z-index: 0; /* Keep behind ::before and content */
- }
-
-/* Ensure pseudo-element is set up for inner glow */
+/* Pseudo-element for inner glow */
 .card.digital::before {
     content: "";
     width: 100%;
     height: 100%;
-    /* box-shadow: 0 -1px 0 0 rgb(255 255 255 / 90%), 0 1px 0 0 rgb(0 0 0 / 20%); */ /* Original shadow commented out */
     opacity: 0; /* <<< Default hidden */
     position: absolute;
     left: 0%;
@@ -574,7 +514,6 @@ body:before {
     z-index: 1; /* <<< Above background, below content */
     border-radius: var(--border-radius); /* Use card's border radius */
     pointer-events: none;
-    /* display: none; */ /* Ensure this is not active */
     box-shadow: inset 0 0 12px 5px rgba(255, 255, 255, 0.35); /* <<< INNER glow effect */
     transition: opacity 0.3s ease; /* <<< Smooth transition */
 }
@@ -643,8 +582,6 @@ body:before {
 /* p:last-child is the main title */
 .card-name p:last-child {
     font-size: 17px; /* Slightly larger font size */
-    /* margin-top: 3px; */ /* <<< Removed top margin */
-    /* Inherit other styles like text-shadow, font-weight, overflow etc. */
 }
 
 /* Card Features Section */
@@ -710,7 +647,7 @@ body:before {
     background-color: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
-    z-index: 1;
+    z-index: 1; /* Reverted z-index */
     opacity: 0;
     pointer-events: none; /* 默认不允许交互 */
     transition: opacity 0.3s ease;
@@ -723,7 +660,7 @@ body:before {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 3; /* Above overlay, below original content when shown */
+    z-index: 3; /* Reverted z-index */
     font-size: 16px; /* Adjust size as needed */
     font-weight: 700;
     color: #aaa; /* Lighter grey color */
@@ -741,7 +678,7 @@ body:before {
     bottom: 20px; /* Position near the bottom */
     left: 50%;
     transform: translateX(-50%);
-    z-index: 3;
+    z-index: 3; /* Reverted z-index */
     font-size: 10px; /* Smaller font size */
     font-weight: 500;
     color: #aaa; /* Match package name color */
@@ -756,7 +693,6 @@ body:before {
 /* Styles for the card when frozen */
 .card.frozen {
     filter: grayscale(100%); /* Re-add grayscale filter */
-    /* No transition needed here anymore */
 }
 
 /* Hide original content when card is frozen */
@@ -790,7 +726,7 @@ body:before {
     pointer-events: auto;
 }
 
-/* --- Keep Responsive Grid Adjustments (Now applies to .card-wrapper indirectly) --- */
+/* --- Tablet Responsive Adjustments --- */
 @media (max-width: 992px) {
     /* Use Flexbox for card layout on tablet */
     .card-wrapper {
@@ -802,90 +738,14 @@ body:before {
      .pricing-container {
         max-width: 800px; /* Adjust container width for tablet */
     }
-     /* Optional: Adjust card size slightly if needed for 2 columns */
-     /* .pricing-card { max-width: 350px; } */
 }
 
-
-
-/* Modal Container (Overlay & Blur) - DEFAULT (Applies to PC and is base for Mobile) */
-.modal {
-    display: none; 
-    position: fixed !important; 
-    z-index: 1100 !important;
-    left: 0 !important;
-    top: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    overflow: hidden !important;
-    
-    /* 多层背景方案，消除断层问题 */
-    background-color: rgba(25, 25, 25, 0.55) !important; /* 稍微降低背景不透明度 */
-    
-    /* 组合多种图层构建更加稳定的毛玻璃效果 */
-    /* 第一层：添加微妙噪点纹理 */
-    background-image: url("data:image/png;base64,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") !important;
-    
-    /* 保留其他弹窗设置 */
-    box-shadow: inset 0 0 200px 100px rgba(25, 25, 25, 0.3);
-    backdrop-filter: blur(25px) !important;
-    -webkit-backdrop-filter: blur(25px) !important;
-    will-change: backdrop-filter, opacity;
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-    
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0s linear 0.3s;
-    display: flex; /* Removed !important */
-    align-items: center !important; 
-    justify-content: center !important; 
-    padding: 20px !important;
-    
-    /* 保留伪元素设置 */
-    &::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        backdrop-filter: blur(10px) brightness(1.05);
-        -webkit-backdrop-filter: blur(10px) brightness(1.05);
-        z-index: -1;
-        opacity: 0.6;
-    }
-    
-    &::after {
-        content: "";
-        position: absolute;
-        top: -1px;
-        left: -1px;
-        right: -1px;
-        bottom: -1px;
-        background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent 50%, rgba(255,255,255,0.05));
-        z-index: -2;
-        pointer-events: none;
-    }
+/* --- Modal Base Styles --- */
+.modal.is-visible {
+     opacity: 1;
+     visibility: visible;
+     transition: opacity 0.3s ease, visibility 0s linear 0s;
 }
-
-/* Mobile Specific Overrides */
-@media (max-width: 875px) {
-    .modal {
-        overflow-y: auto !important; /* Allow overlay scroll */
-        padding: 5vh 10px !important; 
-        align-items: flex-start !important; 
-        
-        /* 修改为与英文页面一致的设置 */
-        backdrop-filter: blur(25px) !important; /* Desktop value */
-        -webkit-backdrop-filter: blur(25px) !important; /* Desktop value */
-        background-color: rgba(25, 25, 25, 0.55) !important; /* Desktop value */
-        /* Keep noise texture */
-        background-image: url("data:image/png;base64,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") !important;
-    }
-}
-
-.modal.is-visible { opacity: 1; visibility: visible; transition: opacity 0.3s ease, visibility 0s linear 0s; }
 
 /* Modal Content Box (Transparent container) - DEFAULT */
 .modal-content {
@@ -948,167 +808,93 @@ body:before {
 .item-divider { height: 1px; background-color: rgba(255, 255, 255, 0.2); margin: 30px auto; width: 60%; display: block; }
 
 /* Modal Close Button - DEFAULT */
-.close-modal { 
-    position: fixed !important; 
-    top: 20px !important; 
-    right: 20px !important; 
-    z-index: 1101 !important; /* <<< INCREASED z-index (was 1055) */
-    background: rgba(0,0,0,0.3) !important; 
-    border: none; 
-    border-radius: 50%; 
-    color: white !important;
-    font-size: 1.3rem;
-    font-weight: bold;
-    line-height: 1;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.2s ease;
-}
+.close-modal { position: fixed !important; top: 20px !important; right: 20px !important; z-index: 1055 !important; background: rgba(0,0,0,0.3) !important; border: none; border-radius: 50%; color: white !important; font-size: 1.3rem; font-weight: bold; line-height: 1; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; }
 .close-modal:hover { background-color: rgba(0,0,0,0.5) !important; transform: scale(1.1); }
 
 /* Payment Footer - DEFAULT */
 .modal-payment-footer { padding: 20px 0 0; margin-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.15); flex-shrink: 0; text-align: center; background: none !important; }
 .modal-payment-footer img { height: 35px !important; width: auto !important; max-width: 90% !important; margin: 0 auto !important; padding: 0 !important; display: block !important; border-radius: 0 !important; filter: brightness(1.1); }
 
-/* --- Overrides for #modal-terms (Applies on ALL screen sizes) --- */
+/* --- Overrides for #modal-terms (Base Styles) --- */
 #modal-terms .modal-content {
-    max-width: 750px !important; /* Wider */
-    max-height: 90vh !important; /* Limit height */
-    text-align: left !important; /* <<< Left Align ALL content */
+    max-width: 750px !important;
+    max-height: 90vh !important;
+    text-align: left !important;
 }
 #modal-terms .modal-header { text-align: left !important; border-bottom: 1px solid rgba(255,255,255,0.2) !important; padding: 20px 30px 10px !important; }
 #modal-terms .modal-title { text-align: left !important; font-size: 1.4rem !important; }
 #modal-terms .modal-body {
-    text-align: left !important;
-    overflow-y: auto !important; /* <<<< INTERNAL SCROLL always */
-    padding: 20px 30px !important;
-    font-size: 0.85rem;
-     /* Keep scrollbar style */
-    &::-webkit-scrollbar { width: 6px; }
-    &::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.3); border-radius: 3px; }
-    &::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.5); }
+    text-align: left !important; 
+    overflow-y: auto !important;
+    padding: 20px 30px !important; 
+    font-size: 0.85rem; 
 }
-#modal-terms .modal-body h4 {
-    font-size: 0.9rem !important; /* << SMALLER subtitle */
+#modal-terms .modal-body::-webkit-scrollbar { width: 6px; }
+#modal-terms .modal-body::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.3); border-radius: 3px; }
+#modal-terms .modal-body::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.5); }
+#modal-terms .modal-body h4 { 
+    font-size: 0.9rem !important;
     text-align: left !important;
-    margin: 20px 0 8px !important;
-    color: var(--modal-text-color) !important;
+    margin: 20px 0 8px !important; 
+    color: var(--modal-text-color) !important; 
     text-transform: uppercase;
     letter-spacing: 0.5px;
     opacity: 0.95;
     font-weight: 600;
 }
 #modal-terms .modal-body ul { text-align: left !important; padding-left: 20px !important; list-style: disc !important; }
-#modal-terms .modal-body li { text-align: left !important; font-size: 0.85rem !important; padding-left: 0 !important; }
+#modal-terms .modal-body li { text-align: left !important; font-size: 0.85rem !important; padding-left: 0 !important; margin-bottom: 6px; line-height: 1.6;}
 #modal-terms .modal-body li::before { content: '\2022'; color: rgba(245, 245, 245, 0.7); display: inline-block; width: 1em; margin-left: -1.2em; position: absolute; left: 0; }
-#modal-terms .item-divider { display: none !important; }
-#modal-terms .modal-footer { display: block !important; /* Ensure footer shows */ position: relative !important; border-top: 1px solid rgba(255,255,255,0.15) !important; padding: 15px 30px !important; background-color: transparent !important; }
+#modal-terms .item-divider { display: none !important; } 
+#modal-terms .modal-footer { display: block !important; position: relative !important; border-top: 1px solid rgba(255,255,255,0.15) !important; padding: 15px 30px !important; background-color: transparent !important; }
 #modal-terms .disclaimer-text { font-size: 0.8rem !important; color: var(--modal-text-color) !important; opacity: 0.7 !important; font-style: italic !important; text-shadow: var(--modal-text-shadow); }
-#modal-terms .modal-payment-footer img { display: none !important; } /* Ensure no image */
+#modal-terms .modal-payment-footer img { display: none !important; }
 
 /* Style for the section headings inside terms modal */
-#modal-terms .notice-section h3 {
-    font-size: 1.1rem !important; /* << SMALLER than modal-title */
+#modal-terms .notice-section h3 { 
+    font-size: 1.1rem !important;
     font-weight: 600 !important;
-    margin: 20px 0 8px !important;
-    color: var(--modal-text-color) !important;
+    margin: 20px 0 8px !important; 
+    color: var(--modal-text-color) !important; 
     text-shadow: var(--modal-text-shadow);
     text-align: left !important;
-    text-transform: none !important; /* Remove uppercase if not desired */
+    text-transform: none !important;
     letter-spacing: 0.5px;
     opacity: 0.95;
 }
 
-/* --- Explicit Desktop Background Styles for ALL Modals --- */
-@media (min-width: 876px) { /* Target non-mobile screens */
-    .modal /* Apply general desktop styles to all modals first */
-    {
-        background-color: rgba(25, 25, 25, 0.55) !important; 
-        background-image: url("data:image/png;base64,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") !important;
-        box-shadow: inset 0 0 200px 100px rgba(25, 25, 25, 0.3) !important;
-        backdrop-filter: blur(25px) !important;
-        -webkit-backdrop-filter: blur(25px) !important;
-        /* Ensure pseudo elements are not hidden if they were */
-        &::before, &::after { 
-             display: block !important; 
-        }
-    }
-    
-    /* Explicitly set #modal-terms background for desktop */
-    #modal-terms {
-        background-color: rgba(25, 25, 25, 0.55) !important; 
-        background-image: url("data:image/png;base64,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") !important;
-        box-shadow: inset 0 0 200px 100px rgba(25, 25, 25, 0.3) !important;
-        backdrop-filter: blur(25px) !important;
-        -webkit-backdrop-filter: blur(25px) !important;
-        overflow: hidden !important; /* Keep terms modal from scrolling overlay */
-    }
-
-    /* Explicitly set pseudo-elements for #modal-terms */
-    #modal-terms::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        backdrop-filter: blur(10px) brightness(1.05);
-        -webkit-backdrop-filter: blur(10px) brightness(1.05);
-        z-index: -1;
-        opacity: 0.6;
-        display: block !important; /* Ensure visible */
-    }
-
-    #modal-terms::after {
-        content: "";
-        position: absolute;
-        top: -1px;
-        left: -1px;
-        right: -1px;
-        bottom: -1px;
-        background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent 50%, rgba(255,255,255,0.05));
-        z-index: -2;
-        pointer-events: none;
-        display: block !important; /* Ensure visible */
-    }
-    
-     /* Reset mobile specific background overrides for desktop */
-   
-}
-
-
 /* --- MOBILE ONLY Overrides (@media max-width: 875px) --- */
+/* Combined styles from previous 768px and 480px blocks */
 @media (max-width: 875px) {
-    /* Adjust base elements for mobile */
+    /* Base elements */
     .header {
-        padding-top: 160px !important;
-        padding-bottom: 30px !important;
+        padding-top: 140px !important; /* Applied 480px rule */
+        padding-bottom: 20px !important; /* Applied 480px rule */
         min-height: auto !important;
         margin-bottom: 20px;
     }
     .header-container { padding: 0 10px !important; }
-    .page-title { font-size: 1.6rem !important; margin: 15px 0 8px !important; letter-spacing: 1.5px; }
-    .page-subtitle { font-size: 1.0rem !important; margin-bottom: 20px !important; letter-spacing: 1px; }
-    /* Mobile Nav Menu Link Size - Re-added for consistency with other pages */
+    .page-title {
+         font-size: 1.3rem !important; /* Applied 480px rule */
+         margin: 10px 0 5px !important; /* Applied 480px rule */
+         letter-spacing: 1px; /* Applied 480px rule */
+    }
+    .page-subtitle {
+         font-size: 0.9rem !important; /* Applied 480px rule */
+         margin-bottom: 15px !important; /* Applied 480px rule */
+         letter-spacing: 0.8px; /* Applied 480px rule */
+    }
     .nav-menu a {
         font-size: 1.2rem !important;
     }
-
-    /* Mobile Nav Toggle Size - Keep consistent with other pages */
-    .nav-toggle {
+    .nav-toggle { /* From original 768px block */
         width: 40px !important;
         height: 40px !important;
         top: 20px !important;
         right: 20px !important;
     }
-
-    /* Mobile Lang Switch - 调整位置 */
     .lang-switch {
-        top: 23px; /* 调整到与汉堡包中间线对齐 */
+        top: 23px;
         right: 60px;
         height: 35px;
         font-size: 10px;
@@ -1118,345 +904,142 @@ body:before {
     .lang-switch span {
         font-size: 10px;
     }
-
-    .pricing-container { max-width: 500px; padding: 0 15px; }
-    .cta-button { width: 100%; max-width: 300px; }
-    .cta-section p { margin-bottom: 8px !important; }
-
-    /* Mobile Modal: Page Scroll (except terms) */
-    /* Apply mobile layout only, background is global */
-    .modal {
-        overflow-y: auto !important; /* <<<< ALLOW OVERLAY SCROLL */
-        padding: 5vh 10px !important; 
-        align-items: flex-start !important; 
-        /* REMOVED mobile-specific background styles */
+    .pricing-container {
+        max-width: 500px;
+        padding: 0 15px;
     }
-    
-    /* Ensure #modal-terms keeps its mobile layout adjustments */
-    #modal-terms.modal {
-        overflow: hidden !important; /* << Terms overlay NO scroll */
-        align-items: center !important; /* << Center content box */
-        padding: 15px !important;
-        /* Background styles will be inherited or set by desktop media query */
-    }
-
-    .modal-content {
-        position: relative !important;
-        max-width: 95% !important; /* Adjust max width for general mobile */
-        width: 500px !important; /* Set a width to work with margin auto */
-        max-height: none !important; /* << No max height */
-        overflow-y: visible !important; /* << No internal scroll */
-        padding-bottom: 5vh; 
-        margin: 0 auto !important; /* Center */
-    }
-     .modal-body {
-        overflow-y: visible !important; /* << Ensure no internal scroll */
-        padding: 15px 20px !important;
-        font-size: 0.9rem !important;
-    }
-     .modal-body li { font-size: 0.9rem !important; }
-     .modal-payment-footer {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        height: 45px !important; /* << Fixed height */
-        min-height: 0; /* Remove min-height */
-        overflow: hidden !important; /* << Hide overflow */
-        padding: 0 !important; /* Remove padding */
+    .cta-button {
         width: 100%;
-        border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
-        background: none !important;
-        position: relative !important;
-        flex-shrink: 0;
-    }
-    .modal-payment-footer img {
-         display: block !important;
-         height: 100% !important; /* Fill container height */
-         width: auto !important;   /* Maintain aspect ratio */
-         max-width: none !important; /* << REMOVED max-width limit */
-         margin: 0 auto !important;
-         padding: 0 !important;
-         border-radius: 0 !important;
-    }
-    .item-divider {
-        display: block !important;
-        width: 75% !important;
-        max-width: 250px !important;
-        margin: 20px auto !important;
-        height: 1px !important;
-        background-color: rgba(255, 255, 255, 0.3) !important;
-        opacity: 0.7 !important;
-    }
-    .close-modal { top: 15px !important; right: 15px !important; width: 30px; height: 30px; font-size: 1.2rem; }
-
-    /* Mobile #modal-terms: Internal Scroll, Keep styles from default */
-    #modal-terms.modal {
-        overflow: hidden !important; /* << Terms overlay NO scroll */
-        align-items: center !important; /* << Center content box */
-        padding: 15px !important;
-    }
-    #modal-terms .modal-content {
-        /* Keep limited size & internal scroll setup */
-        max-width: 95% !important;
-        max-height: 88vh !important;
-        overflow: hidden !important; /* Container hides overflow */
-        /* Keep text-align: left from default */
-        /* Ensure width allows margin:auto to work */
-         width: auto !important;
-         margin: auto !important;
-         padding: 0 !important; /* Reset padding */
-    }
-     #modal-terms .modal-header {
-         padding: 15px 20px 10px !important;
-         border-bottom: 1px solid rgba(255,255,255,0.2) !important;
-         /* Inherit text styles */
+        max-width: 250px; /* Applied 480px rule */
+        font-size: 0.9rem; /* Applied 480px rule */
+        padding: 10px 20px; /* Applied 480px rule */
      }
-     #modal-terms .modal-title {
-         font-size: 1.2rem !important; /* Mobile title size */
-         /* Inherit text styles */
-     }
-     #modal-terms .modal-body {
-         overflow-y: auto !important; /* <<<< INTERNAL SCROLL */
-         padding: 15px 20px !important;
-         margin-bottom: 0 !important; /* Footer is relative */
-         font-size: 0.8rem !important;
-         line-height: 1.6;
-         flex-grow: 1;
-         /* Inherit text styles */
-         /* Keep scrollbar styles */
-         &::-webkit-scrollbar { width: 6px; }
-         &::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.4); border-radius: 3px; }
-         &::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.6); }
-     }
-      #modal-terms .modal-body h4 {
-          font-size: 0.85rem !important;
-          margin: 25px 0 10px !important;
-      }
-      #modal-terms .modal-body .small-text {
-          font-size: 0.7rem !important; /* << Further reduced */
-          margin-top: 20px !important;
-      }
-      #modal-terms .modal-body li {
-          font-size: 0.8rem !important;
-          /* Inherit text styles */
-      }
-      #modal-terms .modal-body li::before { content: '\2022'; color: rgba(245, 245, 245, 0.7); display: inline-block; width: 1em; margin-left: -1.2em; position: absolute; left: 0; }
-      #modal-terms .item-divider { display: none !important; }
-
-     #modal-terms .modal-footer {
-          position: absolute !important;
-          bottom: 0 !important; left: 0 !important; width: 100% !important;
-          padding: 30px 20px 15px !important; /* << SIGNIFICANTLY INCREASED top padding */
-          background-color: #f0f2f5 !important;
-          border-top: 1px solid #dee2e6 !important;
-          z-index: 10;
-          border-bottom-left-radius: var(--border-radius) !important;
-          border-bottom-right-radius: var(--border-radius) !important;
-          text-align: center;
-          display: block !important; /* Ensure visible */
-     }
-     #modal-terms .disclaimer-text {
-          display: block !important;
-          /* padding-top: 15px !important; */ /* REMOVED - Use footer padding */
-          font-size: 0.6rem !important;
-          color: var(--modal-text-color) !important; /* << RESTORE Light text color */
-          opacity: 0.9 !important;
-          font-style: italic !important; /* Restore italic */
-          text-shadow: var(--modal-text-shadow); /* << RESTORE text shadow */
-          margin: 0 !important; /* Ensure no extra margin */
-     }
-} /* Closing brace for @media (max-width: 875px) */
-
-/* --- Small Mobile Overrides (max-width: 480px) --- */
-
-
- /* <<< Re-commented out tablet breakpoint */
-
-
-
-/* --- Other Mobile Adjustments --- */
-/* ... Keep existing mobile header, nav, etc. adjustments ... */
-@media (max-width: 875px) {
-    /* Mobile Nav Menu Link Size - Re-added for consistency */
-    .nav-menu a {
-        font-size: 1.2rem !important;
-    }
-    
-    .header {
-        padding-top: 140px !important; /* Match EN */
-        padding-bottom: 20px !important; /* Match EN */
-        min-height: auto !important;
-        margin-bottom: 20px;
-    }
-    .header-container { padding: 0 10px !important; }
-    /* Align title styles with EN version */
-    .header h1, .page-title { 
-        font-size: 1.3rem !important; /* Match EN */
-        margin: 10px 0 5px !important; /* Match EN */
-        letter-spacing: 1px; /* Match EN */
-    }
-    .header h2, .page-subtitle { 
-        font-size: 0.9rem !important; /* Match EN */
-        margin-bottom: 15px !important; /* Match EN */
-        letter-spacing: 0.8px; /* Match EN */
-    }
-    .cta-button { width: 100%; max-width: 300px; }
     .cta-section p { margin-bottom: 8px !important; }
-    /* .item-divider { margin: 8px 0 15px 0; } */ /* Removed, potentially conflicting */
-    
-    /* 增强移动端关闭按钮的样式 */
-    .close-modal { 
-        position: fixed !important;
-        top: 15px !important; 
-        right: 15px !important; 
-        width: 30px !important; 
-        height: 30px !important; 
-        font-size: 1.2rem !important;
-        background: rgba(0,0,0,0.3) !important; 
-        color: white !important;
-        z-index: 1055 !important; 
-        border-radius: 50% !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        cursor: pointer !important;
-        border: none !important;
-    }
-    
-    /* Add mobile card sizing to match EN version */
+
+    /* Pricing Card adjustments (prioritizing 480px rules) */
     .pricing-card {
-        max-width: 300px; 
-        min-height: 180px; 
-        padding: 10px; 
+        max-width: 300px; /* 480px */
+        min-height: 180px; /* 480px */
+        padding: 10px; /* 480px */
     }
     .card-top {
         grid-row: 1;
-        margin-left: -2px; 
-        margin-top: -4px; 
+        margin-left: -2px; /* 480px */
+        margin-top: -4px; /* 480px */
     }
-     .card-top span { 
-        margin-top: 2px;  
-        margin-left: 2px; 
-        font-size: 12px;  
+     .card-top span { /* Combined */
+        margin-top: 2px;  /* 480px */
+        margin-left: 2px; /* 480px */
+        font-size: 12px;  /* 480px */
     }
     .card-features {
         grid-row: 2;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 10px 0 15px 0; 
-        margin-bottom: 5px; 
-        margin-top: 0; 
+        padding: 10px 0 15px 0; /* 480px */
+        margin-bottom: 5px; /* 480px */
+        margin-top: 0; /* 480px */
     }
     .card-features ul {
-        margin-bottom: 5px; 
+        margin-bottom: 5px; /* 480px */
     }
     .card-features li {
-        margin-bottom: 3px; 
-        font-size: 0.9rem !important; 
-        line-height: 1.4 !important; 
+        margin-bottom: 3px; /* 480px */
+        font-size: 0.9rem !important; /* 480px */
+        line-height: 1.4 !important; /* 480px */
     }
     .card-bottom {
         grid-row: 3;
         display: block;
-        position: absolute; 
-        width: calc(100% - 20px); 
-        bottom: 4px; 
-        left: 10px; 
-        right: 10px; 
-        margin: 0; 
-        padding: 0; 
-        z-index: 2; 
+        position: absolute; /* 480px */
+        width: calc(100% - 20px); /* 480px */
+        bottom: 4px; /* 480px */
+        left: 10px; /* 480px */
+        right: 10px; /* 480px */
+        margin: 0; /* 480px */
+        padding: 0; /* 480px */
+        z-index: 2; /* 480px */
     }
     .card-name {
-        margin-bottom: 4px; 
+        margin-bottom: 4px; /* 480px */
     }
      .card-name p {
-        font-size: 1rem !important; 
+        font-size: 1rem !important; /* 480px */
     }
     .card-name p:first-child {
-        font-size: 0.85rem !important; 
+        font-size: 0.85rem !important; /* 480px */
     }
     .card-cta {
-        font-size: 6px; 
-        position: absolute; 
-        bottom: 3px; 
-        left: 0; 
-        right: 0; 
-        margin: 0; 
-        z-index: 10 !important; 
+        font-size: 6px; /* 480px */
+        position: absolute; /* 480px */
+        bottom: 3px; /* 480px */
+        left: 0; /* 480px */
+        right: 0; /* 480px */
+        margin: 0; /* 480px */
+        z-index: 10 !important; /* 480px */
     }
     .frozen-cta {
-        font-size: 6px; 
+        font-size: 6px; /* 480px */
     }
+    .card.frozen .frozen-overlay {
+        pointer-events: all; /* Ensure clickable */
+    }
+    .pricing-grid { /* From original 768px */
+        grid-template-columns: 1fr;
+        gap: 20px;
+     }
+    /* Glass effect on mobile */
+    .pricing-card::after,
+    .card.frozen::after {
+        background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.05) 0%,
+            rgba(255, 255, 255, 0.15) 50%,
+            rgba(255, 255, 255, 0.05) 100%
+        );
+        background-size: 200% 200%;
+        animation: cardGradient 15s linear infinite;
+}
 
-    /* Ensure mobile modal inherits desktop background styles */
+    /* Modal adjustments - Reverting to match desktop styles */
     .modal {
-        /* Keep layout adjustments */
+        /* Keep mobile layout adjustments */
         overflow-y: auto !important;
         padding: 5vh 10px !important; 
         align-items: flex-start !important; 
-
-        /* Explicitly set background styles to match desktop */
-        background-color: rgba(25, 25, 25, 0.55) !important; 
+        /* Revert background and filter to desktop values */
+        backdrop-filter: blur(25px) !important; /* Desktop value */
+        -webkit-backdrop-filter: blur(25px) !important; /* Desktop value */
+        background-color: rgba(25, 25, 25, 0.55) !important; /* Desktop value */
+        /* Keep noise texture */
         background-image: url("data:image/png;base64,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") !important;
-        backdrop-filter: blur(25px) !important;
-        -webkit-backdrop-filter: blur(25px) !important;
-        box-shadow: inset 0 0 200px 100px rgba(25, 25, 25, 0.3);
-        will-change: backdrop-filter, opacity; /* Keep optimization hints */
-        transform: translateZ(0);
-        -webkit-transform: translateZ(0);
     }
-    
-    /* Ensure pseudo-elements are displayed */
-    .modal::before, .modal::after {
-        display: block !important; 
-    }
+    /* Remove the rule that hides pseudo-elements to match desktop */
+    /* .modal::before, .modal::after {
+        display: none;
+    } */
 
-    /* Other mobile overrides for #modal-terms */
-    #modal-terms.modal {
-        /* Keep layout overrides */
-        overflow: hidden !important;
-        align-items: center !important;
-        padding: 15px !important;
-        /* Background inherits from the general .modal rule above */
-    }
-    #modal-terms .modal-content {
-        /* Keep layout overrides */
-        max-width: 95% !important;
-        max-height: 88vh !important;
-        overflow: hidden !important;
-        padding: 0 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        position: relative !important;
-        transform: none !important;
-        margin: auto !important;
-        text-align: left !important;
-         /* Ensure transparent look if desktop is transparent */
-        background-color: transparent !important; 
-        box-shadow: none !important; 
-        border: none !important; 
-        border-radius: 0 !important; 
-    }
-}
+    /* ... other modal styles ... */
+
+} /* Closing brace for @media (max-width: 875px) */
 
 /* --- Card CTA Text --- */
 .card-cta {
-    font-size: 9px;
+    font-size: 9px; 
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    color: inherit;
-    opacity: 0.5;
-    margin-bottom: 0;
-    text-align: center;
+    color: inherit; 
+    opacity: 0.5; 
+    margin-bottom: 0; 
+    text-align: center; 
     z-index: 10 !important; /* 增加z-index确保显示在最上层 */
     position: absolute; /* PC端保持绝对定位 */
     bottom: 5px;
     left: 0;
-    right: 0;
-    text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+    right: 0; 
+    text-shadow: 0 1px 1px rgba(0,0,0,0.1); 
     pointer-events: none; /* 确保不会阻挡交互 */
 }
 
@@ -1524,10 +1107,6 @@ body:before {
 }
 
 /* 确保移动端也有相同效果 */
-@media (max-width: 875px) {
-    
-
-    /* 保留玻璃反光效果在移动端 */
     .pricing-card::after,
     .card.frozen::after {
         background: linear-gradient(
@@ -1538,8 +1117,8 @@ body:before {
         );
         background-size: 200% 200%;
         animation: cardGradient 15s linear infinite;
-    }
 }
+
 
 /* --- Terms Button (#terms-button) --- */
 #terms-button {
@@ -1581,81 +1160,51 @@ body:before {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Reset shadow */
 }
 
-.item-divider {
-    margin: 15px auto !important;
-    width: 80% !important;
-}
 
-.close-modal { 
-    position: absolute !important;
-    top: 15px !important; 
-    right: 15px !important; 
-    width: 30px !important; 
-    height: 30px !important; 
-    font-size: 1.2rem !important;
-    background: rgba(0,0,0,0.3) !important; 
-    color: white !important;
-    z-index: 9999 !important; /* 提高z-index到最高 */
-    border-radius: 50% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    cursor: pointer !important;
-    border: none !important;
-    line-height: 1 !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    pointer-events: auto !important; /* 确保可点击 */
-    overflow: visible !important; /* 确保内容不被裁剪 */
-    box-shadow: 0 0 5px rgba(0,0,0,0.2) !important; /* 添加阴影提高可见度 */
-}
+/* ... existing code ... */
 
-.modal-payment-footer img {
-    height: 30px !important;
-    max-width: 80% !important;
-    margin: 0 auto !important;
-    filter: brightness(1.05);
-}
-
-.item-divider {
-    margin: 15px auto !important;
-    width: 80% !important;
-}
-
-/* 完整定义移动端关闭按钮样式 */
-.close-modal { 
-    position: fixed !important;
-    top: 15px !important; 
-    right: 15px !important; 
-    width: 30px !important; 
-    height: 30px !important; 
-    font-size: 1.2rem !important;
-    background: rgba(0,0,0,0.3) !important; 
-    color: white !important;
-    z-index: 1101 !important; /* <<< INCREASED z-index (was 1055) */
-    border-radius: 50% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    cursor: pointer !important;
-    border: none !important;
-    line-height: 1 !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    overflow: visible !important; /* <<< Added to prevent clipping */
-    pointer-events: auto !important; /* Ensure clickable */
-    box-shadow: 0 0 5px rgba(0,0,0,0.2) !important; /* Keep shadow */
-}
-
-/* 修复移动端模态窗口可能导致的按钮遮挡问题 */
 @media (max-width: 875px) {
-    .modal {
-        overflow-y: auto !important; 
-        overflow-x: visible !important; /* <<< Ensure horizontal overflow is not hidden */
-        padding: 5vh 10px !important; 
-        align-items: flex-start !important; 
-        /* 确保模态窗口不会遮挡关闭按钮 */
-        padding-top: 50px !important; /* 保留为按钮留出空间 */
+    .pricing-card {
+        padding: 25px 20px;
+    }
+    
+    .card-name p {
+        font-size: 1.1rem !important; /* 增加标题大小 */
+    }
+    
+    .card-name p:first-child {
+        font-size: 0.9rem !important; /* 调整副标题大小 */
+    }
+    
+    .card-features li {
+        font-size: 0.95rem !important; /* 增加特性文本大小 */
+        line-height: 1.5 !important;
+    }
+    
+    .card-bottom {
+        padding-top: 20px !important;
     }
 }
 
+@media (max-width: 480px) {
+    .pricing-card {
+        padding: 20px 15px;
+    }
+    
+    .card-name p {
+        font-size: 1rem !important;
+    }
+    
+    .card-name p:first-child {
+        font-size: 0.85rem !important;
+    }
+    
+    .card-features li {
+        font-size: 0.9rem !important;
+        line-height: 1.4 !important;
+    }
+    
+    .card-bottom {
+        padding-top: 15px !important;
+    }
+} 
