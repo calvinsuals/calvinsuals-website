@@ -261,12 +261,25 @@ function initCardModalInteraction() {
  * 初始化条款按钮 (通用)
  */
 function initTermsButton() {
+    console.log('开始初始化条款按钮');
     const termsButton = document.getElementById('terms-button');
+    
     if (termsButton) {
-        termsButton.addEventListener('click', function() {
+        console.log('找到条款按钮，添加点击事件');
+        
+        // 使用直接的onclick赋值，而不是addEventListener
+        termsButton.onclick = function(event) {
+            console.log('条款按钮被点击');
+            // 阻止事件冒泡，防止与其他元素的点击事件冲突
+            event.stopPropagation();
+            event.preventDefault();
+            
             // 直接打开条款模态窗口，独立于卡片交互
             const termsModal = document.getElementById('modal-terms');
+            
             if (termsModal) {
+                console.log('找到条款模态窗口，准备显示');
+                
                 // 直接显示模态窗口
                 termsModal.style.display = 'flex';
                 document.body.style.overflow = 'hidden'; // 禁止 body 滚动
@@ -275,40 +288,49 @@ function initTermsButton() {
                 document.body.style.top = `-${window.scrollY}px`; // 记住当前滚动位置
                 document.body.dataset.scrollY = window.scrollY; // 存储滚动位置
                 
-                setTimeout(() => {
-                    termsModal.classList.add('is-visible');
-                    
-                    // 确保弹窗内容可滚动，特别是在移动设备上
-                    const modalBody = termsModal.querySelector('.modal-body');
-                    if (modalBody) {
-                        modalBody.style.overflowY = 'auto';
-                        modalBody.style.webkitOverflowScrolling = 'touch';
-                    }
-                }, 10);
+                // 立即添加可见类，不使用setTimeout
+                termsModal.classList.add('is-visible');
                 
-                console.log('打开条款模态窗口');
+                // 确保弹窗内容可滚动，特别是在移动设备上
+                const modalBody = termsModal.querySelector('.modal-body');
+                if (modalBody) {
+                    modalBody.style.overflowY = 'auto';
+                    modalBody.style.webkitOverflowScrolling = 'touch';
+                    console.log('已设置模态窗口内容可滚动');
+                }
+                
+                console.log('条款模态窗口已打开');
             } else {
                 console.error('找不到条款模态窗口 (#modal-terms)');
             }
-        });
+            
+            return false; // 阻止默认行为
+        };
         
         // 添加条款模态窗口的关闭事件
         const termsModal = document.getElementById('modal-terms');
         if (termsModal) {
+            console.log('找到条款模态窗口，添加关闭事件');
+            
             // 关闭按钮点击事件
             const closeButton = termsModal.querySelector('.close-modal');
             if (closeButton) {
-                closeButton.addEventListener('click', function() {
+                closeButton.onclick = function(event) {
+                    console.log('关闭按钮被点击');
+                    event.stopPropagation();
                     closeTermsModal();
-                });
+                    return false;
+                };
             }
             
             // 点击背景关闭
-            termsModal.addEventListener('click', function(event) {
+            termsModal.onclick = function(event) {
+                // 只有直接点击模态背景时才关闭
                 if (event.target === termsModal) {
+                    console.log('模态窗口背景被点击，关闭窗口');
                     closeTermsModal();
                 }
-            });
+            };
         }
         
         console.log('条款按钮初始化完成');
@@ -318,6 +340,7 @@ function initTermsButton() {
     
     // 关闭条款模态窗口的函数
     function closeTermsModal() {
+        console.log('开始关闭条款模态窗口');
         const termsModal = document.getElementById('modal-terms');
         if (termsModal) {
             termsModal.classList.remove('is-visible');
@@ -333,10 +356,19 @@ function initTermsButton() {
                 document.body.style.overflow = '';
                 window.scrollTo(0, scrollY);
                 
+                console.log('条款模态窗口已关闭，恢复页面状态');
             }, 300); // 等待动画完成
-            console.log('关闭条款模态窗口');
         }
     }
+    
+    // 尝试在文档加载完成后再次初始化以确保按钮可用
+    window.addEventListener('load', function() {
+        if (termsButton) {
+            console.log('页面完全加载后，确认条款按钮已初始化');
+        } else {
+            console.warn('页面加载完成后仍未找到条款按钮');
+        }
+    });
 }
 
 

@@ -184,7 +184,7 @@
 
         <!-- 须知按钮 - 放在汽车区底部和人像区标题上方 -->
         <div class="cta-section">
-           <button class="cta-button" id="terms-button">拍摄须知及条款</button>
+           <button class="cta-button" id="terms-button" onclick="openTermsModal(); return false;">拍摄须知及条款</button>
         </div>
 
         <!-- Divider or Header for Pet Section -->
@@ -576,6 +576,32 @@
 
     <!-- Custom JS -->
     <script src="js/pricing_script.js"></script>
+    
+    <!-- 条款弹窗直接JS -->
+    <script>
+    function openTermsModal() {
+        console.log('内联JS: 条款按钮被点击');
+        const termsModal = document.getElementById('modal-terms');
+        if (termsModal) {
+            termsModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            document.body.style.position = 'fixed';
+            document.body.style.width = '100%';
+            document.body.style.top = `-${window.scrollY}px`;
+            document.body.dataset.scrollY = window.scrollY;
+            
+            termsModal.classList.add('is-visible');
+            
+            const modalBody = termsModal.querySelector('.modal-body');
+            if (modalBody) {
+                modalBody.style.overflowY = 'auto';
+                modalBody.style.webkitOverflowScrolling = 'touch';
+            }
+            
+            console.log('内联JS: 条款模态窗口已打开');
+        }
+    }
+    </script>
 
     <!-- 导航JS -->
     <script src="js/navigation.js" defer></script>
