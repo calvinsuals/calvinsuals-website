@@ -1324,3 +1324,49 @@ body:before {
 #modal-terms .modal-body li::before { content: '\2022'; color: rgba(245, 245, 245, 0.7); display: inline-block; width: 1em; margin-left: -1.2em; position: absolute; left: 0; }
 #modal-terms .modal-footer { display: block !important; position: relative !important; border-top: 1px solid rgba(255,255,255,0.15) !important; padding: 15px 30px !important; background-color: transparent !important; }
 #modal-terms .modal-payment-footer img { display: none !important; } 
+
+/* --- Overrides for #modal-terms (Base Styles) --- */
+#modal-terms .modal-content {
+    max-width: 750px !important;
+    max-height: 90vh !important;
+    text-align: left !important;
+}
+#modal-terms .modal-header { text-align: left !important; border-bottom: 1px solid rgba(255,255,255,0.2) !important; padding: 20px 30px 10px !important; }
+#modal-terms .modal-title { text-align: left !important; font-size: 1.4rem !important; }
+#modal-terms .modal-body {
+    text-align: left !important; 
+    overflow-y: auto !important;
+    padding: 20px 30px !important; 
+    font-size: 0.85rem; 
+}
+#modal-terms .modal-body::-webkit-scrollbar { width: 6px; }
+#modal-terms .modal-body::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.3); border-radius: 3px; }
+#modal-terms .modal-body::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.5); }
+#modal-terms .modal-body h4 { 
+    font-size: 0.9rem !important;
+    text-align: left !important;
+    margin: 20px 0 8px !important; 
+    color: var(--modal-text-color) !important; 
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.95;
+    font-weight: 600;
+}
+#modal-terms .modal-body ul { text-align: left !important; padding-left: 20px !important; list-style: disc !important; }
+#modal-terms .modal-body li { text-align: left !important; font-size: 0.85rem !important; padding-left: 0 !important; margin-bottom: 6px; line-height: 1.6;}
+#modal-terms .modal-body li::before { content: '\2022'; color: rgba(245, 245, 245, 0.7); display: inline-block; width: 1em; margin-left: -1.2em; position: absolute; left: 0; }
+#modal-terms .modal-footer { display: block !important; position: relative !important; border-top: 1px solid rgba(255,255,255,0.15) !important; padding: 15px 30px !important; background-color: transparent !important; }
+#modal-terms .modal-payment-footer img { display: none !important; } 
+
+/* Style for the section headings inside terms modal */
+#modal-terms .notice-section h3 { 
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    margin: 20px 0 8px !important; 
+    color: var(--modal-text-color) !important; 
+    text-shadow: var(--modal-text-shadow);
+    text-align: left !important;
+    text-transform: none !important;
+    letter-spacing: 0.5px;
+    opacity: 0.95;
+} 
