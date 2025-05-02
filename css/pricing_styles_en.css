@@ -831,6 +831,7 @@ body:before {
     padding: 20px 0 0; 
     margin-top: 15px; 
     border-top: 1px solid rgba(255, 255, 255, 0.15); 
+    flex-shrink: 0; 
     text-align: center; 
     background: none !important; 
     overflow: visible !important;
@@ -946,60 +947,161 @@ body:before {
     }
     .pricing-container {
         max-width: 500px;
-        margin: 0 auto;
         padding: 0 15px;
+    }
+    .cta-button {
+        width: 100%;
+        max-width: 250px; /* Applied 480px rule */
+        font-size: 0.9rem; /* Applied 480px rule */
+        padding: 10px 20px; /* Applied 480px rule */
+     }
+    .cta-section p { margin-bottom: 8px !important; }
+
+    /* Pricing Card adjustments (prioritizing 480px rules) */
+    .pricing-card {
+        max-width: 300px; /* 480px */
+        min-height: 180px; /* 480px */
+        padding: 10px; /* 480px */
+    }
+    .card-top {
+        grid-row: 1;
+        margin-left: -2px; /* 480px */
+        margin-top: -4px; /* 480px */
+    }
+     .card-top span { /* Combined */
+        margin-top: 2px;  /* 480px */
+        margin-left: 2px; /* 480px */
+        font-size: 12px;  /* 480px */
+    }
+    .card-features {
+        grid-row: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 0 15px 0; /* 480px */
+        margin-bottom: 5px; /* 480px */
+        margin-top: 0; /* 480px */
+    }
+    .card-features ul {
+        margin-bottom: 5px; /* 480px */
+    }
+    .card-features li {
+        margin-bottom: 3px; /* 480px */
+        font-size: 0.9rem !important; /* 480px */
+        line-height: 1.4 !important; /* 480px */
+    }
+    .card-bottom {
+        grid-row: 3;
+        display: block;
+        position: absolute; /* 480px */
+        width: calc(100% - 20px); /* 480px */
+        bottom: 4px; /* 480px */
+        left: 10px; /* 480px */
+        right: 10px; /* 480px */
+        margin: 0; /* 480px */
+        padding: 0; /* 480px */
+        z-index: 2; /* 480px */
+    }
+    .card-name {
+        margin-bottom: 4px; /* 480px */
+    }
+     .card-name p {
+        font-size: 1rem !important; /* 480px */
+    }
+    .card-name p:first-child {
+        font-size: 0.85rem !important; /* 480px */
+    }
+    .card-cta {
+        font-size: 6px; /* 480px */
+        position: absolute; /* 480px */
+        bottom: 3px; /* 480px */
+        left: 0; /* 480px */
+        right: 0; /* 480px */
+        margin: 0; /* 480px */
+        z-index: 10 !important; /* 480px */
+    }
+    .frozen-cta {
+        font-size: 6px; /* 480px */
+    }
+    .card.frozen .frozen-overlay {
+        pointer-events: all; /* Ensure clickable */
+    }
+    .pricing-grid { /* From original 768px */
+        grid-template-columns: 1fr;
+        gap: 20px;
+     }
+    /* Glass effect on mobile */
+    .pricing-card::after,
+    .card.frozen::after {
+        background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.05) 0%,
+            rgba(255, 255, 255, 0.15) 50%,
+            rgba(255, 255, 255, 0.05) 100%
+        );
+        background-size: 200% 200%;
+        animation: cardGradient 15s linear infinite;
+}
+
+    /* Modal adjustments - Reverting to match desktop styles */
+    .modal {
+        /* 确保弹窗固定且占满整个视口 */
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        height: 100dvh !important;
+        z-index: 1100 !important;
+        
+        /* 防止弹窗内容滑动影响整个页面 */
+        touch-action: none; /* 禁用默认触摸行为 */
+        overscroll-behavior: contain; /* 防止滚动传播 */
+        
+        /* 之前的样式保持不变 */
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 20px !important;
+    }
+    
+    .modal-content {
+        /* 确保内容区域正确定位和滚动 */
+        position: relative;
+        max-height: calc(100dvh - 40px); /* 40px为上下padding总和 */
+        display: flex;
+        flex-direction: column;
+        width: 90%;
+        max-width: 460px;
+        background: rgba(45, 45, 45, 0.8);
+        border-radius: 15px;
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+        overflow: hidden; /* 重要：确保内容不会超出边界 */
+        overscroll-behavior: contain; /* 防止滚动传播 */
     }
     
     .modal-body {
         /* 确保内容区域可滚动 */
-        max-height: calc(100dvh - 120px); /* 减去头部高度，移除对底部的考虑，因为footer现在在body内 */
-        overflow-y: auto !important;
-        overflow-x: hidden !important; /* 强制防止水平滚动 */
+        max-height: calc(100dvh - 180px); /* 减去头部和底部的高度 */
+        overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none; /* 隐藏滚动条 */
         overscroll-behavior: contain; /* 防止滚动传播 */
-        width: 100% !important; /* 确保宽度100% */
-        position: relative !important;
-        max-width: 100% !important;
-    }
-    
-    /* 为所有内容的直接子元素添加限制 */
-    .modal-body > * {
-        max-width: 100% !important;
-        overflow-x: hidden !important;
-        box-sizing: border-box !important;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
     }
     
     .modal-payment-footer {
-        /* footer现在是滚动内容的一部分 */
-        position: relative !important;
-        overflow: hidden !important; /* 彻底隐藏溢出内容 */
-        pointer-events: auto; /* 现在需要能接收点击等事件 */
-        width: 100% !important; /* 确保宽度100% */
-        max-width: 100% !important; /* 限制最大宽度 */
-        box-sizing: border-box !important;
-        padding: 20px 0 0 !important; 
+        /* 确保底部区域固定且不可滚动 */
+        position: relative;
+        overflow: visible !important; /* 允许图片超出显示 */
+        pointer-events: none; /* 防止触摸事件，解决滑动问题 */
     }
     
     .modal-payment-footer img {
-        /* 新方法：使用不同的图片显示方式 */
-        display: block !important;
-        width: 100% !important; /* 图片宽度改为100% */
-        height: auto !important;
-        max-width: 100% !important; /* 限制最大宽度 */
-        object-fit: contain !important; /* 保持图片比例 */
-        object-position: center !important; /* 居中图片 */
-        margin: 0 auto !important; /* 居中图片 */
-        position: static !important; /* 静态定位 */
-        left: auto !important; /* 重置左偏移 */
-        /* 只保留一个transform属性 */
-        transform: scale(1.3) translateX(-8%) !important; /* 放大图片并向左偏移8%，使左右显示区域均衡 */
+        /* 保持图片可见但不接收触摸事件 */
+        pointer-events: none;
     }
-}
+} /* Closing brace for @media (max-width: 875px) */
 
 /* --- Card CTA Text --- */
 .card-cta {
@@ -1184,16 +1286,4 @@ body:before {
     .card-bottom {
         padding-top: 15px !important;
     }
-}
-
-/* 恢复分隔线的居中样式 */
-.modal-body .item-divider {
-    margin-left: auto !important;
-    margin-right: auto !important;
-    width: 60% !important;
-    display: block !important;
-    height: 1px !important;
-    background-color: rgba(255, 255, 255, 0.2) !important;
-    margin-top: 30px !important;
-    margin-bottom: 30px !important;
 } 

@@ -831,12 +831,12 @@ body:before {
     padding: 20px 0 0; 
     margin-top: 45px; 
     border-top: 1px solid rgba(255, 255, 255, 0.15); 
+    flex-shrink: 0; 
     text-align: center; 
     background: none !important;
     overflow: visible !important; /* 允许内容超出容器 */
     position: relative !important; /* 确保定位上下文正确 */
     width: 100% !important; /* 确保容器宽度正确 */
-    /* 已移除flex-shrink: 0; 让footer可以随内容滚动 */
 }
 
 .modal-payment-footer img { 
@@ -889,58 +889,29 @@ body:before {
         background: rgba(45, 45, 45, 0.8);
         border-radius: 15px;
         box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
-        overflow: hidden !important; /* 重要：确保内容不会超出边界 */
+        overflow: hidden; /* 重要：确保内容不会超出边界 */
         overscroll-behavior: contain; /* 防止滚动传播 */
     }
     
     .modal-body {
         /* 确保内容区域可滚动 */
-        max-height: calc(100dvh - 120px); /* 减去头部高度，移除对底部的考虑，因为footer现在在body内 */
-        overflow-y: auto !important;
-        overflow-x: hidden !important; /* 强制防止水平滚动 */
+        max-height: calc(100dvh - 180px); /* 减去头部和底部的高度 */
+        overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none; /* 隐藏滚动条 */
         overscroll-behavior: contain; /* 防止滚动传播 */
-        width: 100% !important; /* 确保宽度100% */
-        position: relative !important;
-        max-width: 100% !important;
-    }
-    
-    /* 为所有内容的直接子元素添加限制 */
-    .modal-body > * {
-        max-width: 100% !important;
-        overflow-x: hidden !important;
-        box-sizing: border-box !important;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
     }
     
     .modal-payment-footer {
-        /* footer现在是滚动内容的一部分 */
-        position: relative !important;
-        overflow: hidden !important; /* 彻底隐藏溢出内容 */
-        pointer-events: auto; /* 现在需要能接收点击等事件 */
-        width: 100% !important; /* 确保宽度100% */
-        max-width: 100% !important; /* 限制最大宽度 */
-        box-sizing: border-box !important;
-        padding: 20px 0 0 !important; 
+        /* 确保底部区域固定且不可滚动 */
+        position: relative;
+        overflow: visible !important; /* 允许图片超出显示 */
+        pointer-events: none; /* 防止触摸事件，解决滑动问题 */
     }
     
     .modal-payment-footer img {
-        /* 新方法：使用不同的图片显示方式 */
-        display: block !important;
-        width: 100% !important; /* 图片宽度改为100% */
-        height: auto !important;
-        max-width: 100% !important; /* 限制最大宽度 */
-        object-fit: contain !important; /* 保持图片比例 */
-        object-position: center !important; /* 居中图片 */
-        margin: 0 auto !important; /* 居中图片 */
-        position: static !important; /* 静态定位 */
-        left: auto !important; /* 重置左偏移 */
-        /* 只保留一个transform属性 */
-        transform: scale(1.3) translateX(-8%) !important; /* 放大图片并向左偏移8%，使左右显示区域均衡 */
+        /* 保持图片可见但不接收触摸事件 */
+        pointer-events: none;
     }
 }
 
@@ -1341,27 +1312,4 @@ body:before {
     .card-bottom {
         padding-top: 15px !important;
     }
-}
-
-/* 为所有内容的直接子元素添加限制 */
-.modal-body > * {
-    max-width: 100% !important;
-    overflow-x: hidden !important;
-    box-sizing: border-box !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-}
-
-/* 恢复分隔线的居中样式 */
-.modal-body .item-divider {
-    margin-left: auto !important;
-    margin-right: auto !important;
-    width: 60% !important;
-    display: block !important;
-    height: 1px !important;
-    background-color: rgba(255, 255, 255, 0.2) !important;
-    margin-top: 30px !important;
-    margin-bottom: 30px !important;
 } 
