@@ -755,20 +755,19 @@ body:before {
 .modal-content {
     position: relative !important; 
     width: auto !important; 
-    max-width: 600px !important;
-    max-height: 90vh !important;
+    max-width: 600px !important; /* Default Max width */
+    max-height: 90vh !important; /* Default Max height */
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important; 
     display: flex !important; 
     flex-direction: column !important;
-    overflow: hidden !important;
+    overflow: hidden !important; /* Hide overflow, body scrolls */
     transform: none !important;
-    margin: 0 auto !important;
-    text-align: center;
-    border-radius: 0 !important;
-    box-sizing: border-box; /* 确保盒模型计算包含内边距和边框 */
+    margin: 0 auto !important; /* Center */
+    text-align: center; /* Default Center align text */
+    border-radius: 0 !important; /* No radius by default */
 }
 
 /* Modal Header (Minimal) - DEFAULT */
@@ -780,15 +779,12 @@ body:before {
     flex: 1 1 auto;
     padding: 15px 20px;
     overflow-y: auto;
-    overflow-x: hidden; /* 隐藏水平溢出 */
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    max-height: calc(100dvh - 180px);
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-    color: #ffffff;
-    box-sizing: border-box; /* 确保盒模型计算包含内边距和边框 */
-    text-align: center; /* 确保文本居中 */
+    -webkit-overflow-scrolling: touch; /* 增强iOS滚动体验 */
+    overscroll-behavior: contain; /* 防止滚动传播 */
+    max-height: calc(100dvh - 180px); /* 限制最大高度，留出头部和底部空间 */
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent; /* Firefox */
+    color: #ffffff; /* 明确设置白色文本 */
 }
 .modal-body::-webkit-scrollbar { display: none; } /* Webkit */
 .modal-body h4 {
@@ -810,35 +806,49 @@ body:before {
     margin-top: 25px !important;
 }
 
+.modal-body ul { 
+    list-style: none; 
+    padding-left: 0; 
+    margin-bottom: 20px; 
+    display: inline-block; 
+    text-align: center;
+    color: #ffffff; /* 明确设置白色文本 */
+}
+.modal-body li { 
+    margin-bottom: 10px; 
+    font-size: 1rem;
+    color: #ffffff; /* 明确设置白色文本 */
+}
+.modal-body li::before { content: none; }
+.item-divider { height: 1px; background-color: rgba(255, 255, 255, 0.2); margin: 30px auto; width: 60%; display: block; }
+
 /* Modal Close Button - DEFAULT */
 .close-modal { position: fixed !important; top: 20px !important; right: 20px !important; z-index: 1055 !important; background: rgba(0,0,0,0.3) !important; border: none; border-radius: 50%; color: white !important; font-size: 1.3rem; font-weight: bold; line-height: 1; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; }
 .close-modal:hover { background-color: rgba(0,0,0,0.5) !important; transform: scale(1.1); }
 
 /* Payment Footer - DEFAULT */
 .modal-payment-footer { 
-    padding: 10px 0 0; /* 减少顶部内边距 */
-    margin-top: 20px; /* 减少顶部外边距 */
+    padding: 20px 0 0; 
+    margin-top: 15px; 
     border-top: 1px solid rgba(255, 255, 255, 0.15); 
     text-align: center; 
     background: none !important; 
-    overflow: hidden !important; /* 防止内容溢出 */
+    overflow: visible !important;
     width: 100%;
     position: relative;
-    box-sizing: border-box; /* 确保盒模型计算包含内边距和边框 */
 }
 .modal-payment-footer img { 
     height: auto !important; 
-    width: 100% !important; /* 宽度100% */
-    max-width: 280px !important; /* 限制最大宽度 */
-    margin: 0 auto !important;
+    width: 150% !important; 
+    max-width: none !important; 
+    margin: 0 !important; 
     padding: 0 !important; 
     display: block !important; 
     border-radius: 0 !important; 
     filter: brightness(1.1);
-    position: relative !important; /* 改为相对定位 */
-    left: 0 !important; /* 确保不偏移 */
-    transform: none !important; /* 移除transform */
-    right: 0 !important; /* 确保右侧不偏移 */
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 /* --- Overrides for #modal-terms (Base Styles) --- */
@@ -944,43 +954,32 @@ body:before {
         /* 确保内容区域可滚动 */
         max-height: calc(100dvh - 120px); /* 减去头部高度，移除对底部的考虑，因为footer现在在body内 */
         overflow-y: auto;
-        overflow-x: hidden; /* 确保移动端也不能水平滚动 */
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none; /* 隐藏滚动条 */
         overscroll-behavior: contain; /* 防止滚动传播 */
+        overflow-x: hidden !important; /* 防止水平滚动 */
+        width: 100% !important; /* 确保宽度100% */
     }
     
     .modal-payment-footer {
         /* footer现在是滚动内容的一部分 */
         position: relative;
-        overflow: hidden !important; /* 改为hidden，防止内容溢出 */
-        padding: 10px 0 5px; /* 减少内边距 */
-        margin-top: 15px; /* 减少顶部外边距 */
-        pointer-events: auto;
-        width: 100% !important; /* 确保宽度为100% */
-        left: 0 !important; /* 确保不偏移 */
-        right: 0 !important; /* 确保右侧不偏移 */
+        overflow-y: visible !important; /* 保持垂直方向可见 */
+        overflow-x: hidden !important; /* 防止水平滚动 */
+        pointer-events: auto; /* 现在需要能接收点击等事件 */
+        width: 100% !important; /* 确保宽度100% */
+        max-width: 100% !important; /* 限制最大宽度 */
     }
     
     .modal-payment-footer img {
-        width: auto !important; /* 设置为自动宽度 */
-        max-width: 85% !important; /* 在移动端减小最大宽度 */
+        /* 保持图片可见 */
         pointer-events: auto;
-        margin: 0 auto !important; /* 确保居中 */
-        position: relative !important;
-        left: 0 !important;
-        right: 0 !important;
-    }
-    
-    .modal-content {
-        padding: 0 !important;
-        width: 90% !important;
-        box-sizing: border-box !important;
-    }
-    
-    .modal-body {
-        padding: 15px !important; /* 减少并使内边距一致 */
-        text-align: center !important;
+        width: 150% !important; /* 保持图片宽度 */
+        left: 50% !important; /* 保持居中位置 */
+        transform: translateX(-50%) !important; /* 保持居中位置 */
+        position: relative !important; /* 相对定位 */
+        max-width: none !important; /* 确保图片不受容器宽度限制 */
+        /* 图片允许超出容器，但由于容器的overflow-x:hidden，超出部分不会显示 */
     }
 } /* Closing brace for @media (max-width: 875px) */
 
@@ -1167,23 +1166,4 @@ body:before {
     .card-bottom {
         padding-top: 15px !important;
     }
-}
-
-/* 弹窗列表项目样式 - 确保文本对齐 */
-.modal-body ul { 
-    list-style: none; 
-    padding-left: 0; 
-    margin-bottom: 20px; 
-    display: inline-block; 
-    text-align: center;
-    color: #ffffff;
-    width: auto; /* 自动宽度 */
-    max-width: 100%; /* 最大宽度不超过容器 */
-}
-.modal-body li { 
-    margin-bottom: 10px; 
-    font-size: 1rem;
-    color: #ffffff;
-}
-.modal-body li::before { content: none; }
-.item-divider { height: 1px; background-color: rgba(255, 255, 255, 0.2); margin: 30px auto; width: 60%; display: block; } 
+} 

@@ -755,20 +755,19 @@ body:before {
 .modal-content {
     position: relative !important; 
     width: auto !important; 
-    max-width: 600px !important;
-    max-height: 90vh !important;
+    max-width: 600px !important; /* Default Max width */
+    max-height: 90vh !important; /* Default Max height */
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important; 
     display: flex !important; 
     flex-direction: column !important;
-    overflow: hidden !important;
+    overflow: hidden !important; /* Hide overflow, body scrolls */
     transform: none !important;
-    margin: 0 auto !important;
-    text-align: center;
-    border-radius: 0 !important;
-    box-sizing: border-box; /* 确保盒模型计算包含内边距和边框 */
+    margin: 0 auto !important; /* Center */
+    text-align: center; /* Default Center align text */
+    border-radius: 0 !important; /* No radius by default */
 }
 
 /* Modal Header (Minimal) - DEFAULT */
@@ -780,15 +779,12 @@ body:before {
     flex: 1 1 auto;
     padding: 15px 20px;
     overflow-y: auto;
-    overflow-x: hidden; /* 隐藏水平溢出 */
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    max-height: calc(100dvh - 180px);
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-    color: #ffffff;
-    box-sizing: border-box; /* 确保盒模型计算包含内边距和边框 */
-    text-align: center; /* 确保文本居中 */
+    -webkit-overflow-scrolling: touch; /* 增强iOS滚动体验 */
+    overscroll-behavior: contain; /* 防止滚动传播 */
+    max-height: calc(100dvh - 180px); /* 限制最大高度，留出头部和底部空间 */
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent; /* Firefox */
+    color: #ffffff; /* 明确设置白色文本 */
 }
 .modal-body::-webkit-scrollbar { display: none; } /* Webkit */
 .modal-body h4 {
@@ -816,9 +812,7 @@ body:before {
     margin-bottom: 20px; 
     display: inline-block; 
     text-align: center; 
-    color: #ffffff;
-    width: auto; /* 自动宽度 */
-    max-width: 100%; /* 最大宽度不超过容器 */
+    color: #ffffff; /* 明确设置白色文本 */
 }
 .modal-body li { 
     margin-bottom: 10px; 
@@ -834,31 +828,30 @@ body:before {
 
 /* Payment Footer - DEFAULT */
 .modal-payment-footer { 
-    padding: 10px 0 0; /* 减少顶部内边距 */
-    margin-top: 20px; /* 减少顶部外边距 */
+    padding: 20px 0 0; 
+    margin-top: 45px; 
     border-top: 1px solid rgba(255, 255, 255, 0.15); 
     text-align: center; 
     background: none !important;
-    overflow: hidden !important; /* 防止内容溢出 */
-    position: relative !important;
-    width: 100% !important;
-    box-sizing: border-box; /* 确保盒模型计算包含内边距和边框 */
+    overflow: visible !important; /* 允许内容超出容器 */
+    position: relative !important; /* 确保定位上下文正确 */
+    width: 100% !important; /* 确保容器宽度正确 */
+    /* 已移除flex-shrink: 0; 让footer可以随内容滚动 */
 }
 
 .modal-payment-footer img { 
     height: auto !important; 
-    width: 100% !important; /* 宽度100% */
-    max-width: 280px !important; /* 限制最大宽度 */
+    width: 150% !important; /* 增加宽度，让图片更明显地超出容器 */
+    max-width: none !important; /* 移除最大宽度限制 */
     display: block !important; 
     border-radius: 0 !important; 
     filter: brightness(1.1);
     
-    /* 居中方法改进 */
-    margin: 0 auto !important;
-    position: relative !important; /* 改为相对定位 */
-    left: 0 !important; /* 确保不偏移 */
-    transform: none !important; /* 移除transform */
-    right: 0 !important; /* 确保右侧不偏移 */
+    /* 重新设置居中方法 */
+    position: relative !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    margin: 0 !important; /* 移除所有边距干扰 */
 }
 
 /* 确保在移动端也能正常工作 */
@@ -904,32 +897,32 @@ body:before {
         /* 确保内容区域可滚动 */
         max-height: calc(100dvh - 120px); /* 减去头部高度，移除对底部的考虑，因为footer现在在body内 */
         overflow-y: auto;
-        overflow-x: hidden; /* 确保移动端也不能水平滚动 */
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none; /* 隐藏滚动条 */
         overscroll-behavior: contain; /* 防止滚动传播 */
+        overflow-x: hidden !important; /* 防止水平滚动 */
+        width: 100% !important; /* 确保宽度100% */
     }
     
     .modal-payment-footer {
         /* footer现在是滚动内容的一部分 */
         position: relative;
-        overflow: hidden !important;
-        padding: 10px 0 5px;
-        margin-top: 15px;
-        pointer-events: auto;
-        width: 100% !important; /* 确保宽度为100% */
-        left: 0 !important; /* 确保不偏移 */
-        right: 0 !important; /* 确保右侧不偏移 */
+        overflow-y: visible !important; /* 保持垂直方向可见 */
+        overflow-x: hidden !important; /* 防止水平滚动 */
+        pointer-events: auto; /* 现在需要能接收点击等事件 */
+        width: 100% !important; /* 确保宽度100% */
+        max-width: 100% !important; /* 限制最大宽度 */
     }
     
     .modal-payment-footer img {
-        width: auto !important; /* 设置为自动宽度 */
-        max-width: 85% !important; /* 在移动端减小最大宽度 */
+        /* 保持图片可见 */
         pointer-events: auto;
-        margin: 0 auto !important; /* 确保居中 */
-        position: relative !important;
-        left: 0 !important;
-        right: 0 !important;
+        width: 150% !important; /* 保持图片宽度 */
+        left: 50% !important; /* 保持居中位置 */
+        transform: translateX(-50%) !important; /* 保持居中位置 */
+        position: relative !important; /* 相对定位 */
+        max-width: none !important; /* 确保图片不受容器宽度限制 */
+        /* 图片允许超出容器，但由于容器的overflow-x:hidden，超出部分不会显示 */
     }
 }
 
