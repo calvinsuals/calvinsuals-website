@@ -831,12 +831,12 @@ body:before {
     padding: 20px 0 0; 
     margin-top: 45px; 
     border-top: 1px solid rgba(255, 255, 255, 0.15); 
-    flex-shrink: 0; 
     text-align: center; 
     background: none !important;
     overflow: visible !important; /* 允许内容超出容器 */
     position: relative !important; /* 确保定位上下文正确 */
     width: 100% !important; /* 确保容器宽度正确 */
+    /* 已移除flex-shrink: 0; 让footer可以随内容滚动 */
 }
 
 .modal-payment-footer img { 
@@ -895,7 +895,7 @@ body:before {
     
     .modal-body {
         /* 确保内容区域可滚动 */
-        max-height: calc(100dvh - 180px); /* 减去头部和底部的高度 */
+        max-height: calc(100dvh - 120px); /* 减去头部高度，移除对底部的考虑，因为footer现在在body内 */
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none; /* 隐藏滚动条 */
@@ -903,15 +903,15 @@ body:before {
     }
     
     .modal-payment-footer {
-        /* 确保底部区域固定且不可滚动 */
+        /* footer现在是滚动内容的一部分 */
         position: relative;
         overflow: visible !important; /* 允许图片超出显示 */
-        pointer-events: none; /* 防止触摸事件，解决滑动问题 */
+        pointer-events: auto; /* 现在需要能接收点击等事件 */
     }
     
     .modal-payment-footer img {
-        /* 保持图片可见但不接收触摸事件 */
-        pointer-events: none;
+        /* 保持图片可见 */
+        pointer-events: auto;
     }
 }
 
