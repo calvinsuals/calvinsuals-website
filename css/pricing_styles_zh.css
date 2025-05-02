@@ -940,7 +940,7 @@ body:before {
         position: static !important; /* 静态定位 */
         left: auto !important; /* 重置左偏移 */
         /* 只保留一个transform属性 */
-        transform: scale(1.3) !important; /* 稍微放大图片 */
+        transform: scale(1.3) translateX(-8%) !important; /* 放大图片并向左偏移8%，使左右显示区域均衡 */
     }
 }
 
