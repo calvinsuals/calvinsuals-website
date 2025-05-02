@@ -264,25 +264,78 @@ function initTermsButton() {
     const termsButton = document.getElementById('terms-button');
     if (termsButton) {
         termsButton.addEventListener('click', function() {
-            // 直接打开模态窗口，优先使用全局函数
-            if (window.openModalById) {
-                window.openModalById('modal-terms');
-            } else if (globalOpenModalFunction) {
-                globalOpenModalFunction('modal-terms');
-            } else {
-                console.error('模态窗口打开函数未定义，无法打开须知弹窗');
-                // 尝试使用最简单的方法打开弹窗
-                const termsModal = document.getElementById('modal-terms');
-                if (termsModal) {
-                    termsModal.style.display = 'flex';
+            // 直接打开条款模态窗口，独立于卡片交互
+            const termsModal = document.getElementById('modal-terms');
+            if (termsModal) {
+                // 直接显示模态窗口
+                termsModal.style.display = 'flex';
+                document.body.style.overflow = 'hidden'; // 禁止 body 滚动
+                document.body.style.position = 'fixed'; // 固定body位置
+                document.body.style.width = '100%'; // 保持宽度100%
+                document.body.style.top = `-${window.scrollY}px`; // 记住当前滚动位置
+                document.body.dataset.scrollY = window.scrollY; // 存储滚动位置
+                
+                setTimeout(() => {
                     termsModal.classList.add('is-visible');
-                    document.body.style.overflow = 'hidden';
-                }
+                    
+                    // 确保弹窗内容可滚动，特别是在移动设备上
+                    const modalBody = termsModal.querySelector('.modal-body');
+                    if (modalBody) {
+                        modalBody.style.overflowY = 'auto';
+                        modalBody.style.webkitOverflowScrolling = 'touch';
+                    }
+                }, 10);
+                
+                console.log('打开条款模态窗口');
+            } else {
+                console.error('找不到条款模态窗口 (#modal-terms)');
             }
         });
+        
+        // 添加条款模态窗口的关闭事件
+        const termsModal = document.getElementById('modal-terms');
+        if (termsModal) {
+            // 关闭按钮点击事件
+            const closeButton = termsModal.querySelector('.close-modal');
+            if (closeButton) {
+                closeButton.addEventListener('click', function() {
+                    closeTermsModal();
+                });
+            }
+            
+            // 点击背景关闭
+            termsModal.addEventListener('click', function(event) {
+                if (event.target === termsModal) {
+                    closeTermsModal();
+                }
+            });
+        }
+        
         console.log('条款按钮初始化完成');
     } else {
         console.warn('条款按钮 (#terms-button) 未找到。');
+    }
+    
+    // 关闭条款模态窗口的函数
+    function closeTermsModal() {
+        const termsModal = document.getElementById('modal-terms');
+        if (termsModal) {
+            termsModal.classList.remove('is-visible');
+            
+            setTimeout(() => {
+                termsModal.style.display = 'none';
+                
+                // 恢复body滚动状态
+                const scrollY = parseInt(document.body.dataset.scrollY || '0');
+                document.body.style.position = '';
+                document.body.style.width = '';
+                document.body.style.top = '';
+                document.body.style.overflow = '';
+                window.scrollTo(0, scrollY);
+                
+            }, 300); // 等待动画完成
+            console.log('关闭条款模态窗口');
+        }
     }
 }
 
@@ -394,7 +447,6 @@ function initAccordion() {
 
 /**
  * 初始化平滑滚动 (页面内锚点, 如果存在)
- * 注意: navigation.js 可能已处理部分逻辑
  */
 function initSmoothScroll() {
     const links = document.querySelectorAll('a[href^="#"]');
