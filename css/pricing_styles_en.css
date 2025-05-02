@@ -777,7 +777,7 @@ body:before {
 /* Modal Body (Handles PC scroll visually hidden) - DEFAULT */
 .modal-body {
     flex: 1 1 auto;
-    padding: 15px 20px;
+    padding: 15px 20px 10px; /* Reduced padding-bottom */
     overflow-y: auto;
     -webkit-overflow-scrolling: touch; /* 增强iOS滚动体验 */
     overscroll-behavior: contain; /* 防止滚动传播 */
@@ -837,6 +837,7 @@ body:before {
     overflow: visible !important;
     width: 100%;
     position: relative;
+    display: none; /* Hide on desktop as well */
 }
 .modal-payment-footer img { 
     height: auto !important; 
@@ -882,9 +883,7 @@ body:before {
 #modal-terms .modal-body ul { text-align: left !important; padding-left: 20px !important; list-style: disc !important; }
 #modal-terms .modal-body li { text-align: left !important; font-size: 0.85rem !important; padding-left: 0 !important; margin-bottom: 6px; line-height: 1.6;}
 #modal-terms .modal-body li::before { content: '\2022'; color: rgba(245, 245, 245, 0.7); display: inline-block; width: 1em; margin-left: -1.2em; position: absolute; left: 0; }
-#modal-terms .item-divider { display: none !important; } 
 #modal-terms .modal-footer { display: block !important; position: relative !important; border-top: 1px solid rgba(255,255,255,0.15) !important; padding: 15px 30px !important; background-color: transparent !important; }
-#modal-terms .disclaimer-text { font-size: 0.8rem !important; color: var(--modal-text-color) !important; opacity: 0.7 !important; font-style: italic !important; text-shadow: var(--modal-text-shadow); }
 #modal-terms .modal-payment-footer img { display: none !important; }
 
 /* Style for the section headings inside terms modal */
@@ -898,6 +897,45 @@ body:before {
     text-transform: none !important;
     letter-spacing: 0.5px;
     opacity: 0.95;
+}
+
+/* Ensure image styling within the modal body */
+/* Style for the container */
+.modal-footer-image-container {
+    height: 60px; /* Adjust height as needed */
+    overflow: hidden;
+    margin-top: 5px; /* Reduced margin-top */
+    position: relative; /* Optional: if needed for absolute positioning of img */
+    border-radius: 0; /* Remove border-radius for sharp corners */
+}
+
+/* Style for the image itself */
+.modal-body .modal-moved-footer-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+    object-position: center; /* Ensure base style is center */
+    border-radius: 0;
+    margin: 0;
+    max-height: none; /* Keep this */
+    border: none;
+}
+
+/* Style for the moved disclaimer text */
+.modal-body .modal-moved-footer-text {
+    margin-top: 25px;
+    font-size: 0.8rem; /* Base font size */
+    opacity: 0.7;
+    font-style: italic;
+    color: var(--modal-text-color);
+    text-shadow: var(--modal-text-shadow);
+    text-align: center; /* Center align this text */
+}
+
+/* Reduce font size specifically for terms modal moved text */
+#modal-terms .modal-body .modal-moved-footer-text {
+    font-size: 0.7rem; /* Reduced font size */
 }
 
 /* --- MOBILE ONLY Overrides (@media max-width: 875px) --- */
@@ -1061,9 +1099,9 @@ body:before {
         
         /* 之前的样式保持不变 */
         display: flex !important;
-        align-items: center !important;
+        align-items: flex-end !important; /* Align content to the bottom */
         justify-content: center !important;
-        padding: 20px !important;
+        padding: 20px 20px 0px !important; /* Keep bottom padding 0 */
     }
     
     .modal-content {
@@ -1088,18 +1126,113 @@ body:before {
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none; /* 隐藏滚动条 */
         overscroll-behavior: contain; /* 防止滚动传播 */
+        /* Ensure max-height is sufficient */
+        max-height: calc(100dvh - 120px); /* Adjust if header size changes */
+        padding-bottom: 40px; /* Set padding-bottom to 40px for mobile */
     }
     
+    /* Hide the original footer area on mobile */
     .modal-payment-footer {
-        /* 确保底部区域固定且不可滚动 */
-        position: relative;
-        overflow: visible !important; /* 允许图片超出显示 */
-        pointer-events: none; /* 防止触摸事件，解决滑动问题 */
+        display: none !important; /* Hide the original footer */
     }
     
-    .modal-payment-footer img {
-        /* 保持图片可见但不接收触摸事件 */
-        pointer-events: none;
+    /* Adjust moved image/text margin for mobile */
+    .modal-body .modal-moved-footer-image {
+        margin-top: 10px; 
+        max-height: 40px !important; /* Add !important to ensure override */
+        display: block;
+        width: auto; 
+        height: auto;
+        margin-left: auto; 
+        margin-right: auto; 
+        object-fit: contain; 
+        border-radius: 0;
+        border: none;
+        object-position: center; 
+    }
+    .modal-body .modal-moved-footer-text {
+        margin-top: 20px; /* Keep text rule */
+        font-size: 0.75rem;
+    }
+
+    /* Overrides for #modal-terms on mobile */
+    #modal-terms .modal-content {
+        /* Adjust max-width/height for mobile if needed */
+        width: 95%;
+    }
+    #modal-terms .modal-header {
+        padding: 15px 20px 8px !important;
+    }
+    #modal-terms .modal-title {
+        font-size: 1.2rem !important;
+    }
+    #modal-terms .modal-body {
+        padding: 15px 20px 40px !important; /* Adjusted padding-bottom */
+        font-size: 0.8rem;
+    }
+    #modal-terms .notice-section h3 {
+        font-size: 1rem !important;
+    }
+    #modal-terms .modal-body li {
+        font-size: 0.8rem !important;
+    }
+    /* Hide the original footer for terms modal too */
+    #modal-terms .modal-footer-content {
+        display: none !important;
+    }
+    /* Add rule for item-divider margin */
+    #modal-terms .item-divider {
+        margin-bottom: 10px; /* Ensure consistent margin */
+        border: 1px solid magenta; /* --- DEBUG BORDER --- */
+        /* Ensure default top margin is not overridden if needed, or set explicitly */
+        /* margin-top: 30px; */ 
+    }
+    /* Adjust moved text margin */
+    #modal-terms .modal-body .modal-moved-footer-text {
+        margin-top: 10px; /* Align with card modal image container margin */
+        font-size: 0.7rem; /* Keep smaller font size */
+        border: 1px solid cyan; /* --- DEBUG BORDER --- */
+    }
+
+    /* Adjust container style for mobile */
+    .modal-footer-image-container {
+        height: 50px; /* Example: Slightly smaller height on mobile */
+        margin-top: 10px; /* Set margin-top for mobile */
+        overflow: hidden;
+        position: relative;
+        border-radius: 0;
+        display: block; 
+        border: none;
+    }
+
+    /* General item-divider rule for mobile */
+    .item-divider {
+        margin-bottom: 10px; /* Set bottom margin */
+        border: none; 
+    }
+
+     /* Keep the CORRECT unified style for the image */
+    .modal-body .modal-moved-footer-image {
+        display: block;
+        width: 100%;
+        height: 100%; 
+        object-fit: cover; 
+        object-position: center; /* Keep center alignment */
+        border-radius: 0;
+        margin: 0;
+        max-height: none; 
+        border: none;
+    }
+
+     /* Keep #modal-terms specific rules */
+    #modal-terms .item-divider {
+        margin-bottom: 10px; 
+        border: none; 
+    }
+    #modal-terms .modal-body .modal-moved-footer-text {
+        margin-top: 10px; 
+        font-size: 0.7rem; 
+        border: none; 
     }
 } /* Closing brace for @media (max-width: 875px) */
 

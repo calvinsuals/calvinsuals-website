@@ -777,7 +777,7 @@ body:before {
 /* Modal Body (Handles PC scroll visually hidden) - DEFAULT */
 .modal-body {
     flex: 1 1 auto;
-    padding: 15px 20px;
+    padding: 15px 20px 10px; /* Reduced padding-bottom */
     overflow-y: auto;
     -webkit-overflow-scrolling: touch; /* 增强iOS滚动体验 */
     overscroll-behavior: contain; /* 防止滚动传播 */
@@ -837,6 +837,7 @@ body:before {
     overflow: visible !important; /* 允许内容超出容器 */
     position: relative !important; /* 确保定位上下文正确 */
     width: 100% !important; /* 确保容器宽度正确 */
+    display: none; /* Hide on desktop as well */
 }
 
 .modal-payment-footer img { 
@@ -873,9 +874,9 @@ body:before {
         
         /* 之前的样式保持不变 */
         display: flex !important;
-        align-items: center !important;
+        align-items: flex-end !important; /* Align content to the bottom */
         justify-content: center !important;
-        padding: 20px !important;
+        padding: 20px 20px 0px !important; /* Keep bottom padding 0 */
     }
     
     .modal-content {
@@ -900,6 +901,9 @@ body:before {
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none; /* 隐藏滚动条 */
         overscroll-behavior: contain; /* 防止滚动传播 */
+        /* Ensure max-height is sufficient */
+        max-height: calc(100dvh - 120px); /* Adjust if header size changes */
+        padding-bottom: 40px; /* Increased padding-bottom to 40px for mobile */
     }
     
     .modal-payment-footer {
@@ -907,66 +911,68 @@ body:before {
         position: relative;
         overflow: visible !important; /* 允许图片超出显示 */
         pointer-events: none; /* 防止触摸事件，解决滑动问题 */
+        /* Hide the original footer area on mobile */
+        display: none !important; /* Hide the original footer */
     }
     
     .modal-payment-footer img {
         /* 保持图片可见但不接收触摸事件 */
         pointer-events: none;
     }
-}
 
-/* --- Overrides for #modal-terms (Base Styles) --- */
-#modal-terms .modal-content {
-    max-width: 750px !important;
-    max-height: 90vh !important;
-    text-align: left !important;
-}
-#modal-terms .modal-header { text-align: left !important; border-bottom: 1px solid rgba(255,255,255,0.2) !important; padding: 20px 30px 10px !important; }
-#modal-terms .modal-title { text-align: left !important; font-size: 1.4rem !important; }
-#modal-terms .modal-body {
-    text-align: left !important; 
-    overflow-y: auto !important;
-    padding: 20px 30px !important; 
-    font-size: 0.85rem; 
-}
-#modal-terms .modal-body::-webkit-scrollbar { width: 6px; }
-#modal-terms .modal-body::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.3); border-radius: 3px; }
-#modal-terms .modal-body::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.5); }
-#modal-terms .modal-body h4 { 
-    font-size: 0.9rem !important;
-    text-align: left !important;
-    margin: 20px 0 8px !important; 
-    color: var(--modal-text-color) !important; 
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    opacity: 0.95;
-    font-weight: 600;
-}
-#modal-terms .modal-body ul { text-align: left !important; padding-left: 20px !important; list-style: disc !important; }
-#modal-terms .modal-body li { text-align: left !important; font-size: 0.85rem !important; padding-left: 0 !important; margin-bottom: 6px; line-height: 1.6;}
-#modal-terms .modal-body li::before { content: '\2022'; color: rgba(245, 245, 245, 0.7); display: inline-block; width: 1em; margin-left: -1.2em; position: absolute; left: 0; }
-#modal-terms .item-divider { display: none !important; } 
-#modal-terms .modal-footer { display: block !important; position: relative !important; border-top: 1px solid rgba(255,255,255,0.15) !important; padding: 15px 30px !important; background-color: transparent !important; }
-#modal-terms .disclaimer-text { font-size: 0.8rem !important; color: var(--modal-text-color) !important; opacity: 0.7 !important; font-style: italic !important; text-shadow: var(--modal-text-shadow); }
-#modal-terms .modal-payment-footer img { display: none !important; }
+    /* Adjust moved image/text margin for mobile */
+    .modal-body .modal-moved-footer-image {
+        margin-top: 10px; 
+        max-height: 40px; /* This should be the effective rule */
+        display: block;
+        width: auto; 
+        height: auto;
+        margin-left: auto; 
+        margin-right: auto; 
+        object-fit: contain; 
+        border-radius: 0;
+        border: none;
+    }
 
-/* Style for the section headings inside terms modal */
-#modal-terms .notice-section h3 { 
-    font-size: 1.1rem !important;
-    font-weight: 600 !important;
-    margin: 20px 0 8px !important; 
-    color: var(--modal-text-color) !important; 
-    text-shadow: var(--modal-text-shadow);
-    text-align: left !important;
-    text-transform: none !important;
-    letter-spacing: 0.5px;
-    opacity: 0.95;
-}
+    /* Overrides for #modal-terms on mobile */
+    #modal-terms .modal-content {
+        /* Adjust max-width/height for mobile if needed */
+        width: 95%;
+    }
+    #modal-terms .modal-header {
+        padding: 15px 20px 8px !important;
+    }
+    #modal-terms .modal-title {
+        font-size: 1.2rem !important;
+    }
+    #modal-terms .modal-body {
+        padding: 15px 20px 40px !important; /* Adjusted padding-bottom */
+        font-size: 0.8rem;
+    }
+    #modal-terms .notice-section h3 {
+        font-size: 1rem !important;
+    }
+    #modal-terms .modal-body li {
+        font-size: 0.8rem !important;
+    }
+    /* Hide the original footer for terms modal too */
+    #modal-terms .modal-footer-content {
+        display: none !important;
+    }
+    /* Add rule for item-divider margin */
+    #modal-terms .item-divider {
+        margin-bottom: 10px; /* Ensure consistent margin */
+        border: none; /* Ensure no border */
+    }
+    /* Adjust moved text margin */
+    #modal-terms .modal-body .modal-moved-footer-text {
+        margin-top: 10px; /* Align with card modal image container margin */
+        font-size: 0.7rem; /* Keep smaller font size */
+        border: none; /* Ensure no border */
+    }
 
-/* --- MOBILE ONLY Overrides (@media max-width: 875px) --- */
-/* Combined styles from previous 768px and 480px blocks */
-@media (max-width: 875px) {
-    /* Base elements */
+    /* MOBILE ONLY Overrides (@media max-width: 875px) */
+    /* Combined styles from previous 768px and 480px blocks */
     .header {
         padding-top: 140px !important; /* Applied 480px rule */
         padding-bottom: 20px !important; /* Applied 480px rule */
@@ -985,40 +991,8 @@ body:before {
          letter-spacing: 0.8px; /* Applied 480px rule */
     }
     .nav-menu a {
-        font-size: 1.2rem !important;
+        font-size: 1.2rem !important; /* Applied 480px rule */
     }
-    /* Ensure CALVINSUALS link retains larger size on mobile */
-    .nav-menu a:first-child {
-        font-size: 1.8rem !important; 
-    }
-    .nav-toggle { /* From original 768px block */
-        width: 40px !important;
-        height: 40px !important;
-        top: 20px !important;
-        right: 20px !important;
-    }
-    .lang-switch {
-        top: 23px;
-        right: 60px;
-        height: 35px;
-        font-size: 10px;
-        padding: 0 10px;
-        letter-spacing: 0.6px;
-    }
-    .lang-switch span {
-        font-size: 10px;
-    }
-    .pricing-container {
-        max-width: 500px;
-        padding: 0 15px;
-    }
-    .cta-button {
-        width: 100%;
-        max-width: 250px; /* Applied 480px rule */
-        font-size: 0.9rem; /* Applied 480px rule */
-        padding: 10px 20px; /* Applied 480px rule */
-     }
-    .cta-section p { margin-bottom: 8px !important; }
 
     /* Pricing Card adjustments (prioritizing 480px rules) */
     .pricing-card {
@@ -1104,30 +1078,53 @@ body:before {
         );
         background-size: 200% 200%;
         animation: cardGradient 15s linear infinite;
-}
-
-    /* Modal adjustments - Reverting to match desktop styles */
-    .modal {
-        /* Keep mobile layout adjustments */
-        overflow-y: auto !important;
-        padding: 5vh 10px !important; 
-        align-items: flex-start !important; 
-        height: 100dvh !important; /* <<< Use dvh unit here too */
-        /* Revert background and filter to desktop values */
-        backdrop-filter: blur(25px) !important; /* Desktop value */
-        -webkit-backdrop-filter: blur(25px) !important; /* Desktop value */
-        background-color: rgba(25, 25, 25, 0.55) !important; /* Desktop value */
-        /* Keep noise texture */
-        background-image: url("data:image/png;base64,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") !important;
     }
-    /* Remove the rule that hides pseudo-elements to match desktop */
-    /* .modal::before, .modal::after {
-        display: none;
-    } */
 
-    /* ... other modal styles ... */
+    /* Adjust container style for mobile */
+    .modal-footer-image-container {
+        height: 50px; 
+        margin-top: 10px; 
+        overflow: hidden;
+        position: relative;
+        border-radius: 0;
+        display: block; 
+        border: none; /* Ensure no border */
+    }
 
-} /* Closing brace for @media (max-width: 875px) */
+    /* General item-divider rule for mobile */
+    .item-divider {
+        /* margin-top: 30px; */ /* Inherited or default */
+        margin-bottom: 10px; 
+        border: none; /* Ensure no border */
+    }
+
+     /* Unified style for the image itself within the container */
+    .modal-body .modal-moved-footer-image {
+        /* Styles should be identical to EN version now */
+        margin-top: 10px; 
+        max-height: 40px; 
+        display: block;
+        width: auto; 
+        height: auto;
+        margin-left: auto; 
+        margin-right: auto; 
+        object-fit: contain; 
+        border-radius: 0;
+        border: none;
+        object-position: center; 
+    }
+
+     /* Overrides for #modal-terms on mobile */
+    #modal-terms .item-divider {
+        margin-bottom: 10px; 
+        border: none; 
+    }
+    #modal-terms .modal-body .modal-moved-footer-text {
+        margin-top: 10px; 
+        font-size: 0.7rem; 
+        border: none; 
+    }
+}
 
 /* --- Card CTA Text --- */
 .card-cta {
@@ -1265,32 +1262,6 @@ body:before {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Reset shadow */
 }
 
-
-/* ... existing code ... */
-
-@media (max-width: 875px) {
-    .pricing-card {
-        padding: 25px 20px;
-    }
-    
-    .card-name p {
-        font-size: 1.1rem !important; /* 增加标题大小 */
-    }
-    
-    .card-name p:first-child {
-        font-size: 0.9rem !important; /* 调整副标题大小 */
-    }
-    
-    .card-features li {
-        font-size: 0.95rem !important; /* 增加特性文本大小 */
-        line-height: 1.5 !important;
-    }
-    
-    .card-bottom {
-        padding-top: 20px !important;
-    }
-}
-
 @media (max-width: 480px) {
     .pricing-card {
         padding: 20px 15px;
@@ -1312,4 +1283,44 @@ body:before {
     .card-bottom {
         padding-top: 15px !important;
     }
-} 
+}
+
+/* Ensure image styling within the modal body */
+.modal-footer-image-container {
+    height: 60px; /* Adjust height as needed */
+    overflow: hidden;
+    margin-top: 5px; /* Reduced margin-top */
+    position: relative; /* Optional: if needed for absolute positioning of img */
+    border-radius: 0; /* Remove border-radius for sharp corners */
+}
+
+/* Style for the image itself */
+.modal-body .modal-moved-footer-image {
+    display: block;
+    width: 100%;
+    height: 100%; /* Make image fill the container height */
+    object-fit: cover; /* Cover the container, crop if needed */
+    border-radius: 0; /* Remove border-radius from image itself */
+    margin: 0; /* Remove margin from image */
+    /* Remove max-height and width: auto from previous styles */
+}
+
+/* Style for the moved disclaimer text */
+.modal-body .modal-moved-footer-text {
+    margin-top: 25px;
+    font-size: 0.8rem;
+    opacity: 0.7;
+    font-style: italic;
+    color: var(--modal-text-color);
+    text-shadow: var(--modal-text-shadow);
+    text-align: center; /* Center align this text */
+}
+
+/* Reduce font size specifically for terms modal moved text */
+#modal-terms .modal-body .modal-moved-footer-text {
+    font-size: 0.7rem; /* Reduced font size */
+}
+
+#modal-terms .modal-body li::before { content: '\2022'; color: rgba(245, 245, 245, 0.7); display: inline-block; width: 1em; margin-left: -1.2em; position: absolute; left: 0; }
+#modal-terms .modal-footer { display: block !important; position: relative !important; border-top: 1px solid rgba(255,255,255,0.15) !important; padding: 15px 30px !important; background-color: transparent !important; }
+#modal-terms .modal-payment-footer img { display: none !important; } 
