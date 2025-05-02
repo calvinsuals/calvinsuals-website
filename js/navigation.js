@@ -30,40 +30,83 @@ document.addEventListener('DOMContentLoaded', function() {
                         // 添加hover效果类以触发下划线动画
                         this.classList.add('hover-effect');
                         
-                        // 动画完成后再跳转
+                        // 创建一个动画队列，先完成横线动画
                         setTimeout(() => {
-                            // 关闭菜单
+                            // 检查菜单是否处于激活状态
                             if (navMenu.classList.contains('active')) {
+                                // 关闭菜单(添加菜单滑出动画)
+                                navMenu.style.transition = 'transform 0.3s ease-in-out';
+                                navMenu.style.transform = 'translateY(-100%)';
                                 navToggle.classList.remove('active');
-                                navMenu.classList.remove('active');
                                 navToggle.setAttribute('aria-expanded', 'false');
+                                
+                                // 等待菜单收起动画完成后再跳转
+                                setTimeout(() => {
+                                    navMenu.classList.remove('active');
+                                    navMenu.style.transform = '';
+                                    navMenu.style.transition = '';
+                                    // 跳转到目标页面
+                                    window.location.href = href;
+                                }, 300); // 菜单收起动画时间
+                            } else {
+                                // 如果菜单未激活，直接跳转
+                                window.location.href = href;
                             }
-                            
-                            // 跳转到目标页面
-                            window.location.href = href;
-                        }, 300); // 等待动画完成（300ms）
+                        }, 350); // 等待横线动画完成（增加到350ms确保完整显示）
                     } else if (href.startsWith('#')) {
                         // 页内导航链接处理
                         e.preventDefault();
                         const targetId = href.substring(1);
                         
-                        // 关闭菜单
-                        if (navMenu.classList.contains('active')) {
-                            navToggle.classList.remove('active');
-                            navMenu.classList.remove('active');
-                            navToggle.setAttribute('aria-expanded', 'false');
-                        }
+                        // 添加hover效果类以触发下划线动画
+                        this.classList.add('hover-effect');
                         
-                        // 滚动到目标位置
-                        scrollToElement(targetId);
+                        // 延迟处理，先完成横线动画
+                        setTimeout(() => {
+                            // 检查菜单是否处于激活状态
+                            if (navMenu.classList.contains('active')) {
+                                // 关闭菜单(添加菜单滑出动画)
+                                navMenu.style.transition = 'transform 0.3s ease-in-out';
+                                navMenu.style.transform = 'translateY(-100%)';
+                                navToggle.classList.remove('active');
+                                navToggle.setAttribute('aria-expanded', 'false');
+                                
+                                // 等待菜单收起动画完成后再滚动
+                                setTimeout(() => {
+                                    navMenu.classList.remove('active');
+                                    navMenu.style.transform = '';
+                                    navMenu.style.transition = '';
+                                    // 滚动到目标位置
+                                    scrollToElement(targetId);
+                                }, 300); // 菜单收起动画时间
+                            } else {
+                                // 如果菜单未激活，直接滚动
+                                scrollToElement(targetId);
+                            }
+                        }, 350); // 等待横线动画完成（增加到350ms确保完整显示）
                     } else if (href.startsWith('javascript:')) {
                         // JavaScript调用链接处理
-                        // 关闭菜单
-                        if (navMenu.classList.contains('active')) {
-                            navToggle.classList.remove('active');
-                            navMenu.classList.remove('active');
-                            navToggle.setAttribute('aria-expanded', 'false');
-                        }
+                        // 添加hover效果类以触发下划线动画
+                        this.classList.add('hover-effect');
+                        
+                        // 延迟处理，先完成横线动画
+                        setTimeout(() => {
+                            // 检查菜单是否处于激活状态
+                            if (navMenu.classList.contains('active')) {
+                                // 关闭菜单(添加菜单滑出动画)
+                                navMenu.style.transition = 'transform 0.3s ease-in-out';
+                                navMenu.style.transform = 'translateY(-100%)';
+                                navToggle.classList.remove('active');
+                                navToggle.setAttribute('aria-expanded', 'false');
+                                
+                                // 等待菜单收起动画完成
+                                setTimeout(() => {
+                                    navMenu.classList.remove('active');
+                                    navMenu.style.transform = '';
+                                    navMenu.style.transition = '';
+                                }, 300); // 菜单收起动画时间
+                            }
+                        }, 350); // 等待横线动画完成（增加到350ms确保完整显示）
                     }
                 });
             }
@@ -82,6 +125,15 @@ document.addEventListener('DOMContentLoaded', function() {
         .nav-menu a.hover-effect::after {
             width: calc(100% - 60px) !important;
             transition: width 0.3s ease !important;
+        }
+        
+        /* 添加菜单滑出动画样式 */
+        .nav-menu {
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease, visibility 0s linear 0.3s !important;
+        }
+        
+        .nav-menu.active {
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease, visibility 0s !important;
         }
     `;
     document.head.appendChild(customStyle);

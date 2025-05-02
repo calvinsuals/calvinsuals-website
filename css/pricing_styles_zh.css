@@ -14,7 +14,7 @@
     --font-body: 'Montserrat', sans-serif;
     --primary-gradient: linear-gradient(135deg, #333 0%, #ddd 100%); /* Stronger Dark Grey to Light Grey */
     --modal-overlay-bg: rgba(40, 40, 40, 0.65); /* Slightly adjusted alpha */
-    --modal-text-color: #f5f5f5; /* Off-white for text */
+    --modal-text-color: #ffffff; /* 修改为纯白色 */
     --modal-text-shadow: 0 1px 3px rgba(0,0,0,0.5);
     --title-gradient: linear-gradient(135deg, #aaa 0%, #eee 50%, #aaa 100%); /* Example: Silver/Grey Gradient */
 }
@@ -784,6 +784,7 @@ body:before {
     max-height: calc(100dvh - 180px); /* 限制最大高度，留出头部和底部空间 */
     scrollbar-width: thin; /* Firefox */
     scrollbar-color: rgba(255, 255, 255, 0.3) transparent; /* Firefox */
+    color: #ffffff; /* 明确设置白色文本 */
 }
 .modal-body::-webkit-scrollbar { display: none; } /* Webkit */
 .modal-body h4 {
@@ -805,8 +806,19 @@ body:before {
     margin-top: 25px !important;
 }
 
-.modal-body ul { list-style: none; padding-left: 0; margin-bottom: 20px; display: inline-block; text-align: center; }
-.modal-body li { margin-bottom: 10px; font-size: 1rem; }
+.modal-body ul { 
+    list-style: none; 
+    padding-left: 0; 
+    margin-bottom: 20px; 
+    display: inline-block; 
+    text-align: center; 
+    color: #ffffff; /* 明确设置白色文本 */
+}
+.modal-body li { 
+    margin-bottom: 10px; 
+    font-size: 1rem; 
+    color: #ffffff; /* 明确设置白色文本 */
+}
 .modal-body li::before { content: none; }
 .item-divider { height: 1px; background-color: rgba(255, 255, 255, 0.2); margin: 30px auto; width: 60%; display: block; }
 
