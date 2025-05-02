@@ -3,6 +3,9 @@
  * 适用于中文和英文价格页面
  */
 
+// 定义全局变量以便于在不同函数间共享
+let globalOpenModalFunction;
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('统一价格脚本加载，初始化功能');
 
@@ -245,6 +248,12 @@ function initCardModalInteraction() {
             modal.style.display = 'none';
         }
     });
+    
+    // 将openModalById函数暴露为全局函数，以便在页面上其他地方调用
+    globalOpenModalFunction = openModalById;
+    
+    // 明确将函数附加到window对象上，确保在所有函数中可用
+    window.openModalById = openModalById;
 }
 
 
@@ -255,8 +264,23 @@ function initTermsButton() {
     const termsButton = document.getElementById('terms-button');
     if (termsButton) {
         termsButton.addEventListener('click', function() {
-            openModalById('modal-terms'); // 使用通用打开函数
+            // 直接打开模态窗口，优先使用全局函数
+            if (window.openModalById) {
+                window.openModalById('modal-terms');
+            } else if (globalOpenModalFunction) {
+                globalOpenModalFunction('modal-terms');
+            } else {
+                console.error('模态窗口打开函数未定义，无法打开须知弹窗');
+                // 尝试使用最简单的方法打开弹窗
+                const termsModal = document.getElementById('modal-terms');
+                if (termsModal) {
+                    termsModal.style.display = 'flex';
+                    termsModal.classList.add('is-visible');
+                    document.body.style.overflow = 'hidden';
+                }
+            }
         });
+        console.log('条款按钮初始化完成');
     } else {
         console.warn('条款按钮 (#terms-button) 未找到。');
     }
@@ -425,7 +449,4 @@ function initScrollToTop() {
     } else {
         // console.log('未找到返回顶部按钮，跳过初始化。');
     }
-}
-
-// 确保 openModalById 在全局作用域可用（如果其他地方需要直接调用）
-// window.openModalById = openModalById; 
+} 
