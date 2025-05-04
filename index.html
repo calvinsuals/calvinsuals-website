@@ -469,6 +469,10 @@
             font-size: 0.9rem;
             font-weight: 500;
             transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent; /* 禁用移动端点击高亮 */
+            -webkit-touch-callout: none; /* 禁用iOS长按菜单 */
+            user-select: none; /* 禁止文本选择 */
+            outline: none; /* 禁用点击轮廓 */
         }
         
         .more-projects::after {
@@ -1940,6 +1944,8 @@
         }
 
         /* 临时调试网格 */
+        /* 已删除：不再需要显示定位网格 */
+        /*
         body::after {
           content: '';
           position: fixed;
@@ -1948,13 +1954,14 @@
           right: 0;
           bottom: 0;
           background-image:
-            linear-gradient(to right, rgba(0, 0, 255, 0.1) 1px, transparent 1px), /* 垂直蓝线 */
-            linear-gradient(to bottom, rgba(0, 0, 255, 0.1) 1px, transparent 1px); /* 水平蓝线 */
-          background-size: 50px 50px; /* 网格大小调整为 50px */
-          z-index: 9999; /* 确保在最顶层 */
-          pointer-events: none; /* 允许点击穿透 */
-          opacity: 0.4; /* 网格透明度 */
+            linear-gradient(to right, rgba(0, 0, 255, 0.1) 1px, transparent 1px), 
+            linear-gradient(to bottom, rgba(0, 0, 255, 0.1) 1px, transparent 1px); 
+          background-size: 50px 50px; 
+          z-index: 9999; 
+          pointer-events: none; 
+          opacity: 0.4; 
         }
+        */
 
         /* 移动端菜单样式 */
         @media screen and (max-width: 767px) {
