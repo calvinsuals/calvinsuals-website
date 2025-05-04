@@ -311,6 +311,11 @@ body:before {
     transition: transform 0.3s ease;
 }
 
+/* 添加THE CALVINSUALS的字重设置 */
+.nav-menu a:first-child {
+    font-weight: 500 !important;
+}
+
 .nav-menu a:hover {
     transform: translateY(-3px);
 }
@@ -962,9 +967,9 @@ body:before {
     .nav-menu a {
         font-size: 1.2rem !important;
     }
-    /* Ensure CALVINSUALS link retains larger size on mobile */
     .nav-menu a:first-child {
-        font-size: 1.8rem !important; 
+        font-size: 1.2rem !important;
+        font-weight: 500 !important;
     }
     .nav-toggle { /* From original 768px block */
         width: 40px !important;

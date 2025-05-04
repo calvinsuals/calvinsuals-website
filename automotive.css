@@ -444,8 +444,9 @@
 }
 
 .nav-menu a:first-child {
-    font-size: 1.8rem !important;
+    font-size: 1.4rem !important;
     margin-top: -30px;
+    font-weight: 500 !important;
 }
 
 .nav-menu a:hover {
@@ -474,7 +475,7 @@
         font-size: 1.2rem !important;
     }
     .nav-menu a:first-child {
-        font-size: 1.8rem !important; /* Ensure CALVINSUALS retains size */
+        font-size: 1.2rem !important; /* 将1.8rem改为1.2rem，和其他移动端菜单项保持一致 */
     }
     .nav-toggle {
         width: 40px !important;

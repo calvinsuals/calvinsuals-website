@@ -311,6 +311,11 @@ body:before {
     transition: transform 0.3s ease;
 }
 
+/* 添加THE CALVINSUALS的字重设置 */
+.nav-menu a:first-child {
+    font-weight: 500 !important;
+}
+
 .nav-menu a:hover {
     transform: translateY(-3px);
 }
@@ -935,7 +940,7 @@ body:before {
     }
 
     /* Overrides for #modal-terms on mobile */
-    #modal-terms .modal-content {
+#modal-terms .modal-content {
         /* Adjust max-width/height for mobile if needed */
         width: 95%;
     }
@@ -949,7 +954,7 @@ body:before {
         padding: 15px 20px 40px !important; /* Adjusted padding-bottom */
         font-size: 0.8rem;
     }
-    #modal-terms .notice-section h3 {
+#modal-terms .notice-section h3 { 
         font-size: 1rem !important;
     }
     #modal-terms .modal-body li {
@@ -972,7 +977,7 @@ body:before {
     }
 
     /* MOBILE ONLY Overrides (@media max-width: 875px) */
-    /* Combined styles from previous 768px and 480px blocks */
+/* Combined styles from previous 768px and 480px blocks */
     .header {
         padding-top: 140px !important; /* Applied 480px rule */
         padding-bottom: 20px !important; /* Applied 480px rule */
@@ -991,7 +996,13 @@ body:before {
          letter-spacing: 0.8px; /* Applied 480px rule */
     }
     .nav-menu a {
-        font-size: 1.2rem !important; /* Applied 480px rule */
+        font-size: 1.2rem !important;
+    }
+    
+    /* 移动端THE CALVINSUALS字重设置 */
+    .nav-menu a:first-child {
+        font-size: 1.2rem !important;
+        font-weight: 500 !important;
     }
 
     /* Pricing Card adjustments (prioritizing 480px rules) */

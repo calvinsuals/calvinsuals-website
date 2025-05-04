@@ -17,7 +17,7 @@
     <!-- <link rel="stylesheet" href="styles.css"> --> <!-- Removed as file does not exist -->
     <!-- <link rel="stylesheet" href="gallery.css"> -->
     <!-- <link rel="stylesheet" href="automotive.css"> --> 
-    <link rel="stylesheet" href="css/style_v6.css">
+
     <!-- 添加自定义字体 -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -165,8 +165,9 @@
 
         /* CALVINSUALS specific style */
         .nav-menu a:first-child {
-            font-size: 1.8rem !important; /* Larger size for brand name */
+            font-size: 1.4rem !important; /* 与其他菜单项大小一致 */
             margin-top: -30px; /* Adjust vertical position */
+            font-weight: 500 !important; /* 字重设置为500，比默认的400稍粗 */
         }
 
         /* Hover effect for menu items */
@@ -230,10 +231,10 @@
         
         .hero-content .name {
             /* font-size: 3rem; */ /* Removed previous size */
-            font-size: 4rem; /* Increased font size further */
+            font-size: 3rem; /* Increased font size further */
             margin: 0;
             letter-spacing: 2px;
-            text-transform: lowercase;
+            /* text-transform: lowercase; */
             /* font-weight: 700; */ /* Removed Bold */
             font-weight: 600; /* Changed base to SemiBold */
             line-height: 1;
@@ -242,7 +243,7 @@
         
         .hero-content .tagline {
             /* font-size: 1.3rem; */ /* Removed previous size */
-            font-size: 1.4rem; /* Increased font size again */
+            font-size: 1.3rem; /* Increased font size again */
             /* margin-top: 80px; */ /* Removed previous value */
             margin-top: 85px; /* Increased top margin slightly */
             opacity: 0.9;
@@ -284,11 +285,20 @@
                 white-space: nowrap;
                 letter-spacing: 0;
                 transform: scale(1);
-                text-align: center;
+                text-align: center !important;
                 /* margin: 0 auto; */ /* Let margin-top take effect */
-                margin-left: auto; /* Keep horizontal centering */
-                margin-right: auto; /* Keep horizontal centering */
+                margin-left: auto !important; /* Keep horizontal centering */
+                margin-right: auto !important; /* Keep horizontal centering */
                 margin-bottom: 0; /* Ensure no bottom margin conflicts */
+                width: 100%; /* 确保宽度为100%以便居中 */
+                max-width: 100%; /* 确保不会受到max-width限制 */
+            }
+
+            /* 确保hero-content也居中 */
+            .hero-content {
+                text-align: center !important;
+                width: 100% !important;
+                padding: 0 !important;
             }
 
             .hero-content .tagline::before,
@@ -327,20 +337,55 @@
             color: #fff; /* 联系区文字保持白色 */
         }
         
-        /* 统一修改所有 section 的标题颜色 */
+        /* 修改 .section-title 规则: 移除布局相关属性 */
         .section-title {
-            /* 基础颜色保留之前的逻辑（部分区域可能继承 body 的 #333） */
-            position: relative;
-            width: auto; /* 自适应内容宽度 */
-            display: inline-block;
-            /* 移除之前的统一 margin-left: 5% */
-            margin-right: auto;
-            padding-bottom: 0.5rem;
+            /* position: relative; */ /* 移除相对定位 */
+            /* width: auto; */ /* 移除宽度自适应 */
+            /* display: inline-block; */ /* 移除行内块显示 */
+            /* margin-right: auto; */ /* 移除右边距 */
+            /* padding-bottom: 0.5rem; */ /* 移除下内边距 */
             text-transform: uppercase;
-            font-size: 1.8rem;
-            margin-bottom: 50px;
-            text-align: left;
+            font-size: 2rem;
+            /* margin-bottom: 50px; */ /* 移除下边距 */
+            /* text-align: left; */ /* 移除左对齐 */
+            /* 保留文本样式，稍后可能迁移到 .overlay-title */
+            color: #777; /* 暂时保留颜色，或直接移除此规则 */
+            letter-spacing: 2px;
+            font-family: 'Montserrat', sans-serif;
         }
+
+        /* 移除所有标题强制对齐的规则 */
+        /*
+        #automotive .section-title,
+        #portrait .section-title,
+        #comparison .section-title,
+        #about .section-title,
+        #contact .section-title {
+            margin-left: 5% !important; 
+            padding-left: 0 !important;
+            text-indent: 0 !important; 
+        }
+        */
+
+        /* 添加新的 overlay-title 样式 */
+        .overlay-title {
+            color: #777; /* 标题颜色 */
+            font-size: 1.8rem; /* 桌面端大小 */
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            white-space: nowrap; /* 防止标题换行 */
+            margin: 0;
+            padding: 0;
+            /* left 和 top 由 JS 控制 */
+        }
+
+        /* 移除 #about .section-title 的特殊边距 */
+        /*
+        #about .section-title {
+            margin-bottom: 30px; 
+        }
+        */
         
         
         
@@ -420,7 +465,7 @@
             display: block;
             margin-top: 20px;
             text-align: center;
-            color: #333;
+            color: #777; /* 修改为与标题相同的颜色 */
             font-size: 0.9rem;
             font-weight: 500;
             transition: all 0.3s ease;
@@ -434,7 +479,7 @@
         }
         
         .more-projects:hover {
-            color: #555;
+            color: #999; /* 修改悬停颜色 */
             transform: translateY(-2px);
         }
         
@@ -823,7 +868,7 @@
             /* 重置hero区域尺寸 */
             /* ... */
             .hero-content .name {
-                font-size: 2rem !important;
+                font-size: 1.3rem !important; /* 从1.5rem改为1.3rem */
                 font-weight: 600; /* Changed mobile to SemiBold */
             }
             
@@ -1777,9 +1822,30 @@
 
         /* 移动端菜单样式 */
         @media screen and (max-width: 767px) {
+            /* 增加移动端各区域的上边距 */
+            #automotive {
+                margin-top: 120px !important; /* 显著增加 Hero 和 Auto 之间的距离 */
+            }
+            #comparison,
+            #portrait,
+            #about,
+            #contact {
+                margin-top: 100px !important; /* 各区域间增加 2 个格子的间距 */
+            }
+            
             /* --- Mobile Nav Styles (Copied from pricing page @media max-width: 875px) --- */
             .nav-menu a {
                 font-size: 1.2rem !important;
+            }
+            /* 确保标题项也是1.2rem */
+            .nav-menu a:first-child {
+                font-size: 1.2rem !important;
+            }
+            /* 调整移动端 overlay-title 样式 */
+            .overlay-title {
+                /* font-size: 1.5rem !important; */ /* 之前的设置 */
+                letter-spacing: 1px !important;
+                 font-size: 1.5rem !important; /* 恢复之前的移动端字体大小 */
             }
             .nav-toggle { /* Adjustments for mobile if needed, matching pricing.html */
                 width: 40px !important;
@@ -1805,6 +1871,23 @@
 
         /* 桌面端about-text-container样式调整 */
         @media screen and (min-width: 768px) {
+            /* 增加 PC 端各区域的上边距 */
+            #automotive { /* 单独增加 automotive 的上边距 */
+            margin-top: 300px!important; /* 增加 Hero 和 Automotive 之间的距离 */
+            }
+            #comparison {
+                margin-top: 150px!important; /* 保持 Comparison 和 Automotive 的上边距 */
+            }
+            #portrait {
+                margin-top: 150px!important; /* 保持 Comparison 和 Portrait 的上边距 */
+            }
+            #about { /* 单独设置 about 的上边距 */
+                margin-top: 200px!important; /* 增加 Portrait 和 About 之间距离 (+100px) */
+            }
+             #contact {
+                 margin-top: 100px!important; /* 保持 contact 的上边距 */
+            }
+            
             .about-text-container {
                 padding-top: 50px; /* 在电脑端增加更多顶部内边距 */
                 padding-left: 10px; /* 确保桌面端也减少左侧内边距 */
@@ -1830,11 +1913,98 @@
             }
         }
 
+        /* 桌面端about-text-container样式调整 */
+        @media screen and (min-width: 768px) {
+            /* 增加 PC 端各区域的上边距 */
+            #automotive { /* 单独增加 automotive 的上边距 */
+                 margin-top: 100px !important; /* 增加 Hero 和 Auto 之间的距离, 使用 !important 提高优先级 */
+            }
+            #comparison,
+            #portrait,
+            #about,
+            #contact {
+                margin-top: 80px; /* 增加上边距，可以调整这个值 */
+            }
+            
+            .about-text-container {
+                padding-top: 50px; /* 在电脑端增加更多顶部内边距 */
+                padding-left: 10px; /* 确保桌面端也减少左侧内边距 */
+                padding-right: 10px; /* 同时减少右侧内边距保持对称 */
+            }
+            
+            /* 调整桌面端的about-text样式 */
+            .about-text {
+                padding-left: 10px; /* 减少左侧内边距 */
+                padding-right: 10px; /* 保持对称 */
+            }
+        }
+
+        /* 临时调试网格 */
+        body::after {
+          content: '';
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-image:
+            linear-gradient(to right, rgba(0, 0, 255, 0.1) 1px, transparent 1px), /* 垂直蓝线 */
+            linear-gradient(to bottom, rgba(0, 0, 255, 0.1) 1px, transparent 1px); /* 水平蓝线 */
+          background-size: 50px 50px; /* 网格大小调整为 50px */
+          z-index: 9999; /* 确保在最顶层 */
+          pointer-events: none; /* 允许点击穿透 */
+          opacity: 0.4; /* 网格透明度 */
+        }
+
+        /* 移动端菜单样式 */
+        @media screen and (max-width: 767px) {
+            /* 增加移动端各区域的上边距 */
+            #automotive {
+                margin-top: 120px !important; /* 显著增加 Hero 和 Auto 之间的距离 */
+            }
+            #comparison,
+            #portrait,
+            #about,
+            #contact {
+                margin-top: 100px !important; /* 各区域间增加 2 个格子的间距 */
+            }
+            
+            /* --- Mobile Nav Styles (Copied from pricing page @media max-width: 875px) --- */
+            .nav-menu a {
+                font-size: 1.2rem !important;
+            }
+            /* 调整移动端 overlay-title 样式 */
+            .overlay-title {
+                /* font-size: 1.5rem !important; */ /* 之前的设置 */
+                letter-spacing: 1px !important;
+                 font-size: 1.5rem !important; /* 恢复之前的移动端字体大小 */
+            }
+            .nav-toggle { /* Adjustments for mobile if needed, matching pricing.html */
+                width: 40px !important;
+                height: 40px !important;
+                top: 20px !important;
+                right: 20px !important;
+            }
+            /* --- End Mobile Nav Styles --- */
+            
+            /* REMOVED old mobile menu styles for .menu-content and .menu-items */
+        }
+
     </style>
     
     
 </head>
 <body>
+    <!-- 标题覆盖层 -->
+    <div id="section-titles-overlay" style="position: absolute; top: 0; left: 0; width: 0; height: 0; z-index: 10; pointer-events: none;">
+         <!-- 静态放置标题，JS将更新它们的位置 -->
+         <h2 class="overlay-title" data-target-section="automotive" style="position: absolute; pointer-events: auto; opacity: 0; transition: opacity 0.5s;">AUTOMOTIVE</h2>
+         <h2 class="overlay-title" data-target-section="comparison" style="position: absolute; pointer-events: auto; opacity: 0; transition: opacity 0.5s;">COMPARISON</h2>
+         <h2 class="overlay-title" data-target-section="portrait" style="position: absolute; pointer-events: auto; opacity: 0; transition: opacity 0.5s;">PORTRAIT</h2>
+         <h2 class="overlay-title" data-target-section="about" style="position: absolute; pointer-events: auto; opacity: 0; transition: opacity 0.5s;">ABOUT ME</h2>
+         <h2 class="overlay-title" data-target-section="contact" style="position: absolute; pointer-events: auto; opacity: 0; transition: opacity 0.5s;">CONTACT ME</h2>
+    </div>
+
     <!-- 添加固定背景层 -->
     <div class="background-gradient"></div>
     
@@ -1848,7 +2018,7 @@
     <!-- 导航菜单 (using <nav>) -->
     <nav class="nav-menu">
         <!-- Links directly inside nav -->
-        <a href="index.html" style="font-size: 1.8rem; margin-top: -30px;">CALVINSUALS</a> 
+        <a href="index.html" style="font-size: 1.4rem; margin-top: -30px;">THE CALVINSUALS</a> 
         <br> <!-- Keep line break if needed for spacing -->
                     <a href="automotive.html">AUTOMOTIVE</a>
                     <a href="portrait.html">PORTRAIT</a>
@@ -1861,7 +2031,7 @@
     <section class="hero" id="hero">
         <div class="hero-container">
             <div class="hero-content">
-                <h1 class="name text-white">CalvinSuals</h1>
+                <h1 class="name text-white">THE CALVINSUALS</h1>
                 <p class="tagline"><span class="text-white">Capturing Every Moment You Want, Freezing Time.</span></p>
             </div>
         </div>
@@ -1869,7 +2039,6 @@
 
     <!-- 汽车摄影展示区 -->
     <section class="section" id="automotive">
-        <h2 class="section-title text-white">AUTOMOTIVE</h2>
         <div class="gallery-preview">
             <div class="gallery-slider">
                 <div class="gallery-slides" id="automotive-slides">
@@ -1888,7 +2057,6 @@
 
     <!-- 图片对比区 -->
     <section class="comparison-section" id="comparison">
-        <h2 class="section-title text-white">COMPARISON</h2>
         <div class="comparison-container" id="comparison-container-dynamic">
             <!-- 静态占位符 -->
             <p style="color: #999; text-align: center; padding: 20px;">对比区 (JS 已禁用)</p>
@@ -1900,7 +2068,7 @@
 
     <!-- 人像摄影展示区 -->
     <section class="section" id="portrait">
-        <h2 class="section-title text-white">PORTRAIT</h2>
+       
         <div class="gallery-preview">
             <div class="gallery-slider">
                 <div class="gallery-slides" id="portrait-slides">
@@ -1918,8 +2086,8 @@
     </section>
 
     <!-- 关于我区域 -->
-    <section class="section" id="about">
-        <h2 class="section-title text-white">ABOUT ME</h2>
+        <section class="section" id="about">
+            
         <div class="about-wrapper">
             <div class="about-image-container">
                 <img src="images/about/01/hero.jpg" alt="Photographer Portrait" onerror="this.alt='Profile image not found'; this.src=''; this.style.display='none';">
@@ -1947,8 +2115,7 @@
     </section>
 
     <!-- 联系我区域 -->
-    <section class="section contact-section" id="contact">
-        <h2 class="section-title text-white">CONTACT ME</h2>
+        <section class="section contact-section" id="contact">
         <div class="contact-container">
             <form id="contactForm" class="contact-form">
                 <div class="form-group">
@@ -2078,6 +2245,83 @@
             section.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
             observer.observe(section);
         });
+
+        // --- 新增：动态定位标题 --- 
+        function updateTitlePositions() {
+            // 1. 确定对齐参考元素 (汽车轮播图的外层预览容器)
+            const refElement = document.querySelector('#automotive .gallery-preview');
+            if (!refElement) {
+                console.error("Reference element for title alignment not found.");
+                return;
+            }
+
+            // 2. 计算参考元素的左边距 (相对于视口)
+            const targetOffsetLeft = refElement.getBoundingClientRect().left;
+
+            // 3. 获取所有需要定位的标题
+            const titles = document.querySelectorAll('.overlay-title');
+
+            // 4. 遍历并定位每个标题
+            titles.forEach(title => {
+                const sectionId = title.dataset.targetSection;
+                const sectionElement = document.getElementById(sectionId);
+
+                if (sectionElement) {
+                    // 计算目标区域的顶部位置 (相对于文档)
+                    const sectionTop = sectionElement.offsetTop;
+
+                    // 设置标题的 left 和 top 样式
+                    title.style.left = `${targetOffsetLeft}px`;
+
+                    // 设置垂直偏移量 (例如，在区域顶部上方一点)
+                    // 可以根据屏幕宽度调整偏移量
+                    let verticalOffset = window.innerWidth >= 768 ? 100 : 75; // 默认偏移量下移半格（25px）
+
+                    // 为特定区域设置不同的偏移量
+                    if (sectionId === 'comparison') {
+                        verticalOffset = window.innerWidth >= 768 ? -25 : -50; // 对比区偏移量下移半格
+                    } else if (sectionId === 'portrait') { 
+                        verticalOffset = window.innerWidth >= 768 ? 100 : 75; // Portrait 下移半格
+                    } else if (sectionId === 'about') {
+                         verticalOffset = window.innerWidth >= 768 ? 5 : 0; // about 区域偏移量 (保持不变)
+                    } else if (sectionId === 'contact') {
+                        verticalOffset = window.innerWidth >= 768 ? 35 : 30; // 联系区偏移量 (保持不变)
+                    }
+
+                    // 确保标题不与导航按钮重叠 (如果需要)
+                    const navToggleHeight = 60; // 导航按钮大致高度 + 间距
+                    title.style.top = `${Math.max(navToggleHeight, sectionTop - verticalOffset)}px`; // 减去偏移量使标题在区域上方，同时不低于导航按钮
+
+                    // 定位后显现标题
+                    title.style.opacity = '1';
+
+                } else {
+                    console.warn(`Target section #${sectionId} not found for title.`);
+                    title.style.opacity = '0'; // 隐藏找不到对应区域的标题
+                }
+            });
+        }
+
+        // 防抖函数 (避免 resize 事件过于频繁触发)
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // 5. 在页面加载完成和窗口大小改变时调用定位函数
+        // 延迟调用以确保所有元素渲染完成
+        window.addEventListener('load', () => {
+            setTimeout(updateTitlePositions, 100); // 延迟100ms执行
+        });
+        window.addEventListener('resize', debounce(updateTitlePositions, 150)); // 150ms 防抖
+        // --- 结束：动态定位标题 ---
 
     </script>
 
