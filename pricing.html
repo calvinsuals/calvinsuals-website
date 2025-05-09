@@ -16,6 +16,71 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/pricing_styles_zh.css">
+    
+    <!-- 添加悬浮条款按钮的样式 -->
+    <style>
+        #floating-terms-button {
+            position: fixed;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            transform-origin: right center;
+            z-index: 1000;
+            padding: 15px 10px;
+            background-color: rgba(20, 20, 20, 0.8);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+            border-right: none;
+            font-size: 1rem;
+            font-weight: 500;
+            letter-spacing: 3px;
+            cursor: pointer;
+            box-shadow: -2px 0 8px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            line-height: 1.8;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+        }
+        
+        #floating-terms-button:before {
+            content: "";
+            display: none;
+        }
+        
+        #floating-terms-button:hover {
+            background-color: rgba(30, 30, 30, 0.9);
+            border-color: rgba(255, 255, 255, 0.7);
+            transform: translateY(-50%) translateX(-5px);
+            box-shadow: -4px 0 12px rgba(0, 0, 0, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            #floating-terms-button {
+                padding: 10px 6px;
+                font-size: 0.75rem;
+                letter-spacing: 2px;
+                line-height: 1.6;
+                transform: translateY(-50%) scale(0.85);
+            }
+            
+            #floating-terms-button:before {
+                display: none;
+            }
+            
+            #floating-terms-button:hover {
+                transform: translateY(-50%) translateX(-5px) scale(0.85);
+            }
+        }
+    </style>
 
 </head>
 <body>
@@ -46,6 +111,9 @@
         <a href="javascript:void(0)" onclick="return navigateToMainSection('about')">ABOUT</a>
         <a href="javascript:void(0)" onclick="return navigateToMainSection('contact')">CONTACT</a>
     </nav>
+    
+    <!-- 添加悬浮须知按钮 -->
+    <button id="floating-terms-button" onclick="openTermsModal(); return false;">拍摄须知及条款</button>
 
     <!-- Page Header -->
     <header class="header">
@@ -182,11 +250,6 @@
 
         </div> <!-- End Automotive card-wrapper -->
 
-        <!-- 须知按钮 - 放在汽车区底部和人像区标题上方 -->
-        <div class="cta-section">
-           <button class="cta-button" id="terms-button" onclick="openTermsModal(); return false;">拍摄须知及条款</button>
-        </div>
-
         <!-- Divider or Header for Pet Section -->
         <header class="header" style="padding-top: 40px !important; margin-bottom: 30px !important;">
             <div class="header-container">
@@ -300,7 +363,7 @@
                     </ul>
                     <div class="item-divider"></div>
                     <p class="modal-text small-text">
-                        所有报价均基于单车拍摄。如需拍摄多辆车，每增加一辆车将额外收取$90费用，并赠送一张免费的集体合影。最终交付的照片数量为固定值。如需额外照片，可提前联系协商并支付额外费用。无法在大雨或大雪等恶劣天气下进行室外拍摄。部分特殊拍摄地点可能产生额外场地费用。所有相关费用将在拍摄前明确告知。
+                        所有报价均基于单车拍摄。如需拍摄多辆车，每增加一辆车将额外收取$90费用，并赠送一张免费的集体合影。最终交付的照片数量为固定值。如需额外照片，可提前联系协商并支付额外费用。无法在大雨或大雪等恶劣天气下进行室外拍摄。部分特殊拍摄地点可能产生额外场地费用。所有相关费用将在拍摄前明确告知。<strong>请您确保阅读拍摄须知及条款,定金收到代表已阅须知及条款。</strong>
                     </p>
                     <div class="item-divider"></div>
                     <div class="modal-footer-image-container">
@@ -337,7 +400,7 @@
                     </ul>
                     <div class="item-divider"></div>
                     <p class="modal-text small-text">
-                        所有报价均基于单车拍摄。如需拍摄多辆车，每增加一辆车将额外收取$90费用，并赠送一张免费的集体合影。最终交付的照片数量为固定值。如需额外照片，可提前联系协商并支付额外费用。无法在大雨或大雪等恶劣天气下进行室外拍摄。部分特殊拍摄地点可能产生额外场地费用。所有相关费用将在拍摄前明确告知。
+                        所有报价均基于单车拍摄。如需拍摄多辆车，每增加一辆车将额外收取$90费用，并赠送一张免费的集体合影。最终交付的照片数量为固定值。如需额外照片，可提前联系协商并支付额外费用。无法在大雨或大雪等恶劣天气下进行室外拍摄。部分特殊拍摄地点可能产生额外场地费用。所有相关费用将在拍摄前明确告知。<strong>请您确保阅读拍摄须知及条款,定金收到代表已阅须知及条款。</strong>
                     </p>
                     <div class="item-divider"></div>
                     <div class="modal-footer-image-container">
@@ -375,7 +438,7 @@
                     </ul>
                     <div class="item-divider"></div>
                     <p class="modal-text small-text">
-                        所有报价均基于单车拍摄。如需拍摄多辆车，每增加一辆车将额外收取$90费用，并赠送一张免费的集体合影。最终交付的照片数量为固定值。如需额外照片，可提前联系协商并支付额外费用。无法在大雨或大雪等恶劣天气下进行室外拍摄。部分特殊拍摄地点可能产生额外场地费用。所有相关费用将在拍摄前明确告知。
+                        所有报价均基于单车拍摄。如需拍摄多辆车，每增加一辆车将额外收取$90费用，并赠送一张免费的集体合影。最终交付的照片数量为固定值。如需额外照片，可提前联系协商并支付额外费用。无法在大雨或大雪等恶劣天气下进行室外拍摄。部分特殊拍摄地点可能产生额外场地费用。所有相关费用将在拍摄前明确告知。<strong>请您确保阅读拍摄须知及条款,定金收到代表已阅须知及条款。</strong>
                     </p>
                     <div class="item-divider"></div>
                     <div class="modal-footer-image-container">
@@ -414,7 +477,7 @@
                     </ul>
                     <div class="item-divider"></div>
                     <p class="modal-text small-text">
-                        所有报价均基于单辆摩托车拍摄。如需拍摄多辆车，每增加一辆车将额外收取$90费用，并赠送一张免费的集体合影。最终交付的照片数量为固定值。如需额外照片，可提前联系协商并支付额外费用。无法在大雨或大雪等恶劣天气下进行室外拍摄。部分特殊拍摄地点可能产生额外场地费用。所有相关费用将在拍摄前明确告知。
+                        所有报价均基于单辆摩托车拍摄。如需拍摄多辆车，每增加一辆车将额外收取$90费用，并赠送一张免费的集体合影。最终交付的照片数量为固定值。如需额外照片，可提前联系协商并支付额外费用。无法在大雨或大雪等恶劣天气下进行室外拍摄。部分特殊拍摄地点可能产生额外场地费用。所有相关费用将在拍摄前明确告知。<strong>请您确保阅读拍摄须知及条款,定金收到代表已阅须知及条款。</strong>
                     </p>
                     <div class="item-divider"></div>
                     <div class="modal-footer-image-container">
@@ -443,7 +506,7 @@
                     </ul>
                 <div class="item-divider"></div>
                     <p class="modal-text small-text">
-                        此服务为全方位定制化服务， 主要适用于需要多种类型的拍摄服务， 例如长途跟拍或各类活动跟拍。拍摄车辆数量及人数无限制。可根据需求定制照片所需要的后期精细程度、所需要的照片数量、所需要的交付时间、是否需要原始JPG文件等。计时方式为从摄影师离开出发地开始，至拍摄结束返回出发地为截止时间。总时长多出的部分超出不足30分钟按30分钟计算，超出30分钟及以上按60分钟计算。
+                        此服务为全方位定制化服务， 主要适用于需要多种类型的拍摄服务， 例如长途跟拍或各类活动跟拍。拍摄车辆数量及人数无限制。可根据需求定制照片所需要的后期精细程度、所需要的照片数量、所需要的交付时间、是否需要原始JPG文件等。计时方式为从摄影师离开出发地开始，至拍摄结束返回出发地为截止时间。总时长多出的部分超出不足30分钟按30分钟计算，超出30分钟及以上按60分钟计算。<strong>请您确保阅读拍摄须知及条款,定金收到代表已阅须知及条款。</strong>
                 </p>
                     <div class="item-divider"></div>
                     <div class="modal-footer-image-container">
@@ -478,7 +541,7 @@
                     </ul>
                     <div class="item-divider"></div>
                     <p class="modal-text small-text">
-                        套餐价格基于单人单场景拍摄设定。需要多场景拍摄需会产生额外加收费用视距离而定。最终交付照片数量为固定值。如需额外照片，可提前告知。无法在大雨或大雪等恶劣天气下进行室外拍摄。部分拍摄地点会有额外路程费用的加收。所有相关费用将在拍摄前明确告知。
+                        套餐价格基于单人单场景拍摄设定。需要多场景拍摄需会产生额外加收费用视距离而定。最终交付照片数量为固定值。如需额外照片，可提前告知。无法在大雨或大雪等恶劣天气下进行室外拍摄。部分拍摄地点会有额外路程费用的加收。所有相关费用将在拍摄前明确告知。<strong>请您确保阅读拍摄须知及条款,定金收到代表已阅须知及条款。</strong>
                     </p>
                     <div class="item-divider"></div>
                     <div class="modal-footer-image-container">
@@ -514,7 +577,7 @@
                     </ul>
                     <div class="item-divider"></div>
                     <p class="modal-text small-text">
-                        套餐价格基于一只宠物和单场景拍摄设定。需要多场景拍摄需会产生额外加收费用视距离而定。最终交付照片数量固定。如需额外照片，可提前告知。无法在大雨或大雪等恶劣天气下进行室外拍摄。部分拍摄地点会有额外路程费用的加收。所有相关费用将在拍摄前明确告知。
+                        套餐价格基于一只宠物和单场景拍摄设定。需要多场景拍摄需会产生额外加收费用视距离而定。最终交付照片数量固定。如需额外照片，可提前告知。无法在大雨或大雪等恶劣天气下进行室外拍摄。部分拍摄地点会有额外路程费用的加收。所有相关费用将在拍摄前明确告知。<strong>请您确保阅读拍摄须知及条款,定金收到代表已阅须知及条款。</strong>
                     </p>
                     <div class="item-divider"></div>
                     <div class="modal-footer-image-container">
@@ -543,7 +606,7 @@
                     </ul>
                 <div class="item-divider"></div>
                     <p class="modal-text small-text">
-                        此服务为全类型跟拍定制服务。主要适用于长途跟拍、小型活动的记录拍摄服务。无限制拍摄题材。可根据需求定制照片所需要的后期精细程度、所需要的照片数量和交付时间、是否需要原始JPG文件等。计时方式为从摄影师离开出发地开始，至拍摄结束返回出发地为截止时间。总时长多出的部分超出不足30分钟按30分钟计算，超出30分钟及以上按60分钟计算。
+                        此服务为全类型跟拍定制服务。主要适用于长途跟拍、小型活动的记录拍摄服务。无限制拍摄题材。可根据需求定制照片所需要的后期精细程度、所需要的照片数量和交付时间、是否需要原始JPG文件等。计时方式为从摄影师离开出发地开始，至拍摄结束返回出发地为截止时间。总时长多出的部分超出不足30分钟按30分钟计算，超出30分钟及以上按60分钟计算。<strong>请您确保阅读拍摄须知及条款,定金收到代表已阅须知及条款。</strong>
                 </p>
                     <div class="item-divider"></div>
                     <div class="modal-footer-image-container">

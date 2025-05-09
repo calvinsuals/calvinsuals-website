@@ -16,6 +16,69 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/pricing_styles_en.css">
+    
+    <!-- 添加悬浮条款按钮的样式 -->
+    <style>
+        #floating-terms-button {
+            position: fixed;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            transform-origin: right center;
+            z-index: 1000;
+            padding: 15px 12px;
+            background-color: rgba(20, 20, 20, 0.85);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+            border-right: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 2px;
+            cursor: pointer;
+            box-shadow: -2px 0 8px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            line-height: 1.4;
+            writing-mode: vertical-rl;
+        }
+        
+        #floating-terms-button:before {
+            content: "";
+            display: none;
+        }
+        
+        #floating-terms-button:hover {
+            background-color: rgba(30, 30, 30, 0.95);
+            border-color: rgba(255, 255, 255, 0.7);
+            transform: translateY(-50%) translateX(-5px);
+            box-shadow: -4px 0 12px rgba(0, 0, 0, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            #floating-terms-button {
+                padding: 10px 7px;
+                font-size: 0.7rem;
+                letter-spacing: 1px;
+                transform: translateY(-50%) scale(0.8);
+            }
+            
+            #floating-terms-button:before {
+                display: none;
+            }
+            
+            #floating-terms-button:hover {
+                transform: translateY(-50%) translateX(-5px) scale(0.8);
+            }
+        }
+    </style>
 
 </head>
 <body>
@@ -46,6 +109,9 @@
         <a href="javascript:void(0)" onclick="return navigateToMainSection('about')">ABOUT</a>
         <a href="javascript:void(0)" onclick="return navigateToMainSection('contact')">CONTACT</a>
     </nav>
+    
+    <!-- 添加悬浮须知按钮 -->
+    <button id="floating-terms-button" onclick="openTermsModal(); return false;">Terms & Conditions</button>
     
     <!-- Page Header -->
     <header class="header">
@@ -185,10 +251,6 @@
     
         </div> <!-- End card-wrapper (Moved here) -->
 
-        <!-- Terms & Conditions Button -->
-         <div class="cta-section">
-            <button class="cta-button" id="terms-button" onclick="openTermsModal(); return false;">Terms & Conditions</button>
-         </div>
     </main>
 
     <!-- Footer -->
@@ -215,7 +277,7 @@
                     <ul><li>LIGHTPAINT SHOT - $25/PIC</li><li>RAIN & SNOW SHOTS - $30/PER TIME</li><li>PORTRAIT ADD ON - $50/PPL</li><li>ADDITIONAL PHOTOS - $20/PIC</li></ul>
                     <div class="item-divider"></div>
                     <p class="modal-text small-text">
-                        All listed prices are based on a single vehicle. For sessions involving multiple vehicles, an additional charge of $90 per vehicle will apply, with one complimentary group photo included. The number of final images delivered is fixed. Additional photos may be arranged upon request for an extra fee (advance notice is required). Outdoor sessions cannot be conducted during periods of heavy rain or snow. Certain locations may incur additional fees. All such charges will be clearly communicated in advance.
+                        All listed prices are based on a single vehicle. For sessions involving multiple vehicles, an additional charge of $90 per vehicle will apply, with one complimentary group photo included. The number of final images delivered is fixed. Additional photos may be arranged upon request for an extra fee (advance notice is required). Outdoor sessions cannot be conducted during periods of heavy rain or snow. Certain locations may incur additional fees. All such charges will be clearly communicated in advance. <strong>Please ensure you read the Terms & Conditions. Receipt of deposit indicates your agreement to these terms.</strong>
                     </p>
                     <div class="item-divider"></div>
                     <div class="modal-footer-image-container">
@@ -237,7 +299,7 @@
                         <li>STATIC AND ROLLING PACKAGE - $ 299 / 20 PICS</li></ul>
                     <div class="item-divider"></div><h4>ADDITIONAL SERVICES</h4><ul><li>ROLLING SHOTS - $80/PRE TIME</li><li>LIGHTPAINT SHOT - $25/PIC</li><li>RAIN & SNOW SHOTS - $30/PER TIME</li><li>PORTRAIT ADD ON - $50/PPL</li><li>ADDITIONAL PHOTOS - $20/PIC</li></ul>
                     <div class="item-divider"></div><p class="modal-text small-text">
-                        All listed prices are based on a single vehicle. For sessions involving multiple vehicles, an additional charge of $90 per vehicle will apply, with one complimentary group photo included. The number of final images delivered is fixed. Additional photos may be arranged upon request for an extra fee (advance notice is required). Outdoor sessions cannot be conducted during periods of heavy rain or snow. Certain locations may incur additional fees. All such charges will be clearly communicated in advance.
+                        All listed prices are based on a single vehicle. For sessions involving multiple vehicles, an additional charge of $90 per vehicle will apply, with one complimentary group photo included. The number of final images delivered is fixed. Additional photos may be arranged upon request for an extra fee (advance notice is required). Outdoor sessions cannot be conducted during periods of heavy rain or snow. Certain locations may incur additional fees. All such charges will be clearly communicated in advance. <strong>Please ensure you read the Terms & Conditions. Receipt of deposit indicates your agreement to these terms.</strong>
                     </p>
                     <div class="item-divider"></div>
                     <div class="modal-footer-image-container">
@@ -260,7 +322,7 @@
                         <li>PACKAGE 3 - $ 400 / 20 PICS</li></ul>
                     <div class="item-divider"></div><h4>ADDITIONAL SERVICES</h4><ul><li>ROLLING SHOTS - $80/PER TIME</li><li>LIGHTPAINT SHOT - $25/PIC</li><li>RAIN & SNOW SHOTS - $30/PER TIME</li><li>PORTRAIT ADD ON - $50/PPL</li><li>ADDITIONAL PHOTOS - $20/PIC</li></ul>
                     <div class="item-divider"></div><p class="modal-text small-text">
-                        All listed prices are based on a single vehicle. For sessions involving multiple vehicles, an additional charge of $90 per vehicle will apply, with one complimentary group photo included. The number of final images delivered is fixed. Additional photos may be arranged upon request for an extra fee (advance notice is required). Outdoor sessions cannot be conducted during periods of heavy rain or snow. Certain locations may incur additional fees. All such charges will be clearly communicated in advance.
+                        All listed prices are based on a single vehicle. For sessions involving multiple vehicles, an additional charge of $90 per vehicle will apply, with one complimentary group photo included. The number of final images delivered is fixed. Additional photos may be arranged upon request for an extra fee (advance notice is required). Outdoor sessions cannot be conducted during periods of heavy rain or snow. Certain locations may incur additional fees. All such charges will be clearly communicated in advance. <strong>Please ensure you read the Terms & Conditions. Receipt of deposit indicates your agreement to these terms.</strong>
                     </p>
                     <div class="item-divider"></div>
                     <div class="modal-footer-image-container">
@@ -284,7 +346,7 @@
                         <li>ONLY ROLLING CHECK ROLLING PACKAGE</li></ul>
                     <div class="item-divider"></div><h4>ADDITIONAL SERVICES</h4><ul><li>ROLLING SHOTS - $80/PRE TIME</li><li>LIGHTPAINT SHOT - $25/PIC</li><li>RAIN & SNOW SHOTS - $30/PER TIME</li><li>PORTRAIT ADD ON - $50/PPL</li><li>ADDITIONAL PHOTOS - $20/PIC</li></ul>
                     <div class="item-divider"></div><p class="modal-text small-text">
-                        All listed prices are based on a single vehicle. For sessions involving multiple vehicles, an additional charge of $90 per vehicle will apply, with one complimentary group photo included. The number of final images delivered is fixed. Additional photos may be arranged upon request for an extra fee (advance notice is required). Outdoor sessions cannot be conducted during periods of heavy rain or snow. Certain locations may incur additional fees. All such charges will be clearly communicated in advance.
+                        All listed prices are based on a single vehicle. For sessions involving multiple vehicles, an additional charge of $90 per vehicle will apply, with one complimentary group photo included. The number of final images delivered is fixed. Additional photos may be arranged upon request for an extra fee (advance notice is required). Outdoor sessions cannot be conducted during periods of heavy rain or snow. Certain locations may incur additional fees. All such charges will be clearly communicated in advance. <strong>Please ensure you read the Terms & Conditions. Receipt of deposit indicates your agreement to these terms.</strong>
                     </p>
                     <div class="item-divider"></div>
                     <div class="modal-footer-image-container">
@@ -307,7 +369,7 @@
                         <li>OVER 5 HRS - $ 120/PRE HOUR</li></ul>
                 <div class="item-divider"></div>
                     <p class="modal-text small-text">
-                        All-inclusive customized service for long-distance shoots/events. No restrictions on vehicles/people. Customize photo count, delivery time, raw file needs. Timing: photographer departure to return. Overage <30min rounds up to 30min; >30min rounds up to 60min.
+                        All-inclusive customized service for long-distance shoots/events. No restrictions on vehicles/people. Customize photo count, delivery time, raw file needs. Timing: photographer departure to return. Overage <30min rounds up to 30min; >30min rounds up to 60min. <strong>Please ensure you read the Terms & Conditions. Receipt of deposit indicates your agreement to these terms.</strong>
                     </p>
                     <div class="item-divider"></div>
                     <div class="modal-footer-image-container">
