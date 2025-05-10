@@ -1,6 +1,8 @@
 name: Generate Gallery JSON
 
 on:
+  schedule:
+    - cron: '0 * * * *'  # 每小时运行一次
   push:
     branches:
       - main
@@ -43,7 +45,12 @@ jobs:
           echo "secrets.R2_PUBLIC_BASE_URL is present: ${{ secrets.R2_PUBLIC_BASE_URL && 'true' || 'false' }}"
 
       - name: Run script to generate JSON
-        run: python generate_galleries.py
+        run: |
+          echo "--- 开始运行生成脚本 ---"
+          python generate_galleries.py
+          echo "--- 脚本执行完成 ---"
+          echo "--- 检查生成的 JSON 文件 ---"
+          find images -name "*.json" -type f -exec echo "Found: {}" \;
         env: # Use secrets, DO NOT HARDCODE VALUES HERE!
           R2_ENDPOINT_URL: ${{ secrets.R2_ENDPOINT_URL }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
@@ -60,8 +67,8 @@ jobs:
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
           echo "--- 开始将文件添加到 Git ---"
-          git add images/automotive/ images/portrait/
-          git add images/automotive/galleries.json images/portrait/galleries.json images/**/*.json
+          git add images/
+          git add images/**/*.json
           
           echo "--- 添加文件后的 Git 状态 ---"
           git status
