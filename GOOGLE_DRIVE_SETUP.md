@@ -32,7 +32,7 @@
    - 添加授权域（您网站的域名）
 4. 创建OAuth客户端ID:
    - 应用类型: 选择"Web应用"
-   - 名称: 输入"Calvinsuals Website"
+   - 名称: 输入"calvinsuals Website"
    - 授权的JavaScript来源: 添加您网站的URL（开发时可以使用`http://localhost:8000`）
    - 授权的重定向URI: 添加您网站的URL
 5. 点击"创建"
