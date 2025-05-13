@@ -32,7 +32,7 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         // 初始化轮播逻辑 (如果提供了 navId 且有多张图片)
         if (navId && finalImageUrls.length > 1) {
             // 传递图片数量给轮播初始化函数
-            initializeGallerySlider(containerId, navId, finalImageUrls.length);
+            initializeGallerySlider(containerId, navId);
         } else if (nav) {
              // 如果只有一张图，隐藏导航点
              nav.style.display = 'none';
@@ -832,8 +832,8 @@ function initializeGallerySlider(slidesId, dotsId) {
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM Loaded. Initializing scripts...");
     // 导航菜单功能 (使用 automotive.html 的逻辑，包含 setTimeout)
-    const menuToggle = document.querySelector('.menu-toggle');
-    const menuContent = document.querySelector('.menu-content');
+    const menuToggle = document.querySelector('.nav-toggle');
+    const menuContent = document.querySelector('.nav-menu');
     console.log("Menu Toggle Element:", menuToggle);
     console.log("Menu Content Element:", menuContent);
     if (menuToggle && menuContent) {
@@ -853,12 +853,12 @@ document.addEventListener('DOMContentLoaded', () => {
                  menuContent.style.visibility = 'visible';
              }
          });
-         const menuItems = document.querySelectorAll('.menu-items a');
+         const menuItems = menuContent.querySelectorAll('a');
          menuItems.forEach(item => { 
              item.addEventListener('click', (e) => { 
                  const targetHref = item.getAttribute('href');
                  // Only close menu immediately for internal links or same-page links
-                 if (targetHref.startsWith('#') || targetHref === window.location.pathname || targetHref === 'index.html') {
+                 if (targetHref.startsWith('#') || targetHref === window.location.pathname || targetHref === 'index.html' || item.onclick) {
                      // Close the menu
                      menuToggle.classList.remove('active');
                      menuContent.classList.remove('active');
@@ -869,8 +869,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             menuContent.style.visibility = 'hidden';
                          }
                      }, 400);
-                     // Prevent page reload only for same-page links (not anchor links)
-                     if (!targetHref.startsWith('#')) {
+                     // Prevent page reload only for same-page links (not anchor links) AND not for onclick handlers
+                     if (!targetHref.startsWith('#') && !item.onclick) {
                          e.preventDefault(); 
                      }
                  } 
