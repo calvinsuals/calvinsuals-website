@@ -30,12 +30,20 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         container.appendChild(fragment);
 
         // 初始化轮播逻辑 (如果提供了 navId 且有多张图片)
+        console.log(`[LoadGalleryImages DEBUG ${containerId}] Checking conditions for calling initializeGallerySlider:`); // 新增
+        console.log(`[LoadGalleryImages DEBUG ${containerId}] navId:`, navId); // 新增
+        console.log(`[LoadGalleryImages DEBUG ${containerId}] nav element (document.getElementById(navId)):`, nav); // 新增
+        console.log(`[LoadGalleryImages DEBUG ${containerId}] finalImageUrls.length:`, finalImageUrls.length); // 新增
+        console.log(`[LoadGalleryImages DEBUG ${containerId}] Condition (navId && finalImageUrls.length > 1):`, (navId && finalImageUrls.length > 1)); // 新增
+
         if (navId && finalImageUrls.length > 1) {
-            // 传递图片数量给轮播初始化函数
+            console.log(`[LoadGalleryImages DEBUG ${containerId}] Conditions MET. Calling initializeGallerySlider...`); // 新增
             initializeGallerySlider(containerId, navId);
-        } else if (nav) {
-             // 如果只有一张图，隐藏导航点
+        } else if (nav) { // 注意，如果 navId 为空但 nav 存在（理论上不应发生），或图片不足，会进入这里
+            console.log(`[LoadGalleryImages DEBUG ${containerId}] Conditions NOT MET for initializeGallerySlider. navId: ${navId}, length: ${finalImageUrls.length}. Hiding nav element if it exists.`); // 新增
              nav.style.display = 'none';
+        } else { // navId 和 nav 都为空
+             console.log(`[LoadGalleryImages DEBUG ${containerId}] Conditions NOT MET for initializeGallerySlider. navId: ${navId} (nav element also null), length: ${finalImageUrls.length}.`); // 新增
         }
         console.log(`[${containerId}] Successfully displayed ${finalImageUrls.length} images from ${jsonPath}`);
 
@@ -659,170 +667,144 @@ function initializeDragScrolling() {
 
 // --- 其他函数 (轮播, 表单, 弹窗, 菜单) ---
 function initializeGallerySlider(slidesId, dotsId) {
-    const slides = document.getElementById(slidesId);
-    const slideElements = slides.querySelectorAll('.gallery-slide');
-    const dots = document.querySelectorAll(`#${dotsId} .gallery-dot`);
-    if (!slides || dots.length === 0) return;
+    console.log(`[FadeSlider DEBUG] initializeGallerySlider called with slidesId: ${slidesId}, dotsId: ${dotsId}`); // 新增
+
+    const slidesContainer = document.getElementById(slidesId);
+    console.log(`[FadeSlider DEBUG] slidesContainer (element with ID ${slidesId}):`, slidesContainer); // 新增
+
+    if (!slidesContainer) {
+        console.error(`[FadeSlider DEBUG] Gallery container #${slidesId} NOT FOUND. Aborting init.`); // 修改
+        return;
+    }
+
+    // Ensure the direct parent (.gallery-slider) is positioned relatively
+    // This is crucial for the absolute positioning of slides within it.
+    const gallerySliderElement = slidesContainer.closest('.gallery-slider');
+    if (gallerySliderElement) {
+        gallerySliderElement.style.position = 'relative';
+    } else {
+        console.warn(`[FadeSlider DEBUG] Could not find .gallery-slider parent for #${slidesId}. Ensure it exists and wraps .gallery-slides.`); // 修改
+    }
+
+    const slideElements = Array.from(slidesContainer.querySelectorAll('.gallery-slide'));
+    console.log(`[FadeSlider DEBUG] Found ${slideElements.length} .gallery-slide elements inside #${slidesId}. First slide element:`, slideElements.length > 0 ? slideElements[0] : 'None'); // 新增
+
+
+    const dotElements = dotsId ? Array.from(document.querySelectorAll(`#${dotsId} .gallery-dot`)) : [];
+    console.log(`[FadeSlider DEBUG] Found ${dotElements.length} .gallery-dot elements for dotsId: ${dotsId}`); // 新增
+
+
+    if (slideElements.length === 0) {
+        console.warn(`[FadeSlider DEBUG] No .gallery-slide elements found in #${slidesId}. Aborting.`); // 新增
+        return;
+    }
+
     let currentIndex = 0;
-    let interval;
-    let isTransitioning = false; // 防止快速点击导致的问题
-    
-    // 克隆所有幻灯片用于真正的无限循环
-    const originalSlideCount = slideElements.length;
-    
-    // 克隆第一张到最后
-    if (slideElements.length > 0) {
-        const firstSlideClone = slideElements[0].cloneNode(true);
-        slides.appendChild(firstSlideClone);
-    }
-    
-    // 克隆最后一张到最前面（为向右循环准备）
-    if (slideElements.length > 0) {
-        const lastSlideClone = slideElements[originalSlideCount-1].cloneNode(true);
-        slides.insertBefore(lastSlideClone, slides.firstChild);
-        
-        // 初始化时要显示第一张原始幻灯片，所以需要向左偏移一个幻灯片宽度
-        slides.style.transform = `translateX(-100%)`;
-        currentIndex = 1; // 注意现在的索引从1开始（0是克隆的最后一张）
-    }
-    
-    // 优化渲染性能
-    slides.style.willChange = 'transform';
-    slides.style.backfaceVisibility = 'hidden';
-    slides.style.webkitBackfaceVisibility = 'hidden';
-    slides.style.transform = 'translateZ(0)';
-    slides.style.webkitTransform = 'translateZ(0)';
-    
-    // 延迟加载背景图片
-    function lazyLoadSlideImages() {
-        const allSlides = slides.querySelectorAll('.gallery-slide');
-        allSlides.forEach((slide, index) => {
-            // 如果有数据属性但没有设置背景图
-            if (slide.dataset.bgImage && !slide.style.backgroundImage) {
-                // 使用 IntersectionObserver 或自定义逻辑加载
-                // 简单实现：对于视口附近的图片进行加载
-                const proximity = Math.abs(index - currentIndex);
-                if (proximity <= 1) {  // 修改：只加载当前和前后紧邻的1张
-                    slide.style.backgroundImage = `url('${slide.dataset.bgImage}')`;
-                    
-                    // 异步预加载图片提高渲染性能
-                    setTimeout(() => {
-                        const img = new Image();
-                        img.src = slide.dataset.bgImage;
-                    }, 0);
-                }
-            }
-        });
-    }
+    let intervalId = null;
+    const transitionDuration = 700; // ms, matches CSS
+    const autoPlayDelay = 5000; // ms
 
-    function showSlide(index, animate = true) {
-        if (isTransitioning) return; // 如果正在过渡中，忽略请求
-        
-        isTransitioning = true;
-        
-        // 确保动画计时与过渡时间匹配
-        const transitionTime = 800; // 减少到0.8秒以提升流畅感
-        
-        if (!animate) {
-            slides.style.transition = 'none';
+    // Prepare slides
+    slideElements.forEach((slide, index) => {
+        slide.style.position = 'absolute';
+        slide.style.top = '0';
+        slide.style.left = '0';
+        slide.style.width = '100%';
+        slide.style.height = '100%';
+        slide.style.opacity = index === 0 ? '1' : '0';
+        slide.style.visibility = index === 0 ? 'visible' : 'hidden';
+        slide.style.transition = `opacity ${transitionDuration}ms ease-in-out, visibility ${transitionDuration}ms ease-in-out`;
+        slide.style.transform = 'translateZ(0)'; // Promote to own layer
+        slide.style.backfaceVisibility = 'hidden';
+
+
+        // Eagerly load first image, others lazy
+        if (slide.dataset.bgImage) {
+            if (index === 0) {
+                slide.style.backgroundImage = `url('${slide.dataset.bgImage}')`;
+            }
         } else {
-            slides.style.transition = `transform ${transitionTime}ms cubic-bezier(0.23, 1, 0.32, 1)`;
+            console.warn(`[FadeSlider DEBUG] Slide ${index} in #${slidesId} is missing data-bgImage attribute.`);
         }
-        
-        // 预先加载将要显示的幻灯片图像
-        const allSlides = slides.querySelectorAll('.gallery-slide');
-        if (allSlides[index] && allSlides[index].dataset.bgImage && !allSlides[index].style.backgroundImage) {
-            allSlides[index].style.backgroundImage = `url('${allSlides[index].dataset.bgImage}')`;
+    });
+    console.log(`[FadeSlider DEBUG] Slides prepared for #${slidesId}. Current index: ${currentIndex}`); // 新增
+
+    function showSlide(newIndex) {
+        if (newIndex === currentIndex || slideElements.length === 0) return;
+        console.log(`[FadeSlider DEBUG #${slidesId}] Showing slide ${newIndex}. Current: ${currentIndex}`); // 新增
+
+        const currentSlide = slideElements[currentIndex];
+        const nextSlide = slideElements[newIndex];
+
+        // Lazy load next image if not already loaded
+        if (nextSlide.dataset.bgImage && !nextSlide.style.backgroundImage) {
+            nextSlide.style.backgroundImage = `url('${nextSlide.dataset.bgImage}')`;
+            console.log(`[FadeSlider DEBUG #${slidesId}] Lazy loaded image for slide ${newIndex}: ${nextSlide.dataset.bgImage}`); // 新增
         }
-        
-        // 调整index，考虑到前后各有一个克隆幻灯片
-        requestAnimationFrame(() => {
-            slides.style.transform = `translateX(-${index * 100}%)`;
-            
-            // 更新导航点状态 - 由于添加了前后克隆幻灯片，需要调整索引
-            dots.forEach(dot => dot.classList.remove('active'));
-            
-            // 计算对应的原始幻灯片索引（移除克隆幻灯片的影响）
-            let originalIndex = index - 1; // 因为第一个是克隆的最后一张
-            if (originalIndex < 0) originalIndex = originalSlideCount - 1;
-            if (originalIndex >= originalSlideCount) originalIndex = 0;
-            
-            if (dots[originalIndex]) {
-                dots[originalIndex].classList.add('active');
-            }
-            
-            // 无限循环逻辑：
-            // 如果滑动到了克隆幻灯片区域，滑动完成后无缝跳回实际位置
-            if (index <= 0) { // 如果到了最左边（克隆的最后一张）
-                setTimeout(() => {
-                    slides.style.transition = 'none';
-                    slides.style.transform = `translateX(-${originalSlideCount * 100}%)`;
-                    currentIndex = originalSlideCount; // 跳到最后一张实际幻灯片
-                    isTransitioning = false;
-                    
-                    // 预加载相邻幻灯片
-                    setTimeout(lazyLoadSlideImages, 100);
-                }, transitionTime);
-            } else if (index >= originalSlideCount + 1) { // 如果超过了最右边（克隆的第一张）
-                setTimeout(() => {
-                    slides.style.transition = 'none';
-                    slides.style.transform = `translateX(-100%)`;
-                    currentIndex = 1; // 跳回第一张实际幻灯片
-                    isTransitioning = false;
-                    
-                    // 预加载相邻幻灯片
-                    setTimeout(lazyLoadSlideImages, 100);
-                }, transitionTime);
-            } else {
-                currentIndex = index;
-                
-                // 过渡结束后重置标志
-                setTimeout(() => {
-                    isTransitioning = false;
-                    
-                    // 延迟加载相邻幻灯片
-                    lazyLoadSlideImages();
-                }, transitionTime);
-            }
-        });
+
+        currentSlide.style.opacity = '0';
+        currentSlide.style.visibility = 'hidden';
+
+        nextSlide.style.opacity = '1';
+        nextSlide.style.visibility = 'visible';
+
+        if (dotElements.length > 0) {
+            if (dotElements[currentIndex]) dotElements[currentIndex].classList.remove('active');
+            if (dotElements[newIndex]) dotElements[newIndex].classList.add('active');
+        }
+        console.log(`[FadeSlider DEBUG #${slidesId}] Slide ${currentIndex} hidden, slide ${newIndex} shown.`); // 新增
+        currentIndex = newIndex;
     }
 
-    function nextSlide() {
-        if (!isTransitioning) {
-            showSlide(currentIndex + 1);
+    function next() {
+        showSlide((currentIndex + 1) % slideElements.length);
+    }
+
+    function prev() {
+        showSlide((currentIndex - 1 + slideElements.length) % slideElements.length);
+    }
+
+    function startAutoPlay() {
+        stopAutoPlay(); // Clear existing interval before starting a new one
+        if (slideElements.length > 1) { // Only autoplay if there's more than one slide
+            intervalId = setInterval(next, autoPlayDelay);
+            console.log(`[FadeSlider DEBUG #${slidesId}] Autoplay started. Interval ID: ${intervalId}`); // 新增
+        } else {
+            console.log(`[FadeSlider DEBUG #${slidesId}] Autoplay not started (only 1 or 0 slides).`); // 新增
         }
     }
 
-    function prevSlide() { // 为完整性添加，虽然目前未使用
-        if (!isTransitioning) {
-            showSlide(currentIndex - 1);
+    function stopAutoPlay() {
+        if (intervalId) {
+            clearInterval(intervalId);
+            console.log(`[FadeSlider DEBUG #${slidesId}] Autoplay stopped. Cleared interval ID: ${intervalId}`); // 新增
+            intervalId = null;
         }
     }
 
-    dots.forEach((dot, index) => {
+    // Initialize dots and their event listeners
+    if (dotElements.length > 0) {
+        dotElements.forEach((dot, index) => {
         dot.addEventListener('click', () => {
-            if (!isTransitioning) {
-                clearInterval(interval);
-                // 点击导航点时，需要+1来考虑前面的克隆幻灯片
-                showSlide(index + 1);
-                startAutoSlide();
-            }
+                console.log(`[FadeSlider DEBUG #${slidesId}] Dot ${index} clicked.`); // 新增
+                stopAutoPlay();
+                showSlide(index);
+                // Optionally restart autoplay after manual interaction, or leave it stopped
+                // startAutoPlay(); 
         });
     });
-
-    function startAutoSlide() {
-        // 清除旧的定时器（如果存在）
-        clearInterval(interval);
-        // 保持原有的8000ms速度
-        interval = setInterval(nextSlide, 8000);
+        if (dotElements[currentIndex]) dotElements[currentIndex].classList.add('active');
+    }
+    
+    // Initial setup
+    if (slideElements.length > 0 && slideElements[0].dataset.bgImage && !slideElements[0].style.backgroundImage) {
+         slideElements[0].style.backgroundImage = `url('${slideElements[0].dataset.bgImage}')`; // Ensure first image is loaded
+         console.log(`[FadeSlider DEBUG #${slidesId}] Ensured first image is loaded: ${slideElements[0].dataset.bgImage}`); // 新增
     }
 
-    // 初始加载相邻幻灯片
-    lazyLoadSlideImages();
-    
-    // 初始化第一张幻灯片位置
-    showSlide(currentIndex, false);
-    startAutoSlide();
+
+    startAutoPlay();
+    console.log(`[FadeSlider DEBUG] Initialization complete for slider: ${slidesId}.`); // 新增
 }
 // function initializeContactForm() { /* ... */ }
 // function showModal(modalId) { /* ... */ }
