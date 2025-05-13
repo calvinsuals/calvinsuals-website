@@ -412,15 +412,15 @@
         .gallery-slider {
             position: relative;
             overflow: hidden;
-            border-radius: 0;
+            border-radius: 0.1px; /* 修改：增加微小圆角以改善裁切 */
             /* box-shadow: 0 20px 50px rgba(0,0,0,0.45), 0 10px 25px rgba(0,0,0,0.3); */ /* 原始阴影 */
             box-shadow: 0 25px 60px rgba(0,0,0,0.55), 0 15px 35px rgba(0,0,0,0.4); /* 进一步加深阴影 */
             max-width: 1400px;
             margin: 0 auto;
             border: none; /* 移除边框 */
-            transform: perspective(1000px) translateZ(0); /* 增加透视效果 */
-            backface-visibility: hidden; /* 新增 */
-            -webkit-backface-visibility: hidden; /* 新增 */
+            transform: perspective(1000px) translateZ(0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
         }
         
         .gallery-slides {
@@ -442,7 +442,9 @@
             background-size: cover;
             background-position: center;
             transform: translateZ(0);
-            outline: 1px solid transparent; /* 新增 */
+            backface-visibility: hidden; /* 新增 */
+            -webkit-backface-visibility: hidden; /* 新增 */
+            outline: 1px solid transparent;
         }
         
         .gallery-slide img {
