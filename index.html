@@ -410,50 +410,38 @@
         }
         
         .gallery-slider {
-            position: relative; /* JS会设置，但CSS中明确是好的 */
+            position: relative;
             overflow: hidden;
-            /* border-radius: 0.1px; */ /* 移除之前尝试的微小圆角 */
-            box-shadow: 0 25px 60px rgba(0,0,0,0.55), 0 15px 35px rgba(0,0,0,0.4);
+            border-radius: 0;
+            /* box-shadow: 0 20px 50px rgba(0,0,0,0.45), 0 10px 25px rgba(0,0,0,0.3); */ /* 原始阴影 */
+            box-shadow: 0 25px 60px rgba(0,0,0,0.55), 0 15px 35px rgba(0,0,0,0.4); /* 进一步加深阴影 */
             max-width: 1400px;
             margin: 0 auto;
-            border: none;
-            /* 移除滑动效果相关的 transform 和 backface-visibility */
-            /* transform: perspective(1000px) translateZ(0); */
-            /* backface-visibility: hidden; */
-            /* -webkit-backface-visibility: hidden; */
+            border: none; /* 移除边框 */
+            transform: perspective(1000px) translateZ(0); /* 增加透视效果 */
         }
-
+        
         .gallery-slides {
-            /* display: flex; */ /* 移除flex布局 */
-            position: relative; /* 自身也相对定位，确保能撑开高度 */
-            width: 100%;
-            height: 0; /* 使用padding-bottom技巧来维持宽高比 */
-            padding-bottom: 50%; /* 对应2:1的宽高比 */
-            /* 移除滑动效果相关的属性 */
-            /* transition: transform 2s ease-out; */
-            /* box-shadow: inset 0 0 40px rgba(0,0,0,0.5); */ /* 这个内阴影可能不再需要或不适合渐隐 */
-            /* will-change: transform; */
-            /* backface-visibility: hidden; */
-            /* -webkit-backface-visibility: hidden; */
-            /* -webkit-perspective: 1000; */
-            /* perspective: 1000; */
+            display: flex;
+            transition: transform 2s cubic-bezier(0.25, 0.1, 0.25, 1);
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.5); /* 增强内阴影深度和不透明度 */
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            -webkit-perspective: 1000;
+            perspective: 1000;
         }
-
+        
         .gallery-slide {
-            /* flex: 0 0 100%; */ /* 移除flex子项属性 */
-            height: 0; /* 保持，与padding-bottom一起工作 */
-            padding-bottom: 50%; /* 2:1比例, 保持 */
-            /* position: absolute; */ /* JS 会设置 */
-            /* width: 100%; */ /* JS 会设置 */
-            background-size: cover; /* 保持 */
-            background-position: center; /* 保持 */
-            /* JS 会控制 opacity, visibility, transition, transform: none */
-            /* transform: translateZ(0); */ /* 移除 */
-            /* backface-visibility: hidden; */ /* 移除 */
-            /* -webkit-backface-visibility: hidden; */ /* 移除 */
-            /* outline: 1px solid transparent; */ /* 移除 */
+            flex: 0 0 100%;
+            height: 0;
+            padding-bottom: 50%; /* 2:1比例 */
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            transform: translateZ(0);
         }
-
+        
         .gallery-slide img {
             position: absolute;
             top: 0;
@@ -2112,9 +2100,8 @@
                 <img src="images/about/01/hero.jpg" alt="Photographer Portrait" onerror="this.alt='Profile image not found'; this.src=''; this.style.display='none';">
             </div>
             <div class="about-text-container">
-                <p>ESTP留学生到顶流性价比车摄OG? 性格不是很E也不是很I</I>.</p>
-                <p>拍摄过200+辆车，服务过300+位客人，为车行提供过服务，为大型活动记录过瞬间.</p>
-                <p>资深摄影师,致力于让每一位客人每次都能愉快的拍完每一组照片.</p>
+                <p>你好，我是Calvin Chan。从多伦多留学生到性价比车摄OG? MBTI是ESTP，既不完全外向也不完全内向。服务过300多位客户，拍摄过200多个项目。</p>
+                <p>摄影于我，不只是工作，更是热爱。每一次拍摄，都是与客户共同完成的一次创作。感谢每一位信任我的朋友，我始终致力于让每一位客人都能满意、愉快地完成每一次拍摄。</p>
             </div>
         </div>
         <div class="social-links about-social">
