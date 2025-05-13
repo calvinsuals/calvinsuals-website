@@ -814,53 +814,53 @@ function initializeGallerySlider(slidesId, dotsId) {
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM Loaded. Initializing scripts...");
     // 导航菜单功能 (使用 automotive.html 的逻辑，包含 setTimeout)
-    const menuToggle = document.querySelector('.nav-toggle');
-    const menuContent = document.querySelector('.nav-menu');
-    console.log("Menu Toggle Element:", menuToggle);
-    console.log("Menu Content Element:", menuContent);
-    if (menuToggle && menuContent) {
-         console.log("菜单元素找到，正在添加监听器 (带 setTimeout 逻辑)...");
-         menuToggle.addEventListener('click', () => { 
-             menuToggle.classList.toggle('active');
-             menuContent.classList.toggle('active');
-             // Add visibility control with setTimeout
-             if (!menuContent.classList.contains('active')) {
-                 setTimeout(() => {
-                     // Check again in case it was quickly reopened
-                     if (!menuContent.classList.contains('active')) {
-                         menuContent.style.visibility = 'hidden';
-                     }
-                 }, 400); // Match CSS transition duration
-             } else {
-                 menuContent.style.visibility = 'visible';
-             }
-         });
-         const menuItems = menuContent.querySelectorAll('a');
-         menuItems.forEach(item => { 
-             item.addEventListener('click', (e) => { 
-                 const targetHref = item.getAttribute('href');
-                 // Only close menu immediately for internal links or same-page links
-                 if (targetHref.startsWith('#') || targetHref === window.location.pathname || targetHref === 'index.html' || item.onclick) {
-                     // Close the menu
-                     menuToggle.classList.remove('active');
-                     menuContent.classList.remove('active');
-                     // Add setTimeout for visibility
-                     setTimeout(() => {
-                         // Check again before hiding
-                         if (!menuContent.classList.contains('active')) {
-                            menuContent.style.visibility = 'hidden';
-                         }
-                     }, 400);
-                     // Prevent page reload only for same-page links (not anchor links) AND not for onclick handlers
-                     if (!targetHref.startsWith('#') && !item.onclick) {
-                         e.preventDefault(); 
-                     }
-                 } 
-                 // For external links, let the browser navigate. The menu will be closed on the new page load.
-             }); 
-         });
-         console.log("菜单事件监听器添加完成 (带 setTimeout 逻辑)。");
-    } else { console.warn('菜单切换按钮或内容未找到...'); }
+    // const menuToggle = document.querySelector('.nav-toggle');
+    // const menuContent = document.querySelector('.nav-menu');
+    // console.log("Menu Toggle Element:", menuToggle);
+    // console.log("Menu Content Element:", menuContent);
+    // if (menuToggle && menuContent) {
+    //      console.log("菜单元素找到，正在添加监听器 (带 setTimeout 逻辑)...");
+    //      menuToggle.addEventListener('click', () => { 
+    //          menuToggle.classList.toggle('active');
+    //          menuContent.classList.toggle('active');
+    //          // Add visibility control with setTimeout
+    //          if (!menuContent.classList.contains('active')) {
+    //              setTimeout(() => {
+    //                  // Check again in case it was quickly reopened
+    //                  if (!menuContent.classList.contains('active')) {
+    //                      menuContent.style.visibility = 'hidden';
+    //                  }
+    //              }, 400); // Match CSS transition duration
+    //          } else {
+    //              menuContent.style.visibility = 'visible';
+    //          }
+    //      });
+    //      const menuItems = menuContent.querySelectorAll('a');
+    //      menuItems.forEach(item => { 
+    //          item.addEventListener('click', (e) => { 
+    //              const targetHref = item.getAttribute('href');
+    //              // Only close menu immediately for internal links or same-page links
+    //              if (targetHref.startsWith('#') || targetHref === window.location.pathname || targetHref === 'index.html' || item.onclick) {
+    //                  // Close the menu
+    //                  menuToggle.classList.remove('active');
+    //                  menuContent.classList.remove('active');
+    //                  // Add setTimeout for visibility
+    //                  setTimeout(() => {
+    //                      // Check again before hiding
+    //                      if (!menuContent.classList.contains('active')) {
+    //                         menuContent.style.visibility = 'hidden';
+    //                      }
+    //                  }, 400);
+    //                  // Prevent page reload only for same-page links (not anchor links) AND not for onclick handlers
+    //                  if (!targetHref.startsWith('#') && !item.onclick) {
+    //                      e.preventDefault(); 
+    //                  }
+    //              } 
+    //              // For external links, let the browser navigate. The menu will be closed on the new page load.
+    //          }); 
+    //      });
+    //      console.log("菜单事件监听器添加完成 (带 setTimeout 逻辑)。");
+    // } else { console.warn('菜单切换按钮或内容未找到...'); }
 
     // *** 初始化调用 ***
     console.log("开始加载轮播图和对比区...");
