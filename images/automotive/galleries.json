@@ -10,6 +10,11 @@
     "jsonFile": "gallery_02/images.json"
   },
   {
+    "id": "gallery_03",
+    "title": "Gallery 03",
+    "jsonFile": "gallery_03/images.json"
+  },
+  {
     "id": "gallery_04",
     "title": "Gallery 04",
     "jsonFile": "gallery_04/images.json"
