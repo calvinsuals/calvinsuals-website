@@ -785,7 +785,7 @@ body:before {
     padding: 15px 20px 10px; /* Reduced padding-bottom */
     overflow-y: auto;
     -webkit-overflow-scrolling: touch; /* 增强iOS滚动体验 */
-    overscroll-behavior: contain; /* 防止滚动传播 */
+    overscroll-behavior: none; /* 禁止弹性回弹 */
     max-height: calc(100dvh - 180px); /* 限制最大高度，留出头部和底部空间 */
     scrollbar-width: thin; /* Firefox */
     scrollbar-color: rgba(255, 255, 255, 0.3) transparent; /* Firefox */
@@ -809,6 +809,41 @@ body:before {
     opacity: 0.75 !important; /* Slightly more faded */
     line-height: 1.5 !important;
     margin-top: 25px !important;
+}
+
+/* --- Desktop Performance (keep blur look) --- */
+@media (min-width: 876px) {
+    /* 不改变视觉毛玻璃，但减少 backdrop-filter 相关的重绘/合成压力 */
+    .modal {
+        will-change: opacity; /* 覆盖原本的 will-change: backdrop-filter, opacity; */
+    }
+
+    /* 桌面端避免 dvh 引起的视口单位重新计算导致的轻微抖动 */
+    .modal {
+        height: 100vh !important;
+        transition: none !important; /* 减少打开/关闭瞬间的过渡重绘抖动 */
+    }
+
+    /* 桌面端用更原生的滚动路径，并限制滚动影响范围 */
+    .modal-body {
+        -webkit-overflow-scrolling: auto;
+        contain: content;
+        max-height: calc(100vh - 180px); /* 覆盖 dvh 版本 */
+    }
+
+    .modal.is-visible {
+        transition: none !important;
+    }
+
+    .modal-content {
+        contain: paint; /* 隔离弹窗内部滚动的重绘影响范围 */
+    }
+
+    /* 弹窗打开期间，关闭卡片上的额外毛玻璃（通常不影响弹窗主体的外观） */
+    body.modal-open .frozen-overlay {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
 }
 
 .modal-body ul { 
@@ -875,7 +910,7 @@ body:before {
         
         /* 防止弹窗内容滑动影响整个页面 */
         touch-action: none; /* 禁用默认触摸行为 */
-        overscroll-behavior: contain; /* 防止滚动传播 */
+        overscroll-behavior: none; /* 禁止弹性回弹 */
         
         /* 之前的样式保持不变 */
         display: flex !important;
@@ -896,7 +931,7 @@ body:before {
         border-radius: 15px;
         box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
         overflow: hidden; /* 重要：确保内容不会超出边界 */
-        overscroll-behavior: contain; /* 防止滚动传播 */
+        overscroll-behavior: none; /* 禁止弹性回弹 */
     }
     
     .modal-body {
@@ -905,7 +940,7 @@ body:before {
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none; /* 隐藏滚动条 */
-        overscroll-behavior: contain; /* 防止滚动传播 */
+        overscroll-behavior: none; /* 禁止弹性回弹 */
         /* Ensure max-height is sufficient */
         max-height: calc(100dvh - 120px); /* Adjust if header size changes */
         padding-bottom: 40px; /* Increased padding-bottom to 40px for mobile */
@@ -1181,6 +1216,18 @@ body:before {
 @keyframes cardGradient {
     0% { background-position: 0% 0%; }
     100% { background-position: 100% 100%; }
+}
+
+/* --- Performance: pause background animations while modal is open --- */
+body.modal-open .page-title,
+body.modal-open .page-subtitle {
+    animation: none !important;
+}
+
+/* Pseudo-element animations for cards */
+body.modal-open .pricing-card::after,
+body.modal-open .card.frozen::after {
+    animation: none !important;
 }
 
 /* 确保冻结卡片也有玻璃效果 */

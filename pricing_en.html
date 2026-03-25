@@ -263,10 +263,10 @@
     <div id="modal-container">
         <!-- Rolling Modal -->
         <div class="modal" id="modal-rolling" style="display: none;">
+        <button type="button" class="close-modal" aria-label="Close">&times;</button>
         <div class="modal-content">
                 <div class="modal-header">
                     <h3 class="modal-title">ROLLING PACKAGE</h3>
-                    <button type="button" class="close-modal" aria-label="Close">&times;</button>
                 </div>
             <div class="modal-body">
                     <p class="modal-text"><strong>PRICING OPTIONS:</strong></p>
@@ -291,8 +291,9 @@
     </div>
         <!-- Basic Modal -->
         <div class="modal" id="modal-basic" style="display: none;">
+        <button type="button" class="close-modal" aria-label="Close">&times;</button>
         <div class="modal-content">
-                <div class="modal-header"><h3 class="modal-title">BASIC PACKAGE</h3><button type="button" class="close-modal">&times;</button></div>
+                <div class="modal-header"><h3 class="modal-title">BASIC PACKAGE</h3></div>
             <div class="modal-body">
                     <p class="modal-text"><strong>PRICING OPTIONS:</strong></p>
                     <ul><li>STATIC PACKAGE 1 - $ 159 / 9 PICS</li>
@@ -314,8 +315,9 @@
     </div>
         <!-- Advanced Modal -->
         <div class="modal" id="modal-advanced" style="display: none;">
+        <button type="button" class="close-modal" aria-label="Close">&times;</button>
         <div class="modal-content">
-                <div class="modal-header"><h3 class="modal-title">ADVANCED PACKAGE</h3><button type="button" class="close-modal">&times;</button></div>
+                <div class="modal-header"><h3 class="modal-title">ADVANCED PACKAGE</h3></div>
             <div class="modal-body">
                     <p class="modal-text"><strong>PRICING OPTIONS:</strong></p>
                     <ul><li>PACKAGE 1 - $ 265 / 9 PICS</li>
@@ -337,8 +339,9 @@
     </div>
         <!-- Motorcycle Modal -->
         <div class="modal" id="modal-motorcycle" style="display: none;">
+        <button type="button" class="close-modal" aria-label="Close">&times;</button>
         <div class="modal-content">
-                <div class="modal-header"><h3 class="modal-title">MOTORCYCLE PACKAGE</h3><button type="button" class="close-modal">&times;</button></div>
+                <div class="modal-header"><h3 class="modal-title">MOTORCYCLE PACKAGE</h3></div>
             <div class="modal-body">
                     <p class="modal-text"><strong>PRICING OPTIONS:</strong></p>
                     <ul><li>STATIC PACKAGE 1 - $ 199 / 9 PICS</li>
@@ -361,8 +364,9 @@
     </div>
         <!-- Customized Service Modal -->
         <div class="modal" id="modal-follow" style="display: none;">
+        <button type="button" class="close-modal" aria-label="Close">&times;</button>
         <div class="modal-content">
-                <div class="modal-header"><h3 class="modal-title">CUSTOMIZED SERVICE</h3><button type="button" class="close-modal">&times;</button></div>
+                <div class="modal-header"><h3 class="modal-title">CUSTOMIZED SERVICE</h3></div>
             <div class="modal-body">
                      <p class="modal-text"><strong>HOURLY RATES:</strong></p>
                     <ul><li>MINIMUN 2 HRS - $ 180/PRE HOUR</li>
@@ -384,8 +388,9 @@
     </div>
         <!-- Terms Modal -->
         <div class="modal" id="modal-terms" style="display: none;">
+        <button type="button" class="close-modal" aria-label="Close">&times;</button>
         <div class="modal-content">
-                <div class="modal-header"><h3 class="modal-title">Shooting Terms & Conditions</h3><button type="button" class="close-modal">&times;</button></div>
+                <div class="modal-header"><h3 class="modal-title">Shooting Terms & Conditions</h3></div>
             <div class="modal-body">
                     <div class="notice-section"><h3>Booking Process</h3><ul><li>A 50% deposit is required to confirm all photography services. Your shoot date will be officially reserved upon receipt of the deposit. The deposit is valid for 180 days.</li></ul></div>
                     <div class="notice-section"><h3>Delivery Time</h3><ul><li>The delivery period begins after the final payment is received. The standard turnaround time is 14x24Hrs (excluding public holidays).</li>
@@ -425,17 +430,17 @@
         if (termsModal) {
             termsModal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
-            document.body.style.position = 'fixed';
-            document.body.style.width = '100%';
-            document.body.style.top = `-${window.scrollY}px`;
             document.body.dataset.scrollY = window.scrollY;
+            document.body.classList.add('modal-open'); // 暂停背景动画，减少毛玻璃重绘压力
             
             termsModal.classList.add('is-visible');
             
             const modalBody = termsModal.querySelector('.modal-body');
             if (modalBody) {
                 modalBody.style.overflowY = 'auto';
-                modalBody.style.webkitOverflowScrolling = 'touch';
+                // 桌面端滚动用更原生的滚动路径；仅在触屏/粗指针设备启用 touch scroller
+                const isCoarsePointer = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+                modalBody.style.webkitOverflowScrolling = isCoarsePointer ? 'touch' : 'auto';
             }
             
             console.log('Inline JS: Terms modal opened');

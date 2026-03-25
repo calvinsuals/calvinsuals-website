@@ -1294,7 +1294,7 @@
                 max-width: 800px;
                 width: 100%;
                 margin: 0 auto;
-                text-align: center;
+                text-align: left;
             }
             
             /* 移除可能影响布局的旧样式 */
@@ -1323,15 +1323,42 @@
             padding-left: 10px; /* 减少左侧内边距 */
             padding-right: 10px; /* 同时减少右侧内边距保持对称 */
             padding-top: 40px; /* 添加顶部内边距 */
-            color: #999; /* Changed to an even lighter gray */
+            color: #666; /* Darker for better readability over gradients */
             font-size: 1.05rem;
             line-height: 1.7;
             font-family: 'Montserrat', sans-serif !important; /* Force font */
-            text-align: center; /* 文本居中对齐 */
+            text-align: left; /* 文本左对齐 */
         }
         .about-text-container p {
             font-family: 'Montserrat', sans-serif !important; /* Force font */
-            text-align: center; /* 确保段落也居中对齐 */
+            text-align: left; /* 确保段落左对齐 */
+        }
+
+        /* 关于我点状分组：给“视觉/拍摄初衷/价值所在”前加圆点 */
+        .about-point {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .about-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-top: 0.55em; /* 让圆点跟随文字中线 */
+            background-color: #666;
+            flex: 0 0 auto;
+        }
+
+        /* 文案 key 的“标签”尽量不折行，避免圆点对齐显得跳 */
+        .about-point strong {
+            white-space: nowrap;
+        }
+
+        /* 引号长句：给它更合适的段落间距和可读性 */
+        .about-quote {
+            margin-top: 10px;
+            line-height: 1.7;
         }
 
         /* 移动端样式调整 */
@@ -1351,8 +1378,23 @@
             .about-text-container {
                 width: 100%;
                 padding: 0 20px;
-                text-align: center;
-                font-size: 0.95rem;
+                text-align: left;
+                font-size: 0.85rem; /* 手机端缩小字级 */
+                line-height: 1.65;
+            }
+
+            /* 缩小圆点与首行对齐偏移，适配字体变小 */
+            .about-point {
+                gap: 8px;
+                margin: 8px 0;
+            }
+            .about-dot {
+                margin-top: 0.45em;
+            }
+            .about-quote {
+                font-size: 0.88rem;
+                line-height: 1.7;
+                margin-top: 8px;
             }
         }
 
@@ -2059,7 +2101,7 @@
         <div class="hero-container">
             <div class="hero-content">
                 <h1 class="name text-white">The calvinsuals</h1>
-                <p class="tagline"><span class="text-white">Capturing Every Moment You Want, Freezing Time.</span></p>
+                <p class="tagline"><span class="text-white">Capture The Moment, Time Frozen, Kept Timeless.</span></p>
             </div>
         </div>
     </section>
@@ -2118,8 +2160,12 @@
                 <img src="images/about/01/hero.jpg" alt="Photographer Portrait" onerror="this.alt='Profile image not found'; this.src=''; this.style.display='none';">
             </div>
             <div class="about-text-container">
-                <p>Hello，我是Calvin Chan。从多伦多留学生到性价比车摄OG? ESTP是我的MBTI，既不完全外向也不完全内向。服务过300多位客户，拍摄过200多个项目。</p>
-                <p>拍照于您不只是记录，而是一件充满情绪价值的事情。每一次拍摄，都是与客户共同完成的一次新的创作，每一张独一无二的照片的背后永远都能给您提供情绪价值。始终致力于让每一位客人都能满意、愉快地完成每一次拍摄体验。</p>
+                <p><strong>Calvin Chan | 视觉创作</strong></p>
+                <p>200+ Projects & Clients Trust.</p>
+                <p class="about-point"><span class="about-dot"></span><strong>关于视觉：</strong> 审美没有平替。</p>
+                <p class="about-point"><span class="about-dot"></span><strong>拍摄初衷：</strong> 希望是因为喜欢我的风格而选择我。</p>
+                <p class="about-point"><span class="about-dot"></span><strong>价值所在：</strong> 照片不仅是画面，更是源源不断提供情绪价值的载体。</p>
+                <p class="about-quote">“交付的是无法平替的视觉审美，投入的是极具性价比的专业诚意，留下的是愉快的拍摄体验.”</p>
             </div>
         </div>
         <div class="social-links about-social">

@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // REMOVED initNavMenu(); // 导航菜单由 js/navigation.js 初始化
     initTermsButton(); // 初始化条款按钮
     initPaymentIcons(); // 初始化支付图标
+    preloadModalFooterImages(); // 预先解码弹窗图片，减少首次滚动卡顿
 
     // --- 可选功能初始化 (会检查元素是否存在) ---
     // 这些功能可能只在特定页面存在，脚本会安全处理
@@ -25,6 +26,27 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
+ * 预先解码弹窗内图片，避免 Safari/macOS 首次滚动时出现解码导致的卡顿
+ */
+function preloadModalFooterImages() {
+    const images = document.querySelectorAll('#modal-container img.modal-moved-footer-image');
+    if (!images || images.length === 0) return;
+
+    images.forEach(img => {
+        try {
+            img.decoding = 'async';
+            img.loading = 'eager';
+            // 触发 decode 提前完成（decode 不存在时忽略）
+            if (typeof img.decode === 'function') {
+                img.decode().catch(() => {});
+            }
+        } catch (e) {
+            // ignore
+        }
+    });
+}
+
+/**
  * 初始化卡片和模态窗口交互 (新逻辑)
  */
 function initCardModalInteraction() {
@@ -32,17 +54,18 @@ function initCardModalInteraction() {
     const modalContainer = document.getElementById('modal-container');
     let lastModalOpenTime = 0;
     let isTouchDevice = false; // 标记是否为触屏设备
+    const isDesktop = window.matchMedia && window.matchMedia("(min-width: 876px)").matches;
 
     // --- Helper Functions ---
 
     // 检查设备类型
     function detectDeviceType() {
-        const hasTouchCapability = 'ontouchstart' in window ||
-                                 navigator.maxTouchPoints > 0 ||
-                                 navigator.msMaxTouchPoints > 0 ||
-                                 (window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
-        isTouchDevice = hasTouchCapability;
-        console.log(isTouchDevice ? '检测到触屏设备' : '检测到非触屏设备');
+        // macOS 触控板/精细指针设备也可能存在 `ontouchstart`，但不应走触摸事件拦截逻辑
+        const coarsePointer = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+        const hoverNone = window.matchMedia && window.matchMedia("(hover: none)").matches;
+        const hasTouchPoints = navigator.maxTouchPoints > 0;
+        isTouchDevice = coarsePointer || (hoverNone && hasTouchPoints);
+        console.log(isTouchDevice ? '检测到触屏设备（粗指针）' : '检测到非触屏设备（精细指针）');
     }
 
     // 获取所有卡片
@@ -64,19 +87,17 @@ function initCardModalInteraction() {
         if (modal) {
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden'; // 禁止 body 滚动
-            document.body.style.position = 'fixed'; // 固定body位置
-            document.body.style.width = '100%'; // 保持宽度100%
-            document.body.style.top = `-${window.scrollY}px`; // 记住当前滚动位置
             document.body.dataset.scrollY = window.scrollY; // 存储滚动位置
-            
-            setTimeout(() => {
+            document.body.classList.add('modal-open'); // 暂停背景动画，减少毛玻璃重绘压力
+
+            const activateModal = () => {
                 modal.classList.add('is-visible');
-                
+
                 // 添加模态窗口内触摸事件处理
                 const modalContent = modal.querySelector('.modal-content');
                 const modalBody = modal.querySelector('.modal-body');
                 const modalFooter = modal.querySelector('.modal-payment-footer');
-                
+
                 if (modalContent && isTouchDevice) {
                     // 防止模态窗口内的触摸事件冒泡到body
                     modalContent.addEventListener('touchmove', function(e) {
@@ -93,7 +114,14 @@ function initCardModalInteraction() {
                         }, { passive: false });
                     }
                 }
-            }, 10);
+            };
+
+            if (isDesktop) {
+                activateModal(); // 桌面端禁用过渡时序，避免额外重绘
+            } else {
+                setTimeout(activateModal, 10);
+            }
+
             lastModalOpenTime = Date.now();
             console.log(`打开模态窗口: ${fullModalId}`);
         } else {
@@ -116,18 +144,17 @@ function initCardModalInteraction() {
                 modalContent.parentNode.replaceChild(newModalContent, modalContent);
             }
             
+            const closeDelay = isDesktop ? 0 : 300;
             setTimeout(() => {
                 modal.style.display = 'none';
                 
                 // 恢复body滚动状态
                 const scrollY = parseInt(document.body.dataset.scrollY || '0');
-                document.body.style.position = '';
-                document.body.style.width = '';
-                document.body.style.top = '';
                 document.body.style.overflow = '';
                 window.scrollTo(0, scrollY);
+                document.body.classList.remove('modal-open'); // 恢复背景动画
                 
-            }, 300); // 等待动画完成
+            }, closeDelay); // 等待动画完成（移动端）
             console.log(`关闭模态窗口: ${modalId}`);
 
             // 关闭时重新冻结对应的卡片
@@ -283,10 +310,8 @@ function initTermsButton() {
                 // 直接显示模态窗口
                 termsModal.style.display = 'flex';
                 document.body.style.overflow = 'hidden'; // 禁止 body 滚动
-                document.body.style.position = 'fixed'; // 固定body位置
-                document.body.style.width = '100%'; // 保持宽度100%
-                document.body.style.top = `-${window.scrollY}px`; // 记住当前滚动位置
                 document.body.dataset.scrollY = window.scrollY; // 存储滚动位置
+                document.body.classList.add('modal-open'); // 暂停背景动画，减少毛玻璃重绘压力
                 
                 // 立即添加可见类，不使用setTimeout
                 termsModal.classList.add('is-visible');
@@ -295,7 +320,9 @@ function initTermsButton() {
                 const modalBody = termsModal.querySelector('.modal-body');
                 if (modalBody) {
                     modalBody.style.overflowY = 'auto';
-                    modalBody.style.webkitOverflowScrolling = 'touch';
+                    // 桌面端滚动用更原生的滚动路径；仅在触屏/粗指针设备启用 touch scroller
+                    const isCoarsePointer = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+                    modalBody.style.webkitOverflowScrolling = isCoarsePointer ? 'touch' : 'auto';
                     console.log('已设置模态窗口内容可滚动');
                 }
                 
@@ -344,20 +371,21 @@ function initTermsButton() {
         const termsModal = document.getElementById('modal-terms');
         if (termsModal) {
             termsModal.classList.remove('is-visible');
-            
+
+            const isDesktop = window.matchMedia && window.matchMedia("(min-width: 876px)").matches;
+            const closeDelay = isDesktop ? 0 : 300;
+
             setTimeout(() => {
                 termsModal.style.display = 'none';
                 
                 // 恢复body滚动状态
                 const scrollY = parseInt(document.body.dataset.scrollY || '0');
-                document.body.style.position = '';
-                document.body.style.width = '';
-                document.body.style.top = '';
                 document.body.style.overflow = '';
                 window.scrollTo(0, scrollY);
+                document.body.classList.remove('modal-open'); // 恢复背景动画
                 
                 console.log('条款模态窗口已关闭，恢复页面状态');
-            }, 300); // 等待动画完成
+            }, closeDelay); // 等待动画完成（移动端）
         }
     }
     

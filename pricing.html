@@ -342,10 +342,10 @@
     <div id="modal-container">
         <!-- 动态拍摄套餐 Dynamic Modal -->
         <div class="modal" id="modal-rolling">
+            <button type="button" class="close-modal" aria-label="关闭">&times;</button>
             <div class="modal-content">
                 <div class="modal-header">
                     <h3 class="modal-title">动态拍摄套餐</h3>
-                    <button type="button" class="close-modal" aria-label="关闭">&times;</button>
                 </div>
                 <div class="modal-body">
                     <p class="modal-text"><strong>价格选项:</strong></p>
@@ -378,10 +378,10 @@
 
         <!-- 基础拍摄套餐 Cars Standard Modal -->
         <div class="modal" id="modal-cars-standard">
+            <button type="button" class="close-modal" aria-label="关闭">&times;</button>
             <div class="modal-content">
                 <div class="modal-header">
                     <h3 class="modal-title">基础拍摄套餐</h3>
-                    <button type="button" class="close-modal" aria-label="关闭">&times;</button>
                 </div>
                 <div class="modal-body">
                     <p class="modal-text"><strong>价格选项:</strong></p>
@@ -681,17 +681,17 @@
         if (termsModal) {
             termsModal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
-            document.body.style.position = 'fixed';
-            document.body.style.width = '100%';
-            document.body.style.top = `-${window.scrollY}px`;
             document.body.dataset.scrollY = window.scrollY;
+            document.body.classList.add('modal-open'); // 暂停背景动画，减少毛玻璃重绘压力
             
             termsModal.classList.add('is-visible');
             
             const modalBody = termsModal.querySelector('.modal-body');
             if (modalBody) {
                 modalBody.style.overflowY = 'auto';
-                modalBody.style.webkitOverflowScrolling = 'touch';
+                // 桌面端滚动用更原生的滚动路径；仅在触屏/粗指针设备启用 touch scroller
+                const isCoarsePointer = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+                modalBody.style.webkitOverflowScrolling = isCoarsePointer ? 'touch' : 'auto';
             }
             
             console.log('内联JS: 条款模态窗口已打开');
