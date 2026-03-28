@@ -39,7 +39,8 @@ body {
     right: 0;
     bottom: 0;
     width: 100%;
-    height: 100vh;
+    height: 100vh; /* fallback */
+    height: 100dvh;
     z-index: -1;
     background: var(--primary-gradient);
     transition: none;
@@ -62,7 +63,8 @@ body {
     left: 0 !important;
     top: 0 !important;
     width: 100% !important;
-    height: 100% !important;
+    height: 100vh !important; /* fallback */
+    height: 100dvh !important; /* 与中文版一致，移动端随浏览器 UI */
     overflow: hidden !important;
     
     /* 多层背景方案，消除断层问题 */
@@ -272,7 +274,8 @@ body:before {
     top: 0;
     left: 0;
     width: 100%;
-    height: 100vh;
+    height: 100vh; /* fallback */
+    height: 100dvh;
     background-color: rgba(0, 0, 0, 0.9);
     z-index: 1000;
     display: flex;

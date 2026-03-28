@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>CALVINSUALS - AUTOMOTIVE PROJECTS</title>
     <!-- 字体 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -106,7 +106,8 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 100vh;
+            height: 100vh; /* fallback */
+            height: 100dvh;
             background-color: rgba(0, 0, 0, 0.9);
             z-index: 1000;
             transform: translateY(-100%);
