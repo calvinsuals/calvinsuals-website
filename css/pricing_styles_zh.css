@@ -26,21 +26,19 @@ body {
     margin: 0;
     padding: 0;
     overflow-x: hidden; /* Prevent horizontal scroll */
-    /* 使用单色背景替代渐变，防止滚动残影 */
-    background-color: #333;
+    /* 与渐变深色端一致；用 !important 避免被后续规则误清 */
+    background-color: #333 !important;
     position: relative;
 }
 
 /* 恢复背景渐变层，移除噪点纹理和透明度 */
 .background-gradient {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     width: 100%;
     height: 100vh; /* fallback */
     height: 100dvh;
+    height: 100svh; /* 最后生效：支持 svh 的浏览器用稳定视口，减少地址栏动画时露缝 */
     z-index: -1;
     background: var(--primary-gradient);
     transition: none;
@@ -117,19 +115,21 @@ body {
     }
 
 
-/* 修改html/body样式，去除可能引起冲突的背景设置 */
+/* 修改 html/body：勿用 background:none，否则会清掉 body 的底色导致露白/断层 */
 html, body {
     overflow-x: hidden;
     position: relative;
     width: 100%;
     max-width: 100%;
-    /* 移除背景设置 */
-    background: none !important;
-    background-attachment: initial !important;
     background-image: none !important;
+    background-attachment: initial !important;
     min-height: 100%;
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
+}
+
+html {
+    background-color: #333;
 }
 
 /* 移除之前添加的body:before */
