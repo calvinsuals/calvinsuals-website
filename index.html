@@ -2290,31 +2290,12 @@
 
         // REMOVED Gallery Slider Logic - now handled by js/main.js
         
-        // Intersection Observer for fade-in effect (Keep this if specific to index.html)
+        // 保持区域立即可见，避免快速滚动时出现“白一下再加载”的体感。
         const sections = document.querySelectorAll('.section, .comparison-section, .about-section, .contact-section, .footer');
-        const observerOptions = {
-            root: null, // relative to the viewport
-            rootMargin: '0px',
-            threshold: 0.1 // trigger when 10% of the element is visible
-        };
-
-        const observer = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = 1;
-                    entry.target.style.transform = 'translateY(0)';
-                    // Optional: unobserve after animation
-                    // observer.unobserve(entry.target); 
-                }
-            });
-        }, observerOptions);
-
         sections.forEach(section => {
-            // Initial state before animation
-            section.style.opacity = 0;
-            section.style.transform = 'translateY(20px)';
-            section.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
-            observer.observe(section);
+            section.style.opacity = 1;
+            section.style.transform = 'none';
+            section.style.transition = 'none';
         });
 
         // --- 新增：动态定位标题 --- 

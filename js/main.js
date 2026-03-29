@@ -1,4 +1,52 @@
 // *** 函数定义区域 ***
+const __jsonCache = new Map();
+const __imageWarmCache = new Set();
+
+function warmImage(url) {
+    if (!url || typeof url !== 'string' || __imageWarmCache.has(url)) return;
+    __imageWarmCache.add(url);
+    const img = new Image();
+    img.decoding = 'async';
+    img.src = url;
+}
+
+function warmImagesIdle(urls, eagerCount = 8) {
+    const valid = (urls || []).filter((u) => typeof u === 'string' && u.startsWith('http'));
+    if (valid.length === 0) return;
+
+    valid.slice(0, eagerCount).forEach(warmImage);
+    const queue = valid.slice(eagerCount);
+
+    const run = (deadline) => {
+        while (queue.length > 0 && (!deadline || deadline.timeRemaining() > 4)) {
+            warmImage(queue.shift());
+        }
+        if (queue.length > 0) {
+            if ('requestIdleCallback' in window) {
+                window.requestIdleCallback(run, { timeout: 1200 });
+            } else {
+                setTimeout(() => run(), 50);
+            }
+        }
+    };
+
+    if (queue.length > 0) {
+        if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(run, { timeout: 1200 });
+        } else {
+            setTimeout(() => run(), 50);
+        }
+    }
+}
+
+async function fetchJsonCached(jsonPath) {
+    if (__jsonCache.has(jsonPath)) return __jsonCache.get(jsonPath);
+    const response = await fetch(jsonPath, { cache: 'force-cache' });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    __jsonCache.set(jsonPath, data);
+    return data;
+}
 
 /**
  * 加载图片列表并初始化轮播图 (加载 R2 图片)
@@ -7,12 +55,11 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
     const container = document.getElementById(containerId);
     const nav = navId ? document.getElementById(navId) : null;
     if (!container) { console.error(`Error: Container #${containerId} not found.`); return; }
+    if (container.dataset.loadedJsonPath === jsonPath && container.childElementCount > 0) return;
     container.innerHTML = ''; if (nav) nav.innerHTML = '';
     console.log(`[${containerId}] Loading image URLs from: ${jsonPath}`);
     try {
-        const response = await fetch(`${jsonPath}?t=${Date.now()}`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const imageUrls = await response.json();
+        const imageUrls = await fetchJsonCached(jsonPath);
         if (!Array.isArray(imageUrls)) throw new Error(`JSON data from ${jsonPath} is not a valid array.`);
         console.log(`[${containerId}] Found ${imageUrls.length} image URLs.`);
         let finalImageUrls = (count !== Infinity && count > 0) ? imageUrls.slice(0, count) : imageUrls;
@@ -22,12 +69,14 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
             const slide = document.createElement('div'); slide.className = 'gallery-slide';
             if (typeof imgUrl === 'string' && imgUrl.startsWith('http')) {
                 slide.dataset.bgImage = imgUrl;
-                if (index < 2) { slide.style.backgroundImage = `url('${imgUrl}')`; }
+                if (index < 4) { slide.style.backgroundImage = `url('${imgUrl}')`; }
             } else { console.warn(`[${containerId}] Invalid URL: '${imgUrl}'`); slide.textContent = `Invalid URL`; /*...*/ }
             fragment.appendChild(slide);
             if (nav) { const dot = document.createElement('div'); dot.className = index === 0 ? 'gallery-dot active' : 'gallery-dot'; dot.dataset.index = index; nav.appendChild(dot); }
         });
         container.appendChild(fragment);
+        container.dataset.loadedJsonPath = jsonPath;
+        warmImagesIdle(finalImageUrls, 10);
 
         // 初始化轮播逻辑 (如果提供了 navId 且有多张图片)
         console.log(`[LoadGalleryImages DEBUG ${containerId}] Checking conditions for calling initializeGallerySlider:`); // 新增
@@ -221,6 +270,7 @@ function initializeComparisonNav() {
  */
 async function loadAndInitComparison(jsonPath) {
     const container = document.getElementById('comparison-container-dynamic');
+    if (container && container.dataset.loadedJsonPath === jsonPath && container.childElementCount > 0) return;
     const thumbnailNavContainer = document.createElement('div');
     thumbnailNavContainer.className = 'comparison-thumbnail-nav';
     thumbnailNavContainer.id = 'comparison-thumbnail-nav-dynamic'; 
@@ -231,12 +281,17 @@ async function loadAndInitComparison(jsonPath) {
     console.log(`[Comparison] Loading groups from: ${jsonPath}`);
 
     try {
-        const response = await fetch(`${jsonPath}?t=${Date.now()}`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const comparisonGroupsData = await response.json();
+        const comparisonGroupsData = await fetchJsonCached(jsonPath);
         if (!Array.isArray(comparisonGroupsData)) throw new Error(`JSON not array.`);
         console.log(`[Comparison] Found ${comparisonGroupsData.length} groups.`);
         if (comparisonGroupsData.length === 0) { container.innerHTML = '<p style="color: white; text-align: center;">No comparison groups.</p>'; return; }
+        container.dataset.loadedJsonPath = jsonPath;
+        const comparisonUrls = [];
+        comparisonGroupsData.forEach((g) => {
+            if (g && g.before_src) comparisonUrls.push(g.before_src);
+            if (g && g.after_src) comparisonUrls.push(g.after_src);
+        });
+        warmImagesIdle(comparisonUrls, 12);
 
         const sliderContainer = document.createElement('div');
         sliderContainer.className = 'comparison-slider';
@@ -741,6 +796,10 @@ function initializeGallerySlider(slidesId, dotsId) {
             nextSlide.style.backgroundImage = `url('${nextSlide.dataset.bgImage}')`;
             console.log(`[FadeSlider DEBUG #${slidesId}] Lazy loaded image for slide ${newIndex}: ${nextSlide.dataset.bgImage}`); // 新增
         }
+        if (nextSlide.dataset.bgImage) warmImage(nextSlide.dataset.bgImage);
+        const nextIndex = (newIndex + 1) % slideElements.length;
+        const nextNextSlide = slideElements[nextIndex];
+        if (nextNextSlide && nextNextSlide.dataset.bgImage) warmImage(nextNextSlide.dataset.bgImage);
 
         currentSlide.style.opacity = '0';
         currentSlide.style.visibility = 'hidden';
