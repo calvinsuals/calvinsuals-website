@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initTermsButton(); // 初始化条款按钮
     initPaymentIcons(); // 初始化支付图标
     preloadModalFooterImages(); // 预先解码弹窗图片，减少首次滚动卡顿
-    injectInlineTermsTriggers(); // 价目弹窗内「须知」入口
+    injectInlineTermsTriggers(); // 价目弹窗右侧悬浮须知（同页面 #floating-terms-button）
 
     // --- 可选功能初始化 (会检查元素是否存在) ---
     // 这些功能可能只在特定页面存在，脚本会安全处理
@@ -89,7 +89,7 @@ function preloadModalFooterImages() {
     });
 }
 
-/** 在每个价目弹窗 body 底部加入「须知」按钮，打开后关闭须知回到本弹窗 */
+/** 价目弹窗内右侧悬浮须知：与页面上 #floating-terms-button 同位置、同观感（在 .modal-content 外） */
 function injectInlineTermsTriggers() {
     const modalRoot = document.getElementById('modal-container');
     if (!modalRoot) return;
@@ -98,17 +98,14 @@ function injectInlineTermsTriggers() {
     const label = lang.startsWith('zh') ? '拍摄须知及条款' : 'Terms & Conditions';
 
     modalRoot.querySelectorAll('.modal:not(#modal-terms)').forEach(function (modal) {
-        if (modal.querySelector('.modal-inline-terms-wrap')) return;
-        const content = modal.querySelector('.modal-content');
-        const bodyEl = modal.querySelector('.modal-body');
-        if (!content || !bodyEl) return;
+        if (modal.querySelector('.modal-floating-terms-button')) return;
+        if (!modal.querySelector('.modal-content')) return;
 
-        const wrap = document.createElement('div');
-        wrap.className = 'modal-inline-terms-wrap';
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'modal-inline-terms-trigger';
+        btn.className = 'modal-floating-terms-button';
         btn.textContent = label;
+        btn.setAttribute('aria-label', label);
         const modalId = modal.id;
         btn.addEventListener('click', function (e) {
             e.stopPropagation();
@@ -116,12 +113,12 @@ function injectInlineTermsTriggers() {
                 window.openTermsModal(modalId);
             }
         });
-        wrap.appendChild(btn);
-        /* 插在 body 之后、与桌面/移动同一槽位（footer 前） */
-        if (bodyEl.nextSibling) {
-            content.insertBefore(wrap, bodyEl.nextSibling);
+
+        const closeBtn = modal.querySelector('.close-modal');
+        if (closeBtn) {
+            closeBtn.insertAdjacentElement('afterend', btn);
         } else {
-            content.appendChild(wrap);
+            modal.insertBefore(btn, modal.firstChild);
         }
     });
 }
