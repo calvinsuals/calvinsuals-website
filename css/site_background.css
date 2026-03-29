@@ -1,9 +1,10 @@
 /* Shared site background shell.
  *
- * 设计：整页一条渐变「铺满文档高度」（类似一张随页面变高的渐变图），
- * 滚动时不同垂直位置颜色不同——桌面与移动一致，不用视口 fixed 渐变层。
+ * 观感与「整页 body 拉伸渐变」一致：滚动时视口内颜色随文档位置变化。
+ * 实现：固定层高度 = 文档高度，渐变铺满该层，用 translateY(-scrollY) 与根滚动同步，
+ * 以合成层位移为主，避免整页 body 渐变在快速滚动时反复大面积 repaint。
  *
- * .background-gradient 节点保留在 HTML 里兼容旧结构，此处始终隐藏，避免与 body 渐变重复。
+ * html 使用 --site-background-fallback 兜底 overscroll / 安全区露缝。
  */
 
 html.site-fixed-background,
@@ -22,16 +23,26 @@ html.site-fixed-background {
 body.site-background-shell {
     --bs-body-bg: transparent;
     background-color: transparent !important;
-    background-image: var(--site-background-image, var(--primary-gradient, linear-gradient(135deg, #333 0%, #ddd 100%))) !important;
-    background-repeat: no-repeat !important;
-    /* 按 body 边框盒（随内容变高）拉伸渐变，滚动时可见颜色沿页变化 */
-    background-size: 100% 100% !important;
-    background-attachment: scroll !important;
+    background-image: none !important;
     position: relative;
 }
 
 body.site-background-shell .background-gradient {
-    display: none !important;
+    display: block !important;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: var(--site-bg-doc-height, 100vh);
+    z-index: 0;
+    pointer-events: none;
+    background-image: var(--site-background-image, var(--primary-gradient, linear-gradient(135deg, #333 0%, #ddd 100%)));
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-position: 0 0;
+    transform: translate3d(0, calc(-1 * var(--site-scroll-y, 0px)), 0);
+    will-change: transform;
+    backface-visibility: hidden;
 }
 
 body.site-background-shell > *:not(.background-gradient):not(.nav-toggle):not(.nav-menu):not(.lang-switch):not(#floating-terms-button) {
