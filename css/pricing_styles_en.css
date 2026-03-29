@@ -1661,7 +1661,7 @@ body.modal-open #modal-container .modal-content {
 
     html body #modal-container .modal:not(#modal-terms) .modal-content .modal-body {
         max-height: calc(100dvh - 108px) !important;
-        padding-top: 4px !important;
+        padding-top: 24px !important;
     }
 
     html body #modal-container .modal:not(#modal-terms) .modal-content .modal-body > :first-child {
@@ -1701,7 +1701,7 @@ body.modal-open #modal-container .modal-content {
 
     html body #modal-container #modal-terms .modal-content .modal-body {
         max-height: calc(100dvh - 70px) !important;
-        padding-top: 4px !important;
+        padding-top: 24px !important;
     }
 
     html body #modal-container #modal-terms .modal-content .modal-body > :first-child {
