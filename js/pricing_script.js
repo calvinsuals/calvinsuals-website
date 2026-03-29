@@ -8,21 +8,6 @@
  * 统一使用轻量锁滚动：避免 body fixed + scrollTo 恢复带来的「重新定位」与抽动。
  * 弹窗内的滚动由 modal-body 和现有触摸拦截逻辑处理。
  */
-function getPricingModalViewportHeight() {
-    const h = window.innerHeight || document.documentElement.clientHeight || 0;
-    return `${Math.max(0, Math.round(h))}px`;
-}
-
-function freezePricingModalHeight(modal) {
-    if (!modal) return;
-    modal.style.setProperty('--pricing-modal-open-vh', getPricingModalViewportHeight());
-}
-
-function clearPricingModalHeight(modal) {
-    if (!modal) return;
-    modal.style.removeProperty('--pricing-modal-open-vh');
-}
-
 function lockPricingPageScroll() {
     if (document.body.dataset.pricingScrollLocked === '1') return;
     document.body.dataset.pricingScrollLocked = '1';
@@ -119,7 +104,6 @@ function initCardModalInteraction() {
         const fullModalId = modalId.startsWith('modal-') ? modalId : `modal-${modalId}`;
         const modal = document.getElementById(fullModalId);
         if (modal) {
-            freezePricingModalHeight(modal);
             modal.style.display = 'flex';
             lockPricingPageScroll();
             document.body.classList.add('modal-open'); // 暂停背景动画，减少毛玻璃重绘压力
@@ -190,7 +174,6 @@ function initCardModalInteraction() {
             const closeDelay = isDesktop ? 0 : 300;
             setTimeout(() => {
                 modal.style.display = 'none';
-                clearPricingModalHeight(modal);
                 unlockPricingPageScroll();
                 document.body.classList.remove('modal-open'); // 恢复背景动画
             }, closeDelay); // 等待动画完成（移动端）
@@ -347,7 +330,6 @@ function initTermsButton() {
                 console.log('找到条款模态窗口，准备显示');
                 
                 // 直接显示模态窗口
-                freezePricingModalHeight(termsModal);
                 termsModal.style.display = 'flex';
                 lockPricingPageScroll();
                 document.body.classList.add('modal-open'); // 暂停背景动画，减少毛玻璃重绘压力
@@ -421,7 +403,6 @@ function initTermsButton() {
 
             setTimeout(() => {
                 termsModal.style.display = 'none';
-                clearPricingModalHeight(termsModal);
                 unlockPricingPageScroll();
                 document.body.classList.remove('modal-open'); // 恢复背景动画
                 console.log('条款模态窗口已关闭，恢复页面状态');
