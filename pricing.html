@@ -16,7 +16,7 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/site_background.css?v=20260329h">
-    <link rel="stylesheet" href="css/pricing_styles_zh.css?v=20260329h">
+    <link rel="stylesheet" href="css/pricing_styles_zh.css?v=20260329j">
     
     <!-- 添加悬浮条款按钮的样式 -->
     <style>
@@ -79,6 +79,88 @@
             
             #floating-terms-button:hover {
                 transform: translateY(-50%) translateX(-5px) scale(0.85);
+            }
+        }
+
+        /*
+         * 弹窗标题与第一根横线：本段写在 <link href="pricing_styles_zh.css"> 之后，同权重下后声明覆盖外链；
+         * 并覆盖 Bootstrap 在 .modal 上的 --bs-modal-header-padding（1rem）及 .modal-header 的 padding。
+         */
+        @media (max-width: 991.98px) {
+            #modal-container > .modal:not(#modal-terms) {
+                --bs-modal-header-padding: 0 16px 2px !important;
+                --bs-modal-header-padding-x: 16px !important;
+                --bs-modal-header-padding-y: 0 !important;
+            }
+            #modal-container > #modal-terms.modal {
+                --bs-modal-header-padding: 0 14px 2px !important;
+                --bs-modal-header-padding-x: 14px !important;
+                --bs-modal-header-padding-y: 0 !important;
+            }
+            html body #modal-container .modal:not(#modal-terms) .modal-content .modal-header {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                padding: 0 16px 2px !important;
+                margin: 0 !important;
+                min-height: 0 !important;
+                row-gap: 0 !important;
+                column-gap: 0 !important;
+                text-align: center !important;
+                border: none !important;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+                border-radius: 0 !important;
+                box-sizing: border-box !important;
+            }
+            html body #modal-container .modal:not(#modal-terms) .modal-content .modal-header h3.modal-title {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                text-align: center !important;
+                font-size: 1.24rem !important;
+                line-height: 1.15 !important;
+                font-weight: 600 !important;
+            }
+            html body #modal-container .modal:not(#modal-terms) .modal-content .modal-body {
+                padding-top: 4px !important;
+                max-height: calc(100dvh - 108px) !important;
+            }
+            html body #modal-container .modal:not(#modal-terms) .modal-content .modal-body > :first-child {
+                margin-top: 0 !important;
+                margin-block-start: 0 !important;
+            }
+            html body #modal-container #modal-terms .modal-content .modal-header {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                justify-content: center !important;
+                padding: 0 14px 2px !important;
+                margin: 0 !important;
+                min-height: 0 !important;
+                row-gap: 0 !important;
+                text-align: left !important;
+                border: none !important;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+                border-radius: 0 !important;
+                box-sizing: border-box !important;
+            }
+            html body #modal-container #modal-terms .modal-content .modal-header h3.modal-title {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                text-align: left !important;
+                font-size: 1.08rem !important;
+                line-height: 1.15 !important;
+                font-weight: 600 !important;
+            }
+            html body #modal-container #modal-terms .modal-content .modal-body {
+                padding-top: 4px !important;
+                max-height: calc(100dvh - 70px) !important;
+            }
+            html body #modal-container #modal-terms .modal-content .modal-body > :first-child {
+                margin-top: 0 !important;
+                margin-block-start: 0 !important;
             }
         }
     </style>

@@ -769,9 +769,11 @@ body.pricing-page .footer p {
     border-radius: 0 !important; /* No radius by default */
 }
 
-/* Modal Header (Minimal) - DEFAULT */
-.modal-header { padding: 0 0 20px 0 !important; border-bottom: 1px solid rgba(255,255,255,0.15) !important; flex-shrink: 0; text-align: center; }
-.modal-title { font-size: 1.6rem !important; font-weight: 600 !important; margin: 0 auto !important; color: var(--modal-text-color) !important; text-shadow: var(--modal-text-shadow); }
+/* Modal header/title defaults: desktop only — narrow screens use html body #modal-container rules + BS variables */
+@media (min-width: 876px) {
+    .modal-header { padding: 0 0 20px 0 !important; border-bottom: 1px solid rgba(255,255,255,0.15) !important; flex-shrink: 0; text-align: center; }
+    .modal-title { font-size: 1.6rem !important; font-weight: 600 !important; margin: 0 auto !important; color: var(--modal-text-color) !important; text-shadow: var(--modal-text-shadow); }
+}
 
 /* Modal Body (Handles PC scroll visually hidden) - DEFAULT */
 .modal-body {
@@ -1311,31 +1313,7 @@ body.modal-open #modal-container .modal-content {
         min-height: 0;
     }
 
-    .modal:not(#modal-terms) .modal-header {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        padding: 4px 16px 6px !important;
-        text-align: center !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
-        flex-shrink: 0;
-        box-sizing: border-box;
-    }
-
-    .modal:not(#modal-terms) .modal-title {
-        font-size: 0.98rem !important;
-        line-height: 1.28 !important;
-        margin: 0 !important;
-        width: 100%;
-        text-align: center !important;
-        font-weight: 600 !important;
-    }
-
-    .modal:not(#modal-terms) .modal-body {
-        max-height: calc(100dvh - 138px) !important;
-        padding-top: 10px !important;
-    }
+    /* Modal title band: see pricing_en.html inline <style> after linked CSS */
 
     .modal-body {
         overflow-y: auto;
@@ -1374,25 +1352,6 @@ body.modal-open #modal-container .modal-content {
 
     #modal-terms .modal-content {
         width: 95%;
-    }
-    #modal-terms .modal-header {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        justify-content: center !important;
-        padding: 4px 14px 6px !important;
-        flex-shrink: 0;
-        text-align: left !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
-        box-sizing: border-box;
-    }
-    #modal-terms .modal-title {
-        font-size: 0.86rem !important;
-        line-height: 1.28 !important;
-        margin: 0 !important;
-        width: 100%;
-        text-align: left !important;
-        font-weight: 600 !important;
     }
     #modal-terms .modal-body {
         padding: 10px 14px 18px !important;
@@ -1654,25 +1613,25 @@ body.modal-open #modal-container .modal-content {
 }
 
 @media (max-width: 991.98px) {
-    #modal-container > .modal:not(#modal-terms) {
-        --bs-modal-header-padding: 1px 16px 2px !important;
+    html body #modal-container > .modal:not(#modal-terms) {
+        --bs-modal-header-padding: 0 16px 2px !important;
         --bs-modal-header-padding-x: 16px !important;
-        --bs-modal-header-padding-y: 1px !important;
+        --bs-modal-header-padding-y: 0 !important;
     }
 
-    #modal-container > #modal-terms.modal {
-        --bs-modal-header-padding: 1px 14px 2px !important;
+    html body #modal-container > #modal-terms.modal {
+        --bs-modal-header-padding: 0 14px 2px !important;
         --bs-modal-header-padding-x: 14px !important;
-        --bs-modal-header-padding-y: 1px !important;
+        --bs-modal-header-padding-y: 0 !important;
     }
 
-    #modal-container .modal:not(#modal-terms) .modal-content > .modal-header {
+    html body #modal-container .modal:not(#modal-terms) .modal-content .modal-header {
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
         justify-content: center !important;
         align-content: center !important;
-        padding: 1px 16px 2px !important;
+        padding: 0 16px 2px !important;
         margin: 0 !important;
         min-height: 0 !important;
         max-height: none !important;
@@ -1687,7 +1646,7 @@ body.modal-open #modal-container .modal-content {
         box-sizing: border-box !important;
     }
 
-    #modal-container .modal:not(#modal-terms) .modal-content > .modal-header > h3.modal-title {
+    html body #modal-container .modal:not(#modal-terms) .modal-content .modal-header h3.modal-title {
         margin: 0 !important;
         padding: 0 !important;
         width: 100% !important;
@@ -1698,22 +1657,22 @@ body.modal-open #modal-container .modal-content {
         font-weight: 600 !important;
     }
 
-    #modal-container .modal:not(#modal-terms) .modal-content > .modal-body {
-        max-height: calc(100dvh - 112px) !important;
+    html body #modal-container .modal:not(#modal-terms) .modal-content .modal-body {
+        max-height: calc(100dvh - 108px) !important;
         padding-top: 4px !important;
     }
 
-    #modal-container .modal:not(#modal-terms) .modal-content > .modal-body > :first-child {
+    html body #modal-container .modal:not(#modal-terms) .modal-content .modal-body > :first-child {
         margin-top: 0 !important;
         margin-block-start: 0 !important;
     }
 
-    #modal-container #modal-terms .modal-content > .modal-header {
+    html body #modal-container #modal-terms .modal-content .modal-header {
         display: flex !important;
         flex-direction: column !important;
         align-items: flex-start !important;
         justify-content: center !important;
-        padding: 1px 14px 2px !important;
+        padding: 0 14px 2px !important;
         margin: 0 !important;
         min-height: 0 !important;
         row-gap: 0 !important;
@@ -1726,7 +1685,7 @@ body.modal-open #modal-container .modal-content {
         box-sizing: border-box !important;
     }
 
-    #modal-container #modal-terms .modal-content > .modal-header > h3.modal-title {
+    html body #modal-container #modal-terms .modal-content .modal-header h3.modal-title {
         margin: 0 !important;
         padding: 0 !important;
         width: 100% !important;
@@ -1736,12 +1695,12 @@ body.modal-open #modal-container .modal-content {
         font-weight: 600 !important;
     }
 
-    #modal-container #modal-terms .modal-content > .modal-body {
-        max-height: calc(100dvh - 72px) !important;
+    html body #modal-container #modal-terms .modal-content .modal-body {
+        max-height: calc(100dvh - 70px) !important;
         padding-top: 4px !important;
     }
 
-    #modal-container #modal-terms .modal-content > .modal-body > :first-child {
+    html body #modal-container #modal-terms .modal-content .modal-body > :first-child {
         margin-top: 0 !important;
         margin-block-start: 0 !important;
     }

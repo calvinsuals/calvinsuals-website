@@ -770,8 +770,11 @@ body.pricing-page .footer p {
 }
 
 /* Modal Header (Minimal) - DEFAULT */
-.modal-header { padding: 0 0 20px 0 !important; border-bottom: 1px solid rgba(255,255,255,0.15) !important; flex-shrink: 0; text-align: center; }
-.modal-title { font-size: 1.6rem !important; font-weight: 600 !important; margin: 0 auto !important; color: var(--modal-text-color) !important; text-shadow: var(--modal-text-shadow); }
+/* 默认 header/title 只作用于桌面；窄屏由 html body #modal-container 规则 + Bootstrap 变量接管，避免 20px 底 padding 在移动端与 991 规则抢优先级 */
+@media (min-width: 876px) {
+    .modal-header { padding: 0 0 20px 0 !important; border-bottom: 1px solid rgba(255,255,255,0.15) !important; flex-shrink: 0; text-align: center; }
+    .modal-title { font-size: 1.6rem !important; font-weight: 600 !important; margin: 0 auto !important; color: var(--modal-text-color) !important; text-shadow: var(--modal-text-shadow); }
+}
 
 /* Modal Body (Handles PC scroll visually hidden) - DEFAULT */
 .modal-body {
@@ -1074,32 +1077,7 @@ body.modal-open #modal-container .modal-content {
         min-height: 0;
     }
 
-    /* 价目弹窗：移动端压低标题区总高度（第一根横线整体上移），标题在区内水平居中如桌面端 */
-    .modal:not(#modal-terms) .modal-header {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        padding: 4px 16px 6px !important;
-        text-align: center !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
-        flex-shrink: 0;
-        box-sizing: border-box;
-    }
-
-    .modal:not(#modal-terms) .modal-title {
-        font-size: 0.98rem !important;
-        line-height: 1.28 !important;
-        margin: 0 !important;
-        width: 100%;
-        text-align: center !important;
-        font-weight: 600 !important;
-    }
-
-    .modal:not(#modal-terms) .modal-body {
-        max-height: calc(100dvh - 138px) !important;
-        padding-top: 10px !important;
-    }
+    /* 价目/须知弹窗标题区与横线间距：见 pricing.html 内联 <style>（在 pricing_styles 链接之后，避免 CDN 缓存旧外链顶掉） */
 
     .modal-body {
         overflow-y: auto;
@@ -1140,28 +1118,8 @@ body.modal-open #modal-container .modal-content {
         border: none;
     }
 
-    /* 须知弹窗：同样压低标题区高度；标题左对齐与桌面端须知一致 */
     #modal-terms .modal-content {
         width: 95%;
-    }
-    #modal-terms .modal-header {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        justify-content: center !important;
-        padding: 4px 14px 6px !important;
-        flex-shrink: 0;
-        text-align: left !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
-        box-sizing: border-box;
-    }
-    #modal-terms .modal-title {
-        font-size: 0.86rem !important;
-        line-height: 1.28 !important;
-        margin: 0 !important;
-        width: 100%;
-        text-align: left !important;
-        font-weight: 600 !important;
     }
     #modal-terms .modal-body {
         padding: 10px 14px 18px !important;
@@ -1635,25 +1593,25 @@ body.modal-open .card.frozen::after {
  * 仅改子选择器有时不生效；同时清零 h3 行高外沿、减小 header 底内边距让横线上移，正文区减小 padding-top 让文本上移。
  */
 @media (max-width: 991.98px) {
-    #modal-container > .modal:not(#modal-terms) {
-        --bs-modal-header-padding: 1px 16px 2px !important;
+    html body #modal-container > .modal:not(#modal-terms) {
+        --bs-modal-header-padding: 0 16px 2px !important;
         --bs-modal-header-padding-x: 16px !important;
-        --bs-modal-header-padding-y: 1px !important;
+        --bs-modal-header-padding-y: 0 !important;
     }
 
-    #modal-container > #modal-terms.modal {
-        --bs-modal-header-padding: 1px 14px 2px !important;
+    html body #modal-container > #modal-terms.modal {
+        --bs-modal-header-padding: 0 14px 2px !important;
         --bs-modal-header-padding-x: 14px !important;
-        --bs-modal-header-padding-y: 1px !important;
+        --bs-modal-header-padding-y: 0 !important;
     }
 
-    #modal-container .modal:not(#modal-terms) .modal-content > .modal-header {
+    html body #modal-container .modal:not(#modal-terms) .modal-content .modal-header {
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
         justify-content: center !important;
         align-content: center !important;
-        padding: 1px 16px 2px !important;
+        padding: 0 16px 2px !important;
         margin: 0 !important;
         min-height: 0 !important;
         max-height: none !important;
@@ -1668,7 +1626,7 @@ body.modal-open .card.frozen::after {
         box-sizing: border-box !important;
     }
 
-    #modal-container .modal:not(#modal-terms) .modal-content > .modal-header > h3.modal-title {
+    html body #modal-container .modal:not(#modal-terms) .modal-content .modal-header h3.modal-title {
         margin: 0 !important;
         padding: 0 !important;
         width: 100% !important;
@@ -1679,22 +1637,22 @@ body.modal-open .card.frozen::after {
         font-weight: 600 !important;
     }
 
-    #modal-container .modal:not(#modal-terms) .modal-content > .modal-body {
-        max-height: calc(100dvh - 112px) !important;
+    html body #modal-container .modal:not(#modal-terms) .modal-content .modal-body {
+        max-height: calc(100dvh - 108px) !important;
         padding-top: 4px !important;
     }
 
-    #modal-container .modal:not(#modal-terms) .modal-content > .modal-body > :first-child {
+    html body #modal-container .modal:not(#modal-terms) .modal-content .modal-body > :first-child {
         margin-top: 0 !important;
         margin-block-start: 0 !important;
     }
 
-    #modal-container #modal-terms .modal-content > .modal-header {
+    html body #modal-container #modal-terms .modal-content .modal-header {
         display: flex !important;
         flex-direction: column !important;
         align-items: flex-start !important;
         justify-content: center !important;
-        padding: 1px 14px 2px !important;
+        padding: 0 14px 2px !important;
         margin: 0 !important;
         min-height: 0 !important;
         row-gap: 0 !important;
@@ -1707,7 +1665,7 @@ body.modal-open .card.frozen::after {
         box-sizing: border-box !important;
     }
 
-    #modal-container #modal-terms .modal-content > .modal-header > h3.modal-title {
+    html body #modal-container #modal-terms .modal-content .modal-header h3.modal-title {
         margin: 0 !important;
         padding: 0 !important;
         width: 100% !important;
@@ -1717,12 +1675,12 @@ body.modal-open .card.frozen::after {
         font-weight: 600 !important;
     }
 
-    #modal-container #modal-terms .modal-content > .modal-body {
-        max-height: calc(100dvh - 72px) !important;
+    html body #modal-container #modal-terms .modal-content .modal-body {
+        max-height: calc(100dvh - 70px) !important;
         padding-top: 4px !important;
     }
 
-    #modal-container #modal-terms .modal-content > .modal-body > :first-child {
+    html body #modal-container #modal-terms .modal-content .modal-body > :first-child {
         margin-top: 0 !important;
         margin-block-start: 0 !important;
     }
