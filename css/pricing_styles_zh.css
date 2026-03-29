@@ -37,7 +37,6 @@ body {
     top: 0;
     left: 0;
     right: 0;
-    bottom: 0;
     width: 100%;
     height: 100vh; /* fallback */
     height: 100lvh;
@@ -118,18 +117,21 @@ body {
 
 
 /* 修改html/body样式，去除可能引起冲突的背景设置 */
-html, body {
+html {
+    background-color: #333 !important; /* 保留实色底 */
+}
+
+body {
     overflow-x: hidden;
     position: relative;
     width: 100%;
     max-width: 100%;
-    /* 保留实色底，避免浏览器底栏收起时露出半透明底色 */
-    background-color: #333 !important;
+    background-color: transparent !important; /* 让 body 透明以显示背景 */
     background-attachment: initial !important;
     background-image: none !important;
     min-height: 100%;
     -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
+    /* 移除 scroll-behavior: smooth 以防止移动端极速回弹时抽搐 */
     /* 恢复原生回弹 */
 }
 
