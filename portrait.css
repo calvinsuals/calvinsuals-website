@@ -2,15 +2,13 @@
 body.portrait-page {
     --site-background-image: linear-gradient(to bottom, #efefef, #555555);
     --site-background-fallback: #555555;
-    background: none !important;
+    /* 勿用 background:none：会清掉 css/site_background.css 在移动端的整页渐变 */
     color: #ffffff; /* Keep text color */
     min-height: 100vh; /* fallback */
     min-height: 100dvh; /* 移动端随浏览器 UI 变化 */
 }
 
 .portrait-page {
-    /* Ensure the wrapper div has no background of its own */
-    background: none !important;
     color: #ffffff;
 }
 
