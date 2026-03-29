@@ -422,6 +422,14 @@
             return url.replace(R2_PUBLIC_HOST, R2_CUSTOM_HOST);
         }
 
+        function applyImageLoadingHints(imgElement, index) {
+            const isDesktop = window.innerWidth >= 768;
+            const eager = isDesktop ? index < 24 : index < 2;
+            imgElement.loading = eager ? 'eager' : 'lazy';
+            imgElement.decoding = 'async';
+            if (index < 6) imgElement.fetchPriority = 'high';
+        }
+
         // --- 子画廊加载代码 (Keep this - specific to automotive.html) ---
         async function displaySubGalleries(galleryType) {
             const mainContainer = document.getElementById('gallery-sections-container');
@@ -473,7 +481,7 @@
                        const imgElement = document.createElement('img'); // Image directly inside .car-gallery
                        imgElement.src = imagePath;
                        imgElement.alt = `${galleryType} Gallery - Image ${index + 1}`;
-                       imgElement.loading = 'lazy';
+                       applyImageLoadingHints(imgElement, index);
                        imgElement.onerror = () => {
                            console.error(`[${galleryType}] Image failed to load: ${imagePath}`);
                            // Optionally hide broken images, but don't remove the element itself here
@@ -564,7 +572,7 @@
                                 // !!! 直接使用 R2 URL !!!
                                 imgElement.src = normalizeImageUrl(imageName); // 使用自定义域名命中缓存规则
                                 imgElement.alt = `${subGalleryTitle} - Image ${index + 1}`;
-                                imgElement.loading = 'lazy';
+                                applyImageLoadingHints(imgElement, index);
 
                                 imgElement.onerror = () => {
                                     // !!! 修改错误日志中的路径 !!!

@@ -343,7 +343,10 @@ async function loadAndInitComparison(jsonPath) {
                 console.log(`[Comparison ${groupData.id}] Wrapper div 创建成功, class: ${wrapper.className}`);
 
                 const imgBefore = document.createElement('img');
-                imgBefore.alt = 'Before'; imgBefore.className = 'before'; imgBefore.loading = 'lazy';
+                imgBefore.alt = 'Before'; imgBefore.className = 'before';
+                imgBefore.loading = (window.innerWidth >= 768 && index < 3) ? 'eager' : 'lazy';
+                imgBefore.decoding = 'async';
+                if (index < 2) imgBefore.fetchPriority = 'high';
                 imgBefore.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 Before src: ${groupData.before_src}`);
                 imgBefore.src = normalizeImageUrl(groupData.before_src);
@@ -351,7 +354,10 @@ async function loadAndInitComparison(jsonPath) {
                 console.log(`[Comparison ${groupData.id}] Before img 创建成功.`);
 
                 const imgAfter = document.createElement('img');
-                imgAfter.alt = 'After'; imgAfter.className = 'after'; imgAfter.loading = 'lazy';
+                imgAfter.alt = 'After'; imgAfter.className = 'after';
+                imgAfter.loading = (window.innerWidth >= 768 && index < 3) ? 'eager' : 'lazy';
+                imgAfter.decoding = 'async';
+                if (index < 2) imgAfter.fetchPriority = 'high';
                 imgAfter.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 After src: ${groupData.after_src}`);
                 imgAfter.src = normalizeImageUrl(groupData.after_src);
@@ -384,7 +390,8 @@ async function loadAndInitComparison(jsonPath) {
                 const thumbImg = document.createElement('img');
                 thumbImg.src = normalizeImageUrl(groupData.after_src); 
                 thumbImg.alt = `Thumbnail for ${groupData.id}`;
-                thumbImg.loading = 'lazy';
+                thumbImg.loading = (window.innerWidth >= 768 && index < 6) ? 'eager' : 'lazy';
+                thumbImg.decoding = 'async';
                 thumbImg.onerror = () => { thumbImg.alt='Thumb not found'; thumbImg.src=''; console.error(`[Comparison ${groupData.id}] 加载 Thumbnail 图片失败: ${groupData.after_src}`); };
                 thumbItem.appendChild(thumbImg);
                 thumbnailFragment.appendChild(thumbItem); 
