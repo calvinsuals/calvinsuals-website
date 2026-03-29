@@ -1891,6 +1891,18 @@
 
         /* 移动端菜单样式 */
         @media screen and (max-width: 767px) {
+            /* 试点：移动端改为由页面本体承载渐变背景，减少 fixed 背景与 Chrome UI 动画打架 */
+            body {
+                background: var(--primary-gradient);
+                background-repeat: no-repeat;
+                background-size: cover;
+                background-attachment: scroll;
+            }
+
+            .background-gradient {
+                display: none;
+            }
+
             /* 增加移动端各区域的上边距 */
             #automotive {
                 margin-top: 120px !important; /* 显著增加 Hero 和 Auto 之间的距离 */
