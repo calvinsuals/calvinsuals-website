@@ -4,7 +4,7 @@ body.portrait-page {
     background: linear-gradient(to bottom, #efefef, #555555) !important; 
     color: #ffffff; /* Keep text color */
     min-height: 100vh; /* fallback */
-    min-height: 100dvh; /* 移动端随浏览器 UI 变化 */
+    min-height: 100svh; /* 移动端随浏览器 UI 变化 */
 }
 
 .portrait-page {
@@ -63,7 +63,7 @@ body.portrait-page {
     left: 0;
     width: 100%;
     height: 100vh; /* fallback */
-    height: 100dvh;
+    height: 100svh;
     background-color: rgba(0, 0, 0, 0.9);
     z-index: 1000;
     display: flex;
