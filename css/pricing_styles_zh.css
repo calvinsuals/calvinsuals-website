@@ -1594,13 +1594,13 @@ body.modal-open .card.frozen::after {
  */
 @media (max-width: 991.98px) {
     html body #modal-container > .modal:not(#modal-terms) {
-        --bs-modal-header-padding: 0 16px 2px !important;
+        --bs-modal-header-padding: 12px 16px 2px !important;
         --bs-modal-header-padding-x: 16px !important;
         --bs-modal-header-padding-y: 0 !important;
     }
 
     html body #modal-container > #modal-terms.modal {
-        --bs-modal-header-padding: 0 14px 2px !important;
+        --bs-modal-header-padding: 12px 14px 2px !important;
         --bs-modal-header-padding-x: 14px !important;
         --bs-modal-header-padding-y: 0 !important;
     }
@@ -1611,7 +1611,7 @@ body.modal-open .card.frozen::after {
         align-items: center !important;
         justify-content: center !important;
         align-content: center !important;
-        padding: 0 16px 2px !important;
+        padding: 12px 16px 2px !important;
         margin: 0 !important;
         min-height: 0 !important;
         max-height: none !important;
@@ -1654,7 +1654,7 @@ body.modal-open .card.frozen::after {
         flex-direction: column !important;
         align-items: flex-start !important;
         justify-content: center !important;
-        padding: 0 14px 2px !important;
+        padding: 12px 14px 2px !important;
         margin: 0 !important;
         min-height: 0 !important;
         row-gap: 0 !important;
