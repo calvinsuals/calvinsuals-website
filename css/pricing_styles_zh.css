@@ -32,7 +32,6 @@ body {
 }
 
 /* 恢复背景渐变层，移除噪点纹理和透明度 */
-/* 不写 height：与 top/bottom 同时存在时 height 会使 bottom 被忽略，移动端工具栏变化时底部易留一条「浏览器底」 */
 .background-gradient {
     position: fixed;
     top: 0;
@@ -40,6 +39,8 @@ body {
     right: 0;
     bottom: 0;
     width: 100%;
+    min-height: 100vh;
+    min-height: 100lvh;
     z-index: -1;
     background: var(--primary-gradient);
     transition: none;
@@ -116,23 +117,23 @@ body {
     }
 
 
-/* 修改html/body样式，去除可能引起冲突的背景设置 */
+/* html 保留实色底，避免移动端工具栏显隐时固定渐变层边缘透出形成半透明带；body 仍去掉背景以免冲突 */
 html, body {
     overflow-x: hidden;
     position: relative;
     width: 100%;
     max-width: 100%;
-    /* 移除背景设置 */
-    background: none !important;
-    background-attachment: initial !important;
-    background-image: none !important;
     min-height: 100%;
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
 }
-
 html {
-    background-color: #333 !important; /* 避免工具栏区域缝隙透出白底；独立于 background:none */
+    background-color: #333;
+}
+body {
+    background: none !important;
+    background-attachment: initial !important;
+    background-image: none !important;
 }
 
 /* 移除之前添加的body:before */

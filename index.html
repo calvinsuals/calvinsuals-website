@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#333333">
     <title>calvinsuals Photography</title>
     <!-- 字体 (Add 600 weight for Montserrat) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,11 +21,6 @@
     <!-- 添加自定义字体 -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* 与 body 同色，避免移动端工具栏收起时缝隙露出系统/白底 */
-        html {
-            background-color: #333;
-        }
-
         /* --- Variables & Base (Consistent across pages) --- */
         :root {
             --primary-gradient: linear-gradient(135deg, #333 0%, #ddd 100%); /* Dark Grey to Light Grey */
@@ -38,6 +32,11 @@
             --shadow-dark: rgba(0, 0, 0, 0.3);
             --border-radius: 8px;
             --font-body: 'Montserrat', sans-serif;
+        }
+
+        /* html 与主色一致，避免移动端工具栏显隐时固定背景层边缘透出底衬形成「半透明边带」 */
+        html {
+            background-color: #333;
         }
 
         /* --- General Body Styling --- */
@@ -53,7 +52,6 @@
         }
         
         /* --- Fixed Background Gradient --- */
-        /* 仅用 top/left/right/bottom 拉满视口，勿再写 height，否则与 bottom 冲突时 bottom 被忽略，移动端底部易留缝 */
         .background-gradient {
             position: fixed;
             top: 0;
@@ -61,6 +59,9 @@
             right: 0;
             bottom: 0;
             width: 100%;
+            /* 不用 height:100dvh 与 inset 混算，改用大视口 min-height 兜底，减少显隐工具栏时的细缝 */
+            min-height: 100vh;
+            min-height: 100lvh;
             z-index: -1;
             background: var(--primary-gradient);
             transition: none;
