@@ -1,13 +1,4 @@
 /* 汽车摄影页面样式 */
-:root {
-    --app-vh: 100dvh;
-}
-
-html,
-body {
-    overscroll-behavior-y: none;
-}
-
 .automotive-page {
     background: linear-gradient(to bottom, #f9fafb, #555555);
     color: #ffffff;
@@ -415,7 +406,7 @@ body {
     left: 0;
     width: 100%;
     height: 100vh; /* fallback */
-    height: var(--app-vh, 100dvh);
+    height: 100dvh;
     background-color: rgba(0, 0, 0, 0.9);
     z-index: 1000;
     display: flex;
@@ -481,10 +472,6 @@ body {
 
 /* Mobile Navigation Styles */
 @media (max-width: 767px) { /* Or use 875px if consistent */
-    .nav-menu {
-        height: 100svh;
-    }
-
     .nav-menu a {
         font-size: 1.2rem !important;
     }

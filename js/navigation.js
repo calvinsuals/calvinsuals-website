@@ -208,21 +208,4 @@ window.navigateToMainSection = function(sectionId) {
     // 构建跳转URL，使用查询参数而非锚点，避免默认跳转行为
     window.location.href = 'index.html?section=' + sectionId;
     return false;
-};
-
-// 将布局视口高度写成 --app-vh（px）。勿用 visualViewport：其随 Chrome 底栏动画变化，
-// 与 CSS 同步时会加重「底栏半显、按钮不见」的中间态与卡顿。
-// interactive-widget=overlays-content 下用 innerHeight 更稳；仅监听 window resize（转屏等）。
-(function () {
-    var _appVhTimer;
-    function applyAppVh() {
-        var h = window.innerHeight || document.documentElement.clientHeight || 0;
-        document.documentElement.style.setProperty('--app-vh', Math.max(0, Math.round(h)) + 'px');
-    }
-    function scheduleAppVh() {
-        clearTimeout(_appVhTimer);
-        _appVhTimer = setTimeout(applyAppVh, 320);
-    }
-    applyAppVh();
-    window.addEventListener('resize', scheduleAppVh, { passive: true });
-})();
+}; 

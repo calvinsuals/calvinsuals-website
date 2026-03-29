@@ -2,7 +2,6 @@
 
 /* --- Variables & Base --- */
 :root {
-    --app-vh: 100dvh; /* set to px by navigation.js (debounced) */
     --bg-color: #e0dcd8;
     --text-color: #3f3a3a; /* Darker text for better contrast */
     --primary-accent: #a89b8c; /* Muted accent color */
@@ -26,21 +25,22 @@ body {
     line-height: 1.6;
     margin: 0;
     padding: 0;
-    /* 移除 overflow-x: hidden 解决 iOS 回弹卡顿 */
+    overflow-x: hidden; /* Prevent horizontal scroll */
     /* 使用单色背景替代渐变，防止滚动残影 */
     background-color: #333;
     position: relative;
 }
 
-/* 恢复背景渐变层，扩大高度以应对拉拽回弹 */
+/* 恢复背景渐变层，移除噪点纹理和透明度 */
 .background-gradient {
     position: fixed;
-    top: -20vh;
+    top: 0;
     left: 0;
     right: 0;
+    bottom: 0;
     width: 100%;
-    height: 140vh; /* fallback */
-    height: 140lvh;
+    height: 100vh; /* fallback */
+    height: 100dvh;
     z-index: -1;
     background: var(--primary-gradient);
     transition: none;
@@ -64,7 +64,7 @@ body {
     top: 0 !important;
     width: 100% !important;
     height: 100vh !important; /* fallback */
-    height: var(--app-vh, 100dvh) !important; /* 与中文版一致，像素视口减轻 dvh 抖动 */
+    height: 100dvh !important; /* 与中文版一致，移动端随浏览器 UI */
     overflow: hidden !important;
     
     /* 多层背景方案，消除断层问题 */
@@ -118,21 +118,18 @@ body {
 
 
 /* 修改html/body样式，去除可能引起冲突的背景设置 */
-html {
-    background-color: #333 !important; /* Keep a solid base color */
-    overscroll-behavior-y: none;
-}
-
-body {
+html, body {
+    overflow-x: hidden;
     position: relative;
     width: 100%;
     max-width: 100%;
-    background-color: transparent !important; /* Let background gradient show */
+    /* 移除背景设置 */
+    background: none !important;
     background-attachment: initial !important;
     background-image: none !important;
     min-height: 100%;
-    /* 移除 overflow-x: hidden 解决 iOS 回弹卡顿 */
-    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
 }
 
 /* 移除之前添加的body:before */
@@ -278,7 +275,7 @@ body:before {
     left: 0;
     width: 100%;
     height: 100vh; /* fallback */
-    height: var(--app-vh, 100dvh);
+    height: 100dvh;
     background-color: rgba(0, 0, 0, 0.9);
     z-index: 1000;
     display: flex;
@@ -421,14 +418,18 @@ body:before {
     width: 100% !important;
     margin-top: 60px;
     background-color: transparent !important;
-    color: rgba(0, 0, 0, 0.7);
+    color: inherit;
     text-align: center;
-    padding: 15px 0;
+    padding: 15px 20px;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 .footer p {
-    margin: 0;
-    font-size: 0.9rem;
-    color: rgba(0, 0, 0, 0.25);
+    margin: 2px 0;
+    opacity: 0.6;
+    color: inherit;
+    text-shadow: none;
 }
 
 /* --- Main Pricing Area --- */
@@ -788,7 +789,7 @@ body:before {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch; /* 增强iOS滚动体验 */
     overscroll-behavior: none; /* 禁止弹性回弹 */
-    max-height: calc(var(--app-vh, 100dvh) - 180px); /* 限制最大高度，留出头部和底部空间 */
+    max-height: calc(100dvh - 180px); /* 限制最大高度，留出头部和底部空间 */
     scrollbar-width: thin; /* Firefox */
     scrollbar-color: rgba(255, 255, 255, 0.3) transparent; /* Firefox */
     color: #ffffff; /* 明确设置白色文本 */
@@ -937,12 +938,6 @@ body:before {
 #modal-terms .modal-footer { display: block !important; position: relative !important; border-top: 1px solid rgba(255,255,255,0.15) !important; padding: 15px 30px !important; background-color: transparent !important; }
 #modal-terms .modal-payment-footer img { display: none !important; }
 
-/* Temporary diagnosis: disable in-modal scrolling to isolate Chrome UI jitter */
-.modal-body {
-    overflow-y: hidden !important;
-    -webkit-overflow-scrolling: auto !important;
-}
-
 /* Style for the section headings inside terms modal */
 #modal-terms .notice-section h3 { 
     font-size: 1.1rem !important;
@@ -998,26 +993,6 @@ body:before {
 /* --- MOBILE ONLY Overrides (@media max-width: 875px) --- */
 /* Combined styles from previous 768px and 480px blocks */
 @media (max-width: 875px) {
-    .background-gradient {
-        top: -20svh;
-        height: 140svh;
-    }
-
-    .nav-menu {
-        height: 100svh;
-    }
-
-    .footer {
-        padding-left: 12px;
-        padding-right: 12px;
-    }
-
-    .footer p {
-        font-size: 0.55rem;
-        overflow-wrap: anywhere;
-        word-break: break-word;
-    }
-
     /* Base elements */
     .header {
         padding-top: 140px !important; /* Applied 480px rule */
@@ -1167,7 +1142,7 @@ body:before {
         right: 0 !important;
         bottom: 0 !important;
         width: 100% !important;
-        height: var(--app-vh, 100dvh) !important;
+        height: 100dvh !important;
         z-index: 1100 !important;
         
         overscroll-behavior: none;
@@ -1182,7 +1157,7 @@ body:before {
     .modal-content {
         /* 确保内容区域正确定位和滚动 */
         position: relative;
-        max-height: calc(var(--app-vh, 100dvh) - 40px); /* 40px为上下padding总和 */
+        max-height: calc(100dvh - 40px); /* 40px为上下padding总和 */
         display: flex;
         flex-direction: column;
         width: 90%;
@@ -1198,7 +1173,7 @@ body:before {
     
     .modal-body {
         /* 确保内容区域可滚动 */
-        max-height: calc(var(--app-vh, 100dvh) - 180px); /* 减去头部和底部的高度 */
+        max-height: calc(100dvh - 180px); /* 减去头部和底部的高度 */
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none; /* 隐藏滚动条 */
@@ -1206,7 +1181,7 @@ body:before {
         touch-action: pan-y;
         min-height: 0;
         /* Ensure max-height is sufficient */
-        max-height: calc(var(--app-vh, 100dvh) - 120px); /* Adjust if header size changes */
+        max-height: calc(100dvh - 120px); /* Adjust if header size changes */
         padding-bottom: 40px; /* Set padding-bottom to 40px for mobile */
     }
     

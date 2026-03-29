@@ -5,21 +5,44 @@
 
 /**
  * 弹窗打开时锁定背后页面滚动。
- * 统一使用轻量锁滚动：避免 body fixed + scrollTo 恢复带来的「重新定位」与抽动。
- * 弹窗内的滚动由 modal-body 和现有触摸拦截逻辑处理。
+ * 移动端仅用 overflow:hidden 在 iOS 上常无效；短内容时触摸会穿透到底层页面。
+ * 使用 position:fixed + 记录 scrollY 是常见可靠做法（类「全屏层」体验）。
  */
 function lockPricingPageScroll() {
     if (document.body.dataset.pricingScrollLocked === '1') return;
     document.body.dataset.pricingScrollLocked = '1';
+    const scrollY = window.scrollY;
+    document.body.dataset.scrollY = String(scrollY);
     document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
+
+    const narrow = window.matchMedia && window.matchMedia('(max-width: 875px)').matches;
+    if (narrow) {
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${scrollY}px`;
+        document.body.style.left = '0';
+        document.body.style.right = '0';
+        document.body.style.width = '100%';
+        document.documentElement.style.overflow = 'hidden';
+    }
 }
 
 function unlockPricingPageScroll() {
     if (document.body.dataset.pricingScrollLocked !== '1') return;
+    const scrollY = parseInt(document.body.dataset.scrollY || '0', 10);
     delete document.body.dataset.pricingScrollLocked;
     document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    document.body.style.width = '';
     document.documentElement.style.overflow = '';
+    // 定价页 html/body 使用 scroll-behavior: smooth；关弹窗时若用默认 scrollTo 会触发平滑滚动，体感像页面「弹回」
+    const root = document.documentElement;
+    const prevInline = root.style.scrollBehavior;
+    root.style.scrollBehavior = 'auto';
+    window.scrollTo(0, scrollY);
+    root.style.scrollBehavior = prevInline;
 }
 
 // 定义全局变量以便于在不同函数间共享
@@ -116,10 +139,6 @@ function initCardModalInteraction() {
                 const modalBody = modal.querySelector('.modal-body');
                 const modalFooter = modal.querySelector('.modal-payment-footer');
 
-                if (modalBody) {
-                    modalBody.scrollTop = 0;
-                }
-
                 if (modalContent && isTouchDevice) {
                     // 防止模态窗口内的触摸事件冒泡到body
                     modalContent.addEventListener('touchmove', function(e) {
@@ -164,11 +183,6 @@ function initCardModalInteraction() {
             if (modalContent && isTouchDevice) {
                 const newModalContent = modalContent.cloneNode(true);
                 modalContent.parentNode.replaceChild(newModalContent, modalContent);
-            }
-
-            const modalBody = modal.querySelector('.modal-body');
-            if (modalBody) {
-                modalBody.scrollTop = 0;
             }
             
             const closeDelay = isDesktop ? 0 : 300;
@@ -340,7 +354,6 @@ function initTermsButton() {
                 // 确保弹窗内容可滚动，特别是在移动设备上
                 const modalBody = termsModal.querySelector('.modal-body');
                 if (modalBody) {
-                    modalBody.scrollTop = 0;
                     modalBody.style.overflowY = 'auto';
                     // 桌面端滚动用更原生的滚动路径；仅在触屏/粗指针设备启用 touch scroller
                     const isCoarsePointer = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
@@ -393,10 +406,6 @@ function initTermsButton() {
         const termsModal = document.getElementById('modal-terms');
         if (termsModal) {
             termsModal.classList.remove('is-visible');
-            const modalBody = termsModal.querySelector('.modal-body');
-            if (modalBody) {
-                modalBody.scrollTop = 0;
-            }
 
             const isDesktop = window.matchMedia && window.matchMedia("(min-width: 876px)").matches;
             const closeDelay = isDesktop ? 0 : 300;
