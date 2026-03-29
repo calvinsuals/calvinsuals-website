@@ -332,15 +332,19 @@ function initCardModalInteraction() {
         });
     });
 
-    // 处理模态窗口关闭 (点击关闭按钮或背景)
+    // 处理模态窗口关闭：移动端可点背景关闭；桌面端仅关闭按钮（避免误触）
     if (modalContainer) {
         modalContainer.addEventListener('click', (event) => {
             const modal = event.target.closest('.modal');
             if (!modal) return;
 
             const isCloseButton = event.target.closest('.close-modal');
-            // 点击背景关闭，加延迟判断防止打开时误关
-            const isOverlay = event.target === modal && (Date.now() - lastModalOpenTime > 300);
+            const allowBackdropClose =
+                window.matchMedia && window.matchMedia('(max-width: 875px)').matches;
+            const isOverlay =
+                allowBackdropClose &&
+                event.target === modal &&
+                Date.now() - lastModalOpenTime > 300;
 
             if (isCloseButton || isOverlay) {
                 closeModal(modal);
@@ -430,8 +434,10 @@ function initTermsButton() {
                 };
             }
 
-            termsModal.onclick = function(event) {
-                if (event.target === termsModal) {
+            termsModal.onclick = function (event) {
+                const allowBackdropClose =
+                    window.matchMedia && window.matchMedia('(max-width: 875px)').matches;
+                if (allowBackdropClose && event.target === termsModal) {
                     console.log('模态窗口背景被点击，关闭窗口');
                     if (typeof window.closeTermsModalFlow === 'function') {
                         window.closeTermsModalFlow();
