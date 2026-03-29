@@ -414,6 +414,14 @@
         
         // REMOVED Function to navigate to main section - now handled by navigation.js
 
+        const R2_PUBLIC_HOST = 'pub-67b44c34fdd2480e83feffb3cfc185b9.r2.dev';
+        const R2_CUSTOM_HOST = 'img.calvinsuals.com';
+
+        function normalizeImageUrl(url) {
+            if (!url || typeof url !== 'string') return url;
+            return url.replace(R2_PUBLIC_HOST, R2_CUSTOM_HOST);
+        }
+
         // --- 子画廊加载代码 (Keep this - specific to automotive.html) ---
         async function displaySubGalleries(galleryType) {
             const mainContainer = document.getElementById('gallery-sections-container');
@@ -554,7 +562,7 @@
                                 // 直接创建 img 元素并添加到 car-gallery
                                 const imgElement = document.createElement('img');
                                 // !!! 直接使用 R2 URL !!!
-                                imgElement.src = imageName; // 使用从 JSON 读取的 R2 URL
+                                imgElement.src = normalizeImageUrl(imageName); // 使用自定义域名命中缓存规则
                                 imgElement.alt = `${subGalleryTitle} - Image ${index + 1}`;
                                 imgElement.loading = 'lazy';
 

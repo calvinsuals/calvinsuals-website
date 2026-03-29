@@ -4,6 +4,13 @@ const __imageWarmCache = new Set();
 const __imageObjectCache = new Map();
 const __imageReadyCache = new Set();
 const __MAX_IMAGE_OBJECT_CACHE = 120;
+const __R2_PUBLIC_HOST = 'pub-67b44c34fdd2480e83feffb3cfc185b9.r2.dev';
+const __R2_CUSTOM_HOST = 'img.calvinsuals.com';
+
+function normalizeImageUrl(url) {
+    if (!url || typeof url !== 'string') return url;
+    return url.replace(__R2_PUBLIC_HOST, __R2_CUSTOM_HOST);
+}
 
 function keepImageObject(url, img) {
     if (!url || !img || __imageObjectCache.has(url)) return;
@@ -15,6 +22,7 @@ function keepImageObject(url, img) {
 }
 
 function warmImage(url) {
+    url = normalizeImageUrl(url);
     if (!url || typeof url !== 'string' || __imageWarmCache.has(url)) return;
     __imageWarmCache.add(url);
     const img = new Image();
@@ -81,6 +89,7 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         if (!Array.isArray(imageUrls)) throw new Error(`JSON data from ${jsonPath} is not a valid array.`);
         console.log(`[${containerId}] Found ${imageUrls.length} image URLs.`);
         let finalImageUrls = (count !== Infinity && count > 0) ? imageUrls.slice(0, count) : imageUrls;
+        finalImageUrls = finalImageUrls.map(normalizeImageUrl);
         if (finalImageUrls.length === 0) { container.innerHTML = '<p style="color: white; text-align: center;">No images.</p>'; return; }
         const fragment = document.createDocumentFragment();
         finalImageUrls.forEach((imgUrl, index) => {
@@ -337,7 +346,7 @@ async function loadAndInitComparison(jsonPath) {
                 imgBefore.alt = 'Before'; imgBefore.className = 'before'; imgBefore.loading = 'lazy';
                 imgBefore.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 Before src: ${groupData.before_src}`);
-                imgBefore.src = groupData.before_src;
+                imgBefore.src = normalizeImageUrl(groupData.before_src);
                 imgBefore.onerror = () => { imgBefore.alt='Image not found'; imgBefore.src=''; console.error(`[Comparison ${groupData.id}] 加载 Before 图片失败: ${groupData.before_src}`);};
                 console.log(`[Comparison ${groupData.id}] Before img 创建成功.`);
 
@@ -345,7 +354,7 @@ async function loadAndInitComparison(jsonPath) {
                 imgAfter.alt = 'After'; imgAfter.className = 'after'; imgAfter.loading = 'lazy';
                 imgAfter.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 After src: ${groupData.after_src}`);
-                imgAfter.src = groupData.after_src;
+                imgAfter.src = normalizeImageUrl(groupData.after_src);
                 imgAfter.onerror = () => { imgAfter.alt='Image not found'; imgAfter.src=''; console.error(`[Comparison ${groupData.id}] 加载 After 图片失败: ${groupData.after_src}`);};
                 console.log(`[Comparison ${groupData.id}] After img 创建成功.`);
 
@@ -373,7 +382,7 @@ async function loadAndInitComparison(jsonPath) {
                 thumbItem.dataset.targetId = group.id; 
                 if (index === 0) { thumbItem.classList.add('active'); } 
                 const thumbImg = document.createElement('img');
-                thumbImg.src = groupData.after_src; 
+                thumbImg.src = normalizeImageUrl(groupData.after_src); 
                 thumbImg.alt = `Thumbnail for ${groupData.id}`;
                 thumbImg.loading = 'lazy';
                 thumbImg.onerror = () => { thumbImg.alt='Thumb not found'; thumbImg.src=''; console.error(`[Comparison ${groupData.id}] 加载 Thumbnail 图片失败: ${groupData.after_src}`); };
