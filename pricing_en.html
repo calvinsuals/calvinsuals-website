@@ -16,7 +16,7 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/site_background.css?v=20260329h">
-    <link rel="stylesheet" href="css/pricing_styles_en.css?v=20260329l">
+    <link rel="stylesheet" href="css/pricing_styles_en.css?v=20260329m">
     
     <!-- 添加悬浮条款按钮的样式 -->
     <style>
@@ -77,99 +77,6 @@
             
             #floating-terms-button:hover {
                 transform: translateY(-50%) translateX(-5px) scale(0.8);
-            }
-        }
-        .pricing-page #modal-container .modal { pointer-events: auto !important; }
-        body.modal-open #modal-container { z-index: 12000 !important; }
-        body.modal-open .nav-toggle,
-        body.modal-open .lang-switch,
-        body.modal-open .nav-menu,
-        body.modal-open #floating-terms-button {
-            display: none !important;
-            visibility: hidden !important;
-            pointer-events: none !important;
-        }
-
-        /* Modal title / first rule line: after linked CSS; overrides Bootstrap --bs-modal-header-padding */
-        @media (max-width: 991.98px) {
-            #modal-container > .modal:not(#modal-terms) {
-                --bs-modal-header-padding: 0 16px 2px !important;
-                --bs-modal-header-padding-x: 16px !important;
-                --bs-modal-header-padding-y: 0 !important;
-            }
-            #modal-container > #modal-terms.modal {
-                --bs-modal-header-padding: 0 14px 2px !important;
-                --bs-modal-header-padding-x: 14px !important;
-                --bs-modal-header-padding-y: 0 !important;
-            }
-            html body #modal-container .modal:not(#modal-terms) .modal-content .modal-header {
-                display: flex !important;
-                flex-direction: column !important;
-                align-items: center !important;
-                justify-content: center !important;
-                padding: 0 16px 2px !important;
-                margin: 0 !important;
-                min-height: 0 !important;
-                row-gap: 0 !important;
-                column-gap: 0 !important;
-                text-align: center !important;
-                border: none !important;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
-                border-radius: 0 !important;
-                box-sizing: border-box !important;
-            }
-            html body #modal-container .modal:not(#modal-terms) .modal-content .modal-header h3.modal-title {
-                margin: 0 !important;
-                padding: 0 !important;
-                width: 100% !important;
-                text-align: center !important;
-                font-size: 1.24rem !important;
-                line-height: 1 !important;
-                font-weight: 600 !important;
-                color: var(--modal-text-color) !important;
-                text-shadow: var(--modal-text-shadow) !important;
-            }
-            html body #modal-container .modal:not(#modal-terms) .modal-content .modal-body {
-                padding-top: 4px !important;
-                max-height: calc(100dvh - 108px) !important;
-            }
-            html body #modal-container .modal:not(#modal-terms) .modal-content .modal-body > :first-child {
-                margin-top: 0 !important;
-                margin-block-start: 0 !important;
-            }
-            html body #modal-container #modal-terms .modal-content .modal-header {
-                display: flex !important;
-                flex-direction: column !important;
-                align-items: flex-start !important;
-                justify-content: center !important;
-                padding: 12px 14px 2px !important;
-                margin: 0 !important;
-                min-height: 0 !important;
-                row-gap: 0 !important;
-                text-align: left !important;
-                border: none !important;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
-                border-radius: 0 !important;
-                box-sizing: border-box !important;
-            }
-            html body #modal-container #modal-terms .modal-content .modal-header h3.modal-title {
-                margin: 0 !important;
-                padding: 0 !important;
-                width: 100% !important;
-                text-align: left !important;
-                font-size: 1.08rem !important;
-                line-height: 1 !important;
-                font-weight: 600 !important;
-                color: var(--modal-text-color) !important;
-                text-shadow: var(--modal-text-shadow) !important;
-            }
-            html body #modal-container #modal-terms .modal-content .modal-body {
-                padding-top: 4px !important;
-                max-height: calc(100dvh - 70px) !important;
-            }
-            html body #modal-container #modal-terms .modal-content .modal-body > :first-child {
-                margin-top: 0 !important;
-                margin-block-start: 0 !important;
             }
         }
     </style>
