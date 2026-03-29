@@ -26,16 +26,22 @@ body {
     margin: 0;
     padding: 0;
     overflow-x: hidden; /* Prevent horizontal scroll */
-    /* 与渐变深色端一致；用 !important 避免被后续规则误清 */
-    background-color: #333 !important;
+    /* 透明让 html 渐变兜底透出；避免纯 #333 在视口与固定层错位时整块发黑 */
+    background-color: transparent !important;
     position: relative;
 }
 
 /* 恢复背景渐变层，移除噪点纹理和透明度 */
 .background-gradient {
     position: fixed;
-    inset: 0;
-    /* 仅用 inset 铺满当前视口；勿设 height:100svh——地址栏收起后可视高度变大，层仍卡在「小视口」高度，底部会露出 body #333 成大片黑底 */
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 100lvh;
+    height: max(100dvh, 100lvh);
     z-index: 0;
     pointer-events: none;
     background: var(--primary-gradient);
@@ -70,7 +76,9 @@ body > *:not(.background-gradient):not(.nav-toggle):not(.nav-menu):not(.lang-swi
     top: 0 !important;
     width: 100% !important;
     height: 100vh !important; /* fallback */
-    height: 100dvh !important; /* 与中文版一致，移动端随浏览器 UI */
+    height: 100dvh !important;
+    min-height: 100lvh !important;
+    height: max(100dvh, 100lvh) !important;
     overflow: hidden !important;
     
     /* 多层背景方案，消除断层问题 */
@@ -123,14 +131,13 @@ body > *:not(.background-gradient):not(.nav-toggle):not(.nav-menu):not(.lang-swi
     }
 
 
-/* 修改 html/body：勿用 background:none，否则会清掉 body 的底色导致露白/断层 */
+/* 修改 html/body：html 用渐变兜底；body 无图 */
 html, body {
     overflow-x: hidden;
     position: relative;
     width: 100%;
     max-width: 100%;
-    background-image: none !important;
-    background-attachment: initial !important;
+    background-attachment: scroll;
     min-height: 100%;
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
@@ -138,6 +145,14 @@ html, body {
 
 html {
     background-color: #333;
+    background-image: var(--primary-gradient);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center top;
+}
+
+body {
+    background-image: none !important;
 }
 
 /* 移除之前添加的body:before */
@@ -284,6 +299,8 @@ body:before {
     width: 100%;
     height: 100vh; /* fallback */
     height: 100dvh;
+    min-height: 100lvh;
+    height: max(100dvh, 100lvh);
     background-color: rgba(0, 0, 0, 0.9);
     z-index: 1000;
     display: flex;
