@@ -31,15 +31,15 @@ body {
     position: relative;
 }
 
-/* 恢复背景渐变层，移除噪点纹理和透明度 */
+/* 恢复背景渐变层，扩大高度以应对拉拽回弹 */
 .background-gradient {
     position: fixed;
-    top: 0;
+    top: -20vh;
     left: 0;
     right: 0;
     width: 100%;
-    height: 100vh; /* fallback */
-    height: 100lvh;
+    height: 140vh; /* fallback */
+    height: 140lvh;
     z-index: -1;
     background: var(--primary-gradient);
     transition: none;
@@ -132,7 +132,6 @@ body {
     min-height: 100%;
     -webkit-overflow-scrolling: touch;
     /* 移除 scroll-behavior: smooth 以防止移动端极速回弹时抽搐 */
-    overscroll-behavior: none; /* 完全关闭回弹功能 */
 }
 
 /* 移除之前添加的body:before */

@@ -39,10 +39,6 @@
             background-color: #333;
         }
 
-        html, body {
-            overscroll-behavior: none; /* 完全关闭回弹功能 */
-        }
-
         /* --- General Body Styling --- */
         body {
             font-family: var(--font-body);
@@ -58,13 +54,13 @@
         /* --- Fixed Background Gradient --- */
         .background-gradient {
             position: fixed;
-            top: 0;
+            /* 让渐变层上下溢出屏幕，这样回弹拉扯时就不会漏出底下的缝隙和纯色 */
+            top: -20vh;
             left: 0;
             right: 0;
             width: 100%;
-            /* 不用 height:100svh 与 inset 混算，改用大视口 min-height 兜底，减少显隐工具栏时的细缝 */
-            min-height: 100vh;
-            min-height: 100lvh;
+            height: 140vh; /* fallback */
+            height: 140lvh;
             z-index: -1;
             background: var(--primary-gradient);
             transition: none;
