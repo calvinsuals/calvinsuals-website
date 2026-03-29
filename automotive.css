@@ -8,23 +8,9 @@ body {
     overscroll-behavior-y: none;
 }
 
-html {
-    background-color: #555555;
-    min-height: 100%;
-    min-height: var(--app-vh, 100dvh);
-}
-
 .automotive-page {
     background: linear-gradient(to bottom, #f9fafb, #555555);
     color: #ffffff;
-    min-height: 100%;
-    min-height: var(--app-vh, 100dvh);
-}
-
-@media screen and (max-width: 767px) {
-    body.automotive-page {
-        padding-bottom: max(4.5rem, calc(env(safe-area-inset-bottom, 0px) + 3rem));
-    }
 }
 
 /* 标题背景区域 */
@@ -495,6 +481,10 @@ html {
 
 /* Mobile Navigation Styles */
 @media (max-width: 767px) { /* Or use 875px if consistent */
+    .nav-menu {
+        height: 100svh;
+    }
+
     .nav-menu a {
         font-size: 1.2rem !important;
     }

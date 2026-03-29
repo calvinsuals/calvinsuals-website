@@ -8,25 +8,12 @@ body {
     overscroll-behavior-y: none;
 }
 
-/* 与渐变末端一致，避免滑到底时露出浏览器默认黑/白底 */
-html {
-    background-color: #555555;
-    min-height: 100%;
-    min-height: var(--app-vh, 100dvh);
-}
-
 body.portrait-page {
     /* Apply the desired gradient directly to the body */
     background: linear-gradient(to bottom, #efefef, #555555) !important; 
     color: #ffffff; /* Keep text color */
     min-height: 100vh; /* fallback */
     min-height: var(--app-vh, 100dvh); /* 由 navigation.js 同步为 px */
-}
-
-@media screen and (max-width: 767px) {
-    body.portrait-page {
-        padding-bottom: max(4.5rem, calc(env(safe-area-inset-bottom, 0px) + 3rem));
-    }
 }
 
 .portrait-page {
@@ -390,6 +377,10 @@ body.portrait-page {
 
 /* 响应式布局 - 手机 (来自 automotive.css, 修改标题选择器) */
 @media (max-width: 767px) {
+    .nav-menu {
+        height: 100svh;
+    }
+
     /* Mobile Navigation Styles */
     .nav-menu a {
         font-size: 1.2rem !important;
