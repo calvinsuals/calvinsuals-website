@@ -1,15 +1,82 @@
 // *** 函数定义区域 ***
 const __jsonCache = new Map();
+const __jsonSessionPrefix = 'calvinsuals-json-cache-v1:';
+const __warmedImageUrls = new Set();
+
+function getJsonFromSessionCache(jsonPath) {
+    try {
+        const raw = sessionStorage.getItem(__jsonSessionPrefix + jsonPath);
+        if (!raw) return null;
+        return JSON.parse(raw);
+    } catch (_) {
+        return null;
+    }
+}
+
+function setJsonToSessionCache(jsonPath, data) {
+    try {
+        sessionStorage.setItem(__jsonSessionPrefix + jsonPath, JSON.stringify(data));
+    } catch (_) {
+        // Ignore quota/private mode errors.
+    }
+}
+
+function warmImage(url) {
+    if (!url || __warmedImageUrls.has(url)) return;
+    __warmedImageUrls.add(url);
+    const img = new Image();
+    img.decoding = 'async';
+    img.loading = 'eager';
+    img.src = url;
+    if (typeof img.decode === 'function') {
+        img.decode().catch(() => {});
+    }
+}
+
+function scheduleImageWarmup(urls, eagerCount = 4) {
+    const validUrls = (urls || []).filter((u) => typeof u === 'string' && u.startsWith('http'));
+    if (validUrls.length === 0) return;
+
+    validUrls.slice(0, eagerCount).forEach(warmImage);
+    const rest = validUrls.slice(eagerCount);
+    if (rest.length === 0) return;
+
+    let i = 0;
+    const chunkSize = 3;
+    const work = () => {
+        const end = Math.min(i + chunkSize, rest.length);
+        for (; i < end; i += 1) warmImage(rest[i]);
+        if (i < rest.length) {
+            if (typeof requestIdleCallback === 'function') {
+                requestIdleCallback(work, { timeout: 600 });
+            } else {
+                setTimeout(work, 80);
+            }
+        }
+    };
+    if (typeof requestIdleCallback === 'function') {
+        requestIdleCallback(work, { timeout: 400 });
+    } else {
+        setTimeout(work, 50);
+    }
+}
 
 async function fetchJsonWithCache(jsonPath) {
     if (__jsonCache.has(jsonPath)) {
         return __jsonCache.get(jsonPath);
     }
 
+    const sessionCached = getJsonFromSessionCache(jsonPath);
+    if (sessionCached) {
+        __jsonCache.set(jsonPath, sessionCached);
+        return sessionCached;
+    }
+
     const response = await fetch(jsonPath, { cache: 'force-cache' });
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     __jsonCache.set(jsonPath, data);
+    setJsonToSessionCache(jsonPath, data);
     return data;
 }
 
@@ -28,12 +95,13 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         console.log(`[${containerId}] Found ${imageUrls.length} image URLs.`);
         let finalImageUrls = (count !== Infinity && count > 0) ? imageUrls.slice(0, count) : imageUrls;
         if (finalImageUrls.length === 0) { container.innerHTML = '<p style="color: white; text-align: center;">No images.</p>'; return; }
+        scheduleImageWarmup(finalImageUrls, 5);
         const fragment = document.createDocumentFragment();
         finalImageUrls.forEach((imgUrl, index) => {
             const slide = document.createElement('div'); slide.className = 'gallery-slide';
             if (typeof imgUrl === 'string' && imgUrl.startsWith('http')) {
                 slide.dataset.bgImage = imgUrl;
-                if (index < 2) { slide.style.backgroundImage = `url('${imgUrl}')`; }
+                if (index < 5) { slide.style.backgroundImage = `url('${imgUrl}')`; }
             } else { console.warn(`[${containerId}] Invalid URL: '${imgUrl}'`); slide.textContent = `Invalid URL`; /*...*/ }
             fragment.appendChild(slide);
             if (nav) { const dot = document.createElement('div'); dot.className = index === 0 ? 'gallery-dot active' : 'gallery-dot'; dot.dataset.index = index; nav.appendChild(dot); }
@@ -246,6 +314,12 @@ async function loadAndInitComparison(jsonPath) {
         if (!Array.isArray(comparisonGroupsData)) throw new Error(`JSON not array.`);
         console.log(`[Comparison] Found ${comparisonGroupsData.length} groups.`);
         if (comparisonGroupsData.length === 0) { container.innerHTML = '<p style="color: white; text-align: center;">No comparison groups.</p>'; return; }
+        const warmUrls = [];
+        comparisonGroupsData.forEach((g) => {
+            if (g && g.before_src) warmUrls.push(g.before_src);
+            if (g && g.after_src) warmUrls.push(g.after_src);
+        });
+        scheduleImageWarmup(warmUrls, 6);
 
         const sliderContainer = document.createElement('div');
         sliderContainer.className = 'comparison-slider';
@@ -269,7 +343,7 @@ async function loadAndInitComparison(jsonPath) {
                 console.log(`[Comparison ${groupData.id}] Wrapper div 创建成功, class: ${wrapper.className}`);
 
                 const imgBefore = document.createElement('img');
-                imgBefore.alt = 'Before'; imgBefore.className = 'before'; imgBefore.loading = 'lazy';
+                imgBefore.alt = 'Before'; imgBefore.className = 'before'; imgBefore.loading = index < 2 ? 'eager' : 'lazy';
                 imgBefore.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 Before src: ${groupData.before_src}`);
                 imgBefore.src = groupData.before_src;
@@ -277,7 +351,7 @@ async function loadAndInitComparison(jsonPath) {
                 console.log(`[Comparison ${groupData.id}] Before img 创建成功.`);
 
                 const imgAfter = document.createElement('img');
-                imgAfter.alt = 'After'; imgAfter.className = 'after'; imgAfter.loading = 'lazy';
+                imgAfter.alt = 'After'; imgAfter.className = 'after'; imgAfter.loading = index < 2 ? 'eager' : 'lazy';
                 imgAfter.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 After src: ${groupData.after_src}`);
                 imgAfter.src = groupData.after_src;
@@ -310,7 +384,7 @@ async function loadAndInitComparison(jsonPath) {
                 const thumbImg = document.createElement('img');
                 thumbImg.src = groupData.after_src; 
                 thumbImg.alt = `Thumbnail for ${groupData.id}`;
-                thumbImg.loading = 'lazy';
+                thumbImg.loading = index < 3 ? 'eager' : 'lazy';
                 thumbImg.onerror = () => { thumbImg.alt='Thumb not found'; thumbImg.src=''; console.error(`[Comparison ${groupData.id}] 加载 Thumbnail 图片失败: ${groupData.after_src}`); };
                 thumbItem.appendChild(thumbImg);
                 thumbnailFragment.appendChild(thumbItem); 
