@@ -39,8 +39,8 @@ body {
     right: 0;
     bottom: 0;
     width: 100%;
-    min-height: 100vh;
-    min-height: 100lvh;
+    height: 100vh; /* fallback */
+    height: 100dvh;
     z-index: -1;
     background: var(--primary-gradient);
     transition: none;
@@ -117,23 +117,19 @@ body {
     }
 
 
-/* html 保留实色底，避免移动端工具栏显隐时固定渐变层边缘透出形成半透明带；body 仍去掉背景以免冲突 */
+/* 修改html/body样式，去除可能引起冲突的背景设置 */
 html, body {
     overflow-x: hidden;
     position: relative;
     width: 100%;
     max-width: 100%;
+    /* Keep a solid base color so toolbar hide/show won't reveal translucent area */
+    background-color: #333 !important;
+    background-attachment: initial !important;
+    background-image: none !important;
     min-height: 100%;
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
-}
-html {
-    background-color: #333;
-}
-body {
-    background: none !important;
-    background-attachment: initial !important;
-    background-image: none !important;
 }
 
 /* 移除之前添加的body:before */

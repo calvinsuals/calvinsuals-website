@@ -37,12 +37,16 @@ function unlockPricingPageScroll() {
     document.body.style.right = '';
     document.body.style.width = '';
     document.documentElement.style.overflow = '';
-    // 定价页 html/body 使用 scroll-behavior: smooth；关弹窗时若用默认 scrollTo 会触发平滑滚动，体感像页面「弹回」
-    const root = document.documentElement;
-    const prevInline = root.style.scrollBehavior;
-    root.style.scrollBehavior = 'auto';
+    // Temporarily disable smooth scroll to avoid "snap-back" animation.
+    const prevHtmlScrollBehavior = document.documentElement.style.scrollBehavior;
+    const prevBodyScrollBehavior = document.body.style.scrollBehavior;
+    document.documentElement.style.scrollBehavior = 'auto';
+    document.body.style.scrollBehavior = 'auto';
     window.scrollTo(0, scrollY);
-    root.style.scrollBehavior = prevInline;
+    requestAnimationFrame(() => {
+        document.documentElement.style.scrollBehavior = prevHtmlScrollBehavior;
+        document.body.style.scrollBehavior = prevBodyScrollBehavior;
+    });
 }
 
 // 定义全局变量以便于在不同函数间共享
