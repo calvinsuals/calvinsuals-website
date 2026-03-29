@@ -33,11 +33,7 @@ function warmImage(url) {
     }
 }
 
-function isDesktopLikeDevice() {
-    return window.matchMedia && window.matchMedia('(pointer: fine)').matches && window.innerWidth >= 768;
-}
-
-function scheduleImageWarmup(urls, eagerCount = 4, aggressive = false) {
+function scheduleImageWarmup(urls, eagerCount = 4) {
     const validUrls = (urls || []).filter((u) => typeof u === 'string' && u.startsWith('http'));
     if (validUrls.length === 0) return;
 
@@ -46,23 +42,15 @@ function scheduleImageWarmup(urls, eagerCount = 4, aggressive = false) {
     if (rest.length === 0) return;
 
     let i = 0;
-    const chunkSize = aggressive ? 6 : 2;
+    const chunkSize = 6;
     const work = () => {
         const end = Math.min(i + chunkSize, rest.length);
         for (; i < end; i += 1) warmImage(rest[i]);
         if (i < rest.length) {
-            if (!aggressive && typeof requestIdleCallback === 'function') {
-                requestIdleCallback(work, { timeout: 1000 });
-            } else {
-                setTimeout(work, aggressive ? 30 : 140);
-            }
+            setTimeout(work, 30);
         }
     };
-    if (!aggressive && typeof requestIdleCallback === 'function') {
-        requestIdleCallback(work, { timeout: 500 });
-    } else {
-        setTimeout(work, aggressive ? 20 : 80);
-    }
+    setTimeout(work, 20);
 }
 
 async function fetchJsonWithCache(jsonPath) {
@@ -99,16 +87,14 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         console.log(`[${containerId}] Found ${imageUrls.length} image URLs.`);
         let finalImageUrls = (count !== Infinity && count > 0) ? imageUrls.slice(0, count) : imageUrls;
         if (finalImageUrls.length === 0) { container.innerHTML = '<p style="color: white; text-align: center;">No images.</p>'; return; }
-        const desktopLike = isDesktopLikeDevice();
-        const eagerPreloadCount = desktopLike ? Math.min(4, finalImageUrls.length) : Math.min(12, finalImageUrls.length);
-        const warmupTargetCount = desktopLike ? Math.min(8, finalImageUrls.length) : eagerPreloadCount;
-        scheduleImageWarmup(finalImageUrls, warmupTargetCount, !desktopLike);
+        const eagerPreloadCount = Math.min(12, finalImageUrls.length);
+        scheduleImageWarmup(finalImageUrls, eagerPreloadCount);
         const fragment = document.createDocumentFragment();
         finalImageUrls.forEach((imgUrl, index) => {
             const slide = document.createElement('div'); slide.className = 'gallery-slide';
             if (typeof imgUrl === 'string' && imgUrl.startsWith('http')) {
                 slide.dataset.bgImage = imgUrl;
-                if (desktopLike || index < eagerPreloadCount) { slide.style.backgroundImage = `url('${imgUrl}')`; }
+                if (index < eagerPreloadCount) { slide.style.backgroundImage = `url('${imgUrl}')`; }
             } else { console.warn(`[${containerId}] Invalid URL: '${imgUrl}'`); slide.textContent = `Invalid URL`; /*...*/ }
             fragment.appendChild(slide);
             if (nav) { const dot = document.createElement('div'); dot.className = index === 0 ? 'gallery-dot active' : 'gallery-dot'; dot.dataset.index = index; nav.appendChild(dot); }
@@ -326,9 +312,7 @@ async function loadAndInitComparison(jsonPath) {
             if (g && g.before_src) warmUrls.push(g.before_src);
             if (g && g.after_src) warmUrls.push(g.after_src);
         });
-        const desktopLike = isDesktopLikeDevice();
-        const comparisonWarmCount = desktopLike ? Math.min(10, warmUrls.length) : Math.min(16, warmUrls.length);
-        scheduleImageWarmup(warmUrls, comparisonWarmCount, !desktopLike);
+        scheduleImageWarmup(warmUrls, Math.min(16, warmUrls.length));
 
         const sliderContainer = document.createElement('div');
         sliderContainer.className = 'comparison-slider';
@@ -352,9 +336,7 @@ async function loadAndInitComparison(jsonPath) {
                 console.log(`[Comparison ${groupData.id}] Wrapper div 创建成功, class: ${wrapper.className}`);
 
                 const imgBefore = document.createElement('img');
-                imgBefore.alt = 'Before';
-                imgBefore.className = 'before';
-                imgBefore.loading = desktopLike ? 'eager' : (index < 2 ? 'eager' : 'lazy');
+                imgBefore.alt = 'Before'; imgBefore.className = 'before'; imgBefore.loading = index < 2 ? 'eager' : 'lazy';
                 imgBefore.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 Before src: ${groupData.before_src}`);
                 imgBefore.src = groupData.before_src;
@@ -362,9 +344,7 @@ async function loadAndInitComparison(jsonPath) {
                 console.log(`[Comparison ${groupData.id}] Before img 创建成功.`);
 
                 const imgAfter = document.createElement('img');
-                imgAfter.alt = 'After';
-                imgAfter.className = 'after';
-                imgAfter.loading = desktopLike ? 'eager' : (index < 2 ? 'eager' : 'lazy');
+                imgAfter.alt = 'After'; imgAfter.className = 'after'; imgAfter.loading = index < 2 ? 'eager' : 'lazy';
                 imgAfter.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 After src: ${groupData.after_src}`);
                 imgAfter.src = groupData.after_src;
@@ -397,7 +377,7 @@ async function loadAndInitComparison(jsonPath) {
                 const thumbImg = document.createElement('img');
                 thumbImg.src = groupData.after_src; 
                 thumbImg.alt = `Thumbnail for ${groupData.id}`;
-                thumbImg.loading = desktopLike ? 'eager' : (index < 3 ? 'eager' : 'lazy');
+                thumbImg.loading = index < 3 ? 'eager' : 'lazy';
                 thumbImg.onerror = () => { thumbImg.alt='Thumb not found'; thumbImg.src=''; console.error(`[Comparison ${groupData.id}] 加载 Thumbnail 图片失败: ${groupData.after_src}`); };
                 thumbItem.appendChild(thumbImg);
                 thumbnailFragment.appendChild(thumbItem); 

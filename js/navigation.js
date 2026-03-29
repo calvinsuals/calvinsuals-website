@@ -208,14 +208,4 @@ window.navigateToMainSection = function(sectionId) {
     // 构建跳转URL，使用查询参数而非锚点，避免默认跳转行为
     window.location.href = 'index.html?section=' + sectionId;
     return false;
-};
-
-// Register a service worker to keep heavy image assets cached
-// across page navigations and reduce repeated desktop reloading.
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-        navigator.serviceWorker.register('./sw.js').catch(function (err) {
-            console.warn('Service worker register failed:', err);
-        });
-    });
-}
+}; 
