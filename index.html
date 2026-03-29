@@ -34,6 +34,12 @@
             --font-body: 'Montserrat', sans-serif;
         }
 
+        /* 兜底背景：即使 body 合成层重绘延迟，也不会露出浏览器默认白底 */
+        html {
+            background: var(--primary-gradient);
+            background-color: #333;
+        }
+
         /* --- General Body Styling --- */
         body {
             font-family: var(--font-body);
@@ -44,9 +50,7 @@
             overflow-x: hidden; /* Prevent horizontal scroll */
             position: relative; /* Needed for absolute positioning inside */
             background: var(--primary-gradient);
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-attachment: scroll;
+            background-color: #333;
         }
         
         /* --- Fixed Background Gradient --- */
