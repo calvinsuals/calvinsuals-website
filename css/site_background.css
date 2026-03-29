@@ -10,14 +10,14 @@ body.site-background-shell {
 }
 
 html.site-fixed-background {
+    /* 仅纯色兜底：若再铺与 fixed 层相同的渐变，滚动时 html 背景会随文档移动，与 fixed 层错位产生「背景跟着滑」和露白 */
     background-color: var(--site-background-fallback, #333);
-    background-image: var(--site-background-image, var(--primary-gradient, linear-gradient(135deg, #333 0%, #ddd 100%)));
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center top;
+    background-image: none;
 }
 
 body.site-background-shell {
+    /* Bootstrap 5 等框架会用 --bs-body-bg；必须显式清掉，否则会露白 */
+    --bs-body-bg: transparent;
     background-color: transparent !important;
     background-image: none !important;
     position: relative;
@@ -25,24 +25,19 @@ body.site-background-shell {
 
 body.site-background-shell .background-gradient {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
+    /* 铺满布局视口；用 inset 避免与 JS 内联 height 打架 */
+    inset: 0;
     width: 100%;
-    height: 100vh;
-    height: 100dvh;
+    min-height: 100vh;
+    min-height: 100dvh;
     min-height: 100lvh;
-    height: max(100dvh, 100lvh);
     z-index: 0;
     pointer-events: none;
     background: var(--site-background-image, var(--primary-gradient, linear-gradient(135deg, #333 0%, #ddd 100%)));
     transition: none;
-    transform: translate3d(0, 0, 0);
-    -webkit-transform: translate3d(0, 0, 0);
+    /* 避免额外合成层与 iOS 上 fixed 错位；需要时再开 */
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
-    perspective: 1000;
-    -webkit-perspective: 1000;
 }
 
 body.site-background-shell > *:not(.background-gradient):not(.nav-toggle):not(.nav-menu):not(.lang-switch):not(#floating-terms-button) {
@@ -52,10 +47,12 @@ body.site-background-shell > *:not(.background-gradient):not(.nav-toggle):not(.n
 
 body.site-background-shell .nav-menu,
 body.site-background-shell .modal {
-    height: 100vh;
-    height: 100dvh;
+    inset: 0;
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
     min-height: 100lvh;
-    height: max(100dvh, 100lvh);
+    height: auto;
 }
 
 body.site-background-shell #modal-container {
