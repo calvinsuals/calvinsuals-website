@@ -1,12 +1,25 @@
 // *** 函数定义区域 ***
 const __jsonCache = new Map();
 const __imageWarmCache = new Set();
+const __imageObjectCache = new Map();
+const __MAX_IMAGE_OBJECT_CACHE = 120;
+
+function keepImageObject(url, img) {
+    if (!url || !img || __imageObjectCache.has(url)) return;
+    __imageObjectCache.set(url, img);
+    if (__imageObjectCache.size > __MAX_IMAGE_OBJECT_CACHE) {
+        const oldestKey = __imageObjectCache.keys().next().value;
+        if (oldestKey) __imageObjectCache.delete(oldestKey);
+    }
+}
 
 function warmImage(url) {
     if (!url || typeof url !== 'string' || __imageWarmCache.has(url)) return;
     __imageWarmCache.add(url);
     const img = new Image();
     img.decoding = 'async';
+    // Keep a bounded reference so rapid scroll back does not trigger visible re-decode flashes.
+    keepImageObject(url, img);
     img.src = url;
 }
 
@@ -69,7 +82,8 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
             const slide = document.createElement('div'); slide.className = 'gallery-slide';
             if (typeof imgUrl === 'string' && imgUrl.startsWith('http')) {
                 slide.dataset.bgImage = imgUrl;
-                if (index < 4) { slide.style.backgroundImage = `url('${imgUrl}')`; }
+                // Set all slide backgrounds up-front to avoid white flashes on fast navigation.
+                slide.style.backgroundImage = `url('${imgUrl}')`;
             } else { console.warn(`[${containerId}] Invalid URL: '${imgUrl}'`); slide.textContent = `Invalid URL`; /*...*/ }
             fragment.appendChild(slide);
             if (nav) { const dot = document.createElement('div'); dot.className = index === 0 ? 'gallery-dot active' : 'gallery-dot'; dot.dataset.index = index; nav.appendChild(dot); }
@@ -791,11 +805,6 @@ function initializeGallerySlider(slidesId, dotsId) {
         const currentSlide = slideElements[currentIndex];
         const nextSlide = slideElements[newIndex];
 
-        // Lazy load next image if not already loaded
-        if (nextSlide.dataset.bgImage && !nextSlide.style.backgroundImage) {
-            nextSlide.style.backgroundImage = `url('${nextSlide.dataset.bgImage}')`;
-            console.log(`[FadeSlider DEBUG #${slidesId}] Lazy loaded image for slide ${newIndex}: ${nextSlide.dataset.bgImage}`); // 新增
-        }
         if (nextSlide.dataset.bgImage) warmImage(nextSlide.dataset.bgImage);
         const nextIndex = (newIndex + 1) % slideElements.length;
         const nextNextSlide = slideElements[nextIndex];
@@ -855,13 +864,7 @@ function initializeGallerySlider(slidesId, dotsId) {
         if (dotElements[currentIndex]) dotElements[currentIndex].classList.add('active');
     }
     
-    // Initial setup
-    if (slideElements.length > 0 && slideElements[0].dataset.bgImage && !slideElements[0].style.backgroundImage) {
-         slideElements[0].style.backgroundImage = `url('${slideElements[0].dataset.bgImage}')`; // Ensure first image is loaded
-         console.log(`[FadeSlider DEBUG #${slidesId}] Ensured first image is loaded: ${slideElements[0].dataset.bgImage}`); // 新增
-    }
-
-
+    // Initial setup: backgrounds are applied up-front in loadGalleryImages.
     startAutoPlay();
     console.log(`[FadeSlider DEBUG] Initialization complete for slider: ${slidesId}.`); // 新增
 }
