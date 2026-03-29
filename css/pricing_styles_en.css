@@ -1312,14 +1312,29 @@ body.modal-open #modal-container .modal-content {
     }
 
     .modal:not(#modal-terms) .modal-header {
-        padding: 4px 16px 0 !important;
-        border-bottom-width: 1px;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 4px 16px 6px !important;
+        text-align: center !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+        flex-shrink: 0;
+        box-sizing: border-box;
     }
 
     .modal:not(#modal-terms) .modal-title {
-        font-size: 1.02rem !important;
-        line-height: 1.2 !important;
-        margin: 0 0 14px 0 !important;
+        font-size: 0.98rem !important;
+        line-height: 1.28 !important;
+        margin: 0 !important;
+        width: 100%;
+        text-align: center !important;
+        font-weight: 600 !important;
+    }
+
+    .modal:not(#modal-terms) .modal-body {
+        max-height: calc(100dvh - 138px) !important;
+        padding-top: 10px !important;
     }
 
     .modal-body {
@@ -1361,20 +1376,27 @@ body.modal-open #modal-container .modal-content {
         width: 95%;
     }
     #modal-terms .modal-header {
-        padding: 4px 14px 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        justify-content: center !important;
+        padding: 4px 14px 6px !important;
         flex-shrink: 0;
         text-align: left !important;
         border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+        box-sizing: border-box;
     }
     #modal-terms .modal-title {
-        font-size: 0.88rem !important;
-        line-height: 1.2 !important;
-        margin: 0 0 12px 0 !important;
+        font-size: 0.86rem !important;
+        line-height: 1.28 !important;
+        margin: 0 !important;
+        width: 100%;
         text-align: left !important;
+        font-weight: 600 !important;
     }
     #modal-terms .modal-body {
         padding: 10px 14px 18px !important;
-        max-height: calc(100dvh - 108px) !important;
+        max-height: calc(100dvh - 88px) !important;
         font-size: 0.8rem;
         text-align: left !important;
         overflow-y: auto !important;
