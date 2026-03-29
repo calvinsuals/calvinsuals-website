@@ -43,6 +43,7 @@
             padding: 0;
             overflow-x: hidden; /* Prevent horizontal scroll */
             position: relative; /* Needed for absolute positioning inside */
+            background-color: #2f2f2f; /* Solid fallback to avoid white flashes during heavy repaints */
             background: var(--primary-gradient);
             background-repeat: no-repeat;
             background-size: cover;
@@ -472,6 +473,7 @@
             height: 100%; /* 新增：填充由父级 .gallery-slides 的 padding-bottom 创建的空间 */
             background-size: cover;
             background-position: center;
+            background-color: #2f2f2f; /* Keep dark placeholder while large images decode */
             /* transform: translateZ(0); */ /* 移除 transform */
             opacity: 0; /* 默认隐藏 */
             visibility: hidden; /* 配合 opacity 过渡，确保元素不占据空间且不可交互 */
@@ -1423,6 +1425,16 @@
 
         /* 确保大于768px屏幕的所有区域标题完全对齐 - 增加选择器特异性 */
         @media screen and (min-width: 768px) {
+            body {
+                background: transparent;
+                background-color: #2f2f2f;
+            }
+
+            /* Desktop-only fixed gradient layer to stabilize background painting on rapid scroll. */
+            .background-gradient {
+                display: block;
+            }
+
             /* 强制所有区域标题统一样式，无论之前设置 */
             body .section-title,
             body #automotive .section-title,
