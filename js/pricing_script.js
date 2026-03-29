@@ -116,6 +116,10 @@ function initCardModalInteraction() {
                 const modalBody = modal.querySelector('.modal-body');
                 const modalFooter = modal.querySelector('.modal-payment-footer');
 
+                if (modalBody) {
+                    modalBody.scrollTop = 0;
+                }
+
                 if (modalContent && isTouchDevice) {
                     // 防止模态窗口内的触摸事件冒泡到body
                     modalContent.addEventListener('touchmove', function(e) {
@@ -160,6 +164,11 @@ function initCardModalInteraction() {
             if (modalContent && isTouchDevice) {
                 const newModalContent = modalContent.cloneNode(true);
                 modalContent.parentNode.replaceChild(newModalContent, modalContent);
+            }
+
+            const modalBody = modal.querySelector('.modal-body');
+            if (modalBody) {
+                modalBody.scrollTop = 0;
             }
             
             const closeDelay = isDesktop ? 0 : 300;
@@ -331,6 +340,7 @@ function initTermsButton() {
                 // 确保弹窗内容可滚动，特别是在移动设备上
                 const modalBody = termsModal.querySelector('.modal-body');
                 if (modalBody) {
+                    modalBody.scrollTop = 0;
                     modalBody.style.overflowY = 'auto';
                     // 桌面端滚动用更原生的滚动路径；仅在触屏/粗指针设备启用 touch scroller
                     const isCoarsePointer = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
@@ -383,6 +393,10 @@ function initTermsButton() {
         const termsModal = document.getElementById('modal-terms');
         if (termsModal) {
             termsModal.classList.remove('is-visible');
+            const modalBody = termsModal.querySelector('.modal-body');
+            if (modalBody) {
+                modalBody.scrollTop = 0;
+            }
 
             const isDesktop = window.matchMedia && window.matchMedia("(min-width: 876px)").matches;
             const closeDelay = isDesktop ? 0 : 300;
