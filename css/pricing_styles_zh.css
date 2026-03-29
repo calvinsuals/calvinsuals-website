@@ -132,7 +132,7 @@ body {
     min-height: 100%;
     -webkit-overflow-scrolling: touch;
     /* 移除 scroll-behavior: smooth 以防止移动端极速回弹时抽搐 */
-    /* 恢复原生回弹 */
+    overscroll-behavior: none; /* 完全关闭回弹功能 */
 }
 
 /* 移除之前添加的body:before */
