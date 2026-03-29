@@ -98,9 +98,10 @@ function injectInlineTermsTriggers() {
     const label = lang.startsWith('zh') ? '拍摄须知及条款' : 'Terms & Conditions';
 
     modalRoot.querySelectorAll('.modal:not(#modal-terms)').forEach(function (modal) {
-        if (modal.querySelector('.modal-inline-terms-trigger')) return;
-        const body = modal.querySelector('.modal-body');
-        if (!body) return;
+        if (modal.querySelector('.modal-inline-terms-wrap')) return;
+        const content = modal.querySelector('.modal-content');
+        const bodyEl = modal.querySelector('.modal-body');
+        if (!content || !bodyEl) return;
 
         const wrap = document.createElement('div');
         wrap.className = 'modal-inline-terms-wrap';
@@ -116,7 +117,12 @@ function injectInlineTermsTriggers() {
             }
         });
         wrap.appendChild(btn);
-        body.appendChild(wrap);
+        /* 插在 body 之后、与桌面/移动同一槽位（footer 前） */
+        if (bodyEl.nextSibling) {
+            content.insertBefore(wrap, bodyEl.nextSibling);
+        } else {
+            content.appendChild(wrap);
+        }
     });
 }
 

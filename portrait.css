@@ -493,3 +493,37 @@ body.portrait-page {
     margin-bottom: 100px;
 }
 
+/* 页脚与 index.html 一致（覆盖 body 白字继承） */
+body.site-background-shell.portrait-page footer.footer,
+body.portrait-page footer.footer {
+    position: static;
+    background-color: transparent !important;
+    color: rgba(0, 0, 0, 0.7);
+    text-align: center;
+    padding: 15px 0;
+    width: 100%;
+    max-width: 1800px;
+    margin: 0 auto;
+}
+
+body.site-background-shell.portrait-page footer.footer p,
+body.portrait-page footer.footer p {
+    margin: 0;
+    font-size: 0.9rem;
+    font-family: 'Montserrat', sans-serif;
+    color: rgba(0, 0, 0, 0.25);
+}
+
+@media (max-width: 767px) {
+    body.site-background-shell.portrait-page footer.footer,
+    body.portrait-page footer.footer {
+        padding: 15px 0;
+        width: 100%;
+    }
+
+    body.site-background-shell.portrait-page footer.footer p,
+    body.portrait-page footer.footer p {
+        font-size: 0.55rem;
+    }
+}
+

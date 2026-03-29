@@ -388,24 +388,39 @@ body:before {
     width: 100%;
 }
 
-/* --- Footer --- */
-.footer {
-    position: relative;
-    width: 100% !important;
-    margin-top: 60px;
+/* --- Footer（与 index.html 一致） --- */
+body.pricing-page .footer {
+    position: static;
     background-color: transparent !important;
-    color: inherit;
+    color: rgba(0, 0, 0, 0.7);
     text-align: center;
-    padding: 15px 20px;
-    font-size: 0.75rem;
-    line-height: 1.4;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 15px 0;
+    width: 100%;
+    max-width: 1800px;
+    margin: 48px auto 0;
+    border-top: none;
+    font-size: inherit;
+    line-height: inherit;
 }
-.footer p {
-    margin: 2px 0;
-    opacity: 0.6;
-    color: inherit;
+
+body.pricing-page .footer p {
+    margin: 0;
+    font-size: 0.9rem;
+    font-family: var(--font-body, 'Montserrat', sans-serif);
+    color: rgba(0, 0, 0, 0.25);
+    opacity: 1;
     text-shadow: none;
+}
+
+@media (max-width: 767px) {
+    body.pricing-page .footer {
+        padding: 15px 0;
+        width: 100%;
+    }
+
+    body.pricing-page .footer p {
+        font-size: 0.55rem;
+    }
 }
 
 /* --- Main Pricing Area --- */
@@ -879,31 +894,44 @@ body.modal-open #floating-terms-button {
     z-index: 1150 !important;
 }
 
-/* 价目弹窗内打开须知的入口 */
-.modal-inline-terms-wrap {
-    margin-top: 20px;
-    padding-top: 16px;
+/* 价目弹窗内须知：插在 .modal-content 内、.modal-body 下方，各端统一尺寸与位置 */
+.modal-content > .modal-inline-terms-wrap {
+    flex-shrink: 0;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 12px 16px 14px;
     border-top: 1px solid rgba(255, 255, 255, 0.15);
     text-align: center;
+    background: rgba(28, 28, 28, 0.95);
 }
+
 .modal-inline-terms-trigger {
     appearance: none;
     -webkit-appearance: none;
+    display: block;
+    margin: 0 auto;
+    box-sizing: border-box;
+    width: 260px;
+    max-width: calc(100% - 8px);
+    min-height: 44px;
     border: 1px solid rgba(255, 255, 255, 0.45);
-    background: rgba(0, 0, 0, 0.25);
+    background: rgba(0, 0, 0, 0.35);
     color: var(--modal-text-color, #fff);
     font-family: var(--font-body, 'Montserrat', sans-serif);
-    font-size: 0.85rem;
+    font-size: 13px;
     font-weight: 500;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-    padding: 10px 18px;
+    padding: 11px 18px;
+    line-height: 1.2;
     border-radius: 999px;
     cursor: pointer;
     transition: background-color 0.2s ease, border-color 0.2s ease;
 }
+
 .modal-inline-terms-trigger:hover {
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.5);
     border-color: rgba(255, 255, 255, 0.65);
 }
 
@@ -939,7 +967,6 @@ body.modal-open #floating-terms-button {
 /* 确保在移动端也能正常工作 */
 @media (max-width: 875px) {
     .modal {
-        /* 确保弹窗固定且占满整个视口 */
         position: fixed !important;
         top: 0 !important;
         left: 0 !important;
@@ -948,21 +975,17 @@ body.modal-open #floating-terms-button {
         width: 100% !important;
         height: 100dvh !important;
         z-index: 1100 !important;
-        
-        /* 背景滚动由 JS（body position:fixed）锁定；此处不禁用 pan，避免短内容时误伤子元素滑动 */
         overscroll-behavior: none;
-        
-        /* 之前的样式保持不变 */
         display: flex !important;
-        align-items: flex-end !important; /* Align content to the bottom */
+        /* 垂直居中，避免整块卡片贴底导致「正文靠下」 */
+        align-items: center !important;
         justify-content: center !important;
-        padding: 20px 20px 0px !important; /* Keep bottom padding 0 */
+        padding: max(12px, env(safe-area-inset-top, 0px)) 16px max(12px, env(safe-area-inset-bottom, 0px)) !important;
     }
-    
+
     .modal-content {
-        /* 确保内容区域正确定位和滚动 */
         position: relative;
-        max-height: calc(100dvh - 40px); /* 40px为上下padding总和 */
+        max-height: min(92dvh, calc(100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))) !important;
         display: flex;
         flex-direction: column;
         width: 90%;
@@ -970,24 +993,32 @@ body.modal-open #floating-terms-button {
         background: rgba(45, 45, 45, 0.8);
         border-radius: 15px;
         box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
-        overflow: hidden; /* 重要：确保内容不会超出边界 */
+        overflow: hidden;
         overscroll-behavior: contain;
         touch-action: pan-y;
-        min-height: 0; /* flex 子项可收缩，overflow 才能生效 */
+        min-height: 0;
     }
-    
+
+    /* 价目弹窗：收紧标题区，把列表往上让 */
+    .modal:not(#modal-terms) .modal-header {
+        padding: 10px 16px 8px !important;
+        border-bottom-width: 1px;
+    }
+
+    .modal:not(#modal-terms) .modal-title {
+        font-size: 1.2rem !important;
+        line-height: 1.25 !important;
+    }
+
     .modal-body {
-        /* 确保内容区域可滚动 */
-        max-height: calc(100dvh - 180px); /* 减去头部和底部的高度 */
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
-        scrollbar-width: none; /* 隐藏滚动条 */
-        overscroll-behavior: contain; /* 滚动链不传给背后页面 */
+        scrollbar-width: none;
+        overscroll-behavior: contain;
         touch-action: pan-y;
         min-height: 0;
-        /* Ensure max-height is sufficient */
-        max-height: calc(100dvh - 120px); /* Adjust if header size changes */
-        padding-bottom: 40px; /* Increased padding-bottom to 40px for mobile */
+        max-height: calc(100dvh - 168px) !important;
+        padding: 12px 18px 16px !important;
     }
     
     .modal-payment-footer {
@@ -1019,19 +1050,20 @@ body.modal-open #floating-terms-button {
     }
 
     /* Overrides for #modal-terms on mobile */
-#modal-terms .modal-content {
-        /* Adjust max-width/height for mobile if needed */
+    #modal-terms .modal-content {
         width: 95%;
     }
     #modal-terms .modal-header {
-        padding: 15px 20px 8px !important;
+        padding: 10px 16px 6px !important;
     }
     #modal-terms .modal-title {
-        font-size: 1.2rem !important;
+        font-size: 1.1rem !important;
+        line-height: 1.25 !important;
     }
     #modal-terms .modal-body {
-        padding: 15px 20px 40px !important; /* Adjusted padding-bottom */
+        padding: 12px 16px 24px !important;
         font-size: 0.8rem;
+        max-height: calc(100dvh - 152px) !important;
     }
 #modal-terms .notice-section h3 { 
         font-size: 1rem !important;
