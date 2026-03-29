@@ -56,6 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initTermsButton(); // 初始化条款按钮
     initPaymentIcons(); // 初始化支付图标
     preloadModalFooterImages(); // 预先解码弹窗图片，减少首次滚动卡顿
+    injectInlineTermsTriggers(); // 价目弹窗内「须知」入口
 
     // --- 可选功能初始化 (会检查元素是否存在) ---
     // 这些功能可能只在特定页面存在，脚本会安全处理
@@ -85,6 +86,37 @@ function preloadModalFooterImages() {
         } catch (e) {
             // ignore
         }
+    });
+}
+
+/** 在每个价目弹窗 body 底部加入「须知」按钮，打开后关闭须知回到本弹窗 */
+function injectInlineTermsTriggers() {
+    const modalRoot = document.getElementById('modal-container');
+    if (!modalRoot) return;
+
+    const lang = (document.documentElement.getAttribute('lang') || '').toLowerCase();
+    const label = lang.startsWith('zh') ? '拍摄须知及条款' : 'Terms & Conditions';
+
+    modalRoot.querySelectorAll('.modal:not(#modal-terms)').forEach(function (modal) {
+        if (modal.querySelector('.modal-inline-terms-trigger')) return;
+        const body = modal.querySelector('.modal-body');
+        if (!body) return;
+
+        const wrap = document.createElement('div');
+        wrap.className = 'modal-inline-terms-wrap';
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'modal-inline-terms-trigger';
+        btn.textContent = label;
+        const modalId = modal.id;
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (typeof window.openTermsModal === 'function') {
+                window.openTermsModal(modalId);
+            }
+        });
+        wrap.appendChild(btn);
+        body.appendChild(wrap);
     });
 }
 
@@ -172,33 +204,41 @@ function initCardModalInteraction() {
 
     // 关闭模态窗口
     function closeModal(modal) {
-        if (modal) {
-            const modalId = modal.id;
-            modal.classList.remove('is-visible');
-            
-            // 移除触摸事件监听器
-            const modalContent = modal.querySelector('.modal-content');
-            const modalFooter = modal.querySelector('.modal-payment-footer');
-            
-            if (modalContent && isTouchDevice) {
-                const newModalContent = modalContent.cloneNode(true);
-                modalContent.parentNode.replaceChild(newModalContent, modalContent);
-            }
-            
-            const closeDelay = isDesktop ? 0 : 300;
-            setTimeout(() => {
-                modal.style.display = 'none';
-                unlockPricingPageScroll();
-                document.body.classList.remove('modal-open'); // 恢复背景动画
-            }, closeDelay); // 等待动画完成（移动端）
-            console.log(`关闭模态窗口: ${modalId}`);
+        if (!modal) return;
 
-            // 关闭时重新冻结对应的卡片
-            const cardTarget = modalId.replace('modal-', '');
-            const correspondingCard = document.querySelector(`.pricing-card[data-modal-target="${cardTarget}"]`);
-            if (correspondingCard) {
-                freezeCard(correspondingCard);
-            }
+        if (modal.id === 'modal-terms') {
+            closeTermsModalFlow();
+            return;
+        }
+
+        const termsModal = document.getElementById('modal-terms');
+        if (termsModal && termsModal.classList.contains('is-visible')) {
+            termsModal.classList.remove('is-visible');
+            termsModal.style.display = 'none';
+            window.__pricingTermsReturnToModalId = null;
+        }
+
+        const modalId = modal.id;
+        modal.classList.remove('is-visible');
+
+        const modalContent = modal.querySelector('.modal-content');
+        if (modalContent && isTouchDevice) {
+            const newModalContent = modalContent.cloneNode(true);
+            modalContent.parentNode.replaceChild(newModalContent, modalContent);
+        }
+
+        const closeDelay = isDesktop ? 0 : 300;
+        setTimeout(() => {
+            modal.style.display = 'none';
+            unlockPricingPageScroll();
+            document.body.classList.remove('modal-open');
+        }, closeDelay);
+        console.log(`关闭模态窗口: ${modalId}`);
+
+        const cardTarget = modalId.replace('modal-', '');
+        const correspondingCard = document.querySelector(`.pricing-card[data-modal-target="${cardTarget}"]`);
+        if (correspondingCard) {
+            freezeCard(correspondingCard);
         }
     }
 
@@ -380,43 +420,26 @@ function initTermsButton() {
                 closeButton.onclick = function(event) {
                     console.log('关闭按钮被点击');
                     event.stopPropagation();
-                    closeTermsModal();
+                    if (typeof window.closeTermsModalFlow === 'function') {
+                        window.closeTermsModalFlow();
+                    }
                     return false;
                 };
             }
-            
-            // 点击背景关闭
+
             termsModal.onclick = function(event) {
-                // 只有直接点击模态背景时才关闭
                 if (event.target === termsModal) {
                     console.log('模态窗口背景被点击，关闭窗口');
-                    closeTermsModal();
+                    if (typeof window.closeTermsModalFlow === 'function') {
+                        window.closeTermsModalFlow();
+                    }
                 }
             };
         }
-        
+
         console.log('条款按钮初始化完成');
     } else {
         console.warn('条款按钮 (#terms-button) 未找到。');
-    }
-    
-    // 关闭条款模态窗口的函数
-    function closeTermsModal() {
-        console.log('开始关闭条款模态窗口');
-        const termsModal = document.getElementById('modal-terms');
-        if (termsModal) {
-            termsModal.classList.remove('is-visible');
-
-            const isDesktop = window.matchMedia && window.matchMedia("(min-width: 876px)").matches;
-            const closeDelay = isDesktop ? 0 : 300;
-
-            setTimeout(() => {
-                termsModal.style.display = 'none';
-                unlockPricingPageScroll();
-                document.body.classList.remove('modal-open'); // 恢复背景动画
-                console.log('条款模态窗口已关闭，恢复页面状态');
-            }, closeDelay); // 等待动画完成（移动端）
-        }
     }
     
     // 尝试在文档加载完成后再次初始化以确保按钮可用
@@ -594,4 +617,67 @@ function initScrollToTop() {
 }
 
 window.lockPricingPageScroll = lockPricingPageScroll;
-window.unlockPricingPageScroll = unlockPricingPageScroll; 
+window.unlockPricingPageScroll = unlockPricingPageScroll;
+
+/** 从价目弹窗打开须知后，关闭须知时回到该弹窗（null 表示从页面侧栏/悬浮打开） */
+window.__pricingTermsReturnToModalId = null;
+
+/**
+ * 打开须知弹窗。floating 按钮：openTermsModal()；从价目弹窗内：openTermsModal('modal-rolling')
+ * @param {string} [returnToModalId] 关闭须知后要保持打开的价目弹窗 id
+ */
+window.openTermsModal = function (returnToModalId) {
+    const nested = typeof returnToModalId === 'string' && returnToModalId.length > 0;
+    window.__pricingTermsReturnToModalId = nested ? returnToModalId : null;
+
+    const termsModal = document.getElementById('modal-terms');
+    if (!termsModal) return;
+
+    termsModal.style.display = 'flex';
+    if (document.body.dataset.pricingScrollLocked !== '1') {
+        lockPricingPageScroll();
+    }
+    document.body.classList.add('modal-open');
+
+    const isDesktop = window.matchMedia && window.matchMedia('(min-width: 876px)').matches;
+    if (isDesktop) {
+        termsModal.classList.add('is-visible');
+    } else {
+        requestAnimationFrame(function () {
+            termsModal.classList.add('is-visible');
+        });
+    }
+
+    const modalBody = termsModal.querySelector('.modal-body');
+    if (modalBody) {
+        modalBody.style.overflowY = 'auto';
+        const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+        modalBody.style.webkitOverflowScrolling = coarse ? 'touch' : 'auto';
+    }
+};
+
+function closeTermsModalFlow() {
+    const termsModal = document.getElementById('modal-terms');
+    if (!termsModal) return;
+
+    const returnToId = window.__pricingTermsReturnToModalId;
+    termsModal.classList.remove('is-visible');
+
+    const isDesktop = window.matchMedia && window.matchMedia('(min-width: 876px)').matches;
+    const closeDelay = isDesktop ? 0 : 300;
+
+    setTimeout(function () {
+        termsModal.style.display = 'none';
+        window.__pricingTermsReturnToModalId = null;
+
+        if (returnToId) {
+            const parentModal = document.getElementById(returnToId);
+            if (parentModal && parentModal.classList.contains('is-visible')) {
+                return;
+            }
+        }
+        unlockPricingPageScroll();
+        document.body.classList.remove('modal-open');
+    }, closeDelay);
+}
+window.closeTermsModalFlow = closeTermsModalFlow;

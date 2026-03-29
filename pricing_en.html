@@ -424,36 +424,6 @@
     <script src="js/site_background.js" defer></script>
     <script src="js/pricing_script.js"></script>
 
-    <!-- 条款弹窗直接JS -->
-    <script>
-    function openTermsModal() {
-        console.log('Inline JS: Terms button clicked');
-        const termsModal = document.getElementById('modal-terms');
-        if (termsModal) {
-            termsModal.style.display = 'flex';
-            if (typeof window.lockPricingPageScroll === 'function') {
-                window.lockPricingPageScroll();
-            } else {
-                document.body.style.overflow = 'hidden';
-                document.body.dataset.scrollY = String(window.scrollY);
-            }
-            document.body.classList.add('modal-open'); // 暂停背景动画，减少毛玻璃重绘压力
-            
-            termsModal.classList.add('is-visible');
-            
-            const modalBody = termsModal.querySelector('.modal-body');
-            if (modalBody) {
-                modalBody.style.overflowY = 'auto';
-                // 桌面端滚动用更原生的滚动路径；仅在触屏/粗指针设备启用 touch scroller
-                const isCoarsePointer = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
-                modalBody.style.webkitOverflowScrolling = isCoarsePointer ? 'touch' : 'auto';
-            }
-            
-            console.log('Inline JS: Terms modal opened');
-        }
-    }
-    </script>
-
     <!-- Navigation JS (Common navigation logic) -->
     <script src="js/navigation.js" defer></script>
 
