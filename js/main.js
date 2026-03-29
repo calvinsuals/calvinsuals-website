@@ -1,4 +1,17 @@
 // *** 函数定义区域 ***
+const __jsonCache = new Map();
+
+async function fetchJsonWithCache(jsonPath) {
+    if (__jsonCache.has(jsonPath)) {
+        return __jsonCache.get(jsonPath);
+    }
+
+    const response = await fetch(jsonPath, { cache: 'force-cache' });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    __jsonCache.set(jsonPath, data);
+    return data;
+}
 
 /**
  * 加载图片列表并初始化轮播图 (加载 R2 图片)
@@ -10,9 +23,7 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
     container.innerHTML = ''; if (nav) nav.innerHTML = '';
     console.log(`[${containerId}] Loading image URLs from: ${jsonPath}`);
     try {
-        const response = await fetch(`${jsonPath}?t=${Date.now()}`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const imageUrls = await response.json();
+        const imageUrls = await fetchJsonWithCache(jsonPath);
         if (!Array.isArray(imageUrls)) throw new Error(`JSON data from ${jsonPath} is not a valid array.`);
         console.log(`[${containerId}] Found ${imageUrls.length} image URLs.`);
         let finalImageUrls = (count !== Infinity && count > 0) ? imageUrls.slice(0, count) : imageUrls;
@@ -231,9 +242,7 @@ async function loadAndInitComparison(jsonPath) {
     console.log(`[Comparison] Loading groups from: ${jsonPath}`);
 
     try {
-        const response = await fetch(`${jsonPath}?t=${Date.now()}`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const comparisonGroupsData = await response.json();
+        const comparisonGroupsData = await fetchJsonWithCache(jsonPath);
         if (!Array.isArray(comparisonGroupsData)) throw new Error(`JSON not array.`);
         console.log(`[Comparison] Found ${comparisonGroupsData.length} groups.`);
         if (comparisonGroupsData.length === 0) { container.innerHTML = '<p style="color: white; text-align: center;">No comparison groups.</p>'; return; }
