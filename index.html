@@ -1903,6 +1903,16 @@
                 display: none;
             }
 
+            /* 移动端稳定高度：避免 100dvh 随 Chrome UI 动画变化导致标题/容器漂移 */
+            .hero {
+                height: 100svh;
+                min-height: 100svh;
+            }
+
+            .nav-menu {
+                height: 100svh;
+            }
+
             /* 增加移动端各区域的上边距 */
             #automotive {
                 margin-top: 120px !important; /* 显著增加 Hero 和 Auto 之间的距离 */
@@ -2389,7 +2399,23 @@
         window.addEventListener('load', () => {
             setTimeout(updateTitlePositions, 100); // 延迟100ms执行
         });
-        window.addEventListener('resize', debounce(updateTitlePositions, 150)); // 150ms 防抖
+        // 移动端 Chrome 在 UI 显隐时会触发 resize（仅高度变化），
+        // 若每次都重算标题定位会出现「漂移后归位」。
+        // 仅在宽度变化（或横竖屏切换）时才重算定位。
+        let __lastTitleLayoutWidth = window.innerWidth;
+        window.addEventListener('resize', debounce(() => {
+            const currentWidth = window.innerWidth;
+            if (Math.abs(currentWidth - __lastTitleLayoutWidth) > 1) {
+                __lastTitleLayoutWidth = currentWidth;
+                updateTitlePositions();
+            }
+        }, 150)); // 150ms 防抖
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                __lastTitleLayoutWidth = window.innerWidth;
+                updateTitlePositions();
+            }, 120);
+        });
         // --- 结束：动态定位标题 ---
 
     </script>
