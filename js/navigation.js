@@ -1,5 +1,4 @@
 // 导航控制脚本 - 处理跨页面精确定位
-
 document.addEventListener('DOMContentLoaded', function() {
     // --- Menu Toggle Logic --- START ---
     const navToggle = document.querySelector('.nav-toggle');
