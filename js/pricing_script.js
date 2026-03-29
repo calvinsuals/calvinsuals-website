@@ -37,16 +37,7 @@ function unlockPricingPageScroll() {
     document.body.style.right = '';
     document.body.style.width = '';
     document.documentElement.style.overflow = '';
-    // Temporarily disable smooth scroll to avoid "snap-back" animation.
-    const prevHtmlScrollBehavior = document.documentElement.style.scrollBehavior;
-    const prevBodyScrollBehavior = document.body.style.scrollBehavior;
-    document.documentElement.style.scrollBehavior = 'auto';
-    document.body.style.scrollBehavior = 'auto';
     window.scrollTo(0, scrollY);
-    requestAnimationFrame(() => {
-        document.documentElement.style.scrollBehavior = prevHtmlScrollBehavior;
-        document.body.style.scrollBehavior = prevBodyScrollBehavior;
-    });
 }
 
 // 定义全局变量以便于在不同函数间共享

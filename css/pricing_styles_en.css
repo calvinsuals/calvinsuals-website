@@ -25,7 +25,7 @@ body {
     line-height: 1.6;
     margin: 0;
     padding: 0;
-    overflow-x: hidden; /* Prevent horizontal scroll */
+    /* 移除 overflow-x: hidden 解决 iOS 回弹卡顿 */
     /* 使用单色背景替代渐变，防止滚动残影 */
     background-color: #333;
     position: relative;
@@ -63,7 +63,7 @@ body {
     top: 0 !important;
     width: 100% !important;
     height: 100vh !important; /* fallback */
-    height: 100svh !important; /* 与中文版一致，移动端随浏览器 UI */
+    height: 100dvh !important; /* 与中文版一致，移动端随浏览器 UI */
     overflow: hidden !important;
     
     /* 多层背景方案，消除断层问题 */
@@ -122,7 +122,6 @@ html {
 }
 
 body {
-    overflow-x: hidden;
     position: relative;
     width: 100%;
     max-width: 100%;
@@ -130,8 +129,7 @@ body {
     background-attachment: initial !important;
     background-image: none !important;
     min-height: 100%;
-    -webkit-overflow-scrolling: touch;
-    /* 移除 scroll-behavior: smooth 以防止移动端极速回弹时抽搐 */
+    /* 移除 overflow-x: hidden 解决 iOS 回弹卡顿 */
 }
 
 /* 移除之前添加的body:before */
@@ -277,7 +275,7 @@ body:before {
     left: 0;
     width: 100%;
     height: 100vh; /* fallback */
-    height: 100svh;
+    height: 100dvh;
     background-color: rgba(0, 0, 0, 0.9);
     z-index: 1000;
     display: flex;
@@ -791,7 +789,7 @@ body:before {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch; /* 增强iOS滚动体验 */
     overscroll-behavior: none; /* 禁止弹性回弹 */
-    max-height: calc(100svh - 180px); /* 限制最大高度，留出头部和底部空间 */
+    max-height: calc(100dvh - 180px); /* 限制最大高度，留出头部和底部空间 */
     scrollbar-width: thin; /* Firefox */
     scrollbar-color: rgba(255, 255, 255, 0.3) transparent; /* Firefox */
     color: #ffffff; /* 明确设置白色文本 */
@@ -1144,7 +1142,7 @@ body:before {
         right: 0 !important;
         bottom: 0 !important;
         width: 100% !important;
-        height: 100svh !important;
+        height: 100dvh !important;
         z-index: 1100 !important;
         
         overscroll-behavior: none;
@@ -1159,7 +1157,7 @@ body:before {
     .modal-content {
         /* 确保内容区域正确定位和滚动 */
         position: relative;
-        max-height: calc(100svh - 40px); /* 40px为上下padding总和 */
+        max-height: calc(100dvh - 40px); /* 40px为上下padding总和 */
         display: flex;
         flex-direction: column;
         width: 90%;
@@ -1175,7 +1173,7 @@ body:before {
     
     .modal-body {
         /* 确保内容区域可滚动 */
-        max-height: calc(100svh - 180px); /* 减去头部和底部的高度 */
+        max-height: calc(100dvh - 180px); /* 减去头部和底部的高度 */
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none; /* 隐藏滚动条 */
@@ -1183,7 +1181,7 @@ body:before {
         touch-action: pan-y;
         min-height: 0;
         /* Ensure max-height is sufficient */
-        max-height: calc(100svh - 120px); /* Adjust if header size changes */
+        max-height: calc(100dvh - 120px); /* Adjust if header size changes */
         padding-bottom: 40px; /* Set padding-bottom to 40px for mobile */
     }
     
