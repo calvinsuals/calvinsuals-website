@@ -911,9 +911,8 @@ body:before {
         height: 100dvh !important;
         z-index: 1100 !important;
         
-        /* 防止弹窗内容滑动影响整个页面 */
-        touch-action: none; /* 禁用默认触摸行为 */
-        overscroll-behavior: none; /* 禁止弹性回弹 */
+        /* 背景滚动由 JS（body position:fixed）锁定；此处不禁用 pan，避免短内容时误伤子元素滑动 */
+        overscroll-behavior: none;
         
         /* 之前的样式保持不变 */
         display: flex !important;
@@ -934,7 +933,9 @@ body:before {
         border-radius: 15px;
         box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
         overflow: hidden; /* 重要：确保内容不会超出边界 */
-        overscroll-behavior: none; /* 禁止弹性回弹 */
+        overscroll-behavior: contain;
+        touch-action: pan-y;
+        min-height: 0; /* flex 子项可收缩，overflow 才能生效 */
     }
     
     .modal-body {
@@ -943,7 +944,9 @@ body:before {
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none; /* 隐藏滚动条 */
-        overscroll-behavior: none; /* 禁止弹性回弹 */
+        overscroll-behavior: contain; /* 滚动链不传给背后页面 */
+        touch-action: pan-y;
+        min-height: 0;
         /* Ensure max-height is sufficient */
         max-height: calc(100dvh - 120px); /* Adjust if header size changes */
         padding-bottom: 40px; /* Increased padding-bottom to 40px for mobile */

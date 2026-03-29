@@ -680,8 +680,12 @@
         const termsModal = document.getElementById('modal-terms');
         if (termsModal) {
             termsModal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-            document.body.dataset.scrollY = window.scrollY;
+            if (typeof window.lockPricingPageScroll === 'function') {
+                window.lockPricingPageScroll();
+            } else {
+                document.body.style.overflow = 'hidden';
+                document.body.dataset.scrollY = String(window.scrollY);
+            }
             document.body.classList.add('modal-open'); // 暂停背景动画，减少毛玻璃重绘压力
             
             termsModal.classList.add('is-visible');

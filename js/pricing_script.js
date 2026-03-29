@@ -3,6 +3,43 @@
  * 适用于中文和英文价格页面
  */
 
+/**
+ * 弹窗打开时锁定背后页面滚动。
+ * 移动端仅用 overflow:hidden 在 iOS 上常无效；短内容时触摸会穿透到底层页面。
+ * 使用 position:fixed + 记录 scrollY 是常见可靠做法（类「全屏层」体验）。
+ */
+function lockPricingPageScroll() {
+    if (document.body.dataset.pricingScrollLocked === '1') return;
+    document.body.dataset.pricingScrollLocked = '1';
+    const scrollY = window.scrollY;
+    document.body.dataset.scrollY = String(scrollY);
+    document.body.style.overflow = 'hidden';
+
+    const narrow = window.matchMedia && window.matchMedia('(max-width: 875px)').matches;
+    if (narrow) {
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${scrollY}px`;
+        document.body.style.left = '0';
+        document.body.style.right = '0';
+        document.body.style.width = '100%';
+        document.documentElement.style.overflow = 'hidden';
+    }
+}
+
+function unlockPricingPageScroll() {
+    if (document.body.dataset.pricingScrollLocked !== '1') return;
+    const scrollY = parseInt(document.body.dataset.scrollY || '0', 10);
+    delete document.body.dataset.pricingScrollLocked;
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    document.body.style.width = '';
+    document.documentElement.style.overflow = '';
+    window.scrollTo(0, scrollY);
+}
+
 // 定义全局变量以便于在不同函数间共享
 let globalOpenModalFunction;
 
@@ -86,8 +123,7 @@ function initCardModalInteraction() {
         const modal = document.getElementById(fullModalId);
         if (modal) {
             modal.style.display = 'flex';
-            document.body.style.overflow = 'hidden'; // 禁止 body 滚动
-            document.body.dataset.scrollY = window.scrollY; // 存储滚动位置
+            lockPricingPageScroll();
             document.body.classList.add('modal-open'); // 暂停背景动画，减少毛玻璃重绘压力
 
             const activateModal = () => {
@@ -147,13 +183,8 @@ function initCardModalInteraction() {
             const closeDelay = isDesktop ? 0 : 300;
             setTimeout(() => {
                 modal.style.display = 'none';
-                
-                // 恢复body滚动状态
-                const scrollY = parseInt(document.body.dataset.scrollY || '0');
-                document.body.style.overflow = '';
-                window.scrollTo(0, scrollY);
+                unlockPricingPageScroll();
                 document.body.classList.remove('modal-open'); // 恢复背景动画
-                
             }, closeDelay); // 等待动画完成（移动端）
             console.log(`关闭模态窗口: ${modalId}`);
 
@@ -309,8 +340,7 @@ function initTermsButton() {
                 
                 // 直接显示模态窗口
                 termsModal.style.display = 'flex';
-                document.body.style.overflow = 'hidden'; // 禁止 body 滚动
-                document.body.dataset.scrollY = window.scrollY; // 存储滚动位置
+                lockPricingPageScroll();
                 document.body.classList.add('modal-open'); // 暂停背景动画，减少毛玻璃重绘压力
                 
                 // 立即添加可见类，不使用setTimeout
@@ -377,13 +407,8 @@ function initTermsButton() {
 
             setTimeout(() => {
                 termsModal.style.display = 'none';
-                
-                // 恢复body滚动状态
-                const scrollY = parseInt(document.body.dataset.scrollY || '0');
-                document.body.style.overflow = '';
-                window.scrollTo(0, scrollY);
+                unlockPricingPageScroll();
                 document.body.classList.remove('modal-open'); // 恢复背景动画
-                
                 console.log('条款模态窗口已关闭，恢复页面状态');
             }, closeDelay); // 等待动画完成（移动端）
         }
@@ -561,4 +586,7 @@ function initScrollToTop() {
     } else {
         // console.log('未找到返回顶部按钮，跳过初始化。');
     }
-} 
+}
+
+window.lockPricingPageScroll = lockPricingPageScroll;
+window.unlockPricingPageScroll = unlockPricingPageScroll; 
