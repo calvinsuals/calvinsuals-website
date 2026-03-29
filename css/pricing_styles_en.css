@@ -1651,4 +1651,60 @@ body.modal-open #modal-container .modal-content {
     .card-bottom {
         padding-top: 15px !important;
     }
-} 
+}
+
+@media (max-width: 875px) {
+    body.pricing-page #modal-container .modal:not(#modal-terms) .modal-content > .modal-header {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 3px 16px 5px !important;
+        margin: 0 !important;
+        min-height: 0 !important;
+        text-align: center !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 0 !important;
+    }
+
+    body.pricing-page #modal-container .modal:not(#modal-terms) .modal-content > .modal-header > h3.modal-title {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        text-align: center !important;
+        font-size: 1.24rem !important;
+        line-height: 1.3 !important;
+        font-weight: 600 !important;
+    }
+
+    body.pricing-page #modal-container .modal:not(#modal-terms) .modal-content > .modal-body {
+        max-height: calc(100dvh - 124px) !important;
+    }
+
+    body.pricing-page #modal-container #modal-terms .modal-content > .modal-header {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        justify-content: center !important;
+        padding: 3px 14px 5px !important;
+        margin: 0 !important;
+        min-height: 0 !important;
+        text-align: left !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 0 !important;
+    }
+
+    body.pricing-page #modal-container #modal-terms .modal-content > .modal-header > h3.modal-title {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        text-align: left !important;
+        font-size: 1.08rem !important;
+        line-height: 1.3 !important;
+        font-weight: 600 !important;
+    }
+
+    body.pricing-page #modal-container #modal-terms .modal-content > .modal-body {
+        max-height: calc(100dvh - 78px) !important;
+    }
+}
