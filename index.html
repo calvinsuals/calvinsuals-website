@@ -42,6 +42,8 @@
             background-color: #333;
             /* 禁止根节点橡皮筋过度滚动：减少 Chrome 底栏「只剩背景条、按钮消失」的中间态与卡顿 */
             overscroll-behavior-y: none;
+            min-height: 100%;
+            min-height: var(--app-vh, 100dvh);
         }
 
         /* --- General Body Styling --- */
@@ -55,18 +57,29 @@
             position: relative; /* Needed for absolute positioning inside */
             background-color: transparent; /* Base background color */
             overscroll-behavior-y: none;
+            min-height: 100%;
+            min-height: var(--app-vh, 100dvh);
+        }
+
+        /* 移动端：底部留出「手势条 + Chrome 底栏」高度的可滚动衬底，避免滑到底时露出浏览器黑底或断层 */
+        @media screen and (max-width: 767px) {
+            body {
+                padding-bottom: max(4.5rem, calc(env(safe-area-inset-bottom, 0px) + 3rem));
+            }
         }
         
         /* --- Fixed Background Gradient --- */
         .background-gradient {
             position: fixed;
-            /* 让渐变层上下溢出屏幕，这样回弹拉扯时就不会漏出底下的缝隙和纯色 */
-            top: -20vh;
+            /* 上下同时向外延伸，避免仅用单一 height+vh/lv 混算时在 Android 滑到底出现未覆盖条带 */
+            top: -25vh;
+            bottom: -40vh;
             left: 0;
             right: 0;
             width: 100%;
-            height: 140vh; /* fallback */
-            height: 140lvh;
+            height: auto;
+            min-height: 130vh;
+            min-height: 130dvh;
             z-index: -1;
             background: var(--primary-gradient);
             transition: none;

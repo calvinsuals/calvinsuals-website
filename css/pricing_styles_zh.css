@@ -32,15 +32,17 @@ body {
     position: relative;
 }
 
-/* 恢复背景渐变层，扩大高度以应对拉拽回弹 */
+/* 恢复背景渐变层：上下负边距拉满，减少 Android 触底时未覆盖区域（易被误认为黑条/底栏残影） */
 .background-gradient {
     position: fixed;
-    top: -20vh;
+    top: -25vh;
+    bottom: -40vh;
     left: 0;
     right: 0;
     width: 100%;
-    height: 140vh; /* fallback */
-    height: 140lvh;
+    height: auto;
+    min-height: 130vh;
+    min-height: 130dvh;
     z-index: -1;
     background: var(--primary-gradient);
     transition: none;
@@ -121,6 +123,8 @@ body {
 html {
     background-color: #333 !important; /* 保留实色底 */
     overscroll-behavior-y: none; /* 避免 Chrome 触底过度滚动进入「空底栏」与抖动 */
+    min-height: 100%;
+    min-height: var(--app-vh, 100dvh);
 }
 
 body {
@@ -131,8 +135,15 @@ body {
     background-attachment: initial !important;
     background-image: none !important;
     min-height: 100%;
+    min-height: var(--app-vh, 100dvh);
     /* 移除 overflow-x: hidden 解决 iOS 回弹卡顿 */
     overscroll-behavior-y: none;
+}
+
+@media screen and (max-width: 767px) {
+    body {
+        padding-bottom: max(4.5rem, calc(env(safe-area-inset-bottom, 0px) + 3rem));
+    }
 }
 
 /* 移除之前添加的body:before */
