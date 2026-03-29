@@ -920,6 +920,7 @@ body:before {
     }
 
     .modal {
+        /* 确保弹窗固定且占满整个视口 */
         position: fixed !important;
         top: 0 !important;
         left: 0 !important;
@@ -928,16 +929,21 @@ body:before {
         width: 100% !important;
         height: var(--app-vh, 100dvh) !important;
         z-index: 1100 !important;
+        
+        /* 背景滚动由 JS（body position:fixed）锁定；此处不禁用 pan，避免短内容时误伤子元素滑动 */
         overscroll-behavior: none;
+        
+        /* 之前的样式保持不变 */
         display: flex !important;
-        align-items: flex-end !important;
+        align-items: flex-end !important; /* Align content to the bottom */
         justify-content: center !important;
-        padding: 20px 20px 0px !important;
+        padding: 20px 20px 0px !important; /* Keep bottom padding 0 */
     }
     
     .modal-content {
+        /* 确保内容区域正确定位和滚动 */
         position: relative;
-        max-height: calc(var(--app-vh, 100dvh) - 40px);
+        max-height: calc(var(--app-vh, 100dvh) - 40px); /* 40px为上下padding总和 */
         display: flex;
         flex-direction: column;
         width: 90%;
@@ -952,15 +958,17 @@ body:before {
     }
     
     .modal-body {
-        max-height: calc(var(--app-vh, 100dvh) - 180px);
+        /* 确保内容区域可滚动 */
+        max-height: calc(var(--app-vh, 100dvh) - 180px); /* 减去头部和底部的高度 */
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none; /* 隐藏滚动条 */
         overscroll-behavior: contain; /* 滚动链不传给背后页面 */
         touch-action: pan-y;
         min-height: 0;
-        max-height: calc(var(--app-vh, 100dvh) - 120px);
-        padding-bottom: 40px;
+        /* Ensure max-height is sufficient */
+        max-height: calc(var(--app-vh, 100dvh) - 120px); /* Adjust if header size changes */
+        padding-bottom: 40px; /* Increased padding-bottom to 40px for mobile */
     }
     
     .modal-payment-footer {
@@ -993,6 +1001,7 @@ body:before {
 
     /* Overrides for #modal-terms on mobile */
 #modal-terms .modal-content {
+        /* Adjust max-width/height for mobile if needed */
         width: 95%;
     }
     #modal-terms .modal-header {
