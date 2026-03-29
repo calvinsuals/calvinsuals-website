@@ -335,12 +335,16 @@ function initCardModalInteraction() {
     // 处理模态窗口关闭：移动端可点背景关闭；桌面端仅关闭按钮（避免误触）
     if (modalContainer) {
         modalContainer.addEventListener('click', (event) => {
+            if (event.target.closest('.modal-floating-terms-button')) {
+                return;
+            }
             const modal = event.target.closest('.modal');
             if (!modal) return;
 
             const isCloseButton = event.target.closest('.close-modal');
             const allowBackdropClose =
                 window.matchMedia && window.matchMedia('(max-width: 875px)').matches;
+            /* 仅当点击落在弹窗根节点（毛玻璃空白）时算背景关闭，避免误伤子层 */
             const isOverlay =
                 allowBackdropClose &&
                 event.target === modal &&

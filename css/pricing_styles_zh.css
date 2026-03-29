@@ -838,6 +838,20 @@ body.pricing-page .footer p {
         backdrop-filter: none !important;
         -webkit-backdrop-filter: none !important;
     }
+
+    /* 价目弹窗（非须知）：桌面端标题与分隔线、正文之间拉开，避免「黏在一起」 */
+    .modal:not(#modal-terms) .modal-header {
+        padding: 20px 28px 12px !important;
+    }
+
+    .modal:not(#modal-terms) .modal-title {
+        margin: 0 auto 16px !important;
+        line-height: 1.35 !important;
+    }
+
+    .modal:not(#modal-terms) .modal-body {
+        padding-top: 20px !important;
+    }
 }
 
 .modal-body ul { 
@@ -880,28 +894,33 @@ body.pricing-page .footer p {
 }
 .close-modal:hover { background-color: rgba(0,0,0,0.5) !important; transform: scale(1.1); }
 
-/* 任意价目/须知弹窗打开时隐藏顶栏与侧栏须知，避免叠在毛玻璃上、挡关闭键 */
+/* 价目弹窗为自定义结构：显式让 .modal 根层接收命中，避免毛玻璃空白处点击落到下层顶栏 */
+.pricing-page #modal-container .modal,
+body.modal-open #modal-container .modal {
+    pointer-events: auto !important;
+}
+
+/* 弹窗打开时整栈抬高，所有断点生效（原仅桌面端会在移动端仍被顶栏干扰） */
+body.modal-open #modal-container {
+    z-index: 12000 !important;
+}
+
+/* 任意价目/须知弹窗打开时隐藏顶栏与侧栏须知（含布局占位），避免穿透点击与视觉叠层 */
 body.modal-open .nav-toggle,
 body.modal-open .lang-switch,
 body.modal-open .nav-menu,
 body.modal-open #floating-terms-button {
     visibility: hidden !important;
     pointer-events: none !important;
+    opacity: 0 !important;
+    display: none !important;
 }
 
-/* 桌面端：抬高弹窗栈并再次压住顶栏（部分环境下 floating 按钮等会改变合成顺序） */
-@media (min-width: 876px) {
-    body.modal-open #modal-container {
-        z-index: 12000 !important;
-    }
-
-    body.modal-open .nav-toggle,
-    body.modal-open .lang-switch,
-    body.modal-open .nav-menu {
-        visibility: hidden !important;
-        pointer-events: none !important;
-        opacity: 0 !important;
-    }
+/* 弹窗内层级：内容可点；须知条低于关闭键、高于毛玻璃装饰层 */
+body.modal-open #modal-container .modal-content {
+    position: relative !important;
+    z-index: 1 !important;
+    pointer-events: auto !important;
 }
 
 /* 须知叠在价目弹窗之上 */
@@ -965,6 +984,17 @@ body.modal-open #floating-terms-button {
 
     .modal-floating-terms-button:hover {
         transform: translateY(-50%) translateX(-5px) scale(0.85);
+    }
+}
+
+@media (min-width: 876px) {
+    .modal-floating-terms-button {
+        margin-right: -20px;
+        z-index: 10045;
+    }
+
+    .modal-floating-terms-button:hover {
+        transform: translateY(-50%) translateX(-5px) !important;
     }
 }
 
@@ -1032,15 +1062,16 @@ body.modal-open #floating-terms-button {
         min-height: 0;
     }
 
-    /* 价目弹窗：收紧标题区，把列表往上让 */
+    /* 价目弹窗：移动端标题区再压缩约 1/4，横线上移；标题与底边横线间距加大 */
     .modal:not(#modal-terms) .modal-header {
-        padding: 10px 16px 8px !important;
+        padding: 4px 16px 0 !important;
         border-bottom-width: 1px;
     }
 
     .modal:not(#modal-terms) .modal-title {
-        font-size: 1.2rem !important;
-        line-height: 1.25 !important;
+        font-size: 1.02rem !important;
+        line-height: 1.2 !important;
+        margin: 0 0 14px 0 !important;
     }
 
     .modal-body {
@@ -1087,21 +1118,21 @@ body.modal-open #floating-terms-button {
         width: 95%;
     }
     #modal-terms .modal-header {
-        padding: 6px 14px 4px !important;
+        padding: 4px 14px 0 !important;
         flex-shrink: 0;
         text-align: left !important;
         border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
     }
     #modal-terms .modal-title {
-        font-size: 0.95rem !important;
+        font-size: 0.88rem !important;
         line-height: 1.2 !important;
-        margin: 0 !important;
+        margin: 0 0 12px 0 !important;
         text-align: left !important;
     }
     #modal-terms .modal-body {
         padding: 10px 14px 18px !important;
         font-size: 0.8rem;
-        max-height: calc(100dvh - 112px) !important;
+        max-height: calc(100dvh - 108px) !important;
         text-align: left !important;
         overflow-y: auto !important;
     }
@@ -1112,9 +1143,6 @@ body.modal-open #floating-terms-button {
     #modal-terms .notice-section h3 {
         margin: 12px 0 5px !important;
         font-size: 0.92rem !important;
-    }
-#modal-terms .notice-section h3 { 
-        font-size: 1rem !important;
     }
     #modal-terms .modal-body li {
         font-size: 0.8rem !important;
@@ -1523,6 +1551,8 @@ body.modal-open .card.frozen::after {
     #modal-terms .modal-title {
         text-align: left !important;
         font-size: 1.4rem !important;
+        margin: 0 0 14px 0 !important;
+        line-height: 1.35 !important;
     }
     #modal-terms .modal-body {
         text-align: left !important;
