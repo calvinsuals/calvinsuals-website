@@ -32,6 +32,7 @@ body {
 }
 
 /* 恢复背景渐变层，移除噪点纹理和透明度 */
+/* 不写 height：与 top/bottom 同时存在时 height 会使 bottom 被忽略，移动端工具栏变化时底部易留一条「浏览器底」 */
 .background-gradient {
     position: fixed;
     top: 0;
@@ -39,8 +40,6 @@ body {
     right: 0;
     bottom: 0;
     width: 100%;
-    height: 100vh; /* fallback */
-    height: 100dvh;
     z-index: -1;
     background: var(--primary-gradient);
     transition: none;
@@ -130,6 +129,10 @@ html, body {
     min-height: 100%;
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
+}
+
+html {
+    background-color: #333 !important; /* 避免工具栏区域缝隙透出白底；独立于 background:none */
 }
 
 /* 移除之前添加的body:before */
