@@ -1,8 +1,7 @@
 /* Shared site background shell.
  *
- * 观感与「整页 body 拉伸渐变」一致：滚动时视口内颜色随文档位置变化。
- * 实现：固定层高度 = 文档高度，渐变铺满该层，用 translateY(-scrollY) 与根滚动同步，
- * 以合成层位移为主，避免整页 body 渐变在快速滚动时反复大面积 repaint。
+ * 移动端（<768px）：整页 body 拉伸渐变，隐藏 fixed 层——避免地址栏显隐等导致的黑框/露缝（与此前一致）。
+ * 桌面端（≥768px）：固定 .background-gradient + translateY(-scrollY)，减轻快速滚动时大面积 repaint。
  *
  * html 使用 --site-background-fallback 兜底 overscroll / 安全区露缝。
  */
@@ -20,29 +19,19 @@ html.site-fixed-background {
     background-image: none;
 }
 
+/* --- 移动端：整页 body 渐变（默认） --- */
 body.site-background-shell {
     --bs-body-bg: transparent;
     background-color: transparent !important;
-    background-image: none !important;
+    background-image: var(--site-background-image, var(--primary-gradient, linear-gradient(135deg, #333 0%, #ddd 100%))) !important;
+    background-repeat: no-repeat !important;
+    background-size: 100% 100% !important;
+    background-attachment: scroll !important;
     position: relative;
 }
 
 body.site-background-shell .background-gradient {
-    display: block !important;
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: var(--site-bg-doc-height, 100vh);
-    z-index: 0;
-    pointer-events: none;
-    background-image: var(--site-background-image, var(--primary-gradient, linear-gradient(135deg, #333 0%, #ddd 100%)));
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-    background-position: 0 0;
-    transform: translate3d(0, calc(-1 * var(--site-scroll-y, 0px)), 0);
-    will-change: transform;
-    backface-visibility: hidden;
+    display: none !important;
 }
 
 body.site-background-shell > *:not(.background-gradient):not(.nav-toggle):not(.nav-menu):not(.lang-switch):not(#floating-terms-button) {
@@ -62,4 +51,29 @@ body.site-background-shell .modal {
 
 body.site-background-shell #modal-container {
     z-index: 1200;
+}
+
+/* --- 桌面端：固定层 + 合成滚动 --- */
+@media (min-width: 768px) {
+    body.site-background-shell {
+        background-image: none !important;
+    }
+
+    body.site-background-shell .background-gradient {
+        display: block !important;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: var(--site-bg-doc-height, 100vh);
+        z-index: 0;
+        pointer-events: none;
+        background-image: var(--site-background-image, var(--primary-gradient, linear-gradient(135deg, #333 0%, #ddd 100%)));
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        background-position: 0 0;
+        transform: translate3d(0, calc(-1 * var(--site-scroll-y, 0px)), 0);
+        will-change: transform;
+        backface-visibility: hidden;
+    }
 }

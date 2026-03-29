@@ -1,10 +1,11 @@
 /**
- * 1) 将 body 上的 --site-background-* 同步到 <html>（兜底色与渐变变量）。
- * 2) 用 --site-bg-doc-height、--site-scroll-y 驱动 .background-gradient 的 transform，
- *    等价于整页 body 渐变随滚动，但以合成层位移为主，减轻快速滚动时的 repaint。
+ * 1) 将 body 上的 --site-background-* 同步到 <html>。
+ * 2) 仅在桌面端（min-width: 768px）用 --site-bg-doc-height、--site-scroll-y 驱动 .background-gradient；
+ *    移动端用整页 body 渐变，不跑滚动同步，避免与移动端 UI 表现冲突。
  */
 (function () {
     const root = document.documentElement;
+    const mq = window.matchMedia('(min-width: 768px)');
 
     function syncSiteBackgroundTokens() {
         if (!document.body) return;
@@ -21,7 +22,13 @@
         }
     }
 
+    function clearDesktopVars() {
+        root.style.removeProperty('--site-scroll-y');
+        root.style.removeProperty('--site-bg-doc-height');
+    }
+
     function updateDocHeight() {
+        if (!mq.matches) return;
         const h = Math.max(
             document.documentElement.scrollHeight,
             document.body ? document.body.scrollHeight : 0
@@ -32,10 +39,12 @@
     let scrollRaf = 0;
     function applyScrollY() {
         scrollRaf = 0;
+        if (!mq.matches) return;
         root.style.setProperty('--site-scroll-y', window.scrollY + 'px');
     }
 
     function onScroll() {
+        if (!mq.matches) return;
         if (!scrollRaf) {
             scrollRaf = requestAnimationFrame(applyScrollY);
         }
@@ -43,6 +52,7 @@
 
     let heightRaf = 0;
     function scheduleDocHeight() {
+        if (!mq.matches) return;
         if (!heightRaf) {
             heightRaf = requestAnimationFrame(function () {
                 heightRaf = 0;
@@ -51,14 +61,24 @@
         }
     }
 
-    function init() {
+    function applyViewportMode() {
         syncSiteBackgroundTokens();
-        updateDocHeight();
-        applyScrollY();
+        if (mq.matches) {
+            updateDocHeight();
+            applyScrollY();
+        } else {
+            clearDesktopVars();
+        }
+    }
+
+    function init() {
+        applyViewportMode();
 
         window.addEventListener('scroll', onScroll, { passive: true });
         window.addEventListener('resize', scheduleDocHeight, { passive: true });
         window.addEventListener('load', scheduleDocHeight, { passive: true });
+
+        mq.addEventListener('change', applyViewportMode);
 
         if (typeof ResizeObserver !== 'undefined' && document.body) {
             const ro = new ResizeObserver(scheduleDocHeight);
