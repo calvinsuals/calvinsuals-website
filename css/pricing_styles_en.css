@@ -1160,26 +1160,25 @@ body:before {
         right: 0 !important;
         bottom: 0 !important;
         width: 100% !important;
-        height: 100svh !important;
+        height: var(--pricing-modal-open-vh, var(--app-vh, 100dvh)) !important;
         z-index: 1100 !important;
         overscroll-behavior: none;
         display: flex !important;
-        align-items: stretch !important;
-        justify-content: stretch !important;
-        padding: 0 !important;
+        align-items: flex-end !important;
+        justify-content: center !important;
+        padding: 20px 20px 0px !important;
     }
     
     .modal-content {
         position: relative;
+        max-height: calc(var(--pricing-modal-open-vh, var(--app-vh, 100dvh)) - 40px);
         display: flex;
         flex-direction: column;
-        width: 100% !important;
-        max-width: none !important;
-        height: 100svh !important;
-        max-height: 100svh !important;
-        background: rgba(45, 45, 45, 0.88);
-        border-radius: 0 !important;
-        box-shadow: none !important;
+        width: 90%;
+        max-width: 460px;
+        background: rgba(45, 45, 45, 0.8);
+        border-radius: 15px;
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
         overflow: hidden; /* 重要：确保内容不会超出边界 */
         overscroll-behavior: contain;
         touch-action: pan-y;
@@ -1187,15 +1186,15 @@ body:before {
     }
     
     .modal-body {
-        flex: 1 1 auto;
-        max-height: none;
+        max-height: calc(var(--pricing-modal-open-vh, var(--app-vh, 100dvh)) - 180px);
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none; /* 隐藏滚动条 */
         overscroll-behavior: contain;
         touch-action: pan-y;
         min-height: 0;
-        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 40px);
+        max-height: calc(var(--pricing-modal-open-vh, var(--app-vh, 100dvh)) - 120px);
+        padding-bottom: 40px;
     }
     
     /* Hide the original footer area on mobile */
@@ -1224,7 +1223,7 @@ body:before {
 
     /* Overrides for #modal-terms on mobile */
     #modal-terms .modal-content {
-        width: 100% !important;
+        width: 95%;
     }
     #modal-terms .modal-header {
         padding: 15px 20px 8px !important;
