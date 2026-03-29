@@ -120,6 +120,7 @@ body {
 /* 修改html/body样式，去除可能引起冲突的背景设置 */
 html {
     background-color: #333 !important; /* Keep a solid base color */
+    overscroll-behavior-y: none;
 }
 
 body {
@@ -131,6 +132,7 @@ body {
     background-image: none !important;
     min-height: 100%;
     /* 移除 overflow-x: hidden 解决 iOS 回弹卡顿 */
+    overscroll-behavior-y: none;
 }
 
 /* 移除之前添加的body:before */

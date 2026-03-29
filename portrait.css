@@ -3,6 +3,11 @@
     --app-vh: 100dvh;
 }
 
+html,
+body {
+    overscroll-behavior-y: none;
+}
+
 body.portrait-page {
     /* Apply the desired gradient directly to the body */
     background: linear-gradient(to bottom, #efefef, #555555) !important; 

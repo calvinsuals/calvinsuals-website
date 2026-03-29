@@ -210,114 +210,17 @@ window.navigateToMainSection = function(sectionId) {
     return false;
 };
 
-// #region agent log
+// 将可视高度写成 --app-vh（px），防抖避免滚动时频繁改 CSS 变量导致掉帧；勿在滚动路径上发网络请求
 (function () {
-    var _lastVv = 0;
-    var _lastScroll = 0;
-    var _vvCount = 0;
-    var _vvWindowStart = Date.now();
-    var _lastAppVhLog = 0;
-    window.__dbg1051ff = window.__dbg1051ff || [];
-    function ring(entry) {
-        window.__dbg1051ff.push(entry);
-        if (window.__dbg1051ff.length > 120) window.__dbg1051ff.shift();
-    }
-    function send(tag, hypothesisId, extra) {
-        var vv = window.visualViewport;
-        var doc = document.documentElement;
-        var body = document.body;
-        var scrollH = Math.max(doc.scrollHeight, body ? body.scrollHeight : 0);
-        var data = {
-            tag: tag,
-            scrollY: Math.round(window.scrollY),
-            innerHeight: Math.round(window.innerHeight),
-            outerHeight: typeof window.outerHeight === 'number' ? Math.round(window.outerHeight) : null,
-            docClientH: Math.round(doc.clientHeight),
-            scrollH: Math.round(scrollH),
-            vvHeight: vv ? Math.round(vv.height * 1000) / 1000 : null,
-            vvOffsetTop: vv ? Math.round(vv.offsetTop * 1000) / 1000 : null,
-            vvOffsetLeft: vv ? Math.round(vv.offsetLeft * 1000) / 1000 : null,
-            vvScale: vv ? Math.round(vv.scale * 1000) / 1000 : null,
-            nearBottom: window.scrollY + window.innerHeight > scrollH - 100,
-            appVhCss: doc.style.getPropertyValue('--app-vh') || null
-        };
-        if (extra && typeof extra === 'object') {
-            for (var k in extra) {
-                if (Object.prototype.hasOwnProperty.call(extra, k)) data[k] = extra[k];
-            }
-        }
-        ring({ t: Date.now(), tag: tag, hypothesisId: hypothesisId, data: data });
-        fetch('http://127.0.0.1:7531/ingest/e2b9650b-9a83-4110-8012-79b2e7492871', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '1051ff' },
-            body: JSON.stringify({
-                sessionId: '1051ff',
-                runId: 'iter2',
-                hypothesisId: hypothesisId,
-                location: 'navigation.js:viewport-debug',
-                message: tag,
-                data: data,
-                timestamp: Date.now()
-            })
-        }).catch(function () {});
-    }
-    if (window.visualViewport) {
-        window.visualViewport.addEventListener(
-            'resize',
-            function () {
-                var now = Date.now();
-                if (now - _lastVv < 100) return;
-                _lastVv = now;
-                _vvCount++;
-                if (now - _vvWindowStart > 1000) {
-                    _vvCount = 1;
-                    _vvWindowStart = now;
-                }
-                send('vv_resize', 'A,C,D', { vvResizeBurst1s: _vvCount });
-            },
-            { passive: true }
-        );
-        window.visualViewport.addEventListener(
-            'scroll',
-            function () {
-                var now = Date.now();
-                if (now - _lastVv < 80) return;
-                send('vv_scroll', 'D,E', {});
-            },
-            { passive: true }
-        );
-    }
-    window.addEventListener(
-        'scroll',
-        function () {
-            var now = Date.now();
-            if (now - _lastScroll < 150) return;
-            _lastScroll = now;
-            var doc = document.documentElement;
-            var body = document.body;
-            var scrollH = Math.max(doc.scrollHeight, body ? body.scrollHeight : 0);
-            var nb = window.scrollY + window.innerHeight > scrollH - 100;
-            send(nb ? 'scroll_near_bottom' : 'scroll', 'C,E', { atBottom: nb });
-        },
-        { passive: true }
-    );
-
-    /** Debounced pixel height: avoids 100dvh recomputing every frame during mobile chrome show/hide (H-C). */
     var _appVhTimer;
     function applyAppVh() {
         var vv = window.visualViewport;
         var h = vv ? vv.height : window.innerHeight;
-        var px = Math.max(0, Math.round(h)) + 'px';
-        document.documentElement.style.setProperty('--app-vh', px);
-        var now = Date.now();
-        if (now - _lastAppVhLog > 400) {
-            _lastAppVhLog = now;
-            send('app_vh_set', 'C', { appVhPx: Math.round(h) });
-        }
+        document.documentElement.style.setProperty('--app-vh', Math.max(0, Math.round(h)) + 'px');
     }
     function scheduleAppVh() {
         clearTimeout(_appVhTimer);
-        _appVhTimer = setTimeout(applyAppVh, 80);
+        _appVhTimer = setTimeout(applyAppVh, 220);
     }
     applyAppVh();
     window.addEventListener('resize', scheduleAppVh, { passive: true });
@@ -325,4 +228,3 @@ window.navigateToMainSection = function(sectionId) {
         window.visualViewport.addEventListener('resize', scheduleAppVh, { passive: true });
     }
 })();
-// #endregion

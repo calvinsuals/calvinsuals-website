@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
     <title>calvinsuals Photography</title>
     <!-- 字体 (Add 600 weight for Montserrat) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -38,6 +38,8 @@
         /* html 与主色一致，避免移动端工具栏显隐时固定背景层边缘透出底衬形成「半透明边带」 */
         html {
             background-color: #333;
+            /* 禁止根节点橡皮筋过度滚动：减少 Chrome 底栏「只剩背景条、按钮消失」的中间态与卡顿 */
+            overscroll-behavior-y: none;
         }
 
         /* --- General Body Styling --- */
@@ -50,6 +52,7 @@
             /* 移除 overflow-x: hidden 解决 iOS 回弹卡顿 */
             position: relative; /* Needed for absolute positioning inside */
             background-color: transparent; /* Base background color */
+            overscroll-behavior-y: none;
         }
         
         /* --- Fixed Background Gradient --- */

@@ -3,6 +3,11 @@
     --app-vh: 100dvh;
 }
 
+html,
+body {
+    overscroll-behavior-y: none;
+}
+
 .automotive-page {
     background: linear-gradient(to bottom, #f9fafb, #555555);
     color: #ffffff;
