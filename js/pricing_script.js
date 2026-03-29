@@ -37,7 +37,12 @@ function unlockPricingPageScroll() {
     document.body.style.right = '';
     document.body.style.width = '';
     document.documentElement.style.overflow = '';
+    // 定价页 html/body 使用 scroll-behavior: smooth；关弹窗时若用默认 scrollTo 会触发平滑滚动，体感像页面「弹回」
+    const root = document.documentElement;
+    const prevInline = root.style.scrollBehavior;
+    root.style.scrollBehavior = 'auto';
     window.scrollTo(0, scrollY);
+    root.style.scrollBehavior = prevInline;
 }
 
 // 定义全局变量以便于在不同函数间共享
