@@ -42,23 +42,15 @@ function scheduleImageWarmup(urls, eagerCount = 4) {
     if (rest.length === 0) return;
 
     let i = 0;
-    const chunkSize = 3;
+    const chunkSize = 6;
     const work = () => {
         const end = Math.min(i + chunkSize, rest.length);
         for (; i < end; i += 1) warmImage(rest[i]);
         if (i < rest.length) {
-            if (typeof requestIdleCallback === 'function') {
-                requestIdleCallback(work, { timeout: 600 });
-            } else {
-                setTimeout(work, 80);
-            }
+            setTimeout(work, 30);
         }
     };
-    if (typeof requestIdleCallback === 'function') {
-        requestIdleCallback(work, { timeout: 400 });
-    } else {
-        setTimeout(work, 50);
-    }
+    setTimeout(work, 20);
 }
 
 async function fetchJsonWithCache(jsonPath) {
@@ -95,13 +87,14 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         console.log(`[${containerId}] Found ${imageUrls.length} image URLs.`);
         let finalImageUrls = (count !== Infinity && count > 0) ? imageUrls.slice(0, count) : imageUrls;
         if (finalImageUrls.length === 0) { container.innerHTML = '<p style="color: white; text-align: center;">No images.</p>'; return; }
-        scheduleImageWarmup(finalImageUrls, 5);
+        const eagerPreloadCount = Math.min(12, finalImageUrls.length);
+        scheduleImageWarmup(finalImageUrls, eagerPreloadCount);
         const fragment = document.createDocumentFragment();
         finalImageUrls.forEach((imgUrl, index) => {
             const slide = document.createElement('div'); slide.className = 'gallery-slide';
             if (typeof imgUrl === 'string' && imgUrl.startsWith('http')) {
                 slide.dataset.bgImage = imgUrl;
-                if (index < 5) { slide.style.backgroundImage = `url('${imgUrl}')`; }
+                if (index < eagerPreloadCount) { slide.style.backgroundImage = `url('${imgUrl}')`; }
             } else { console.warn(`[${containerId}] Invalid URL: '${imgUrl}'`); slide.textContent = `Invalid URL`; /*...*/ }
             fragment.appendChild(slide);
             if (nav) { const dot = document.createElement('div'); dot.className = index === 0 ? 'gallery-dot active' : 'gallery-dot'; dot.dataset.index = index; nav.appendChild(dot); }
@@ -319,7 +312,7 @@ async function loadAndInitComparison(jsonPath) {
             if (g && g.before_src) warmUrls.push(g.before_src);
             if (g && g.after_src) warmUrls.push(g.after_src);
         });
-        scheduleImageWarmup(warmUrls, 6);
+        scheduleImageWarmup(warmUrls, Math.min(16, warmUrls.length));
 
         const sliderContainer = document.createElement('div');
         sliderContainer.className = 'comparison-slider';
