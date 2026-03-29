@@ -1,7 +1,7 @@
 /**
  * Copy per-page background tokens from body to <html> so --site-background-fallback
- * applies to html (overscroll / safe areas) without duplicating the gradient on html
- * (which would scroll with the document and fight the fixed .background-gradient layer).
+ * applies to html for overscroll / safe-area gaps.
+ * 整页渐变在 body 上（见 css/site_background.css），不再使用 fixed .background-gradient。
  */
 (function () {
     function syncSiteBackgroundTokens() {

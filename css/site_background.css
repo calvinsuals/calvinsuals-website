@@ -1,4 +1,10 @@
-/* Shared site background shell for pages that use a fixed gradient layer. */
+/* Shared site background shell.
+ *
+ * 设计：整页一条渐变「铺满文档高度」（类似一张随页面变高的渐变图），
+ * 滚动时不同垂直位置颜色不同——桌面与移动一致，不用视口 fixed 渐变层。
+ *
+ * .background-gradient 节点保留在 HTML 里兼容旧结构，此处始终隐藏，避免与 body 渐变重复。
+ */
 
 html.site-fixed-background,
 body.site-background-shell {
@@ -6,38 +12,26 @@ body.site-background-shell {
     max-width: 100%;
     min-height: 100%;
     overflow-x: hidden;
-    background-attachment: scroll;
 }
 
 html.site-fixed-background {
-    /* 仅纯色兜底：若再铺与 fixed 层相同的渐变，滚动时 html 背景会随文档移动，与 fixed 层错位产生「背景跟着滑」和露白 */
     background-color: var(--site-background-fallback, #333);
     background-image: none;
 }
 
 body.site-background-shell {
-    /* Bootstrap 5 等框架会用 --bs-body-bg；必须显式清掉，否则会露白 */
     --bs-body-bg: transparent;
     background-color: transparent !important;
-    background-image: none !important;
+    background-image: var(--site-background-image, var(--primary-gradient, linear-gradient(135deg, #333 0%, #ddd 100%))) !important;
+    background-repeat: no-repeat !important;
+    /* 按 body 边框盒（随内容变高）拉伸渐变，滚动时可见颜色沿页变化 */
+    background-size: 100% 100% !important;
+    background-attachment: scroll !important;
     position: relative;
 }
 
 body.site-background-shell .background-gradient {
-    position: fixed;
-    /* 铺满布局视口；用 inset 避免与 JS 内联 height 打架 */
-    inset: 0;
-    width: 100%;
-    min-height: 100vh;
-    min-height: 100dvh;
-    min-height: 100lvh;
-    z-index: 0;
-    pointer-events: none;
-    background: var(--site-background-image, var(--primary-gradient, linear-gradient(135deg, #333 0%, #ddd 100%)));
-    transition: none;
-    /* 避免额外合成层与 iOS 上 fixed 错位；需要时再开 */
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
+    display: none !important;
 }
 
 body.site-background-shell > *:not(.background-gradient):not(.nav-toggle):not(.nav-menu):not(.lang-switch):not(#floating-terms-button) {
