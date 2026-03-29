@@ -421,18 +421,14 @@ body:before {
     width: 100% !important;
     margin-top: 60px;
     background-color: transparent !important;
-    color: inherit;
+    color: rgba(0, 0, 0, 0.7);
     text-align: center;
-    padding: 15px 20px;
-    font-size: 0.75rem;
-    line-height: 1.4;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 15px 0;
 }
 .footer p {
-    margin: 2px 0;
-    opacity: 0.6;
-    color: inherit;
-    text-shadow: none;
+    margin: 0;
+    font-size: 0.9rem;
+    color: rgba(0, 0, 0, 0.25);
 }
 
 /* --- Main Pricing Area --- */
@@ -1011,6 +1007,7 @@ body:before {
     }
 
     .footer p {
+        font-size: 0.55rem;
         overflow-wrap: anywhere;
         word-break: break-word;
     }

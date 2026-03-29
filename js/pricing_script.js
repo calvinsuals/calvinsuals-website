@@ -5,39 +5,21 @@
 
 /**
  * 弹窗打开时锁定背后页面滚动。
- * 移动端仅用 overflow:hidden 在 iOS 上常无效；短内容时触摸会穿透到底层页面。
- * 使用 position:fixed + 记录 scrollY 是常见可靠做法（类「全屏层」体验）。
+ * 统一使用轻量锁滚动：避免 body fixed + scrollTo 恢复带来的「重新定位」与抽动。
+ * 弹窗内的滚动由 modal-body 和现有触摸拦截逻辑处理。
  */
 function lockPricingPageScroll() {
     if (document.body.dataset.pricingScrollLocked === '1') return;
     document.body.dataset.pricingScrollLocked = '1';
-    const scrollY = window.scrollY;
-    document.body.dataset.scrollY = String(scrollY);
     document.body.style.overflow = 'hidden';
-
-    const narrow = window.matchMedia && window.matchMedia('(max-width: 875px)').matches;
-    if (narrow) {
-        document.body.style.position = 'fixed';
-        document.body.style.top = `-${scrollY}px`;
-        document.body.style.left = '0';
-        document.body.style.right = '0';
-        document.body.style.width = '100%';
-        document.documentElement.style.overflow = 'hidden';
-    }
+    document.documentElement.style.overflow = 'hidden';
 }
 
 function unlockPricingPageScroll() {
     if (document.body.dataset.pricingScrollLocked !== '1') return;
-    const scrollY = parseInt(document.body.dataset.scrollY || '0', 10);
     delete document.body.dataset.pricingScrollLocked;
     document.body.style.overflow = '';
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.left = '';
-    document.body.style.right = '';
-    document.body.style.width = '';
     document.documentElement.style.overflow = '';
-    window.scrollTo(0, scrollY);
 }
 
 // 定义全局变量以便于在不同函数间共享
