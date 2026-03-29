@@ -39,6 +39,10 @@
             background-color: #333;
         }
 
+        html, body {
+            overscroll-behavior-y: none; /* 防止页面拉到底部/顶部时橡皮筋回弹 */
+        }
+
         /* --- General Body Styling --- */
         body {
             font-family: var(--font-body);
@@ -48,7 +52,7 @@
             padding: 0;
             overflow-x: hidden; /* Prevent horizontal scroll */
             position: relative; /* Needed for absolute positioning inside */
-            background-color: #333; /* Base background color */
+            background-color: transparent; /* Base background color */
         }
         
         /* --- Fixed Background Gradient --- */

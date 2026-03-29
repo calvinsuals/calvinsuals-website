@@ -130,6 +130,7 @@ html, body {
     min-height: 100%;
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
+    overscroll-behavior-y: none; /* 防止页面拉到底部/顶部时橡皮筋回弹 */
 }
 
 /* 移除之前添加的body:before */
