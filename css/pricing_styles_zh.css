@@ -816,6 +816,9 @@ body.pricing-page .footer p {
     .modal {
         height: 100vh !important;
         transition: none !important; /* 减少打开/关闭瞬间的过渡重绘抖动 */
+        /* 取消 translateZ(0)，否则弹窗内 position:fixed 相对 .modal 定位，须知条会像缩进 20px，与页外 #floating-terms-button 不一致 */
+        transform: none !important;
+        -webkit-transform: none !important;
     }
 
     /* 桌面端用更原生的滚动路径，并限制滚动影响范围 */
@@ -928,7 +931,7 @@ body.modal-open #modal-container .modal-content {
     z-index: 1150 !important;
 }
 
-/* 价目弹窗内须知：与 pricing.html 中 #floating-terms-button 同款（贴屏幕右侧、竖排） */
+/* 价目弹窗配套须知：节点在 #modal-container 内、紧邻对应 .modal 之后，fixed 相对视口 = 与 #floating-terms-button 同款贴右边 */
 .modal-floating-terms-button {
     appearance: none;
     -webkit-appearance: none;
@@ -955,7 +958,7 @@ body.modal-open #modal-container .modal-content {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     transition: all 0.3s ease;
-    display: flex;
+    display: none !important;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -964,6 +967,14 @@ body.modal-open #modal-container .modal-content {
     writing-mode: vertical-rl;
     text-orientation: upright;
     pointer-events: auto;
+}
+
+.modal.is-visible:not(#modal-terms) + .modal-floating-terms-button {
+    display: flex !important;
+}
+
+#modal-container:has(#modal-terms.is-visible) .modal-floating-terms-button {
+    display: none !important;
 }
 
 .modal-floating-terms-button:hover {
@@ -989,7 +1000,8 @@ body.modal-open #modal-container .modal-content {
 
 @media (min-width: 876px) {
     .modal-floating-terms-button {
-        margin-right: -20px;
+        right: 0;
+        margin: 0;
         z-index: 10045;
     }
 

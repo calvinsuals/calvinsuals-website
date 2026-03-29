@@ -89,21 +89,25 @@ function preloadModalFooterImages() {
     });
 }
 
-/** 价目弹窗内右侧悬浮须知：与页面上 #floating-terms-button 同位置、同观感（在 .modal-content 外） */
+/** 价目弹窗右侧悬浮须知：DOM 放在 #modal-container 内、紧跟对应 .modal 之后，使 position:fixed 相对视口，与 body 下 #floating-terms-button 贴边一致（勿放在 .modal 内：backdrop-filter 会形成 fixed 包含块导致「缩进」） */
 function injectInlineTermsTriggers() {
     const modalRoot = document.getElementById('modal-container');
     if (!modalRoot) return;
+
+    modalRoot.querySelectorAll('.modal-floating-terms-button').forEach(function (el) {
+        el.remove();
+    });
 
     const lang = (document.documentElement.getAttribute('lang') || '').toLowerCase();
     const label = lang.startsWith('zh') ? '拍摄须知及条款' : 'Terms & Conditions';
 
     modalRoot.querySelectorAll('.modal:not(#modal-terms)').forEach(function (modal) {
-        if (modal.querySelector('.modal-floating-terms-button')) return;
         if (!modal.querySelector('.modal-content')) return;
 
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'modal-floating-terms-button';
+        btn.setAttribute('data-pricing-terms-for', modal.id);
         btn.textContent = label;
         btn.setAttribute('aria-label', label);
         const modalId = modal.id;
@@ -114,12 +118,7 @@ function injectInlineTermsTriggers() {
             }
         });
 
-        const closeBtn = modal.querySelector('.close-modal');
-        if (closeBtn) {
-            closeBtn.insertAdjacentElement('afterend', btn);
-        } else {
-            modal.insertBefore(btn, modal.firstChild);
-        }
+        modal.insertAdjacentElement('afterend', btn);
     });
 }
 
