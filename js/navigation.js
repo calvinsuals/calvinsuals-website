@@ -1,4 +1,43 @@
 // 导航控制脚本 - 处理跨页面精确定位
+// Cleanup legacy service worker/caches from previous experiments (run once).
+(function cleanupLegacyOfflineState() {
+    const CLEANUP_KEY = 'calvinsuals-sw-cleanup-v1';
+    try {
+        if (localStorage.getItem(CLEANUP_KEY) === '1') return;
+    } catch (_) {
+        // ignore localStorage failures
+    }
+
+    const run = async () => {
+        try {
+            if ('serviceWorker' in navigator) {
+                const regs = await navigator.serviceWorker.getRegistrations();
+                await Promise.all(regs.map((reg) => reg.unregister().catch(() => {})));
+            }
+            if ('caches' in window) {
+                const keys = await caches.keys();
+                await Promise.all(
+                    keys
+                        .filter((k) => /^calvinsuals-/i.test(k))
+                        .map((k) => caches.delete(k).catch(() => false))
+                );
+            }
+        } finally {
+            try {
+                localStorage.setItem(CLEANUP_KEY, '1');
+            } catch (_) {
+                // ignore localStorage failures
+            }
+        }
+    };
+
+    if (document.readyState === 'loading') {
+        window.addEventListener('DOMContentLoaded', run, { once: true });
+    } else {
+        run();
+    }
+})();
+
 document.addEventListener('DOMContentLoaded', function() {
     // --- Menu Toggle Logic --- START ---
     const navToggle = document.querySelector('.nav-toggle');
