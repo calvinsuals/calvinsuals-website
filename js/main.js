@@ -2,6 +2,7 @@
 const __jsonCache = new Map();
 const __imageWarmCache = new Set();
 const __imageObjectCache = new Map();
+const __imageReadyCache = new Set();
 const __MAX_IMAGE_OBJECT_CACHE = 120;
 
 function keepImageObject(url, img) {
@@ -18,9 +19,13 @@ function warmImage(url) {
     __imageWarmCache.add(url);
     const img = new Image();
     img.decoding = 'async';
+    img.loading = 'eager';
     // Keep a bounded reference so rapid scroll back does not trigger visible re-decode flashes.
     keepImageObject(url, img);
+    img.onload = () => { __imageReadyCache.add(url); };
+    img.onerror = () => { __imageWarmCache.delete(url); };
     img.src = url;
+    if (img.complete) __imageReadyCache.add(url);
 }
 
 function warmImagesIdle(urls, eagerCount = 8) {
@@ -804,8 +809,18 @@ function initializeGallerySlider(slidesId, dotsId) {
 
         const currentSlide = slideElements[currentIndex];
         const nextSlide = slideElements[newIndex];
+        const nextUrl = nextSlide.dataset.bgImage;
 
-        if (nextSlide.dataset.bgImage) warmImage(nextSlide.dataset.bgImage);
+        // On slower production networks, avoid switching to an unready slide (prevents white flash blocks).
+        if (nextUrl && !__imageReadyCache.has(nextUrl)) {
+            warmImage(nextUrl);
+            const preloadIndex = (newIndex + 1) % slideElements.length;
+            const preloadSlide = slideElements[preloadIndex];
+            if (preloadSlide && preloadSlide.dataset.bgImage) warmImage(preloadSlide.dataset.bgImage);
+            return;
+        }
+
+        if (nextUrl) warmImage(nextUrl);
         const nextIndex = (newIndex + 1) % slideElements.length;
         const nextNextSlide = slideElements[nextIndex];
         if (nextNextSlide && nextNextSlide.dataset.bgImage) warmImage(nextNextSlide.dataset.bgImage);
