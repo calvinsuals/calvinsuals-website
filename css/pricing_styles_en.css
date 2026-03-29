@@ -35,11 +35,9 @@ body {
 .background-gradient {
     position: fixed;
     inset: 0;
-    width: 100%;
-    height: 100vh; /* fallback */
-    height: 100dvh;
-    height: 100svh; /* 最后生效：支持 svh 的浏览器用稳定视口，减少地址栏动画时露缝 */
-    z-index: -1;
+    /* 仅用 inset 铺满当前视口；勿设 height:100svh——地址栏收起后可视高度变大，层仍卡在「小视口」高度，底部会露出 body #333 成大片黑底 */
+    z-index: 0;
+    pointer-events: none;
     background: var(--primary-gradient);
     transition: none;
     transform: translate3d(0,0,0);
@@ -51,6 +49,16 @@ body {
     perspective: 1000;
     -webkit-perspective: 1000;
     /* 移除噪点纹理和透明度设置 */
+}
+
+/* 避免 z-index:-1 时渐变层落到 body 底色下；勿给已是 fixed 的控件加 relative */
+body > *:not(.background-gradient):not(.nav-toggle):not(.nav-menu):not(.lang-switch):not(#floating-terms-button) {
+    position: relative;
+    z-index: 1;
+}
+
+#modal-container {
+    z-index: 1200; /* 高于 .nav-toggle(1001)，避免弹窗被挡 */
 }
 
 /* Modal Container (Overlay & Blur) - DEFAULT (Applies to PC and is base for Mobile) */
