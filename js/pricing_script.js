@@ -4,40 +4,6 @@
  */
 
 /**
- * 移动端浏览器顶/底栏显示变化时，布局视口与「可见视口」可能不同步，固定背景层会露出底色。
- * 用 Visual Viewport API 把 .background-gradient 对齐到实际可见区域（offsetTop/Left + width/height）。
- */
-function initPricingBackgroundVisualViewport() {
-    const el = document.querySelector('.background-gradient');
-    if (!el || !window.visualViewport) return;
-
-    let ticking = false;
-    const apply = () => {
-        ticking = false;
-        const vv = window.visualViewport;
-        el.style.inset = 'auto';
-        el.style.top = `${Math.round(vv.offsetTop)}px`;
-        el.style.left = `${Math.round(vv.offsetLeft)}px`;
-        el.style.right = 'auto';
-        el.style.bottom = 'auto';
-        el.style.width = `${Math.round(vv.width)}px`;
-        el.style.height = `${Math.round(vv.height)}px`;
-        el.style.minHeight = '';
-    };
-
-    const schedule = () => {
-        if (ticking) return;
-        ticking = true;
-        requestAnimationFrame(apply);
-    };
-
-    schedule();
-    window.visualViewport.addEventListener('resize', schedule, { passive: true });
-    window.visualViewport.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', schedule, { passive: true });
-}
-
-/**
  * 弹窗打开时锁定背后页面滚动。
  * 移动端仅用 overflow:hidden 在 iOS 上常无效；短内容时触摸会穿透到底层页面。
  * 使用 position:fixed + 记录 scrollY 是常见可靠做法（类「全屏层」体验）。
@@ -84,8 +50,6 @@ let globalOpenModalFunction;
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('统一价格脚本加载，初始化功能');
-
-    initPricingBackgroundVisualViewport();
 
     initCardModalInteraction(); // 初始化卡片和模态窗口交互
     // REMOVED initNavMenu(); // 导航菜单由 js/navigation.js 初始化

@@ -26,45 +26,9 @@ body {
     margin: 0;
     padding: 0;
     overflow-x: hidden; /* Prevent horizontal scroll */
-    /* 透明让 html 渐变兜底透出；避免纯 #333 在视口与固定层错位时整块发黑 */
-    background-color: transparent !important;
+    --site-background-image: var(--primary-gradient);
+    --site-background-fallback: #333;
     position: relative;
-}
-
-/* 恢复背景渐变层，移除噪点纹理和透明度 */
-.background-gradient {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    height: 100vh;
-    height: 100dvh;
-    min-height: 100lvh;
-    height: max(100dvh, 100lvh);
-    z-index: 0;
-    pointer-events: none;
-    background: var(--primary-gradient);
-    transition: none;
-    transform: translate3d(0,0,0);
-    -webkit-transform: translate3d(0,0,0);
-    -webkit-backface-visibility: hidden;
-    -moz-backface-visibility: hidden;
-    -ms-backface-visibility: hidden;
-    backface-visibility: hidden;
-    perspective: 1000;
-    -webkit-perspective: 1000;
-    /* 移除噪点纹理和透明度设置 */
-}
-
-/* 避免 z-index:-1 时渐变层落到 body 底色下；勿给已是 fixed 的控件加 relative */
-body > *:not(.background-gradient):not(.nav-toggle):not(.nav-menu):not(.lang-switch):not(#floating-terms-button) {
-    position: relative;
-    z-index: 1;
-}
-
-#modal-container {
-    z-index: 1200; /* 高于 .nav-toggle(1001)，避免弹窗被挡 */
 }
 
 /* Modal Container (Overlay & Blur) - DEFAULT (Applies to PC and is base for Mobile) */
@@ -131,28 +95,15 @@ body > *:not(.background-gradient):not(.nav-toggle):not(.nav-menu):not(.lang-swi
     }
 
 
-/* 修改 html/body：html 用渐变兜底；body 无图 */
+/* 背景壳由 css/site_background.css 提供，这里只保留价格页自己的滚动行为 */
 html, body {
     overflow-x: hidden;
     position: relative;
     width: 100%;
     max-width: 100%;
-    background-attachment: scroll;
     min-height: 100%;
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
-}
-
-html {
-    background-color: #333;
-    background-image: var(--primary-gradient);
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center top;
-}
-
-body {
-    background-image: none !important;
 }
 
 /* 移除之前添加的body:before */

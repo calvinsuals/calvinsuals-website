@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh" style="scroll-behavior: smooth;">
+<html lang="zh" class="site-fixed-background" style="scroll-behavior: smooth;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -17,6 +17,8 @@
     <!-- <link rel="stylesheet" href="styles.css"> --> <!-- Removed as file does not exist -->
     <!-- <link rel="stylesheet" href="gallery.css"> -->
     <!-- <link rel="stylesheet" href="automotive.css"> --> 
+
+    <link rel="stylesheet" href="css/site_background.css">
 
     <!-- 添加自定义字体 -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -43,33 +45,8 @@
             padding: 0;
             overflow-x: hidden; /* Prevent horizontal scroll */
             position: relative; /* Needed for absolute positioning inside */
-            background-color: #2f2f2f; /* Solid fallback to avoid white flashes during heavy repaints */
-            background: var(--primary-gradient);
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-attachment: scroll;
-        }
-        
-        /* --- Fixed Background Gradient --- */
-        .background-gradient {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            width: 100%;
-            height: 100vh; /* fallback */
-            height: 100dvh; /* 随浏览器顶/底栏显示变化，减少滚动时跳动 */
-            z-index: -1;
-            background: var(--primary-gradient);
-            transition: none;
-            transform: translate3d(0,0,0);
-            -webkit-transform: translate3d(0,0,0);
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
-            perspective: 1000;
-            -webkit-perspective: 1000;
-            display: none;
+            --site-background-image: var(--primary-gradient);
+            --site-background-fallback: #2f2f2f; /* Solid fallback to avoid white flashes during heavy repaints */
         }
         
         /* --- Reset Box Model --- */
@@ -1425,16 +1402,6 @@
 
         /* 确保大于768px屏幕的所有区域标题完全对齐 - 增加选择器特异性 */
         @media screen and (min-width: 768px) {
-            body {
-                background: transparent;
-                background-color: #2f2f2f;
-            }
-
-            /* Desktop-only fixed gradient layer to stabilize background painting on rapid scroll. */
-            .background-gradient {
-                display: block;
-            }
-
             /* 强制所有区域标题统一样式，无论之前设置 */
             body .section-title,
             body #automotive .section-title,
@@ -2108,7 +2075,7 @@
     
     
 </head>
-<body>
+<body class="site-background-shell home-page">
     <!-- 标题覆盖层 -->
     <div id="section-titles-overlay" style="position: absolute; top: 0; left: 0; width: 0; height: 0; z-index: 10; pointer-events: none;">
          <!-- 静态放置标题，JS将更新它们的位置 -->
@@ -2305,6 +2272,7 @@
     </div>
 
     <!-- 添加外部脚本链接 -->
+    <script src="js/site_background.js" defer></script>
     <script src="js/main.js" defer></script>
     <script src="js/navigation.js" defer></script>
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh" class="site-fixed-background">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -15,6 +15,7 @@
     <!-- <link rel="stylesheet" href="titles.css"> -->
     <!-- <link rel="stylesheet" href="styles.css"> -->
     <!-- <link rel="stylesheet" href="gallery.css"> -->
+    <link rel="stylesheet" href="css/site_background.css">
     <link rel="stylesheet" href="portrait.css">
     <style>
         /* --- Global Reset & Base --- */
@@ -735,7 +736,8 @@
         }
     </style>
 </head>
-<body class="portrait-page">
+<body class="site-background-shell portrait-page">
+    <div class="background-gradient" aria-hidden="true"></div>
     <!-- 导航菜单 (using <nav>) -->
     <button class="nav-toggle" aria-label="切换导航" aria-expanded="false">
         <span></span>
@@ -767,6 +769,7 @@
     </footer>
 
     <!-- 导航JS -->
+    <script src="js/site_background.js" defer></script>
     <script src="js/navigation.js" defer></script>
 
     <script>

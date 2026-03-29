@@ -1,0 +1,63 @@
+/* Shared site background shell for pages that use a fixed gradient layer. */
+
+html.site-fixed-background,
+body.site-background-shell {
+    width: 100%;
+    max-width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
+    background-attachment: scroll;
+}
+
+html.site-fixed-background {
+    background-color: var(--site-background-fallback, #333);
+    background-image: var(--site-background-image, var(--primary-gradient, linear-gradient(135deg, #333 0%, #ddd 100%)));
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center top;
+}
+
+body.site-background-shell {
+    background-color: transparent !important;
+    background-image: none !important;
+    position: relative;
+}
+
+body.site-background-shell .background-gradient {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 100lvh;
+    height: max(100dvh, 100lvh);
+    z-index: 0;
+    pointer-events: none;
+    background: var(--site-background-image, var(--primary-gradient, linear-gradient(135deg, #333 0%, #ddd 100%)));
+    transition: none;
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    perspective: 1000;
+    -webkit-perspective: 1000;
+}
+
+body.site-background-shell > *:not(.background-gradient):not(.nav-toggle):not(.nav-menu):not(.lang-switch):not(#floating-terms-button) {
+    position: relative;
+    z-index: 1;
+}
+
+body.site-background-shell .nav-menu,
+body.site-background-shell .modal {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 100lvh;
+    height: max(100dvh, 100lvh);
+}
+
+body.site-background-shell #modal-container {
+    z-index: 1200;
+}

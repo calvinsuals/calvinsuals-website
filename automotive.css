@@ -1,6 +1,8 @@
 /* 汽车摄影页面样式 */
 .automotive-page {
-    background: linear-gradient(to bottom, #f9fafb, #555555);
+    --site-background-image: linear-gradient(to bottom, #f9fafb, #555555);
+    --site-background-fallback: #555555;
+    background: none;
     color: #ffffff;
 }
 
