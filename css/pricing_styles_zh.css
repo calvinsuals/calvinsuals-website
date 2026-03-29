@@ -1408,6 +1408,12 @@ body.modal-open .card.frozen::after {
 #modal-terms .modal-footer { display: block !important; position: relative !important; border-top: 1px solid rgba(255,255,255,0.15) !important; padding: 15px 30px !important; background-color: transparent !important; }
 #modal-terms .modal-payment-footer img { display: none !important; } 
 
+/* 临时排查：禁用弹窗内部滚动条，观察 Chrome UI 抖动是否仍出现 */
+.modal-body {
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: auto !important;
+}
+
 /* --- Overrides for #modal-terms (Base Styles) --- */
 #modal-terms .modal-content {
     max-width: 750px !important;

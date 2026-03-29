@@ -937,6 +937,12 @@ body:before {
 #modal-terms .modal-footer { display: block !important; position: relative !important; border-top: 1px solid rgba(255,255,255,0.15) !important; padding: 15px 30px !important; background-color: transparent !important; }
 #modal-terms .modal-payment-footer img { display: none !important; }
 
+/* Temporary diagnosis: disable in-modal scrolling to isolate Chrome UI jitter */
+.modal-body {
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: auto !important;
+}
+
 /* Style for the section headings inside terms modal */
 #modal-terms .notice-section h3 { 
     font-size: 1.1rem !important;
