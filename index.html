@@ -2,7 +2,9 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=overlays-content">
+    <meta name="theme-color" content="#333333">
+    <meta name="color-scheme" content="dark light">
     <title>calvinsuals Photography</title>
     <!-- 字体 (Add 600 weight for Montserrat) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,7 +25,7 @@
     <style>
         /* --- Variables & Base (Consistent across pages) --- */
         :root {
-            --app-vh: 100dvh; /* 由 navigation.js 防抖写成 px，避免工具栏动画时 dvh 每帧重算抽搐 */
+            --app-vh: 100dvh; /* navigation.js 用 innerHeight 写成 px，不同步 visualViewport，减轻底栏动画抖动 */
             --primary-gradient: linear-gradient(135deg, #333 0%, #ddd 100%); /* Dark Grey to Light Grey */
             --text-color-dark-bg: #f5f5f5; /* Off-white text for dark backgrounds */
             --text-color-light-bg: #333; /* Dark text for light backgrounds */
