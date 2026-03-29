@@ -1633,8 +1633,10 @@ body.modal-open .card.frozen::after {
         max-width: 100% !important;
         text-align: center !important;
         font-size: 1.24rem !important;
-        line-height: 1.15 !important;
+        line-height: 1 !important;
         font-weight: 600 !important;
+        color: var(--modal-text-color) !important;
+        text-shadow: var(--modal-text-shadow);
     }
 
     html body #modal-container .modal:not(#modal-terms) .modal-content .modal-body {
@@ -1671,8 +1673,10 @@ body.modal-open .card.frozen::after {
         width: 100% !important;
         text-align: left !important;
         font-size: 1.08rem !important;
-        line-height: 1.15 !important;
+        line-height: 1 !important;
         font-weight: 600 !important;
+        color: var(--modal-text-color) !important;
+        text-shadow: var(--modal-text-shadow);
     }
 
     html body #modal-container #modal-terms .modal-content .modal-body {
