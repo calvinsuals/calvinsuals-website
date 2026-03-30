@@ -1013,7 +1013,7 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.8);
-            z-index: 99999; /* 提高层级 */
+            z-index: 999999; /* 极限层级 */
             justify-content: center;
             align-items: center;
             opacity: 0;
@@ -1021,13 +1021,12 @@
             transition: opacity 0.3s ease, visibility 0.3s ease;
         }
 
-        .modal-overlay[style*="display: flex"],
-        .modal-overlay[style*="display:flex"],
-        .modal-overlay[style*="flex"] {
+        /* 统一使用 class 控制显示 */
+        .modal-overlay.show-modal {
+            display: flex !important;
             opacity: 1 !important;
             visibility: visible !important;
-            display: flex !important;
-            pointer-events: auto !important; /* Ensure it can receive clicks */
+            pointer-events: auto !important;
         }
 
         /* Prevent clicks from passing through */
@@ -2193,10 +2192,10 @@
             <a href="https://v.douyin.com/g1Onr09i9l4" class="social-link" title="抖音" aria-label="访问我的抖音" target="_blank">
                 <img src="https://img.calvinsuals.com/images/about/icons/tiktok/tiktok.webp" alt="抖音" width="24" height="24">
             </a>
-            <a href="javascript:void(0)" class="social-link" title="小红书" aria-label="访问我的小红书" onclick="event.preventDefault(); document.getElementById('xiaohongshuModal').style.display='flex';">
+            <a href="javascript:void(0)" class="social-link" title="小红书" aria-label="访问我的小红书" onclick="event.preventDefault(); document.getElementById('xiaohongshuModal').classList.add('show-modal');">
                 <img src="https://img.calvinsuals.com/images/about/icons/xiaohongshu/xiaohongshu.png" alt="小红书" width="24" height="24">
             </a>
-            <a href="javascript:void(0)" class="social-link" title="微信" aria-label="添加我的微信" onclick="event.preventDefault(); document.getElementById('wechatModal').style.display='flex';">
+            <a href="javascript:void(0)" class="social-link" title="微信" aria-label="添加我的微信" onclick="event.preventDefault(); document.getElementById('wechatModal').classList.add('show-modal');">
                 <img src="https://img.calvinsuals.com/images/about/icons/wechat/wechat.png" alt="微信" width="24" height="24">
             </a>
             <a href="https://www.instagram.com/calvinsuals" class="social-link" title="Instagram" aria-label="访问我的Instagram" target="_blank">
@@ -2237,9 +2236,9 @@
     </footer>
 
     <!-- 弹窗 -->
-    <div class="modal-overlay" id="xiaohongshuModal" onclick="this.style.display='none';">
+    <div class="modal-overlay" id="xiaohongshuModal" onclick="this.classList.remove('show-modal');">
         <div class="modal-content" onclick="event.stopPropagation();">
-            <span class="modal-close" onclick="document.getElementById('xiaohongshuModal').style.display='none';">&times;</span>
+            <span class="modal-close" onclick="document.getElementById('xiaohongshuModal').classList.remove('show-modal');">&times;</span>
             <h3 class="modal-title"></h3>
             <div class="modal-images">
                 <a href="https://www.xiaohongshu.com/user/profile/5b5699c311be104a66c9ec6a" target="_blank">
@@ -2253,9 +2252,9 @@
             </div>
         </div>
     </div>
-    <div class="modal-overlay" id="wechatModal" onclick="this.style.display='none';">
+    <div class="modal-overlay" id="wechatModal" onclick="this.classList.remove('show-modal');">
         <div class="modal-content" onclick="event.stopPropagation();">
-            <span class="modal-close" onclick="document.getElementById('wechatModal').style.display='none';">&times;</span>
+            <span class="modal-close" onclick="document.getElementById('wechatModal').classList.remove('show-modal');">&times;</span>
             <h3 class="modal-title"></h3>
             <div class="modal-images">
                 <img src="https://img.calvinsuals.com/images/about/wechat/wechat.jpg" alt="微信二维码" onerror="this.alt='图片未找到'; this.style.display='block';">
