@@ -34,7 +34,7 @@ body.site-background-shell .background-gradient {
     display: none !important;
 }
 
-body.site-background-shell > *:not(.background-gradient):not(.nav-toggle):not(.nav-menu):not(.lang-switch):not(#floating-terms-button):not(#modal-container) {
+body.site-background-shell > *:not(.background-gradient):not(.nav-toggle):not(.nav-menu):not(.lang-switch):not(#floating-terms-button):not(#modal-container):not(.modal-overlay) {
     position: relative;
     z-index: 1;
 }
