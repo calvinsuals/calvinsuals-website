@@ -1027,6 +1027,12 @@
             opacity: 1 !important;
             visibility: visible !important;
             display: flex !important;
+            pointer-events: auto !important; /* Ensure it can receive clicks */
+        }
+
+        /* Prevent clicks from passing through */
+        .modal-overlay * {
+            pointer-events: auto;
         }
 
         /* 小红书弹窗样式 */
@@ -2187,10 +2193,10 @@
             <a href="https://v.douyin.com/g1Onr09i9l4" class="social-link" title="抖音" aria-label="访问我的抖音" target="_blank">
                 <img src="https://img.calvinsuals.com/images/about/icons/tiktok/tiktok.webp" alt="抖音" width="24" height="24">
             </a>
-            <a href="#" class="social-link" title="小红书" aria-label="访问我的小红书" onclick="console.log('XHS clicked'); document.getElementById('xiaohongshuModal').style.display='flex'; return false;">
+            <a href="javascript:void(0)" class="social-link" title="小红书" aria-label="访问我的小红书" onclick="event.preventDefault(); document.getElementById('xiaohongshuModal').style.display='flex';">
                 <img src="https://img.calvinsuals.com/images/about/icons/xiaohongshu/xiaohongshu.png" alt="小红书" width="24" height="24">
             </a>
-            <a href="#" class="social-link" title="微信" aria-label="添加我的微信" onclick="console.log('WeChat clicked'); document.getElementById('wechatModal').style.display='flex'; return false;">
+            <a href="javascript:void(0)" class="social-link" title="微信" aria-label="添加我的微信" onclick="event.preventDefault(); document.getElementById('wechatModal').style.display='flex';">
                 <img src="https://img.calvinsuals.com/images/about/icons/wechat/wechat.png" alt="微信" width="24" height="24">
             </a>
             <a href="https://www.instagram.com/calvinsuals" class="social-link" title="Instagram" aria-label="访问我的Instagram" target="_blank">
