@@ -1013,7 +1013,7 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.8);
-            z-index: 9999;
+            z-index: 99999; /* 提高层级 */
             justify-content: center;
             align-items: center;
             opacity: 0;
@@ -1024,8 +1024,9 @@
         .modal-overlay[style*="display: flex"],
         .modal-overlay[style*="display:flex"],
         .modal-overlay[style*="flex"] {
-            opacity: 1;
-            visibility: visible;
+            opacity: 1 !important;
+            visibility: visible !important;
+            display: flex !important;
         }
 
         /* 小红书弹窗样式 */
@@ -2186,10 +2187,10 @@
             <a href="https://v.douyin.com/g1Onr09i9l4" class="social-link" title="抖音" aria-label="访问我的抖音" target="_blank">
                 <img src="https://img.calvinsuals.com/images/about/icons/tiktok/tiktok.webp" alt="抖音" width="24" height="24">
             </a>
-            <a href="#" class="social-link" title="小红书" aria-label="访问我的小红书" onclick="document.getElementById('xiaohongshuModal').style.display='flex'; return false;">
+            <a href="#" class="social-link" title="小红书" aria-label="访问我的小红书" onclick="console.log('XHS clicked'); document.getElementById('xiaohongshuModal').style.display='flex'; return false;">
                 <img src="https://img.calvinsuals.com/images/about/icons/xiaohongshu/xiaohongshu.png" alt="小红书" width="24" height="24">
             </a>
-            <a href="#" class="social-link" title="微信" aria-label="添加我的微信" onclick="document.getElementById('wechatModal').style.display='flex'; return false;">
+            <a href="#" class="social-link" title="微信" aria-label="添加我的微信" onclick="console.log('WeChat clicked'); document.getElementById('wechatModal').style.display='flex'; return false;">
                 <img src="https://img.calvinsuals.com/images/about/icons/wechat/wechat.png" alt="微信" width="24" height="24">
             </a>
             <a href="https://www.instagram.com/calvinsuals" class="social-link" title="Instagram" aria-label="访问我的Instagram" target="_blank">
