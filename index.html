@@ -1004,40 +1004,54 @@
             }
         }
 
-        /* 锁定背景滚动 */
+        /* 锁定背景滚动（具体锁定由 JS 写 body position:fixed + scrollY） */
         body.modal-open {
             overflow: hidden !important;
-            height: 100% !important;
             touch-action: none !important;
-            -webkit-overflow-scrolling: auto !important;
         }
 
-        /* 弹窗基础样式 */
+        /* 弹窗遮罩：尺寸由 JS 按 visualViewport 同步，避免地址栏收合后漏底、错位 */
         .modal-overlay {
-            display: none; /* 默认隐藏 */
+            display: none;
             position: fixed !important;
             top: 0 !important;
             left: 0 !important;
             width: 100% !important;
-            height: 100vh !important; /* fallback */
-            height: 100dvh !important;
-            min-height: 100lvh !important;
-            background-color: rgba(0, 0, 0, 0.8) !important;
-            box-shadow: 0 0 0 150px rgba(0, 0, 0, 0.8) !important; /* 防止移动端UI缩放时漏出底部缝隙 */
-            z-index: 999999 !important; /* 极限层级 */
-            justify-content: center;
-            align-items: center;
+            height: 100% !important;
+            min-height: 100dvh !important;
+            background-color: rgba(0, 0, 0, 0.85) !important;
+            z-index: 999999 !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: max(12px, env(safe-area-inset-top, 0px)) 16px max(12px, env(safe-area-inset-bottom, 0px)) !important;
+            box-sizing: border-box !important;
+            overscroll-behavior: contain !important;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
         }
 
-        /* 统一使用 class 控制显示 */
+        /* 统一使用 class 控制显示：内容始终在可见区域内水平垂直居中 */
         .modal-overlay.show-modal {
             display: flex !important;
             opacity: 1 !important;
             visibility: visible !important;
             pointer-events: auto !important;
+        }
+
+        /* 两个社交弹窗内容区统一宽度与居中，避免一高一低 */
+        #xiaohongshuModal .modal-content,
+        #wechatModal .modal-content {
+            width: min(400px, calc(100vw - 32px)) !important;
+            max-width: min(400px, 90vw) !important;
+            margin: 0 !important;
+            flex-shrink: 0 !important;
+            align-self: center !important;
+            max-height: min(85dvh, calc(100dvh - 48px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))) !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            box-sizing: border-box !important;
         }
 
         /* Prevent clicks from passing through */
@@ -1106,13 +1120,11 @@
             border-color: rgba(255, 255, 255, 0.4);
         }
 
-        /* 微信弹窗样式 */
+        /* 微信弹窗样式（宽度与居中已由上面 #wechatModal .modal-content 统一规则覆盖） */
         #wechatModal .modal-content {
             background-color: #07C160;
             color: white;
-            width: 90%; /* 改为百分比宽度 */
-            max-width: 400px; /* 最大宽度限制 */
-            padding: 15px; /* 减小内边距 */
+            padding: 15px;
         }
 
         #wechatModal .modal-title {
@@ -2203,10 +2215,10 @@
             <a href="https://v.douyin.com/g1Onr09i9l4" class="social-link" title="抖音" aria-label="访问我的抖音" target="_blank">
                 <img src="https://img.calvinsuals.com/images/about/icons/tiktok/tiktok.webp" alt="抖音" width="24" height="24">
             </a>
-            <a href="javascript:void(0)" class="social-link" title="小红书" aria-label="访问我的小红书" onclick="event.preventDefault(); document.getElementById('xiaohongshuModal').classList.add('show-modal'); document.body.classList.add('modal-open');">
+            <a href="javascript:void(0)" class="social-link" title="小红书" aria-label="访问我的小红书" onclick="event.preventDefault(); openAboutSocialModal('xiaohongshuModal');">
                 <img src="https://img.calvinsuals.com/images/about/icons/xiaohongshu/xiaohongshu.png" alt="小红书" width="24" height="24">
             </a>
-            <a href="javascript:void(0)" class="social-link" title="微信" aria-label="添加我的微信" onclick="event.preventDefault(); document.getElementById('wechatModal').classList.add('show-modal'); document.body.classList.add('modal-open');">
+            <a href="javascript:void(0)" class="social-link" title="微信" aria-label="添加我的微信" onclick="event.preventDefault(); openAboutSocialModal('wechatModal');">
                 <img src="https://img.calvinsuals.com/images/about/icons/wechat/wechat.png" alt="微信" width="24" height="24">
             </a>
             <a href="https://www.instagram.com/calvinsuals" class="social-link" title="Instagram" aria-label="访问我的Instagram" target="_blank">
@@ -2249,7 +2261,7 @@
     <!-- 弹窗 -->
     <div class="modal-overlay" id="xiaohongshuModal">
         <div class="modal-content" onclick="event.stopPropagation();">
-            <span class="modal-close" onclick="document.getElementById('xiaohongshuModal').classList.remove('show-modal'); document.body.classList.remove('modal-open');">&times;</span>
+            <span class="modal-close" onclick="closeAboutSocialModal('xiaohongshuModal');">&times;</span>
             <h3 class="modal-title"></h3>
             <div class="modal-images">
                 <a href="https://www.xiaohongshu.com/user/profile/5b5699c311be104a66c9ec6a" target="_blank">
@@ -2265,7 +2277,7 @@
     </div>
     <div class="modal-overlay" id="wechatModal">
         <div class="modal-content" onclick="event.stopPropagation();">
-            <span class="modal-close" onclick="document.getElementById('wechatModal').classList.remove('show-modal'); document.body.classList.remove('modal-open');">&times;</span>
+            <span class="modal-close" onclick="closeAboutSocialModal('wechatModal');">&times;</span>
             <h3 class="modal-title"></h3>
             <div class="modal-images">
                 <img src="https://pub-67b44c34fdd2480e83feffb3cfc185b9.r2.dev/images/about/wechat/wechat.jpg" alt="微信二维码" onerror="this.alt='图片未找到'; this.style.display='block';">
@@ -2312,6 +2324,71 @@
             section.style.transform = 'none';
             section.style.transition = 'none';
         });
+
+        /* About 区社交弹窗：Visual Viewport 对齐 + 锁定滚动，解决移动端地址栏收合后漏底与错位 */
+        (function () {
+            var savedScrollY = 0;
+            function syncAboutModalOverlays() {
+                var vv = window.visualViewport;
+                if (!vv) return;
+                document.querySelectorAll('.modal-overlay.show-modal').forEach(function (el) {
+                    el.style.top = vv.offsetTop + 'px';
+                    el.style.left = vv.offsetLeft + 'px';
+                    el.style.width = vv.width + 'px';
+                    el.style.height = vv.height + 'px';
+                });
+            }
+            function bindAboutVisualViewport() {
+                if (!window.visualViewport) return;
+                window.visualViewport.removeEventListener('resize', syncAboutModalOverlays);
+                window.visualViewport.removeEventListener('scroll', syncAboutModalOverlays);
+                window.visualViewport.addEventListener('resize', syncAboutModalOverlays, { passive: true });
+                window.visualViewport.addEventListener('scroll', syncAboutModalOverlays, { passive: true });
+            }
+            function unbindAboutVisualViewport() {
+                if (!window.visualViewport) return;
+                window.visualViewport.removeEventListener('resize', syncAboutModalOverlays);
+                window.visualViewport.removeEventListener('scroll', syncAboutModalOverlays);
+            }
+            function clearOverlayGeometry() {
+                document.querySelectorAll('#xiaohongshuModal, #wechatModal').forEach(function (el) {
+                    el.style.top = '';
+                    el.style.left = '';
+                    el.style.width = '';
+                    el.style.height = '';
+                });
+            }
+            window.openAboutSocialModal = function (id) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                savedScrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
+                document.body.style.position = 'fixed';
+                document.body.style.top = '-' + savedScrollY + 'px';
+                document.body.style.left = '0';
+                document.body.style.right = '0';
+                document.body.style.width = '100%';
+                document.body.classList.add('modal-open');
+                el.classList.add('show-modal');
+                syncAboutModalOverlays();
+                bindAboutVisualViewport();
+                requestAnimationFrame(function () {
+                    requestAnimationFrame(syncAboutModalOverlays);
+                });
+            };
+            window.closeAboutSocialModal = function (id) {
+                var el = document.getElementById(id);
+                if (el) el.classList.remove('show-modal');
+                unbindAboutVisualViewport();
+                clearOverlayGeometry();
+                document.body.classList.remove('modal-open');
+                document.body.style.position = '';
+                document.body.style.top = '';
+                document.body.style.left = '';
+                document.body.style.right = '';
+                document.body.style.width = '';
+                window.scrollTo(0, savedScrollY);
+            };
+        })();
 
         // --- 新增：动态定位标题 --- 
         function updateTitlePositions() {
