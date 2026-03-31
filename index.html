@@ -2400,6 +2400,28 @@
                     el.style.height = '';
                 });
             }
+            /** 解除 body fixed 后恢复滚动：html 上 scroll-behavior:smooth 会让 scrollTo 带动画，关闭弹窗会像整页滑回去 */
+            function restoreScrollAfterModalUnlock(y) {
+                var html = document.documentElement;
+                var prevHtmlSb = html.style.scrollBehavior;
+                var prevBodySb = document.body.style.scrollBehavior;
+                html.style.scrollBehavior = 'auto';
+                document.body.style.scrollBehavior = 'auto';
+                requestAnimationFrame(function () {
+                    requestAnimationFrame(function () {
+                        window.scrollTo(0, y);
+                        var sy = window.scrollY || window.pageYOffset || 0;
+                        if (Math.abs(sy - y) > 1) {
+                            html.scrollTop = y;
+                            document.body.scrollTop = y;
+                        }
+                        if (prevHtmlSb) html.style.scrollBehavior = prevHtmlSb;
+                        else html.style.removeProperty('scroll-behavior');
+                        if (prevBodySb) document.body.style.scrollBehavior = prevBodySb;
+                        else document.body.style.removeProperty('scroll-behavior');
+                    });
+                });
+            }
             window.openAboutSocialModal = function (id) {
                 var el = document.getElementById(id);
                 if (!el) return;
@@ -2433,7 +2455,7 @@
                 document.body.style.left = '';
                 document.body.style.right = '';
                 document.body.style.width = '';
-                window.scrollTo(0, savedScrollY);
+                restoreScrollAfterModalUnlock(savedScrollY);
             };
         })();
 
