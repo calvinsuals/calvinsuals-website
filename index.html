@@ -1431,6 +1431,13 @@
             }
         }
 
+        /* 桌面端 About：社交行 position:absolute + bottom，margin-top 无效；提高 bottom 把图标整体上移，才拉得开与正文的间距 */
+        @media screen and (min-width: 768px) {
+            #about .about-social {
+                bottom: 120px;
+            }
+        }
+
         /* 确保大于768px屏幕的所有区域标题完全对齐 - 增加选择器特异性 */
         @media screen and (min-width: 768px) {
             /* 强制所有区域标题统一样式，无论之前设置 */
