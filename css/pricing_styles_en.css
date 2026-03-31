@@ -1296,12 +1296,12 @@ body.modal-open #modal-container .modal-content {
         display: flex !important;
         align-items: flex-start !important;
         justify-content: center !important;
-        padding: max(12dvh, env(safe-area-inset-top, 0px)) 16px max(12px, env(safe-area-inset-bottom, 0px)) !important;
+        padding: max(calc(12dvh - 25px), env(safe-area-inset-top, 0px)) 16px max(12px, env(safe-area-inset-bottom, 0px)) !important;
     }
 
     .modal-content {
         position: relative;
-        max-height: min(92dvh, calc(100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))) !important;
+        max-height: min(calc(92dvh + 25px), calc(100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))) !important;
         display: flex;
         flex-direction: column;
         width: 90%;
@@ -1324,7 +1324,7 @@ body.modal-open #modal-container .modal-content {
         overscroll-behavior: contain;
         touch-action: pan-y;
         min-height: 0;
-        max-height: calc(100dvh - 168px) !important;
+        max-height: calc(100dvh - 143px) !important;
         padding: 12px 18px 16px !important;
     }
     
@@ -1662,7 +1662,8 @@ body.modal-open #modal-container .modal-content {
     }
 
     html body #modal-container .modal:not(#modal-terms) .modal-content .modal-body {
-        max-height: calc(100dvh - 108px) !important;
+        /* 上移 25px 给下方腾出了 25px 空间，原头部高度约 50px，减去的值变小可以增大内容区 */
+        max-height: calc(100dvh - 83px) !important; /* 108 - 25 = 83 */
         padding-top: 24px !important;
     }
 
