@@ -2392,35 +2392,30 @@
                 window.visualViewport.removeEventListener('resize', syncAboutModalOverlays);
                 window.visualViewport.removeEventListener('scroll', syncAboutModalOverlays);
             }
-            function clearOverlayGeometry() {
-                document.querySelectorAll('#xiaohongshuModal, #wechatModal').forEach(function (el) {
-                    el.style.top = '';
-                    el.style.left = '';
-                    el.style.width = '';
-                    el.style.height = '';
-                });
+            function clearOverlayInlineGeometry(overlay) {
+                if (!overlay) return;
+                overlay.style.top = '';
+                overlay.style.left = '';
+                overlay.style.width = '';
+                overlay.style.height = '';
             }
-            /** 解除 body fixed 后恢复滚动：html 上 scroll-behavior:smooth 会让 scrollTo 带动画，关闭弹窗会像整页滑回去 */
+            /** 解除 body fixed 后恢复滚动：html 上 scroll-behavior:smooth 会让 scrollTo 带动画；同步 scrollTo 避免双 rAF 晚两帧才恢复滚动 → 闪一帧错位 */
             function restoreScrollAfterModalUnlock(y) {
                 var html = document.documentElement;
                 var prevHtmlSb = html.style.scrollBehavior;
                 var prevBodySb = document.body.style.scrollBehavior;
                 html.style.scrollBehavior = 'auto';
                 document.body.style.scrollBehavior = 'auto';
-                requestAnimationFrame(function () {
-                    requestAnimationFrame(function () {
-                        window.scrollTo(0, y);
-                        var sy = window.scrollY || window.pageYOffset || 0;
-                        if (Math.abs(sy - y) > 1) {
-                            html.scrollTop = y;
-                            document.body.scrollTop = y;
-                        }
-                        if (prevHtmlSb) html.style.scrollBehavior = prevHtmlSb;
-                        else html.style.removeProperty('scroll-behavior');
-                        if (prevBodySb) document.body.style.scrollBehavior = prevBodySb;
-                        else document.body.style.removeProperty('scroll-behavior');
-                    });
-                });
+                window.scrollTo(0, y);
+                var sy = window.scrollY || window.pageYOffset || 0;
+                if (Math.abs(sy - y) > 1) {
+                    html.scrollTop = y;
+                    document.body.scrollTop = y;
+                }
+                if (prevHtmlSb) html.style.scrollBehavior = prevHtmlSb;
+                else html.style.removeProperty('scroll-behavior');
+                if (prevBodySb) document.body.style.scrollBehavior = prevBodySb;
+                else document.body.style.removeProperty('scroll-behavior');
             }
             window.openAboutSocialModal = function (id) {
                 var el = document.getElementById(id);
@@ -2448,7 +2443,26 @@
                 unbindAboutVisualViewport();
                 unbindWinResizeAboutModal();
                 unbindOrientationAboutModal();
-                clearOverlayGeometry();
+                /* 勿在关窗瞬间清 inline 尺寸：否则遮罩从 visualViewport 框立刻变回 CSS 的 100%「布局视口」，地址栏收起时两视口差很大 → 淡出前会「弹」一下 */
+                var geomCleared = false;
+                function scheduleClearClosedOverlayGeom() {
+                    if (geomCleared || !el) return;
+                    if (el.classList.contains('show-modal')) return;
+                    geomCleared = true;
+                    clearOverlayInlineGeometry(el);
+                }
+                if (el) {
+                    function onFadeOutEnd(e) {
+                        if (e.target !== el || e.propertyName !== 'opacity') return;
+                        el.removeEventListener('transitionend', onFadeOutEnd);
+                        scheduleClearClosedOverlayGeom();
+                    }
+                    el.addEventListener('transitionend', onFadeOutEnd, false);
+                    setTimeout(function () {
+                        if (el) el.removeEventListener('transitionend', onFadeOutEnd);
+                        scheduleClearClosedOverlayGeom();
+                    }, 320);
+                }
                 document.body.classList.remove('modal-open');
                 document.body.style.position = '';
                 document.body.style.top = '';
