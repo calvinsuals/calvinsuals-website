@@ -1060,12 +1060,14 @@ body.modal-open #modal-container .modal-content {
         /* 整体上移，取消垂直居中 */
         align-items: flex-start !important;
         justify-content: center !important;
-        padding: max(12dvh, env(safe-area-inset-top, 0px)) 16px max(12px, env(safe-area-inset-bottom, 0px)) !important;
+        /* 原本是 12dvh，现在减少 25px 让它继续上移 */
+        padding: max(calc(12dvh - 25px), env(safe-area-inset-top, 0px)) 16px max(12px, env(safe-area-inset-bottom, 0px)) !important;
     }
 
     .modal-content {
         position: relative;
-        max-height: min(92dvh, calc(100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))) !important;
+        /* 因为上移了25px，所以我们有额外的25px可以分配给内容高度 */
+        max-height: min(calc(92dvh + 25px), calc(100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))) !important;
         display: flex;
         flex-direction: column;
         width: 90%;
@@ -1088,7 +1090,8 @@ body.modal-open #modal-container .modal-content {
         overscroll-behavior: contain;
         touch-action: pan-y;
         min-height: 0;
-        max-height: calc(100dvh - 168px) !important;
+        /* 为了配合整体增高25px，把这里的负边距减少25px，增加滚动区域内部的物理高度 */
+        max-height: calc(100dvh - 143px) !important; /* 168 - 25 = 143 */
         padding: 12px 18px 16px !important;
     }
     
@@ -1642,7 +1645,8 @@ body.modal-open .card.frozen::after {
     }
 
     html body #modal-container .modal:not(#modal-terms) .modal-content .modal-body {
-        max-height: calc(100dvh - 108px) !important;
+        /* 上移 25px 给下方腾出了 25px 空间，原头部高度约 50px，减去的值变小可以增大内容区 */
+        max-height: calc(100dvh - 83px) !important; /* 108 - 25 = 83 */
         padding-top: 24px !important;
     }
 
