@@ -341,13 +341,8 @@ function initCardModalInteraction() {
             if (!modal) return;
 
             const isCloseButton = event.target.closest('.close-modal');
-            const allowBackdropClose =
-                window.matchMedia && window.matchMedia('(max-width: 875px)').matches;
-            /* 仅当点击落在弹窗根节点（毛玻璃空白）时算背景关闭，避免误伤子层 */
-            const isOverlay =
-                allowBackdropClose &&
-                event.target === modal &&
-                Date.now() - lastModalOpenTime > 300;
+            /* 取消点击背景关闭功能，强制用户必须点击关闭按钮，避免移动端误触 */
+            const isOverlay = false;
 
             if (isCloseButton || isOverlay) {
                 closeModal(modal);
