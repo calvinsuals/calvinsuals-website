@@ -1018,7 +1018,7 @@
             left: 0 !important;
             width: 100% !important;
             height: 100% !important;
-            min-height: 100dvh !important;
+            /* 不要用 min-height:100dvh：会与 JS 按 visualViewport 写的宽高打架，导致地址栏显隐时错位 */
             background-color: rgba(0, 0, 0, 0.85) !important;
             z-index: 999999 !important;
             flex-direction: column !important;
@@ -1040,15 +1040,15 @@
             pointer-events: auto !important;
         }
 
-        /* 两个社交弹窗内容区统一宽度与居中，避免一高一低 */
+        /* 宽高相对遮罩（已由 visualViewport 定死），不用 dvh/vw，避免与地址栏显隐两套高度不一致 */
         #xiaohongshuModal .modal-content,
         #wechatModal .modal-content {
-            width: min(400px, calc(100vw - 32px)) !important;
-            max-width: min(400px, 90vw) !important;
+            width: min(400px, 100%) !important;
+            max-width: 100% !important;
             margin: 0 !important;
-            flex-shrink: 0 !important;
+            flex-shrink: 1 !important;
             align-self: center !important;
-            max-height: min(85dvh, calc(100dvh - 48px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))) !important;
+            max-height: calc(100% - 8px) !important;
             overflow-y: auto !important;
             -webkit-overflow-scrolling: touch !important;
             box-sizing: border-box !important;
@@ -2325,17 +2325,59 @@
             section.style.transition = 'none';
         });
 
-        /* About 区社交弹窗：Visual Viewport 对齐 + 锁定滚动，解决移动端地址栏收合后漏底与错位 */
+        /* About 区社交弹窗：Visual Viewport 对齐 + 锁定滚动；内容 max-height 用 100% 相对遮罩，避免 dvh 与 vv 两套高度导致「UI 显隐时同一弹窗上下跳」 */
         (function () {
             var savedScrollY = 0;
+            var winResizeBound = false;
+            var orientBound = false;
+            function onOrientationAboutModal() {
+                setTimeout(syncAboutModalOverlays, 80);
+            }
+            function bindOrientationAboutModal() {
+                if (orientBound) return;
+                orientBound = true;
+                window.addEventListener('orientationchange', onOrientationAboutModal, { passive: true });
+            }
+            function unbindOrientationAboutModal() {
+                if (!orientBound) return;
+                orientBound = false;
+                window.removeEventListener('orientationchange', onOrientationAboutModal);
+            }
             function syncAboutModalOverlays() {
                 var vv = window.visualViewport;
-                if (!vv) return;
-                document.querySelectorAll('.modal-overlay.show-modal').forEach(function (el) {
-                    el.style.top = vv.offsetTop + 'px';
-                    el.style.left = vv.offsetLeft + 'px';
-                    el.style.width = vv.width + 'px';
-                    el.style.height = vv.height + 'px';
+                var overlays = document.querySelectorAll('.modal-overlay.show-modal');
+                if (vv) {
+                    overlays.forEach(function (el) {
+                        el.style.top = vv.offsetTop + 'px';
+                        el.style.left = vv.offsetLeft + 'px';
+                        el.style.width = vv.width + 'px';
+                        el.style.height = vv.height + 'px';
+                    });
+                } else {
+                    overlays.forEach(function (el) {
+                        el.style.top = '0px';
+                        el.style.left = '0px';
+                        el.style.width = window.innerWidth + 'px';
+                        el.style.height = window.innerHeight + 'px';
+                    });
+                }
+            }
+            function onWinResizeAboutModal() {
+                syncAboutModalOverlays();
+            }
+            function bindWinResizeAboutModal() {
+                if (winResizeBound) return;
+                winResizeBound = true;
+                window.addEventListener('resize', onWinResizeAboutModal, { passive: true });
+            }
+            function unbindWinResizeAboutModal() {
+                if (!winResizeBound) return;
+                winResizeBound = false;
+                window.removeEventListener('resize', onWinResizeAboutModal);
+            }
+            function scheduleAboutModalSync() {
+                [0, 50, 120, 280, 500].forEach(function (ms) {
+                    setTimeout(syncAboutModalOverlays, ms);
                 });
             }
             function bindAboutVisualViewport() {
@@ -2358,6 +2400,28 @@
                     el.style.height = '';
                 });
             }
+            /** 解除 body fixed 后恢复滚动：html 上 scroll-behavior:smooth 会让 scrollTo 带动画，关闭弹窗会像整页滑回去 */
+            function restoreScrollAfterModalUnlock(y) {
+                var html = document.documentElement;
+                var prevHtmlSb = html.style.scrollBehavior;
+                var prevBodySb = document.body.style.scrollBehavior;
+                html.style.scrollBehavior = 'auto';
+                document.body.style.scrollBehavior = 'auto';
+                requestAnimationFrame(function () {
+                    requestAnimationFrame(function () {
+                        window.scrollTo(0, y);
+                        var sy = window.scrollY || window.pageYOffset || 0;
+                        if (Math.abs(sy - y) > 1) {
+                            html.scrollTop = y;
+                            document.body.scrollTop = y;
+                        }
+                        if (prevHtmlSb) html.style.scrollBehavior = prevHtmlSb;
+                        else html.style.removeProperty('scroll-behavior');
+                        if (prevBodySb) document.body.style.scrollBehavior = prevBodySb;
+                        else document.body.style.removeProperty('scroll-behavior');
+                    });
+                });
+            }
             window.openAboutSocialModal = function (id) {
                 var el = document.getElementById(id);
                 if (!el) return;
@@ -2371,6 +2435,9 @@
                 el.classList.add('show-modal');
                 syncAboutModalOverlays();
                 bindAboutVisualViewport();
+                bindWinResizeAboutModal();
+                bindOrientationAboutModal();
+                scheduleAboutModalSync();
                 requestAnimationFrame(function () {
                     requestAnimationFrame(syncAboutModalOverlays);
                 });
@@ -2379,6 +2446,8 @@
                 var el = document.getElementById(id);
                 if (el) el.classList.remove('show-modal');
                 unbindAboutVisualViewport();
+                unbindWinResizeAboutModal();
+                unbindOrientationAboutModal();
                 clearOverlayGeometry();
                 document.body.classList.remove('modal-open');
                 document.body.style.position = '';
@@ -2386,7 +2455,7 @@
                 document.body.style.left = '';
                 document.body.style.right = '';
                 document.body.style.width = '';
-                window.scrollTo(0, savedScrollY);
+                restoreScrollAfterModalUnlock(savedScrollY);
             };
         })();
 
