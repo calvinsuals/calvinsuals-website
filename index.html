@@ -4,6 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>calvinsuals Photography</title>
+    <link rel="preconnect" href="https://img.calvinsuals.com" crossorigin>
+    <link rel="dns-prefetch" href="https://img.calvinsuals.com">
+    <link rel="preload" as="image" fetchpriority="high" href="https://img.calvinsuals.com/images/display/automotive%20display/images_display_automotive%20display_By.calvinsuals.240305.webp">
+    <link rel="preload" href="images/display_automotive.json" as="fetch" type="application/json" crossorigin="anonymous">
+    <link rel="preload" href="images/display_portrait.json" as="fetch" type="application/json" crossorigin="anonymous">
+    <link rel="preload" href="images/comparison_groups.json" as="fetch" type="application/json" crossorigin="anonymous">
+    <script>
+    (function () {
+        try {
+            if (typeof matchMedia !== 'undefined' && matchMedia('(min-width:768px)').matches) {
+                var h = document.documentElement;
+                h.style.setProperty('--site-bg-doc-height', '100vh');
+                h.style.setProperty('--site-scroll-y', '0px');
+            }
+        } catch (e) {}
+    })();
+    </script>
     <!-- 字体 (Add 600 weight for Montserrat) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,8 +37,6 @@
 
     <link rel="stylesheet" href="css/site_background.css?v=20260329x">
 
-    <!-- 添加自定义字体 -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* --- Variables & Base (Consistent across pages) --- */
         :root {
@@ -2325,9 +2340,9 @@
     </div>
 
     <!-- 添加外部脚本链接 -->
-    <script src="js/site_background.js?v=20260404g" defer></script>
-    <script src="js/main.js?v=20260404g" defer></script>
-    <script src="js/navigation.js?v=20260404g" defer></script>
+    <script src="js/site_background.js?v=20260404h" defer></script>
+    <script src="js/main.js?v=20260404h" defer></script>
+    <script src="js/navigation.js?v=20260404h" defer></script>
 
     <!-- 锚点定位修复脚本 -->
     <script>

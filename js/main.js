@@ -199,6 +199,7 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
                 img.alt = '';
                 img.decoding = 'async';
                 img.draggable = false;
+                if (index === 0) img.fetchPriority = 'high';
                 if (index < initialImgCount) {
                     img.src = imgUrl;
                     slide.dataset.imgApplied = '1';
@@ -1046,19 +1047,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadGalleryImages('automotive-slides', 'automotive-nav', 'images/display_automotive.json')
         .catch((e) => console.error('[Gallery] automotive init failed', e))
-        .finally(() => {
-            syncBg();
-            const runPortrait = () => {
-                loadGalleryImages('portrait-slides', 'portrait-nav', 'images/display_portrait.json')
-                    .catch((e) => console.error('[Gallery] portrait init failed', e))
-                    .finally(() => syncBg());
-            };
-            if (typeof requestIdleCallback === 'function') {
-                requestIdleCallback(runPortrait, { timeout: 1800 });
-            } else {
-                setTimeout(runPortrait, 240);
-            }
-        });
+        .finally(() => syncBg());
+
+    loadGalleryImages('portrait-slides', 'portrait-nav', 'images/display_portrait.json')
+        .catch((e) => console.error('[Gallery] portrait init failed', e))
+        .finally(() => syncBg());
 
     loadAndInitComparison('images/comparison_groups.json')
         .catch((e) => console.error('[Comparison] 未捕获的初始化失败', e))
