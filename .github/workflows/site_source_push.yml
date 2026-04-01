@@ -1,5 +1,6 @@
 # 当首页/脚本/样式等变更时触发，便于在 Actions 里看到「有推送」记录。
 # 静态站点发布一般由 Cloudflare Pages 等托管在 push 后自动构建，本工作流不负责部署。
+# Actions 版本由根目录 .github/dependabot.yml 按月提 PR 跟进。
 name: Site source changed
 
 on:

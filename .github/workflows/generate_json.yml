@@ -5,6 +5,10 @@ name: Generate Gallery JSON
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
+concurrency:
+  group: generate-json-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   schedule:
     - cron: '0 * * * *'  # 每小时运行一次
@@ -29,25 +33,24 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install --no-cache-dir -r requirements.txt
 
-      - name: Cat generate_galleries.py
-        run: cat generate_galleries.py
-
-      - name: Debug Environment Variables
+      - name: 调试（仅手动 workflow_dispatch）
+        if: github.event_name == 'workflow_dispatch'
         run: |
-          echo "Checking secrets context directly:"
-          echo "secrets.R2_ENDPOINT_URL is present: ${{ secrets.R2_ENDPOINT_URL && 'true' || 'false' }}"
-          echo "secrets.R2_ACCESS_KEY_ID is present: ${{ secrets.R2_ACCESS_KEY_ID && 'true' || 'false' }}"
-          # DO NOT print the secret key!
-          echo "secrets.R2_SECRET_ACCESS_KEY is present: ${{ secrets.R2_SECRET_ACCESS_KEY && 'true' || 'false' }}"
-          echo "secrets.R2_BUCKET_NAME is present: ${{ secrets.R2_BUCKET_NAME && 'true' || 'false' }}"
-          echo "secrets.R2_PUBLIC_BASE_URL is present: ${{ secrets.R2_PUBLIC_BASE_URL && 'true' || 'false' }}"
+          echo "=== generate_galleries.py 前 80 行 ==="
+          head -n 80 generate_galleries.py || true
+          echo "=== Secrets 是否已配置（不输出值）==="
+          echo "R2_ENDPOINT_URL: ${{ secrets.R2_ENDPOINT_URL != '' }}"
+          echo "R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID != '' }}"
+          echo "R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY != '' }}"
+          echo "R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME != '' }}"
+          echo "R2_PUBLIC_BASE_URL: ${{ secrets.R2_PUBLIC_BASE_URL != '' }}"
 
       - name: Run script to generate JSON
         run: |
@@ -89,6 +92,6 @@ jobs:
           else
             echo "检测到更改，开始提交和推送..."
             git commit -m "Automated: 更新画廊 JSON 文件"
-            git push origin main
+            git push origin HEAD:${{ github.ref_name }}
             echo "提交和推送完成。"
           fi
