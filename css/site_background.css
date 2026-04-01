@@ -1,8 +1,8 @@
 /* Shared site background shell.
  *
- * 全视口统一：渐变画在 body 上（铺底 + 全文档高度渐变、随内容滚动）。
- * 桌面曾用 fixed 视口层以省滚动绘制，但会与页内所有 <img> 反复合成，来回竖滚易出现整页图片闪动/黑一下。
- * .background-gradient 节点保留在 HTML 中，始终隐藏。
+ * 窄屏：整页 body 渐变（随文档滚动），隐藏 .background-gradient。
+ * 桌面：body 不铺大图渐变，改用「仅视口高」的 fixed 层 —— 与整页拉伸渐变观感接近（同色同角），
+ *       但避免每次滚动对「整文档高度」的背景重绘，减轻「滑一下像在加载背景」的卡顿。
  *
  * html 使用 --site-background-fallback 兜底 overscroll（由 JS 从 body 同步 token）。
  */
@@ -20,6 +20,7 @@ html.site-fixed-background {
     background-image: none;
 }
 
+/* --- 默认（含窄屏）：body 全高渐变 --- */
 body.site-background-shell {
     --bs-body-bg: transparent;
     background-color: var(--site-background-underlay, #6f6f6f) !important;
@@ -55,9 +56,28 @@ body.site-background-shell #modal-container {
     isolation: isolate;
 }
 
-/* 桌面：促成分层，减轻大图与 body 渐变同滚时的合成闪动（小图标成本可接受） */
+/* --- 桌面：视口固定渐变层（非整页文档高，无滚动同步 JS） --- */
 @media (min-width: 768px) {
-    body.site-background-shell img {
+    body.site-background-shell {
+        background-image: none !important;
+        background-color: transparent !important;
+    }
+
+    body.site-background-shell .background-gradient {
+        display: block !important;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100vh;
+        min-height: 100dvh;
+        z-index: 0;
+        pointer-events: none;
+        background-color: var(--site-background-underlay, #6f6f6f);
+        background-image: var(--site-background-image, var(--primary-gradient, linear-gradient(135deg, #333 0%, #ddd 100%)));
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        background-position: center center;
         transform: translateZ(0);
         backface-visibility: hidden;
     }
