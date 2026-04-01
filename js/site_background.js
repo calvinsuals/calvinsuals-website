@@ -37,16 +37,18 @@
     }
 
     let scrollRaf = 0;
-    function applyScrollY() {
+    /** 桌面滚动：同一帧内同步 scrollY 与文档高度，避免固定渐变层高度滞后导致「滑着滑着像半截图/背景断层」 */
+    function applyScrollFrame() {
         scrollRaf = 0;
         if (!mq.matches) return;
         root.style.setProperty('--site-scroll-y', window.scrollY + 'px');
+        updateDocHeight();
     }
 
     function onScroll() {
         if (!mq.matches) return;
         if (!scrollRaf) {
-            scrollRaf = requestAnimationFrame(applyScrollY);
+            scrollRaf = requestAnimationFrame(applyScrollFrame);
         }
     }
 
@@ -65,7 +67,7 @@
         syncSiteBackgroundTokens();
         if (mq.matches) {
             updateDocHeight();
-            applyScrollY();
+            root.style.setProperty('--site-scroll-y', window.scrollY + 'px');
         } else {
             clearDesktopVars();
         }
@@ -94,7 +96,7 @@
         if (mq.matches) {
             scheduleDocHeight();
             if (!scrollRaf) {
-                scrollRaf = requestAnimationFrame(applyScrollY);
+                scrollRaf = requestAnimationFrame(applyScrollFrame);
             }
         } else {
             clearDesktopVars();
