@@ -440,8 +440,10 @@ async function loadAndInitComparison(jsonPath) {
             if (g && g.after_src) comparisonUrls.push(normalizeImageUrl(g.after_src));
         });
         const isMobileWarm = __isMobileImageWarmProfile();
-        /* 对比组数量少（通常 ≤4 组），手机也可全量 warm，与 <img src> 并行、走缓存，减轻滑到才完整出图 */
-        const cmpEager = comparisonUrls.length;
+        /* 手机：少量 eager warm，避免与 DOM 图 + prime decode 叠加倍增内存导致标签页崩溃；桌面全量 */
+        const cmpEager = isMobileWarm
+            ? Math.min(2, comparisonUrls.length)
+            : comparisonUrls.length;
         warmImagesIdle(comparisonUrls, cmpEager, !isMobileWarm);
 
         const sliderContainer = document.createElement('div');
@@ -469,7 +471,7 @@ async function loadAndInitComparison(jsonPath) {
                 imgBefore.alt = 'Before'; imgBefore.className = 'before';
                 /* 手机端也直接挂 src：避免滑入时才 hydrate 造成卡顿/闪一下（内存仍靠「禁止 idle 扫尾预热」控制） */
                 imgBefore.loading = 'eager';
-                imgBefore.decoding = 'sync';
+                imgBefore.decoding = isMobileWarm ? 'async' : 'sync';
                 if (index < 2) imgBefore.fetchPriority = 'high';
                 imgBefore.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 Before src: ${groupData.before_src}`);
@@ -481,7 +483,7 @@ async function loadAndInitComparison(jsonPath) {
                 const imgAfter = document.createElement('img');
                 imgAfter.alt = 'After'; imgAfter.className = 'after';
                 imgAfter.loading = 'eager';
-                imgAfter.decoding = 'sync';
+                imgAfter.decoding = isMobileWarm ? 'async' : 'sync';
                 if (index < 2) imgAfter.fetchPriority = 'high';
                 imgAfter.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 After src: ${groupData.after_src}`);
@@ -521,7 +523,7 @@ async function loadAndInitComparison(jsonPath) {
                 thumbImg.src = thumbUrl;
                 thumbImg.alt = `Thumbnail for ${groupData.id}`;
                 thumbImg.loading = 'eager';
-                thumbImg.decoding = 'sync';
+                thumbImg.decoding = isMobileWarm ? 'async' : 'sync';
                 thumbImg.onerror = () => { thumbImg.alt='Thumb not found'; thumbImg.src=''; console.error(`[Comparison ${groupData.id}] 加载 Thumbnail 图片失败: ${groupData.after_src}`); };
                 thumbItem.appendChild(thumbImg);
                 thumbnailFragment.appendChild(thumbItem); 
@@ -544,7 +546,11 @@ async function loadAndInitComparison(jsonPath) {
              console.log("[Comparison] Slider 和 Thumbnail Nav 已插入页面容器。");
         } else { console.error("[Comparison] 主容器已不存在！"); }
 
-        await primeComparisonImages(container);
+        const primeBudgetMs = isMobileWarm ? 4000 : 14000;
+        await Promise.race([
+            primeComparisonImages(container),
+            new Promise((r) => setTimeout(r, primeBudgetMs)),
+        ]);
 
         // --- 初始化交互 --- 
         initializeComparison(); // 初始化滑块交互
@@ -556,7 +562,7 @@ async function loadAndInitComparison(jsonPath) {
     } catch (error) { console.error(`Error in loadAndInitComparison:`, error); if (container) { container.innerHTML = `<p style="color: red;">无法加载对比区。</p>`; } }
 }
 
-/** 对比区插入 DOM 后：先并行等 load，再按帧 decode，减轻主线程尖峰与滑入视口时才解码的「一张张冒出来」。 */
+/** 对比区插入 DOM 后：等 load，再对唯一 URL 各 decode 一次（缩略图与主图同 src 不重复），减轻内存与主线程尖峰。 */
 function primeComparisonImages(comparisonRoot) {
     if (!comparisonRoot) return Promise.resolve();
     const imgs = Array.from(
@@ -596,10 +602,22 @@ function primeComparisonImages(comparisonRoot) {
         });
 
     return (async () => {
-        await Promise.all(imgs.map(waitLoaded));
-        for (const img of imgs) {
-            await new Promise((r) => requestAnimationFrame(r));
-            await decodeOne(img);
+        try {
+            await Promise.all(imgs.map(waitLoaded));
+            const seen = new Set();
+            const unique = [];
+            for (const img of imgs) {
+                const key = (img.currentSrc || img.src || '').trim();
+                if (!key || seen.has(key)) continue;
+                seen.add(key);
+                unique.push(img);
+            }
+            for (const img of unique) {
+                await new Promise((r) => requestAnimationFrame(r));
+                await decodeOne(img);
+            }
+        } catch (e) {
+            console.warn('[Comparison] primeComparisonImages', e);
         }
     })();
 }
