@@ -1,8 +1,22 @@
 // *** 函数定义区域 ***
 const __jsonCache = new Map();
 const __imageWarmCache = new Set();
+const __imageWarmWaiters = new Map();
 const __imageObjectCache = new Map();
 const __imageReadyCache = new Set();
+
+function __flushWarmWaiters(url) {
+    const list = __imageWarmWaiters.get(url);
+    if (!list || list.length === 0) return;
+    __imageWarmWaiters.delete(url);
+    list.forEach((cb) => {
+        try {
+            cb();
+        } catch (e) {
+            console.warn('[warmImage] waiter error', e);
+        }
+    });
+}
 const __MAX_IMAGE_OBJECT_CACHE = 120;
 const __R2_PUBLIC_HOST = 'pub-67b44c34fdd2480e83feffb3cfc185b9.r2.dev';
 const __R2_CUSTOM_HOST = 'img.calvinsuals.com';
@@ -28,7 +42,13 @@ function warmImage(url, onReady) {
         if (typeof onReady === 'function') queueMicrotask(onReady);
         return;
     }
-    if (__imageWarmCache.has(url)) return;
+    if (__imageWarmCache.has(url)) {
+        if (typeof onReady === 'function') {
+            if (!__imageWarmWaiters.has(url)) __imageWarmWaiters.set(url, []);
+            __imageWarmWaiters.get(url).push(onReady);
+        }
+        return;
+    }
     __imageWarmCache.add(url);
     const img = new Image();
     img.decoding = 'async';
@@ -38,6 +58,7 @@ function warmImage(url, onReady) {
         if (__imageReadyCache.has(url)) return;
         __imageReadyCache.add(url);
         if (typeof onReady === 'function') onReady();
+        __flushWarmWaiters(url);
     };
     img.onload = () => {
         if (typeof img.decode === 'function') {
@@ -46,7 +67,10 @@ function warmImage(url, onReady) {
             markReady();
         }
     };
-    img.onerror = () => { __imageWarmCache.delete(url); };
+    img.onerror = () => {
+        __imageWarmCache.delete(url);
+        __imageWarmWaiters.delete(url);
+    };
     img.src = url;
     if (img.complete) {
         if (typeof img.decode === 'function') {
