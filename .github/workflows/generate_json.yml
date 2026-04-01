@@ -1,5 +1,6 @@
 name: Generate Gallery JSON
 
+# 仅当 images/** 或本文件变更时触发；改 index.html / js / css 不会跑此工作流（见 site_source_push.yml）。
 # 提前使用 Node 24 运行 JS 类 Action，避免 2026 年弃用 Node 20 后踩雷（官方说明见 GitHub Actions changelog）。
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
