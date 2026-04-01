@@ -93,7 +93,18 @@ function warmImage(url, onReady) {
     };
     img.onerror = () => {
         __imageWarmCache.delete(url);
-        __imageWarmWaiters.delete(url);
+        if (__imageWarmWaiters.has(url)) {
+            const list = __imageWarmWaiters.get(url);
+            __imageWarmWaiters.delete(url);
+            list.forEach((cb) => {
+                try {
+                    cb();
+                } catch (e) {
+                    console.warn('[warmImage] waiter error', e);
+                }
+            });
+        }
+        if (typeof onReady === 'function') onReady();
     };
     img.src = url;
     if (img.complete) {
@@ -543,13 +554,11 @@ async function loadAndInitComparison(jsonPath) {
              console.log("[Comparison] Slider 和 Thumbnail Nav 已插入页面容器。");
         } else { console.error("[Comparison] 主容器已不存在！"); }
 
-        /* 手机不跑 prime（避免连环 decode 刷新崩溃）；图仍 eager，靠浏览器自然解码 */
-        if (!isMobileWarm) {
-            await Promise.race([
-                primeComparisonImages(container),
-                new Promise((r) => setTimeout(r, 14000)),
-            ]);
-        }
+        /* 手机：只等 img load，不连环 decode（防崩）；桌面：load + 去重逐帧 decode */
+        await Promise.race([
+            primeComparisonImages(container, { decode: !isMobileWarm }),
+            new Promise((r) => setTimeout(r, isMobileWarm ? 10000 : 14000)),
+        ]);
 
         // --- 初始化交互 --- 
         initializeComparison(); // 初始化滑块交互
@@ -561,9 +570,13 @@ async function loadAndInitComparison(jsonPath) {
     } catch (error) { console.error(`Error in loadAndInitComparison:`, error); if (container) { container.innerHTML = `<p style="color: red;">无法加载对比区。</p>`; } }
 }
 
-/** 对比区插入 DOM 后：等 load，再对唯一 URL 各 decode 一次（缩略图与主图同 src 不重复），减轻内存与主线程尖峰。 */
-function primeComparisonImages(comparisonRoot) {
+/**
+ * 对比区：先等全部 img load；桌面再对唯一 URL 逐帧 decode。
+ * @param {{ decode?: boolean }} opts decode 默认 true；手机用 false 避免刷新时 GPU/内存尖峰崩溃。
+ */
+function primeComparisonImages(comparisonRoot, opts) {
     if (!comparisonRoot) return Promise.resolve();
+    const doDecode = !(opts && opts.decode === false);
     const imgs = Array.from(
         comparisonRoot.querySelectorAll('.comparison-wrapper img, .comparison-thumbnail-item img')
     );
@@ -603,6 +616,7 @@ function primeComparisonImages(comparisonRoot) {
     return (async () => {
         try {
             await Promise.all(imgs.map(waitLoaded));
+            if (!doDecode) return;
             const seen = new Set();
             const unique = [];
             for (const img of imgs) {
@@ -795,7 +809,10 @@ function initializeGallerySlider(slidesId, dotsId) {
         const nextUrl = nextSlide.dataset.bgImage;
         if (nextUrl) applySlideBackground(nextSlide);
 
-        if (nextUrl && !__imageReadyCache.has(nextUrl)) {
+        /* slide 已在 loadGalleryImages 挂上 background 时，勿因 hidden Image 未进缓存而卡住叠化（否则会「等一下再闪」） */
+        const cacheKey = nextUrl && typeof nextUrl === 'string' ? normalizeImageUrl(nextUrl) : '';
+        const bgAlreadyOnSlide = nextSlide.dataset.bgApplied === '1';
+        if (nextUrl && !bgAlreadyOnSlide && cacheKey && !__imageReadyCache.has(cacheKey)) {
             warmImage(nextUrl, () => showSlide(newIndex));
             const preloadIndex = (newIndex + 1) % slideElements.length;
             const preloadSlide = slideElements[preloadIndex];
