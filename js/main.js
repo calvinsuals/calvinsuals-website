@@ -467,9 +467,10 @@ async function loadAndInitComparison(jsonPath) {
             if (g && g.after_src) comparisonUrls.push(normalizeImageUrl(g.after_src));
         });
         const isMobileWarm = __isMobileImageWarmProfile();
-        /* 桌面全量 warm；手机只做首批 URL 的 warm，与 DOM img 共用 HTTP 缓存，减轻横滑到下一张才拉网的空洞感 */
-        const comWarmEager = isMobileWarm ? Math.min(8, comparisonUrls.length) : comparisonUrls.length;
-        warmImagesIdle(comparisonUrls, comWarmEager, true);
+        /* 手机：不做对比区 warm（避免额外 Image()+decode 与 DOM 叠加）；桌面全量 warm */
+        if (!isMobileWarm) {
+            warmImagesIdle(comparisonUrls, comparisonUrls.length, true);
+        }
 
         const sliderContainer = document.createElement('div');
         sliderContainer.className = 'comparison-slider';
@@ -496,7 +497,7 @@ async function loadAndInitComparison(jsonPath) {
                 imgBefore.alt = 'Before'; imgBefore.className = 'before';
                 imgBefore.loading = 'eager';
                 imgBefore.decoding = isMobileWarm ? 'async' : 'sync';
-                if (index < (isMobileWarm ? 3 : 2)) imgBefore.fetchPriority = 'high';
+                if (index < 2) imgBefore.fetchPriority = 'high';
                 imgBefore.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 Before src: ${groupData.before_src}`);
                 const beforeUrl = normalizeImageUrl(groupData.before_src);
@@ -508,7 +509,7 @@ async function loadAndInitComparison(jsonPath) {
                 imgAfter.alt = 'After'; imgAfter.className = 'after';
                 imgAfter.loading = 'eager';
                 imgAfter.decoding = isMobileWarm ? 'async' : 'sync';
-                if (index < (isMobileWarm ? 3 : 2)) imgAfter.fetchPriority = 'high';
+                if (index < 2) imgAfter.fetchPriority = 'high';
                 imgAfter.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 After src: ${groupData.after_src}`);
                 const afterUrl = normalizeImageUrl(groupData.after_src);
@@ -570,17 +571,16 @@ async function loadAndInitComparison(jsonPath) {
              console.log("[Comparison] Slider 和 Thumbnail Nav 已插入页面容器。");
         } else { console.error("[Comparison] 主容器已不存在！"); }
 
-        /* 手机也做「逐张 rAF + decode」：避免横滑进下一张时才解码出图的加载感；组数有限时内存可控 */
+        /* 手机：只等 img load，不连环 decode（防崩）；桌面：load + 去重逐帧 decode */
         await Promise.race([
-            primeComparisonImages(container, { decode: true }),
-            new Promise((r) => setTimeout(r, isMobileWarm ? 55000 : 14000)),
+            primeComparisonImages(container, { decode: !isMobileWarm }),
+            new Promise((r) => setTimeout(r, isMobileWarm ? 10000 : 14000)),
         ]);
 
         // --- 初始化交互 --- 
         initializeComparison(); // 初始化滑块交互
         initializeThumbnailNav(sliderContainer, thumbnailNavContainer); // <-- 恢复：不再传递 groups
         initializeDragScrolling(); // 初始化拖动滚动（仅鼠标；触摸走原生 overflow 滚动）
-        attachComparisonDecodeOnScroll(sliderContainer);
 
         console.log(`[Comparison] Placeholder setup complete with horizontal slider and thumbnail nav.`);
 
@@ -677,35 +677,6 @@ function initializeThumbnailNav(sliderContainer, navContainer) {
         item.removeEventListener('click', handleThumbClick);
         item.addEventListener('click', handleThumbClick);
     });
-}
-
-/** 横滑过程中对「已进入或擦边视口」的组尝试 decode，避免滑停后仍有一帧才清晰。 */
-function attachComparisonDecodeOnScroll(slider) {
-    if (!slider) return;
-    let raf = 0;
-    const tick = () => {
-        raf = 0;
-        const pad = 120;
-        const sRect = slider.getBoundingClientRect();
-        slider.querySelectorAll('.comparison-group').forEach((group) => {
-            const r = group.getBoundingClientRect();
-            if (r.right < sRect.left - pad || r.left > sRect.right + pad) return;
-            group.querySelectorAll('img.before, img.after').forEach((img) => {
-                if (!img.complete || img.naturalWidth <= 0) return;
-                if (typeof img.decode !== 'function') return;
-                img.decode().catch(() => {});
-            });
-        });
-    };
-    slider.addEventListener(
-        'scroll',
-        () => {
-            if (raf) return;
-            raf = requestAnimationFrame(tick);
-        },
-        { passive: true }
-    );
-    requestAnimationFrame(tick);
 }
 
 /** 桌面端鼠标拖横滚；触摸由原生 overflow-x + touch-action 处理。 */
