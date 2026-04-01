@@ -469,33 +469,26 @@ async function loadAndInitComparison(jsonPath) {
 
                 const imgBefore = document.createElement('img');
                 imgBefore.alt = 'Before'; imgBefore.className = 'before';
-                imgBefore.loading = isMobileWarm && index > 0 ? 'lazy' : 'eager';
+                /* 手机端也直接挂 src：避免滑入时才 hydrate 造成卡顿/闪一下（内存仍靠「禁止 idle 扫尾预热」控制） */
+                imgBefore.loading = 'eager';
                 imgBefore.decoding = 'async';
                 if (!isMobileWarm && index < 4) imgBefore.fetchPriority = 'high';
                 imgBefore.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 Before src: ${groupData.before_src}`);
                 const beforeUrl = normalizeImageUrl(groupData.before_src);
-                if (isMobileWarm && index > 0) {
-                    imgBefore.dataset.src = beforeUrl;
-                } else {
-                    imgBefore.src = beforeUrl;
-                }
+                imgBefore.src = beforeUrl;
                 imgBefore.onerror = () => { imgBefore.alt='Image not found'; imgBefore.src=''; console.error(`[Comparison ${groupData.id}] 加载 Before 图片失败: ${groupData.before_src}`);};
                 console.log(`[Comparison ${groupData.id}] Before img 创建成功.`);
 
                 const imgAfter = document.createElement('img');
                 imgAfter.alt = 'After'; imgAfter.className = 'after';
-                imgAfter.loading = isMobileWarm && index > 0 ? 'lazy' : 'eager';
+                imgAfter.loading = 'eager';
                 imgAfter.decoding = 'async';
                 if (!isMobileWarm && index < 4) imgAfter.fetchPriority = 'high';
                 imgAfter.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 After src: ${groupData.after_src}`);
                 const afterUrl = normalizeImageUrl(groupData.after_src);
-                if (isMobileWarm && index > 0) {
-                    imgAfter.dataset.src = afterUrl;
-                } else {
-                    imgAfter.src = afterUrl;
-                }
+                imgAfter.src = afterUrl;
                 imgAfter.onerror = () => { imgAfter.alt='Image not found'; imgAfter.src=''; console.error(`[Comparison ${groupData.id}] 加载 After 图片失败: ${groupData.after_src}`);};
                 console.log(`[Comparison ${groupData.id}] After img 创建成功.`);
 
@@ -529,7 +522,7 @@ async function loadAndInitComparison(jsonPath) {
                 const thumbUrl = normalizeImageUrl(groupData.after_src);
                 thumbImg.src = thumbUrl;
                 thumbImg.alt = `Thumbnail for ${groupData.id}`;
-                thumbImg.loading = isMobileWarm ? 'lazy' : 'eager';
+                thumbImg.loading = 'eager';
                 thumbImg.decoding = 'async';
                 thumbImg.onerror = () => { thumbImg.alt='Thumb not found'; thumbImg.src=''; console.error(`[Comparison ${groupData.id}] 加载 Thumbnail 图片失败: ${groupData.after_src}`); };
                 thumbItem.appendChild(thumbImg);
@@ -556,47 +549,11 @@ async function loadAndInitComparison(jsonPath) {
         // --- 初始化交互 --- 
         initializeComparison(); // 初始化滑块交互
         initializeThumbnailNav(sliderContainer, thumbnailNavContainer); // <-- 恢复：不再传递 groups
-        initializeComparisonLazyReveal(sliderContainer);
         initializeDragScrolling(); // 初始化拖动滚动
 
         console.log(`[Comparison] Placeholder setup complete with horizontal slider and thumbnail nav.`);
 
     } catch (error) { console.error(`Error in loadAndInitComparison:`, error); if (container) { container.innerHTML = `<p style="color: red;">无法加载对比区。</p>`; } }
-}
-
-/** 手机端对比组用 data-src 延迟挂载；滑入横向对比条可视区时再写入 src（否则只点缩略图才会出图）。 */
-function __hydrateComparisonGroupImages(groupEl) {
-    if (!groupEl) return;
-    groupEl.querySelectorAll('img[data-src]').forEach((img) => {
-        const ds = img.dataset ? img.dataset.src : '';
-        if (ds && !img.getAttribute('src')) {
-            img.src = ds;
-            img.removeAttribute('data-src');
-        }
-    });
-}
-
-/** 横向滚动对比条：组进入可视区即加载该组大图（与缩略图点击互补）。 */
-function initializeComparisonLazyReveal(sliderEl) {
-    if (!sliderEl) return;
-    const groups = sliderEl.querySelectorAll('.comparison-group');
-    if (groups.length === 0) return;
-
-    if (typeof IntersectionObserver === 'undefined') {
-        groups.forEach((g) => __hydrateComparisonGroupImages(g));
-        return;
-    }
-
-    const io = new IntersectionObserver(
-        (entries) => {
-            entries.forEach((entry) => {
-                if (entry.isIntersecting) __hydrateComparisonGroupImages(entry.target);
-            });
-        },
-        { root: sliderEl, rootMargin: '160px 0px', threshold: 0.01 }
-    );
-
-    groups.forEach((g) => io.observe(g));
 }
 
 /**
@@ -617,7 +574,6 @@ function initializeThumbnailNav(sliderContainer, navContainer) {
         const targetId = clickedItem.dataset.targetId;
         const targetGroup = document.getElementById(targetId);
         if (!targetGroup) return;
-        __hydrateComparisonGroupImages(targetGroup);
         targetGroup.scrollIntoView({ behavior: 'auto', inline: 'center', block: 'nearest' });
     }
 
@@ -625,9 +581,6 @@ function initializeThumbnailNav(sliderContainer, navContainer) {
         item.removeEventListener('click', handleThumbClick);
         item.addEventListener('click', handleThumbClick);
     });
-
-    const firstGroup = sliderContainer.querySelector('.comparison-group');
-    __hydrateComparisonGroupImages(firstGroup);
 }
 
 /**
