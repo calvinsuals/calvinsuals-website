@@ -4,6 +4,10 @@
 # 注：push 不限定 main，否则 feature 分支推送不会在 Actions 里出现运行记录。
 name: Site source changed
 
+# 与 generate_json.yml 一致：JS 类 Action 用 Node 24，避免 Node 20 弃用告警
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   push:
     paths:
