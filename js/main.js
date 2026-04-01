@@ -442,8 +442,7 @@ async function loadAndInitComparison(jsonPath) {
                 // --- 创建并添加缩略图元素 ---
                 const thumbItem = document.createElement('div');
                 thumbItem.className = 'comparison-thumbnail-item';
-                thumbItem.dataset.targetId = group.id; 
-                if (index === 0) { thumbItem.classList.add('active'); } 
+                thumbItem.dataset.targetId = group.id;
                 const thumbImg = document.createElement('img');
                 thumbImg.src = normalizeImageUrl(groupData.after_src); 
                 thumbImg.alt = `Thumbnail for ${groupData.id}`;
@@ -482,26 +481,17 @@ async function loadAndInitComparison(jsonPath) {
 }
 
 /**
- * 缩略图与对比区：点击跳转不变；滚动过程中不跟新高亮，停稳后再对齐（减卡顿，第二层策略）。
+ * 缩略图：仅点击滚到对应组；无 .active 高亮框、不与滚动联动（避免与对比条操作抢布局）。
+ * 若需恢复「滚动/停稳后高亮跟随」：git revert 本文件对应提交，或检出带标签 comparison-thumb-highlight-follow 的历史。
  */
-function initializeThumbnailNav(sliderContainer, navContainer) { // <-- 恢复函数签名
-    console.log("[Comparison] Initializing thumbnail nav (highlight sync after scroll settles)...");
-    // const sliderContainer = document.querySelector('.comparison-slider'); // 由参数传入
-    // const navContainer = document.getElementById('comparison-thumbnail-nav-dynamic'); // 由参数传入
+function initializeThumbnailNav(sliderContainer, navContainer) {
+    console.log("[Comparison] Thumbnail nav: click-to-scroll only, no highlight sync.");
     if (!sliderContainer || !navContainer) {
-        console.warn("[Comparison Debounce] Slider or Nav container not found for init.");
+        console.warn("[Comparison] Slider or Nav container not found for init.");
         return;
     }
     const thumbItems = navContainer.querySelectorAll('.comparison-thumbnail-item');
     if (thumbItems.length === 0) return;
-    
-    let currentActiveThumbIndex = 0; // 初始激活索引
-
-    // 点击缩略图逻辑 (保持不变)
-    thumbItems.forEach((item, index) => {
-        item.removeEventListener('click', handleThumbClick);
-        item.addEventListener('click', handleThumbClick);
-    });
 
     function handleThumbClick(event) {
         const clickedItem = event.currentTarget;
@@ -509,83 +499,12 @@ function initializeThumbnailNav(sliderContainer, navContainer) { // <-- 恢复�
         const targetGroup = document.getElementById(targetId);
         if (!targetGroup) return;
         targetGroup.scrollIntoView({ behavior: 'auto', inline: 'center', block: 'nearest' });
-        const clickedIndex = Array.from(thumbItems).indexOf(clickedItem);
-        if (clickedIndex !== -1 && clickedIndex !== currentActiveThumbIndex) {
-            console.log(`[Comparison Debounce] Thumbnail clicked, updating active to index ${clickedIndex}`);
-            requestAnimationFrame(() => { 
-                 const currentActiveThumb = navContainer.querySelector('.comparison-thumbnail-item.active');
-                 if (currentActiveThumb) currentActiveThumb.classList.remove('active');
-                 clickedItem.classList.add('active');
-            });
-            currentActiveThumbIndex = clickedIndex;
-        }
     }
 
-    function updateHighlight() {
-        const sliderRect = sliderContainer.getBoundingClientRect();
-        const sliderCenter = sliderRect.left + sliderRect.width / 2;
-        let centerGroupIndex = -1;
-        let minDistance = Infinity;
-        const groups = sliderContainer.querySelectorAll('.comparison-group');
-        if (groups.length === 0) return;
-
-        groups.forEach((group, index) => {
-            const groupRect = group.getBoundingClientRect();
-            if (groupRect.width === 0 || groupRect.height === 0) return;
-            const groupCenter = groupRect.left + groupRect.width / 2;
-            const distance = Math.abs(sliderCenter - groupCenter);
-            if (distance < minDistance) {
-                minDistance = distance;
-                centerGroupIndex = index;
-            }
-        });
-
-        if (centerGroupIndex === -1 || centerGroupIndex === currentActiveThumbIndex) return;
-
-        const targetGroup = groups[centerGroupIndex];
-        const targetGroupId = targetGroup.id;
-        const newActiveThumb = navContainer.querySelector(`.comparison-thumbnail-item[data-target-id="${targetGroupId}"]`);
-        const currentActiveThumb = navContainer.querySelector('.comparison-thumbnail-item.active');
-
-        if (newActiveThumb && newActiveThumb !== currentActiveThumb) {
-            if (currentActiveThumb) currentActiveThumb.classList.remove('active');
-            newActiveThumb.classList.add('active');
-            currentActiveThumbIndex = centerGroupIndex;
-        } else if (!newActiveThumb) {
-            console.warn(`Could not find thumbnail for target group ID: ${targetGroupId}`);
-        }
-    }
-
-    const SCROLL_HIGHLIGHT_DEBOUNCE_MS = 180;
-    let scrollHighlightTimer = null;
-
-    function scheduleHighlightAfterScrollSettles() {
-        if (scrollHighlightTimer !== null) clearTimeout(scrollHighlightTimer);
-        scrollHighlightTimer = setTimeout(() => {
-            scrollHighlightTimer = null;
-            updateHighlight();
-        }, SCROLL_HIGHLIGHT_DEBOUNCE_MS);
-    }
-
-    function flushHighlightNow() {
-        if (scrollHighlightTimer !== null) {
-            clearTimeout(scrollHighlightTimer);
-            scrollHighlightTimer = null;
-        }
-        updateHighlight();
-    }
-
-    const onScrollForThumb = () => scheduleHighlightAfterScrollSettles();
-    sliderContainer.removeEventListener('scroll', onScrollForThumb);
-    sliderContainer.addEventListener('scroll', onScrollForThumb, { passive: true });
-
-    if ('onscrollend' in sliderContainer) {
-        sliderContainer.addEventListener('scrollend', flushHighlightNow, { passive: true });
-    }
-
-    requestAnimationFrame(() => updateHighlight());
-
-    console.log("[Comparison] Thumbnail highlight: updates after scroll idle (~%dms) or scrollend.", SCROLL_HIGHLIGHT_DEBOUNCE_MS);
+    thumbItems.forEach((item) => {
+        item.removeEventListener('click', handleThumbClick);
+        item.addEventListener('click', handleThumbClick);
+    });
 }
 
 /**
