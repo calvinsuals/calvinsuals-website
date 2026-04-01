@@ -454,7 +454,8 @@
             /* transform: translateZ(0); */ /* 移除 transform */
             opacity: 0; /* 默认隐藏 */
             visibility: hidden; /* 配合 opacity 过渡，确保元素不占据空间且不可交互 */
-            transition: opacity 0.8s ease-in-out; /* 淡入淡出过渡 */
+            /* 时长与 js/main.js initializeGallerySlider 中 transitionDuration 保持一致（屏保式慢叠化） */
+            transition: opacity 2.2s cubic-bezier(0.42, 0, 0.58, 1);
             z-index: 1; /* 默认层级 */
         }
 

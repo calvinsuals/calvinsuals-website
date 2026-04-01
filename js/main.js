@@ -21,19 +21,40 @@ function keepImageObject(url, img) {
     }
 }
 
-function warmImage(url) {
+function warmImage(url, onReady) {
     url = normalizeImageUrl(url);
-    if (!url || typeof url !== 'string' || __imageWarmCache.has(url)) return;
+    if (!url || typeof url !== 'string') return;
+    if (__imageReadyCache.has(url)) {
+        if (typeof onReady === 'function') queueMicrotask(onReady);
+        return;
+    }
+    if (__imageWarmCache.has(url)) return;
     __imageWarmCache.add(url);
     const img = new Image();
     img.decoding = 'async';
     img.loading = 'eager';
-    // Keep a bounded reference so rapid scroll back does not trigger visible re-decode flashes.
     keepImageObject(url, img);
-    img.onload = () => { __imageReadyCache.add(url); };
+    const markReady = () => {
+        if (__imageReadyCache.has(url)) return;
+        __imageReadyCache.add(url);
+        if (typeof onReady === 'function') onReady();
+    };
+    img.onload = () => {
+        if (typeof img.decode === 'function') {
+            img.decode().then(markReady).catch(markReady);
+        } else {
+            markReady();
+        }
+    };
     img.onerror = () => { __imageWarmCache.delete(url); };
     img.src = url;
-    if (img.complete) __imageReadyCache.add(url);
+    if (img.complete) {
+        if (typeof img.decode === 'function') {
+            img.decode().then(markReady).catch(markReady);
+        } else {
+            markReady();
+        }
+    }
 }
 
 function warmImagesIdle(urls, eagerCount = 8) {
@@ -104,7 +125,8 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         });
         container.appendChild(fragment);
         container.dataset.loadedJsonPath = jsonPath;
-        warmImagesIdle(finalImageUrls, 10);
+        /* 展示区张数有限：一次性预热全部，避免轮播切换时等 decode 卡顿 */
+        warmImagesIdle(finalImageUrls, finalImageUrls.length);
 
         // 初始化轮播逻辑 (如果提供了 navId 且有多张图片)
         console.log(`[LoadGalleryImages DEBUG ${containerId}] Checking conditions for calling initializeGallerySlider:`); // 新增
@@ -791,8 +813,11 @@ function initializeGallerySlider(slidesId, dotsId) {
 
     let currentIndex = 0;
     let intervalId = null;
-    const transitionDuration = 700; // ms, matches CSS
-    const autoPlayDelay = 5000; // ms
+    let transitionLock = false;
+    /* 慢速叠化 + 较长停留，接近屏保感；时长需与下方 CSS .gallery-slide 兜底一致 */
+    const transitionDuration = 2200;
+    const autoPlayDelay = 9000;
+    const easeCrossfade = 'cubic-bezier(0.42, 0, 0.58, 1)';
 
     // Prepare slides
     slideElements.forEach((slide, index) => {
@@ -803,16 +828,13 @@ function initializeGallerySlider(slidesId, dotsId) {
         slide.style.height = '100%';
         slide.style.opacity = index === 0 ? '1' : '0';
         slide.style.visibility = index === 0 ? 'visible' : 'hidden';
-        slide.style.transition = `opacity ${transitionDuration}ms ease-in-out, visibility ${transitionDuration}ms ease-in-out`;
-        slide.style.transform = 'translateZ(0)'; // Promote to own layer
+        slide.style.zIndex = index === 0 ? '2' : '1';
+        slide.style.transition = `opacity ${transitionDuration}ms ${easeCrossfade}`;
+        slide.style.transform = 'translateZ(0)';
         slide.style.backfaceVisibility = 'hidden';
 
-
-        // Eagerly load first image, others lazy
         if (slide.dataset.bgImage) {
-            if (index === 0) {
-                slide.style.backgroundImage = `url('${slide.dataset.bgImage}')`;
-            }
+            slide.style.backgroundImage = `url('${slide.dataset.bgImage}')`;
         } else {
             console.warn(`[FadeSlider DEBUG] Slide ${index} in #${slidesId} is missing data-bgImage attribute.`);
         }
@@ -821,15 +843,15 @@ function initializeGallerySlider(slidesId, dotsId) {
 
     function showSlide(newIndex) {
         if (newIndex === currentIndex || slideElements.length === 0) return;
-        console.log(`[FadeSlider DEBUG #${slidesId}] Showing slide ${newIndex}. Current: ${currentIndex}`); // 新增
+        if (transitionLock) return;
 
-        const currentSlide = slideElements[currentIndex];
+        const prevIndex = currentIndex;
+        const currentSlide = slideElements[prevIndex];
         const nextSlide = slideElements[newIndex];
         const nextUrl = nextSlide.dataset.bgImage;
 
-        // On slower production networks, avoid switching to an unready slide (prevents white flash blocks).
         if (nextUrl && !__imageReadyCache.has(nextUrl)) {
-            warmImage(nextUrl);
+            warmImage(nextUrl, () => showSlide(newIndex));
             const preloadIndex = (newIndex + 1) % slideElements.length;
             const preloadSlide = slideElements[preloadIndex];
             if (preloadSlide && preloadSlide.dataset.bgImage) warmImage(preloadSlide.dataset.bgImage);
@@ -841,18 +863,46 @@ function initializeGallerySlider(slidesId, dotsId) {
         const nextNextSlide = slideElements[nextIndex];
         if (nextNextSlide && nextNextSlide.dataset.bgImage) warmImage(nextNextSlide.dataset.bgImage);
 
-        currentSlide.style.opacity = '0';
-        currentSlide.style.visibility = 'hidden';
+        transitionLock = true;
 
-        nextSlide.style.opacity = '1';
         nextSlide.style.visibility = 'visible';
+        nextSlide.style.zIndex = '3';
+        currentSlide.style.zIndex = '2';
+        nextSlide.style.opacity = '0';
+        void nextSlide.offsetHeight;
+
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                nextSlide.style.opacity = '1';
+                currentSlide.style.opacity = '0';
+            });
+        });
+
+        const onCurrentFadeOut = (e) => {
+            if (e.propertyName !== 'opacity') return;
+            currentSlide.removeEventListener('transitionend', onCurrentFadeOut);
+            currentSlide.style.visibility = 'hidden';
+            currentSlide.style.zIndex = '1';
+            nextSlide.style.zIndex = '2';
+            transitionLock = false;
+        };
+        currentSlide.addEventListener('transitionend', onCurrentFadeOut);
+
+        window.setTimeout(() => {
+            if (!transitionLock) return;
+            currentSlide.removeEventListener('transitionend', onCurrentFadeOut);
+            currentSlide.style.visibility = 'hidden';
+            currentSlide.style.zIndex = '1';
+            nextSlide.style.zIndex = '2';
+            transitionLock = false;
+        }, transitionDuration + 120);
 
         if (dotElements.length > 0) {
-            if (dotElements[currentIndex]) dotElements[currentIndex].classList.remove('active');
+            if (dotElements[prevIndex]) dotElements[prevIndex].classList.remove('active');
             if (dotElements[newIndex]) dotElements[newIndex].classList.add('active');
         }
-        console.log(`[FadeSlider DEBUG #${slidesId}] Slide ${currentIndex} hidden, slide ${newIndex} shown.`); // 新增
         currentIndex = newIndex;
+        console.log(`[FadeSlider DEBUG #${slidesId}] Crossfade ${prevIndex} -> ${newIndex}.`);
     }
 
     function next() {
