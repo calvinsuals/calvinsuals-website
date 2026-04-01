@@ -93,7 +93,18 @@ function warmImage(url, onReady) {
     };
     img.onerror = () => {
         __imageWarmCache.delete(url);
-        __imageWarmWaiters.delete(url);
+        if (__imageWarmWaiters.has(url)) {
+            const list = __imageWarmWaiters.get(url);
+            __imageWarmWaiters.delete(url);
+            list.forEach((cb) => {
+                try {
+                    cb();
+                } catch (e) {
+                    console.warn('[warmImage] waiter error', e);
+                }
+            });
+        }
+        if (typeof onReady === 'function') onReady();
     };
     img.src = url;
     if (img.complete) {
@@ -112,6 +123,22 @@ function __isMobileImageWarmProfile() {
     } catch (e) {
         return false;
     }
+}
+
+/** 等列表中每个 URL 都完成 warm（含 decode），手机轮播叠化前调用可避免「切过去才清晰」的闪一下 */
+function waitUrlsReady(urls) {
+    const valid = (urls || []).filter((u) => typeof u === 'string' && u.startsWith('http'));
+    if (valid.length === 0) return Promise.resolve();
+    return Promise.all(
+        valid.map(
+            (u) =>
+                new Promise((resolve) => {
+                    const nu = normalizeImageUrl(u);
+                    if (__imageReadyCache.has(nu)) resolve();
+                    else warmImage(nu, resolve);
+                })
+        )
+    );
 }
 
 function warmImagesIdle(urls, eagerCount = 8, scheduleRemainder = true) {
@@ -192,8 +219,14 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         });
         container.appendChild(fragment);
         container.dataset.loadedJsonPath = jsonPath;
-        const galEager = finalImageUrls.length;
-        warmImagesIdle(finalImageUrls, galEager, !isMobileWarm);
+        if (isMobileWarm) {
+            await Promise.race([
+                waitUrlsReady(finalImageUrls),
+                new Promise((r) => setTimeout(r, 16000)),
+            ]);
+        } else {
+            warmImagesIdle(finalImageUrls, finalImageUrls.length, true);
+        }
 
         // 初始化轮播逻辑 (如果提供了 navId 且有多张图片)
         console.log(`[LoadGalleryImages DEBUG ${containerId}] Checking conditions for calling initializeGallerySlider:`); // 新增
@@ -468,7 +501,7 @@ async function loadAndInitComparison(jsonPath) {
                 const imgBefore = document.createElement('img');
                 imgBefore.alt = 'Before'; imgBefore.className = 'before';
                 imgBefore.loading = 'eager';
-                imgBefore.decoding = isMobileWarm ? 'async' : 'sync';
+                imgBefore.decoding = 'sync';
                 if (index < 2) imgBefore.fetchPriority = 'high';
                 imgBefore.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 Before src: ${groupData.before_src}`);
@@ -480,7 +513,7 @@ async function loadAndInitComparison(jsonPath) {
                 const imgAfter = document.createElement('img');
                 imgAfter.alt = 'After'; imgAfter.className = 'after';
                 imgAfter.loading = 'eager';
-                imgAfter.decoding = isMobileWarm ? 'async' : 'sync';
+                imgAfter.decoding = 'sync';
                 if (index < 2) imgAfter.fetchPriority = 'high';
                 imgAfter.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 After src: ${groupData.after_src}`);
@@ -520,7 +553,7 @@ async function loadAndInitComparison(jsonPath) {
                 thumbImg.src = thumbUrl;
                 thumbImg.alt = `Thumbnail for ${groupData.id}`;
                 thumbImg.loading = 'eager';
-                thumbImg.decoding = isMobileWarm ? 'async' : 'sync';
+                thumbImg.decoding = 'sync';
                 thumbImg.onerror = () => { thumbImg.alt='Thumb not found'; thumbImg.src=''; console.error(`[Comparison ${groupData.id}] 加载 Thumbnail 图片失败: ${groupData.after_src}`); };
                 thumbItem.appendChild(thumbImg);
                 thumbnailFragment.appendChild(thumbItem); 
@@ -543,13 +576,13 @@ async function loadAndInitComparison(jsonPath) {
              console.log("[Comparison] Slider 和 Thumbnail Nav 已插入页面容器。");
         } else { console.error("[Comparison] 主容器已不存在！"); }
 
-        /* 手机不跑 prime（避免连环 decode 刷新崩溃）；图仍 eager，靠浏览器自然解码 */
-        if (!isMobileWarm) {
-            await Promise.race([
-                primeComparisonImages(container),
-                new Promise((r) => setTimeout(r, 14000)),
-            ]);
-        }
+        /* 桌面：等 load + 去重 decode；手机：只等 load（不连环 decode），避免横滑时异步解码闪一下，又比全量 prime 省内存 */
+        await Promise.race([
+            isMobileWarm
+                ? primeComparisonImages(container, { decode: false })
+                : primeComparisonImages(container, { decode: true }),
+            new Promise((r) => setTimeout(r, isMobileWarm ? 12000 : 14000)),
+        ]);
 
         // --- 初始化交互 --- 
         initializeComparison(); // 初始化滑块交互
@@ -561,9 +594,13 @@ async function loadAndInitComparison(jsonPath) {
     } catch (error) { console.error(`Error in loadAndInitComparison:`, error); if (container) { container.innerHTML = `<p style="color: red;">无法加载对比区。</p>`; } }
 }
 
-/** 对比区插入 DOM 后：等 load，再对唯一 URL 各 decode 一次（缩略图与主图同 src 不重复），减轻内存与主线程尖峰。 */
-function primeComparisonImages(comparisonRoot) {
+/**
+ * 对比区插入 DOM 后：先等全部 img load；可选对唯一 URL 逐帧 decode（桌面）。
+ * @param {{ decode?: boolean }} opts decode 默认 true；手机建议 false，避免与 sync 解码叠加崩溃。
+ */
+function primeComparisonImages(comparisonRoot, opts) {
     if (!comparisonRoot) return Promise.resolve();
+    const doDecode = opts && opts.decode === false ? false : true;
     const imgs = Array.from(
         comparisonRoot.querySelectorAll('.comparison-wrapper img, .comparison-thumbnail-item img')
     );
@@ -603,6 +640,7 @@ function primeComparisonImages(comparisonRoot) {
     return (async () => {
         try {
             await Promise.all(imgs.map(waitLoaded));
+            if (!doDecode) return;
             const seen = new Set();
             const unique = [];
             for (const img of imgs) {
