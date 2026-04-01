@@ -1751,6 +1751,11 @@
                  opacity: 1 !important; 
                  border-color: #fff !important;
             }
+            /* 对比条：由 JS 在 window 上捕获 touchmove；此处禁用浏览器默认平移，避免与横向滑组抢手势 */
+            .comparison-section .slider-handle {
+                touch-action: none;
+                -webkit-touch-callout: none;
+            }
              /* --- End Mobile Comparison Styles --- */
         }
         /* --- 结束清理 --- */
@@ -2345,7 +2350,7 @@
 
     <!-- 添加外部脚本链接 -->
     <script src="js/site_background.js?v=20260404i" defer></script>
-    <script src="js/main.js?v=20260404j" defer></script>
+    <script src="js/main.js?v=20260404l" defer></script>
     <script src="js/navigation.js?v=20260404i" defer></script>
 
     <!-- 锚点定位修复脚本 -->

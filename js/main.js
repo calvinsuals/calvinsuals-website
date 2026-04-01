@@ -269,6 +269,8 @@ function initializeComparison() {
         let animationFrameId = null;
         let handleMoveRaf = null;
         let pendingClientX = null;
+        /** 触摸拖动时在 window 上捕获 move/end，避免 handle 的 left 移动后手指脱离元素、事件落到 .comparison-slider 被当成横向滚动 */
+        let detachWindowTouch = null;
 
         const moveHandler = (clientX) => {
             if (!isResizing) return;
@@ -307,11 +309,15 @@ function initializeComparison() {
             wrapper.classList.add('active');
             __notifyComparisonHandleDragStart();
         };
-        const endResize = () => { 
-            if (!isResizing) return; 
+        const endResize = () => {
+            if (!isResizing) return;
+            if (typeof detachWindowTouch === 'function') {
+                detachWindowTouch();
+                detachWindowTouch = null;
+            }
             console.log('[Comparison EndResize] Setting isResizing = false');
-            isResizing = false; 
-            wrapper.classList.remove('active'); 
+            isResizing = false;
+            wrapper.classList.remove('active');
             cancelAnimationFrame(animationFrameId);
             if (handleMoveRaf != null) {
                 cancelAnimationFrame(handleMoveRaf);
@@ -327,8 +333,8 @@ function initializeComparison() {
         window.removeEventListener('mouseup', endResize);      // 使用 window 捕获释放
         handle.removeEventListener('touchstart', startResize);
         handle.removeEventListener('touchmove', moveHandler);
-        window.removeEventListener('touchend', endResize);     // 使用 window 捕获释放
-        window.removeEventListener('touchcancel', endResize);  // 使用 window 捕获释放
+        window.removeEventListener('touchend', endResize);
+        window.removeEventListener('touchcancel', endResize);
 
         // 重新绑定
         handle.addEventListener('mousedown', (e) => { e.preventDefault(); startResize(e); });
@@ -339,24 +345,33 @@ function initializeComparison() {
         });
         window.addEventListener('mouseup', endResize); 
 
-        // Touch listeners
-        handle.addEventListener('touchstart', (e) => {
-            console.log('[Comparison Handle TouchStart]'); // 添加日志
-            if (e.target === handle || handle.contains(e.target)) {
-                e.preventDefault(); // 阻止滚动等默认行为
-                e.stopPropagation(); 
-            startResize(e);
-            }
-        }, { passive: false }); // <-- 重要：设为 false，因为我们需要调用 preventDefault
+        handle.addEventListener(
+            'touchstart',
+            (e) => {
+                if (!(e.target === handle || handle.contains(e.target))) return;
+                e.stopPropagation();
+                if (e.cancelable) e.preventDefault();
+                startResize(e);
 
-        handle.addEventListener('touchmove', (e) => { 
-            // console.log('[Comparison TouchMove Listener] isResizing:', isResizing);
-            if (!isResizing) return;
-            // 移除 preventDefault，依赖 CSS 的 touch-action 属性
-            // e.preventDefault(); 
-            if (e.touches.length > 0) moveHandler(e.touches[0].clientX); 
-        }); 
-        // endResize 监听器保持在 window 上
+                const onWindowTouchMove = (ev) => {
+                    if (!isResizing) return;
+                    if (ev.cancelable) ev.preventDefault();
+                    if (ev.touches.length > 0) moveHandler(ev.touches[0].clientX);
+                };
+                const onWindowTouchEnd = () => {
+                    endResize();
+                };
+                detachWindowTouch = () => {
+                    window.removeEventListener('touchmove', onWindowTouchMove, true);
+                    window.removeEventListener('touchend', onWindowTouchEnd, true);
+                    window.removeEventListener('touchcancel', onWindowTouchEnd, true);
+                };
+                window.addEventListener('touchmove', onWindowTouchMove, { passive: false, capture: true });
+                window.addEventListener('touchend', onWindowTouchEnd, { capture: true });
+                window.addEventListener('touchcancel', onWindowTouchEnd, { capture: true });
+            },
+            { passive: false }
+        );
 
         // --- 设置初始状态 ---
         const initialPercent = 50;
@@ -582,7 +597,6 @@ async function loadAndInitComparison(jsonPath) {
         initializeComparison(); // 初始化滑块交互
         initializeThumbnailNav(sliderContainer, thumbnailNavContainer); // <-- 恢复：不再传递 groups
         initializeDragScrolling(); // 初始化拖动滚动（仅鼠标；触摸走原生 overflow 滚动）
-        attachComparisonScrollDecodePrime(sliderContainer);
 
         console.log(`[Comparison] Placeholder setup complete with horizontal slider and thumbnail nav.`);
 
@@ -679,42 +693,6 @@ function initializeThumbnailNav(sliderContainer, navContainer) {
         item.removeEventListener('click', handleThumbClick);
         item.addEventListener('click', handleThumbClick);
     });
-}
-
-/**
- * 手机对比横滑：WebKit 常把离屏组的位图回收，往回滑易有「重新解码」体感。
- * 在滚动时对可视区域±半屏内的组对已 load 的 img 调用 decode()（幂等、不分批连环 init），减轻不对称感。
- */
-function attachComparisonScrollDecodePrime(slider) {
-    if (!slider || !__isMobileImageWarmProfile()) return;
-
-    let rafId = 0;
-    const primeVisibleNeighbors = () => {
-        rafId = 0;
-        const rect = slider.getBoundingClientRect();
-        if (rect.width <= 0) return;
-        const pad = rect.width * 0.55;
-        const left = rect.left - pad;
-        const right = rect.right + pad;
-        slider.querySelectorAll('.comparison-group').forEach((group) => {
-            const gr = group.getBoundingClientRect();
-            if (gr.right < left || gr.left > right) return;
-            group.querySelectorAll('.comparison-wrapper img').forEach((img) => {
-                if (!img.complete || img.naturalWidth <= 0) return;
-                if (typeof img.decode !== 'function') return;
-                img.decode().catch(() => {});
-            });
-        });
-    };
-
-    const schedule = () => {
-        if (rafId) return;
-        rafId = requestAnimationFrame(primeVisibleNeighbors);
-    };
-
-    slider.addEventListener('scroll', schedule, { passive: true });
-    if (typeof queueMicrotask === 'function') queueMicrotask(schedule);
-    else setTimeout(schedule, 0);
 }
 
 /** 桌面端鼠标拖横滚；触摸由原生 overflow-x + touch-action 处理。 */
