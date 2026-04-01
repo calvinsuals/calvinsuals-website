@@ -187,8 +187,8 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         }
         if (finalImageUrls.length === 0) { container.innerHTML = '<p style="color: white; text-align: center;">No images.</p>'; return; }
         const fragment = document.createDocumentFragment();
-        /* 用 <img> 出图；首张立即 src，其余在切换时再赋值。桌面若一次挂全量 src 会并发拉满大图，首屏远慢于手机 */
-        const initialImgCount = 1;
+        /* 首张必挂 src；桌面再预挂第 2 张减轻自动叠化切下一张时的等待，仍避免旧版「全量并发」 */
+        const initialImgCount = isMobileWarm ? 1 : Math.min(2, finalImageUrls.length);
         finalImageUrls.forEach((imgUrl, index) => {
             const slide = document.createElement('div');
             slide.className = 'gallery-slide';
@@ -200,6 +200,7 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
                 img.decoding = 'async';
                 img.draggable = false;
                 if (index === 0) img.fetchPriority = 'high';
+                if (index === 1 && !isMobileWarm) img.fetchPriority = 'low';
                 if (index < initialImgCount) {
                     img.src = imgUrl;
                     slide.dataset.imgApplied = '1';
@@ -219,8 +220,10 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         });
         container.appendChild(fragment);
         container.dataset.loadedJsonPath = jsonPath;
-        const galEager = Math.min(1, finalImageUrls.length);
-        /* 桌面：首张 warm 后其余走 idle，不抢 LCP；手机：仍只 warm 一张 */
+        const galEager = isMobileWarm
+            ? Math.min(1, finalImageUrls.length)
+            : Math.min(2, finalImageUrls.length);
+        /* 桌面：前两张 warm + idle 余量；手机：仅一张、不跑 idle 队列 */
         warmImagesIdle(finalImageUrls, galEager, !isMobileWarm);
 
         // 初始化轮播逻辑 (如果提供了 navId 且有多张图片)

@@ -71,6 +71,8 @@ body.site-background-shell #modal-container {
         height: var(--site-bg-doc-height, 100vh);
         z-index: 0;
         pointer-events: none;
+        /* 纯色先铺底再叠渐变，避免首帧/合成间隙露出 html 深灰「像黑屏」 */
+        background-color: #6f6f6f;
         background-image: var(--site-background-image, var(--primary-gradient, linear-gradient(135deg, #333 0%, #ddd 100%)));
         background-repeat: no-repeat;
         background-size: 100% 100%;

@@ -39,7 +39,7 @@
     <!-- <link rel="stylesheet" href="gallery.css"> -->
     <!-- <link rel="stylesheet" href="automotive.css"> --> 
 
-    <link rel="stylesheet" href="css/site_background.css?v=20260329x">
+    <link rel="stylesheet" href="css/site_background.css?v=20260401a">
 
     <style>
         /* --- Variables & Base (Consistent across pages) --- */
@@ -457,6 +457,12 @@
             height: 0; /* 新增：为 padding-bottom 生效 */
             padding-bottom: 50%; /* 新增：将宽高比定义移到这里 (2:1)，确保容器有高度 */
             background-color: #0a0a0a; /* 底在容器上，避免 slide 上底色与图分层闪 */
+        }
+
+        @media (min-width: 768px) {
+            .gallery-slides {
+                background-color: #3d3d3d; /* 桌面：等图时贴近整站灰阶，减轻纯黑块感 */
+            }
         }
         
         .gallery-slide {
@@ -2350,7 +2356,7 @@
 
     <!-- 添加外部脚本链接 -->
     <script src="js/site_background.js?v=20260404i" defer></script>
-    <script src="js/main.js?v=20260404l" defer></script>
+    <script src="js/main.js?v=20260401b" defer></script>
     <script src="js/navigation.js?v=20260404i" defer></script>
 
     <!-- 锚点定位修复脚本 -->
