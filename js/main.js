@@ -60,7 +60,10 @@ function warmImage(url, onReady) {
     url = normalizeImageUrl(url);
     if (!url || typeof url !== 'string') return;
     if (__imageReadyCache.has(url)) {
-        if (typeof onReady === 'function') queueMicrotask(onReady);
+        if (typeof onReady === 'function') {
+            if (typeof queueMicrotask === 'function') queueMicrotask(onReady);
+            else setTimeout(onReady, 0);
+        }
         return;
     }
     if (__imageWarmCache.has(url)) {
@@ -111,12 +114,13 @@ function __isMobileImageWarmProfile() {
     }
 }
 
-function warmImagesIdle(urls, eagerCount = 8) {
+function warmImagesIdle(urls, eagerCount = 8, scheduleRemainder = true) {
     const valid = (urls || []).filter((u) => typeof u === 'string' && u.startsWith('http'));
     if (valid.length === 0) return;
 
     valid.slice(0, eagerCount).forEach(warmImage);
     const queue = valid.slice(eagerCount);
+    if (!scheduleRemainder || queue.length === 0) return;
 
     const run = (deadline) => {
         while (queue.length > 0 && (!deadline || deadline.timeRemaining() > 4)) {
@@ -165,9 +169,12 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         console.log(`[${containerId}] Found ${imageUrls.length} image URLs.`);
         let finalImageUrls = (count !== Infinity && count > 0) ? imageUrls.slice(0, count) : imageUrls;
         finalImageUrls = finalImageUrls.map(normalizeImageUrl);
+        const isMobileWarm = __isMobileImageWarmProfile();
+        if (isMobileWarm && finalImageUrls.length > 4) {
+            finalImageUrls = finalImageUrls.slice(0, 4);
+        }
         if (finalImageUrls.length === 0) { container.innerHTML = '<p style="color: white; text-align: center;">No images.</p>'; return; }
         const fragment = document.createDocumentFragment();
-        const isMobileWarm = __isMobileImageWarmProfile();
         const initialBgCount = isMobileWarm ? 1 : 2;
         finalImageUrls.forEach((imgUrl, index) => {
             const slide = document.createElement('div'); slide.className = 'gallery-slide';
@@ -184,11 +191,11 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         });
         container.appendChild(fragment);
         container.dataset.loadedJsonPath = jsonPath;
-        /* 控制首屏预热并发，避免桌面/移动端都出现解码峰值卡顿 */
-        const galEager = __isMobileImageWarmProfile()
+        /* 移动端：只预热首张，且禁止 idle 队列扫尾（否则会后台拉满全部大图，刷新易崩） */
+        const galEager = isMobileWarm
             ? Math.min(1, finalImageUrls.length)
             : Math.min(3, finalImageUrls.length);
-        warmImagesIdle(finalImageUrls, galEager);
+        warmImagesIdle(finalImageUrls, galEager, !isMobileWarm);
 
         // 初始化轮播逻辑 (如果提供了 navId 且有多张图片)
         console.log(`[LoadGalleryImages DEBUG ${containerId}] Checking conditions for calling initializeGallerySlider:`); // 新增
@@ -411,13 +418,20 @@ function initializeComparisonNav() {
  */
 async function loadAndInitComparison(jsonPath) {
     const container = document.getElementById('comparison-container-dynamic');
-    if (container && container.dataset.loadedJsonPath === jsonPath && container.childElementCount > 0) return;
+    if (!container) { console.error('Comparison container not found.'); return; }
+    if (container.dataset.loadedJsonPath === jsonPath && container.childElementCount > 0) return;
+
+    if (__isMobileImageWarmProfile()) {
+        container.innerHTML = '<p style="color:#aaa;text-align:center;padding:28px 16px;line-height:1.6;">为降低手机端内存占用，对比作品请在电脑浏览器查看。您仍可浏览汽车与人像作品。</p>';
+        container.dataset.loadedJsonPath = jsonPath;
+        return;
+    }
+
     const thumbnailNavContainer = document.createElement('div');
     thumbnailNavContainer.className = 'comparison-thumbnail-nav';
-    thumbnailNavContainer.id = 'comparison-thumbnail-nav-dynamic'; 
+    thumbnailNavContainer.id = 'comparison-thumbnail-nav-dynamic';
 
-    if (!container) { console.error('Comparison container not found.'); return; }
-    container.innerHTML = ''; 
+    container.innerHTML = '';
 
     console.log(`[Comparison] Loading groups from: ${jsonPath}`);
 
@@ -1016,6 +1030,7 @@ function initializeGallerySlider(slidesId, dotsId) {
 
 // --- DOMContentLoaded 事件监听器 ---
 document.addEventListener('DOMContentLoaded', () => {
+    try {
     console.log("DOM Loaded. Initializing scripts...");
     // 导航菜单功能 (使用 automotive.html 的逻辑，包含 setTimeout)
     // const menuToggle = document.querySelector('.nav-toggle');
@@ -1089,5 +1104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // window.addEventListener('resize', initializeComparisonNav);
 
     console.log("主 DOMContentLoaded 事件监听器执行完毕。");
-
+    } catch (err) {
+        console.error('[main] DOMContentLoaded init error', err);
+    }
 }); // DOMContentLoaded 结束
