@@ -1,4 +1,25 @@
 // *** 函数定义区域 ***
+/** 拖对比区竖条时暂停首页展示区轮播，避免与 clip-path 叠化抢 GPU */
+let __comparisonHandleDragDepth = 0;
+function __notifyComparisonHandleDragStart() {
+    __comparisonHandleDragDepth++;
+    if (__comparisonHandleDragDepth !== 1) return;
+    const regs = window.__displayGalleryControls;
+    if (!regs) return;
+    Object.values(regs).forEach(function (c) {
+        if (c && typeof c.stopAutoPlay === 'function') c.stopAutoPlay();
+    });
+}
+function __notifyComparisonHandleDragEnd() {
+    __comparisonHandleDragDepth = Math.max(0, __comparisonHandleDragDepth - 1);
+    if (__comparisonHandleDragDepth !== 0) return;
+    const regs = window.__displayGalleryControls;
+    if (!regs) return;
+    Object.values(regs).forEach(function (c) {
+        if (c && typeof c.startAutoPlay === 'function') c.startAutoPlay();
+    });
+}
+
 const __jsonCache = new Map();
 const __imageWarmCache = new Set();
 const __imageWarmWaiters = new Map();
@@ -226,7 +247,8 @@ function initializeComparison() {
         const startResize = (e) => { 
             console.log('[Comparison StartResize] Setting isResizing = true');
             isResizing = true; 
-            wrapper.classList.add('active'); 
+            wrapper.classList.add('active');
+            __notifyComparisonHandleDragStart();
         };
         const endResize = () => { 
             if (!isResizing) return; 
@@ -239,6 +261,7 @@ function initializeComparison() {
                 handleMoveRaf = null;
             }
             pendingClientX = null;
+            __notifyComparisonHandleDragEnd();
         };
 
         // 清理旧监听器（如果存在）
@@ -891,6 +914,9 @@ function initializeGallerySlider(slidesId, dotsId) {
         if (dotElements[currentIndex]) dotElements[currentIndex].classList.add('active');
     }
     
+    window.__displayGalleryControls = window.__displayGalleryControls || {};
+    window.__displayGalleryControls[slidesId] = { stopAutoPlay: stopAutoPlay, startAutoPlay: startAutoPlay };
+
     // Initial setup: backgrounds are applied up-front in loadGalleryImages.
     startAutoPlay();
     console.log(`[FadeSlider DEBUG] Initialization complete for slider: ${slidesId}.`); // 新增
