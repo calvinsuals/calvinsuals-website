@@ -450,7 +450,7 @@
             height: 100%; /* 新增：填充由父级 .gallery-slides 的 padding-bottom 创建的空间 */
             background-size: cover;
             background-position: center;
-            background-color: transparent; /* 避免大图解码前灰底与叠化叠加造成「闪块」 */
+            background-color: #0a0a0a; /* 与对比占位/页身深色一致，避免透明底与图交替闪 */
             /* transform: translateZ(0); */ /* 移除 transform */
             opacity: 0; /* 默认隐藏 */
             visibility: hidden; /* 配合 opacity 过渡，确保元素不占据空间且不可交互 */
@@ -1517,6 +1517,14 @@
             box-sizing: border-box; 
         }
 
+        /* 对比区 JS 尚未注入前：稳定色块占位，与页身深色一致，减少「空窗→内容顶入」感 */
+        .comparison-preload-surface {
+            min-height: min(46vh, 560px);
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #0a0a0a;
+        }
+
         /* 滑动容器样式 */
         .comparison-slider {
             display: flex;
@@ -2192,11 +2200,7 @@
     <!-- 图片对比区 -->
     <section class="comparison-section" id="comparison">
         <div class="comparison-container" id="comparison-container-dynamic">
-            <!-- 静态占位符 -->
-            <p style="color: #999; text-align: center; padding: 20px;">对比区 (JS 已禁用)</p>
-            <div class="comparison-nav" id="comparison-nav-dynamic">
-                <!-- 静态占位符 -->
-            </div>
+            <div class="comparison-preload-surface" id="comparison-preload-surface" aria-hidden="true"></div>
         </div>
     </section>
 
@@ -2327,8 +2331,8 @@
 
     <!-- 添加外部脚本链接 -->
     <script src="js/site_background.js?v=20260401" defer></script>
-    <script src="js/main.js?v=20260404a" defer></script>
-    <script src="js/navigation.js?v=20260404b" defer></script>
+    <script src="js/main.js?v=20260404c" defer></script>
+    <script src="js/navigation.js?v=20260404c" defer></script>
 
     <!-- 锚点定位修复脚本 -->
     <script>

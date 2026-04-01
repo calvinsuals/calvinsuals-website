@@ -424,6 +424,59 @@ function initializeComparisonNav() {
 }
 
 /**
+ * 对比区延后到接近视口再构建，减轻首屏与双轮播争用解码；直达 #comparison 或 ?section=comparison 仍立即加载。
+ * 不增加任何备份文件，恢复上一版可用标签 checkpoint/main-before-smooth-20260402。
+ */
+function scheduleLoadComparisonWhenNearViewport(jsonPath) {
+    const path = jsonPath || 'images/comparison_groups.json';
+    const run = () => {
+        loadAndInitComparison(path).catch((e) => {
+            console.error('[Comparison] 未捕获的初始化失败', e);
+        });
+    };
+
+    const eager = () => {
+        try {
+            if (new URLSearchParams(window.location.search).get('section') === 'comparison') return true;
+            const h = (window.location.hash || '').replace(/^#/, '');
+            if (h === 'comparison') return true;
+        } catch (e) {
+            /* ignore */
+        }
+        const el = document.getElementById('comparison');
+        if (!el) return false;
+        const r = el.getBoundingClientRect();
+        const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+        return r.bottom > 0 && r.top < vh * 0.95;
+    };
+
+    if (eager()) {
+        run();
+        return;
+    }
+
+    const root = document.getElementById('comparison');
+    if (!root || typeof IntersectionObserver !== 'function') {
+        run();
+        return;
+    }
+
+    const io = new IntersectionObserver(
+        (entries) => {
+            for (let i = 0; i < entries.length; i++) {
+                if (entries[i].isIntersecting) {
+                    io.disconnect();
+                    run();
+                    return;
+                }
+            }
+        },
+        { root: null, rootMargin: '320px 0px', threshold: 0.01 }
+    );
+    io.observe(root);
+}
+
+/**
  * 加载对比区数据并初始化 (从 comparison_groups.json 加载)
  * @param {string} jsonPath - comparison_groups.json 的路径
  */
@@ -995,9 +1048,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadGalleryImages('portrait-slides', 'portrait-nav', 'images/display_portrait.json').catch((e) =>
         console.error('[Gallery] portrait init failed', e)
     );
-    loadAndInitComparison('images/comparison_groups.json').catch((e) => {
-        console.error('[Comparison] 未捕获的初始化失败', e);
-    });
+    scheduleLoadComparisonWhenNearViewport('images/comparison_groups.json');
     // initializeContactForm(); // Commented out - function not defined
 
     // 弹窗功能初始化
