@@ -208,7 +208,8 @@ function initializeComparison() {
     console.log(`[Comparison] 找到 ${comparisonWrappers.length} 个 .comparison-wrapper 元素进行滑块初始化。`);
     comparisonWrappers.forEach(wrapper => {
         const handle = wrapper.querySelector('.slider-handle');
-        const afterImage = wrapper.querySelector('.after');
+        const afterMask = wrapper.querySelector('.comparison-after-mask');
+        const afterImage = afterMask ? afterMask.querySelector('img.after') : wrapper.querySelector('img.after');
         if (!handle || !afterImage) {
             console.warn("Skipping comparison init for wrapper missing handle or after image:", wrapper);
             return;
@@ -237,9 +238,15 @@ function initializeComparison() {
                 const x = Math.min(Math.max(0, rawX * sensitivityFactor), rect.width);
                 const percent = (x / rect.width) * 100;
                 const clampedPercent = Math.max(0, Math.min(100, percent));
+                const reveal = Math.max(clampedPercent, 0.35);
 
                 handle.style.left = `${clampedPercent}%`;
-                afterImage.style.clipPath = `inset(0 ${100 - clampedPercent}% 0 0)`;
+                if (afterMask) {
+                    afterMask.style.width = `${clampedPercent}%`;
+                    afterImage.style.width = `${(100 / reveal) * 100}%`;
+                } else {
+                    afterImage.style.clipPath = `inset(0 ${100 - clampedPercent}% 0 0)`;
+                }
             });
         };
         
@@ -302,9 +309,16 @@ function initializeComparison() {
         // endResize 监听器保持在 window 上
 
         // --- 设置初始状态 ---
-        const initialPercent = 50; 
+        const initialPercent = 50;
+        const reveal0 = Math.max(initialPercent, 0.35);
         handle.style.left = `${initialPercent}%`;
-        afterImage.style.clipPath = `inset(0 ${100 - initialPercent}% 0 0)`;
+        if (afterMask) {
+            afterMask.style.width = `${initialPercent}%`;
+            afterImage.style.width = `${(100 / reveal0) * 100}%`;
+            afterImage.style.clipPath = '';
+        } else {
+            afterImage.style.clipPath = `inset(0 ${100 - initialPercent}% 0 0)`;
+        }
         console.log(`[Comparison Init] Set initial state for ${wrapper.closest('.comparison-group')?.id || 'wrapper'} to ${initialPercent}%`);
     });
 }
@@ -451,8 +465,12 @@ async function loadAndInitComparison(jsonPath) {
                 sliderHandle.appendChild(sliderLine); 
                 console.log(`[Comparison ${groupData.id}] Handle div (with line span) 创建成功.`);
 
+                const afterMask = document.createElement('div');
+                afterMask.className = 'comparison-after-mask';
+                afterMask.appendChild(imgAfter);
+
                 wrapper.appendChild(imgBefore);
-                wrapper.appendChild(imgAfter);
+                wrapper.appendChild(afterMask);
                 wrapper.appendChild(sliderHandle);
                 console.log(`[Comparison ${groupData.id}] 图片和 handle 已附加到 wrapper.`);
                 group.appendChild(wrapper);

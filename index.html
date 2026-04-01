@@ -1597,11 +1597,39 @@
              padding-bottom: 62.5% !important; 
              transform: translateZ(0); /* Add back for potential rendering boost */
          }
-         .comparison-wrapper img {
+         .comparison-wrapper > img.before {
              position: absolute; top: 0; left: 0;
-             width: 100%; height: 100%; 
+             width: 100%; height: 100%;
              object-fit: cover;
-             border-radius: 0 !important; 
+             border-radius: 0 !important;
+             z-index: 1;
+         }
+         /* 用裁剪层 + width 代替对 after 每帧 clip-path，减轻拖动对比条时的重绘成本 */
+         .comparison-after-mask {
+             position: absolute;
+             left: 0;
+             top: 0;
+             height: 100%;
+             width: 50%;
+             overflow: hidden;
+             z-index: 2;
+             pointer-events: none;
+             border-radius: 0 !important;
+             box-sizing: border-box;
+             transform: translateZ(0);
+             contain: layout paint;
+         }
+         .comparison-after-mask img.after {
+             position: absolute;
+             left: 0;
+             top: 0;
+             height: 100%;
+             width: 200%;
+             max-width: none;
+             object-fit: cover;
+             border-radius: 0 !important;
+             pointer-events: none;
+             aspect-ratio: unset;
          }
          /* (滑块样式保持不变) */
 
@@ -1820,18 +1848,7 @@
         }
 
         /* --- 强制对比区和缩略图为 16:10 横向展示 --- */
-
-        /* 应用于对比区主图 (强制宽高比并裁剪) */
-        .comparison-wrapper img {
-          aspect-ratio: 16 / 10; /* 设置宽高比为 16:10 */
-          object-fit: cover;   /* 裁剪图片以填充容器 */
-          width: 100%;         /* 确保宽度撑满 */
-          height: 100%;        /* 确保高度撑满 */
-          /* 确保覆盖之前的样式 (如果需要) */
-          position: absolute; 
-          top: 0; 
-          left: 0;
-        }
+        /* 主图比例由 .comparison-wrapper padding-bottom:62.5% 控制；after 宽度由 JS 按遮罩比例写入 */
 
         /* 应用于缩略图容器 (设置宽高比和隐藏溢出) */
         .comparison-thumbnail-item {
@@ -2305,7 +2322,7 @@
 
     <!-- 添加外部脚本链接 -->
     <script src="js/site_background.js" defer></script>
-    <script src="js/main.js?v=20260401a" defer></script>
+    <script src="js/main.js?v=20260401b" defer></script>
     <script src="js/navigation.js" defer></script>
 
     <!-- 锚点定位修复脚本 -->
