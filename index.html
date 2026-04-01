@@ -1521,7 +1521,8 @@
         .comparison-slider {
             display: flex;
             overflow-x: auto; 
-            -webkit-overflow-scrolling: touch; 
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-x;
             scrollbar-width: none;
             box-sizing: border-box; 
             margin-top: 20px;
@@ -1581,6 +1582,7 @@
              /* 移除 scroll-snap-type */
              scroll-behavior: auto; /* 防止平滑滚动造成的反弹效果 */
              overscroll-behavior-x: none; /* 防止过度滑动 */
+             touch-action: pan-x;
              max-width: 100%;
              overflow-x: auto;
          }
@@ -2325,7 +2327,7 @@
 
     <!-- 添加外部脚本链接 -->
     <script src="js/site_background.js?v=20260401" defer></script>
-    <script src="js/main.js?v=20260403e" defer></script>
+    <script src="js/main.js?v=20260403f" defer></script>
     <script src="js/navigation.js?v=20260402" defer></script>
 
     <!-- 锚点定位修复脚本 -->
