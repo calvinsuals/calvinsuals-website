@@ -84,13 +84,17 @@ function warmImage(url, onReady) {
         if (typeof onReady === 'function') onReady();
         __flushWarmWaiters(url);
     };
-    img.onload = () => {
-        if (typeof img.decode === 'function') {
-            img.decode().then(markReady).catch(markReady);
-        } else {
-            markReady();
-        }
-    };
+    /* 窄屏跳过显式 decode()，减轻主线程尖峰；桌面仍 decode 以利叠化前纹理就绪 */
+    const tryDecode = __isMobileImageWarmProfile()
+        ? markReady
+        : () => {
+              if (typeof img.decode === 'function') {
+                  img.decode().then(markReady).catch(markReady);
+              } else {
+                  markReady();
+              }
+          };
+    img.onload = tryDecode;
     img.onerror = () => {
         __imageWarmCache.delete(url);
         if (__imageWarmWaiters.has(url)) {
@@ -108,11 +112,7 @@ function warmImage(url, onReady) {
     };
     img.src = url;
     if (img.complete) {
-        if (typeof img.decode === 'function') {
-            img.decode().then(markReady).catch(markReady);
-        } else {
-            markReady();
-        }
+        tryDecode();
     }
 }
 
@@ -421,59 +421,6 @@ function initializeComparisonNav() {
         });
     });
      if (groups[0]) groups[0].classList.add('active'); // 确保第一个 active
-}
-
-/**
- * 对比区延后到接近视口再构建，减轻首屏与双轮播争用解码；直达 #comparison 或 ?section=comparison 仍立即加载。
- * 不增加任何备份文件，恢复上一版可用标签 checkpoint/main-before-smooth-20260402。
- */
-function scheduleLoadComparisonWhenNearViewport(jsonPath) {
-    const path = jsonPath || 'images/comparison_groups.json';
-    const run = () => {
-        loadAndInitComparison(path).catch((e) => {
-            console.error('[Comparison] 未捕获的初始化失败', e);
-        });
-    };
-
-    const eager = () => {
-        try {
-            if (new URLSearchParams(window.location.search).get('section') === 'comparison') return true;
-            const h = (window.location.hash || '').replace(/^#/, '');
-            if (h === 'comparison') return true;
-        } catch (e) {
-            /* ignore */
-        }
-        const el = document.getElementById('comparison');
-        if (!el) return false;
-        const r = el.getBoundingClientRect();
-        const vh = window.innerHeight || document.documentElement.clientHeight || 0;
-        return r.bottom > 0 && r.top < vh * 0.95;
-    };
-
-    if (eager()) {
-        run();
-        return;
-    }
-
-    const root = document.getElementById('comparison');
-    if (!root || typeof IntersectionObserver !== 'function') {
-        run();
-        return;
-    }
-
-    const io = new IntersectionObserver(
-        (entries) => {
-            for (let i = 0; i < entries.length; i++) {
-                if (entries[i].isIntersecting) {
-                    io.disconnect();
-                    run();
-                    return;
-                }
-            }
-        },
-        { root: null, rootMargin: '320px 0px', threshold: 0.01 }
-    );
-    io.observe(root);
 }
 
 /**
@@ -1042,13 +989,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // *** 初始化调用 ***
     console.log("开始加载轮播图和对比区...");
-    loadGalleryImages('automotive-slides', 'automotive-nav', 'images/display_automotive.json').catch((e) =>
-        console.error('[Gallery] automotive init failed', e)
-    );
-    loadGalleryImages('portrait-slides', 'portrait-nav', 'images/display_portrait.json').catch((e) =>
-        console.error('[Gallery] portrait init failed', e)
-    );
-    scheduleLoadComparisonWhenNearViewport('images/comparison_groups.json');
+    function syncBg() {
+        if (typeof window.__syncSiteBackgroundLayout === 'function') {
+            try {
+                window.__syncSiteBackgroundLayout();
+            } catch (e) {
+                /* ignore */
+            }
+        }
+    }
+
+    window.addEventListener('load', syncBg, { once: true });
+
+    loadGalleryImages('automotive-slides', 'automotive-nav', 'images/display_automotive.json')
+        .catch((e) => console.error('[Gallery] automotive init failed', e))
+        .finally(() => {
+            syncBg();
+            const runPortrait = () => {
+                loadGalleryImages('portrait-slides', 'portrait-nav', 'images/display_portrait.json')
+                    .catch((e) => console.error('[Gallery] portrait init failed', e))
+                    .finally(() => syncBg());
+            };
+            if (typeof requestIdleCallback === 'function') {
+                requestIdleCallback(runPortrait, { timeout: 1800 });
+            } else {
+                setTimeout(runPortrait, 240);
+            }
+        });
+
+    loadAndInitComparison('images/comparison_groups.json')
+        .catch((e) => console.error('[Comparison] 未捕获的初始化失败', e))
+        .finally(() => syncBg());
     // initializeContactForm(); // Commented out - function not defined
 
     // 弹窗功能初始化

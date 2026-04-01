@@ -87,4 +87,17 @@
     }
 
     init();
+
+    /** 供 main.js 在动态插入大块内容后调用，刷新桌面固定渐变高度与滚动偏移，避免快滑到底「背景/页高不同步」 */
+    window.__syncSiteBackgroundLayout = function () {
+        syncSiteBackgroundTokens();
+        if (mq.matches) {
+            scheduleDocHeight();
+            if (!scrollRaf) {
+                scrollRaf = requestAnimationFrame(applyScrollY);
+            }
+        } else {
+            clearDesktopVars();
+        }
+    };
 })();
