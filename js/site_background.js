@@ -78,7 +78,12 @@
         window.addEventListener('resize', scheduleDocHeight, { passive: true });
         window.addEventListener('load', scheduleDocHeight, { passive: true });
 
-        mq.addEventListener('change', applyViewportMode);
+        // Safari < 14 / 部分 WebView 的 MediaQueryList 无 addEventListener，会抛错并中断后续 init
+        if (typeof mq.addEventListener === 'function') {
+            mq.addEventListener('change', applyViewportMode);
+        } else if (typeof mq.addListener === 'function') {
+            mq.addListener(applyViewportMode);
+        }
 
         if (typeof ResizeObserver !== 'undefined' && document.body) {
             const ro = new ResizeObserver(scheduleDocHeight);
