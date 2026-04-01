@@ -39,7 +39,7 @@
     <!-- <link rel="stylesheet" href="gallery.css"> -->
     <!-- <link rel="stylesheet" href="automotive.css"> --> 
 
-    <link rel="stylesheet" href="css/site_background.css?v=20260401a">
+    <link rel="stylesheet" href="css/site_background.css?v=20260401c">
 
     <style>
         /* --- Variables & Base (Consistent across pages) --- */
@@ -65,6 +65,8 @@
             overflow-x: hidden; /* Prevent horizontal scroll */
             position: relative; /* Needed for absolute positioning inside */
             --site-background-image: var(--primary-gradient);
+            /* 与 site_background.css 中铺底一致，html 露边时也与 body 渐变协调 */
+            --site-background-underlay: #6f6f6f;
             --site-background-fallback: #2f2f2f; /* Solid fallback to avoid white flashes during heavy repaints */
         }
         
@@ -456,13 +458,8 @@
             /* 高度将由内部的 .gallery-slide 的 padding-bottom 撑开 */
             height: 0; /* 新增：为 padding-bottom 生效 */
             padding-bottom: 50%; /* 新增：将宽高比定义移到这里 (2:1)，确保容器有高度 */
-            background-color: #0a0a0a; /* 底在容器上，避免 slide 上底色与图分层闪 */
-        }
-
-        @media (min-width: 768px) {
-            .gallery-slides {
-                background-color: #3d3d3d; /* 桌面：等图时贴近整站灰阶，减轻纯黑块感 */
-            }
+            /* 与对比区 preload 同色，窄屏/桌面一致 */
+            background-color: #3d3d3d;
         }
         
         .gallery-slide {
@@ -1543,7 +1540,7 @@
             min-height: min(46vh, 560px);
             width: 100%;
             box-sizing: border-box;
-            background-color: #0a0a0a;
+            background-color: #3d3d3d;
         }
 
         /* 滑动容器样式 */
