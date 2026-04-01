@@ -1036,7 +1036,46 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("开始加载轮播图和对比区...");
     loadGalleryImages('automotive-slides', 'automotive-nav', 'images/display_automotive.json');
     loadGalleryImages('portrait-slides', 'portrait-nav', 'images/display_portrait.json');
-    loadAndInitComparison('images/comparison_groups.json'); // 加载新的对比区
+    const isMobileViewport = __isMobileImageWarmProfile();
+    if (isMobileViewport) {
+        // 移动端先保证主页可用，再按需加载重资源对比区，降低首屏内存和解码峰值。
+        const cmpContainer = document.getElementById('comparison-container-dynamic');
+        if (cmpContainer) {
+            cmpContainer.innerHTML = '';
+            const hint = document.createElement('p');
+            hint.style.color = '#b8b8b8';
+            hint.style.textAlign = 'center';
+            hint.style.padding = '14px 16px 8px';
+            hint.textContent = '对比区已优化为按需加载';
+
+            const btnWrap = document.createElement('div');
+            btnWrap.style.display = 'flex';
+            btnWrap.style.justifyContent = 'center';
+            btnWrap.style.padding = '0 0 14px';
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = '点击加载对比图';
+            btn.style.border = '1px solid rgba(255,255,255,0.32)';
+            btn.style.background = 'rgba(255,255,255,0.08)';
+            btn.style.color = '#e6e6e6';
+            btn.style.padding = '8px 14px';
+            btn.style.borderRadius = '999px';
+            btn.style.cursor = 'pointer';
+            btn.style.fontSize = '0.92rem';
+            btn.addEventListener('click', () => {
+                btn.disabled = true;
+                btn.textContent = '加载中...';
+                loadAndInitComparison('images/comparison_groups.json');
+            }, { once: true });
+            btnWrap.appendChild(btn);
+            cmpContainer.appendChild(hint);
+            cmpContainer.appendChild(btnWrap);
+        } else {
+            loadAndInitComparison('images/comparison_groups.json');
+        }
+    } else {
+        loadAndInitComparison('images/comparison_groups.json'); // 加载新的对比区
+    }
     // initializeContactForm(); // Commented out - function not defined
 
     // 弹窗功能初始化
