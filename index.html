@@ -31,6 +31,10 @@
     <!-- <link rel="stylesheet" href="automotive.css"> --> 
 
     <link rel="stylesheet" href="css/site_background.css?v=20260404a">
+    <!-- 首页 JSON 提前排队，减少轮播/对比区在 fetch 完成前空白 -->
+    <link rel="preload" href="images/comparison_groups.json" as="fetch">
+    <link rel="preload" href="images/display_automotive.json" as="fetch">
+    <link rel="preload" href="images/display_portrait.json" as="fetch">
 
     <style>
         /* --- Variables & Base (Consistent across pages) --- */
@@ -439,7 +443,6 @@
             /* display: flex; */ /* 移除 flex，因为子元素绝对定位 */
             /* transition: transform 2s cubic-bezier(0.25, 0.1, 0.25, 1); */ /* 移除 transform 过渡 */
             box-shadow: inset 0 0 40px rgba(0,0,0,0.5);
-            will-change: opacity;
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
             -webkit-perspective: 1000;
@@ -474,6 +477,50 @@
             opacity: 1;
             visibility: visible;
             z-index: 2; /*激活的在最上层*/
+        }
+
+        /* 桌面：首页大图/区块不参与离屏省略绘制；轮播张不用 visibility:hidden（叠化只靠 opacity），避免滚回视口像重新显图 */
+        @media screen and (min-width: 768px) {
+            body.home-page #automotive,
+            body.home-page #portrait,
+            body.home-page #comparison,
+            body.home-page #about,
+            body.home-page #contact,
+            body.home-page .comparison-section,
+            body.home-page .footer {
+                content-visibility: visible;
+            }
+
+            body.home-page .gallery-preview,
+            body.home-page .gallery-slider,
+            body.home-page .gallery-slides,
+            body.home-page #comparison-container-dynamic,
+            body.home-page .comparison-slider,
+            body.home-page .comparison-group,
+            body.home-page .about-wrapper,
+            body.home-page .about-image-container {
+                content-visibility: visible;
+            }
+
+            body.home-page img {
+                content-visibility: visible;
+            }
+
+            body.home-page .gallery-slide {
+                visibility: visible !important;
+            }
+
+            body.home-page .comparison-wrapper,
+            body.home-page .comparison-after-mask {
+                contain: none;
+            }
+
+            body.home-page .comparison-group,
+            body.home-page .gallery-slides {
+                transform: translateZ(0);
+                backface-visibility: hidden;
+                -webkit-backface-visibility: hidden;
+            }
         }
         
         .gallery-slide img.gallery-slide-img {
@@ -2229,7 +2276,7 @@
             
         <div class="about-wrapper">
             <div class="about-image-container">
-                <img src="https://img.calvinsuals.com/images/about/hero/hero.jpg" alt="Photographer Portrait" loading="lazy" decoding="async" fetchpriority="low" onerror="this.alt='Profile image not found'; this.src=''; this.style.display='none';">
+                <img src="https://img.calvinsuals.com/images/about/hero/hero.jpg" alt="Photographer Portrait" loading="eager" decoding="async" fetchpriority="high" onerror="this.alt='Profile image not found'; this.src=''; this.style.display='none';">
             </div>
             <div class="about-text-container">
                 <p><strong>Calvin Chan | 视觉创作</strong></p>
@@ -2242,16 +2289,16 @@
         </div>
         <div class="social-links about-social">
             <a href="https://v.douyin.com/g1Onr09i9l4" class="social-link" title="抖音" aria-label="访问我的抖音" target="_blank">
-                <img src="https://img.calvinsuals.com/images/about/icons/tiktok/tiktok.webp" alt="抖音" width="24" height="24" loading="lazy" decoding="async">
+                <img src="https://img.calvinsuals.com/images/about/icons/tiktok/tiktok.webp" alt="抖音" width="24" height="24" loading="eager" decoding="async">
             </a>
             <a href="javascript:void(0)" class="social-link" title="小红书" aria-label="访问我的小红书" onclick="event.preventDefault(); openAboutSocialModal('xiaohongshuModal');">
-                <img src="https://img.calvinsuals.com/images/about/icons/xiaohongshu/xiaohongshu.png" alt="小红书" width="24" height="24" loading="lazy" decoding="async">
+                <img src="https://img.calvinsuals.com/images/about/icons/xiaohongshu/xiaohongshu.png" alt="小红书" width="24" height="24" loading="eager" decoding="async">
             </a>
             <a href="javascript:void(0)" class="social-link" title="微信" aria-label="添加我的微信" onclick="event.preventDefault(); openAboutSocialModal('wechatModal');">
-                <img src="https://img.calvinsuals.com/images/about/icons/wechat/wechat.png" alt="微信" width="24" height="24" loading="lazy" decoding="async">
+                <img src="https://img.calvinsuals.com/images/about/icons/wechat/wechat.png" alt="微信" width="24" height="24" loading="eager" decoding="async">
             </a>
             <a href="https://www.instagram.com/calvinsuals" class="social-link" title="Instagram" aria-label="访问我的Instagram" target="_blank">
-                <img src="https://img.calvinsuals.com/images/about/icons/instagram/instagram.webp" alt="Instagram" width="24" height="24" loading="lazy" decoding="async">
+                <img src="https://img.calvinsuals.com/images/about/icons/instagram/instagram.webp" alt="Instagram" width="24" height="24" loading="eager" decoding="async">
             </a>
         </div>
     </section>
@@ -2333,7 +2380,7 @@
 
     <!-- 添加外部脚本链接 -->
     <script src="js/site_background.js?v=20260404a" defer></script>
-    <script src="js/main.js?v=20260403c" defer></script>
+    <script src="js/main.js?v=20260404j" defer></script>
     <script src="js/navigation.js?v=20260404i" defer></script>
 
     <!-- 锚点定位修复脚本 -->
@@ -2347,7 +2394,7 @@
         // REMOVED Gallery Slider Logic - now handled by js/main.js
         
         // 保持区域立即可见，避免快速滚动时出现“白一下再加载”的体感。
-        const sections = document.querySelectorAll('.section, .comparison-section, .about-section, .contact-section, .footer');
+        const sections = document.querySelectorAll('.section, .comparison-section, .hero, .about-section, .contact-section, .footer');
         sections.forEach(section => {
             section.style.opacity = 1;
             section.style.transform = 'none';

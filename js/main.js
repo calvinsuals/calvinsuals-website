@@ -164,7 +164,6 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
     const nav = navId ? document.getElementById(navId) : null;
     if (!container) { console.error(`Error: Container #${containerId} not found.`); return; }
     if (container.dataset.loadedJsonPath === jsonPath && container.childElementCount > 0) return;
-    container.innerHTML = ''; if (nav) nav.innerHTML = '';
     console.log(`[${containerId}] Loading image URLs from: ${jsonPath}`);
     try {
         const imageUrls = await fetchJsonCached(jsonPath);
@@ -177,6 +176,8 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
             finalImageUrls = finalImageUrls.slice(0, 4);
         }
         if (finalImageUrls.length === 0) { container.innerHTML = '<p style="color: white; text-align: center;">No images.</p>'; return; }
+        container.innerHTML = '';
+        if (nav) nav.innerHTML = '';
         const fragment = document.createDocumentFragment();
         /* 首张必挂 src；桌面再预挂第 2 张减轻自动叠化切下一张时的等待，仍避免旧版「全量并发」 */
         const initialImgCount = isMobileWarm ? 1 : Math.min(2, finalImageUrls.length);
@@ -397,8 +398,6 @@ async function loadAndInitComparison(jsonPath) {
     thumbnailNavContainer.className = 'comparison-thumbnail-nav';
     thumbnailNavContainer.id = 'comparison-thumbnail-nav-dynamic';
 
-    container.innerHTML = '';
-
     console.log(`[Comparison] Loading groups from: ${jsonPath}`);
 
     try {
@@ -406,6 +405,7 @@ async function loadAndInitComparison(jsonPath) {
         if (!Array.isArray(comparisonGroupsData)) throw new Error(`JSON not array.`);
         console.log(`[Comparison] Found ${comparisonGroupsData.length} groups.`);
         if (comparisonGroupsData.length === 0) { container.innerHTML = '<p style="color: white; text-align: center;">No comparison groups.</p>'; return; }
+        container.innerHTML = '';
         container.dataset.loadedJsonPath = jsonPath;
         const comparisonUrls = [];
         comparisonGroupsData.forEach((g) => {
@@ -777,6 +777,9 @@ function initializeGallerySlider(slidesId, dotsId) {
         });
     }
 
+    /** 桌面端非当前张不用 visibility:hidden，避免滚出视口后图层被丢、滚回来再闪一下 */
+    const hideInactiveSlidesWithVisibility = isMobileWarm;
+
     let crossFadeGeneration = 0;
 
     // Prepare slides
@@ -787,7 +790,8 @@ function initializeGallerySlider(slidesId, dotsId) {
         slide.style.width = '100%';
         slide.style.height = '100%';
         slide.style.opacity = index === 0 ? '1' : '0';
-        slide.style.visibility = index === 0 ? 'visible' : 'hidden';
+        slide.style.visibility =
+            index === 0 || !hideInactiveSlidesWithVisibility ? 'visible' : 'hidden';
         slide.style.zIndex = index === 0 ? '2' : '1';
         slide.style.transition = `opacity ${transitionDuration}ms ${easeCrossfade}`;
         slide.style.transform = 'translateZ(0)';
@@ -844,7 +848,7 @@ function initializeGallerySlider(slidesId, dotsId) {
             const onCurrentFadeOut = (e) => {
                 if (e.propertyName !== 'opacity') return;
                 currentSlide.removeEventListener('transitionend', onCurrentFadeOut);
-                currentSlide.style.visibility = 'hidden';
+                if (hideInactiveSlidesWithVisibility) currentSlide.style.visibility = 'hidden';
                 currentSlide.style.zIndex = '1';
                 nextSlide.style.zIndex = '2';
                 transitionLock = false;
@@ -854,7 +858,7 @@ function initializeGallerySlider(slidesId, dotsId) {
             window.setTimeout(() => {
                 if (!transitionLock) return;
                 currentSlide.removeEventListener('transitionend', onCurrentFadeOut);
-                currentSlide.style.visibility = 'hidden';
+                if (hideInactiveSlidesWithVisibility) currentSlide.style.visibility = 'hidden';
                 currentSlide.style.zIndex = '1';
                 nextSlide.style.zIndex = '2';
                 transitionLock = false;
