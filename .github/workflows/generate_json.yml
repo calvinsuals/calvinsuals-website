@@ -1,5 +1,9 @@
 name: Generate Gallery JSON
 
+# 提前使用 Node 24 运行 JS 类 Action，避免 2026 年弃用 Node 20 后踩雷（官方说明见 GitHub Actions changelog）。
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   schedule:
     - cron: '0 * * * *'  # 每小时运行一次
@@ -19,7 +23,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
         uses: actions/setup-python@v5
