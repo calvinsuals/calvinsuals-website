@@ -13,13 +13,15 @@
     <!-- CRITICAL-PRELOAD:END -->
     <link rel="preload" href="images/display_automotive.json" as="fetch" type="application/json" crossorigin="anonymous">
     <link rel="preload" href="images/display_portrait.json" as="fetch" type="application/json" crossorigin="anonymous">
-    <link rel="preload" href="images/comparison_groups.json" as="fetch" type="application/json" crossorigin="anonymous">
+    <!-- comparison_groups 由对比区进入视口后再拉，避免与首屏轮播抢连接 -->
     <!-- 字体 (Add 600 weight for Montserrat) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Updated Montserrat to include 600 weight -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400&family=Montserrat:wght@300;400;500;600;700;800&family=Raleway:wght@300;400&family=Open+Sans:wght@300;400&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500&family=M+PLUS+Rounded+1c:wght@400;500&family=Varela+Round&family=Quicksand:wght@400;500&family=Comfortaa:wght@400;500&display=swap" rel="stylesheet">
+    <!-- 次要字体异步加载，减轻与首屏图竞争 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500&family=M+PLUS+Rounded+1c:wght@400;500&family=Varela+Round&family=Quicksand:wght@400;500&family=Comfortaa:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500&family=M+PLUS+Rounded+1c:wght@400;500&family=Varela+Round&family=Quicksand:wght@400;500&family=Comfortaa:wght@400;500&display=swap" rel="stylesheet"></noscript>
     <!-- 样式 -->
     <!-- <link rel="stylesheet" href="navigation.css"> --> <!-- Removed as file does not exist -->
     <!-- <link rel="stylesheet" href="footer.css"> --> <!-- Removed as file does not exist -->
@@ -424,24 +426,21 @@
             position: relative;
             overflow: hidden;
             border-radius: 0;
-            /* box-shadow: 0 20px 50px rgba(0,0,0,0.45), 0 10px 25px rgba(0,0,0,0.3); */ /* 原始阴影 */
-            box-shadow: 0 25px 60px rgba(0,0,0,0.55), 0 15px 35px rgba(0,0,0,0.4); /* 进一步加深阴影 */
+            /* 单层阴影 + 无 perspective，降低叠化时合成成本 */
+            box-shadow: 0 18px 44px rgba(0,0,0,0.38);
             max-width: 1400px;
             margin: 0 auto;
-            border: none; /* 移除边框 */
-            transform: perspective(1000px) translateZ(0); /* 增加透视效果 */
+            border: none;
+            transform: translateZ(0);
         }
         
         .gallery-slides {
             /* display: flex; */ /* 移除 flex，因为子元素绝对定位 */
             /* transition: transform 2s cubic-bezier(0.25, 0.1, 0.25, 1); */ /* 移除 transform 过渡 */
-            box-shadow: inset 0 0 40px rgba(0,0,0,0.5); /* 增强内阴影深度和不透明度 */
-            /* will-change: transform; */ /* 改为 opacity 或移除 */
+            box-shadow: inset 0 0 28px rgba(0,0,0,0.35);
             will-change: opacity;
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
-            -webkit-perspective: 1000;
-            perspective: 1000;
             position: relative; /* 子元素 absolute 定位相对于此 */
             overflow: hidden; /* 隐藏非 active 的 slides */
             /* 高度将由内部的 .gallery-slide 的 padding-bottom 撑开 */
@@ -482,7 +481,6 @@
             height: 100%;
             object-fit: cover;
             pointer-events: none;
-            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
         }
@@ -2332,7 +2330,7 @@
 
     <!-- 添加外部脚本链接 -->
     <script src="js/site_background.js?v=20260403a" defer></script>
-    <script src="js/main.js?v=20260403b" defer></script>
+    <script src="js/main.js?v=20260403c" defer></script>
     <script src="js/navigation.js?v=20260404i" defer></script>
 
     <!-- 锚点定位修复脚本 -->

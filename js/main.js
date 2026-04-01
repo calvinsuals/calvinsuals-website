@@ -995,13 +995,58 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch((e) => console.error('[Gallery] automotive init failed', e))
         .finally(() => syncBg());
 
-    loadGalleryImages('portrait-slides', 'portrait-nav', 'images/display_portrait.json')
-        .catch((e) => console.error('[Gallery] portrait init failed', e))
-        .finally(() => syncBg());
+    const portraitJson = 'images/display_portrait.json';
+    const startPortraitGallery = () => {
+        loadGalleryImages('portrait-slides', 'portrait-nav', portraitJson)
+            .catch((e) => console.error('[Gallery] portrait init failed', e))
+            .finally(() => syncBg());
+    };
+    if (typeof window.requestIdleCallback === 'function') {
+        window.requestIdleCallback(startPortraitGallery, { timeout: 2000 });
+    } else {
+        window.setTimeout(startPortraitGallery, 500);
+    }
 
-    loadAndInitComparison('images/comparison_groups.json')
-        .catch((e) => console.error('[Comparison] 未捕获的初始化失败', e))
-        .finally(() => syncBg());
+    (function scheduleComparisonWhenVisible(jsonPath) {
+        const section = document.getElementById('comparison');
+        const run = () => {
+            loadAndInitComparison(jsonPath)
+                .catch((e) => console.error('[Comparison] 未捕获的初始化失败', e))
+                .finally(() => syncBg());
+        };
+        if (!section) {
+            run();
+            return;
+        }
+        let started = false;
+        const start = () => {
+            if (started) return;
+            started = true;
+            run();
+        };
+        if (typeof IntersectionObserver !== 'function') {
+            start();
+            return;
+        }
+        const io = new IntersectionObserver(
+            (entries) => {
+                if (entries.some((e) => e.isIntersecting)) {
+                    io.disconnect();
+                    start();
+                }
+            },
+            { root: null, rootMargin: '400px 0px 480px 0px', threshold: 0 }
+        );
+        io.observe(section);
+        window.setTimeout(() => {
+            try {
+                io.disconnect();
+            } catch (e) {
+                /* ignore */
+            }
+            start();
+        }, 9000);
+    })('images/comparison_groups.json');
     // initializeContactForm(); // Commented out - function not defined
 
     // 弹窗功能初始化
