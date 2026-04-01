@@ -146,7 +146,8 @@ function warmImagesIdle(urls, eagerCount = 8, scheduleRemainder = true) {
 
 async function fetchJsonCached(jsonPath) {
     if (__jsonCache.has(jsonPath)) return __jsonCache.get(jsonPath);
-    const response = await fetch(jsonPath, { cache: 'force-cache' });
+    /* default：刷新时仍走正常 HTTP 缓存策略；force-cache 在部分 WebKit 上易与磁盘缓存交互异常 */
+    const response = await fetch(jsonPath, { cache: 'default' });
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     __jsonCache.set(jsonPath, data);
@@ -440,11 +441,10 @@ async function loadAndInitComparison(jsonPath) {
             if (g && g.after_src) comparisonUrls.push(normalizeImageUrl(g.after_src));
         });
         const isMobileWarm = __isMobileImageWarmProfile();
-        /* 手机：少量 eager warm，避免与 DOM 图 + prime decode 叠加倍增内存导致标签页崩溃；桌面全量 */
-        const cmpEager = isMobileWarm
-            ? Math.min(2, comparisonUrls.length)
-            : comparisonUrls.length;
-        warmImagesIdle(comparisonUrls, cmpEager, !isMobileWarm);
+        /* 手机：不做对比区 warm（避免额外 Image()+decode 与 DOM 叠加）；桌面全量 warm */
+        if (!isMobileWarm) {
+            warmImagesIdle(comparisonUrls, comparisonUrls.length, true);
+        }
 
         const sliderContainer = document.createElement('div');
         sliderContainer.className = 'comparison-slider';
@@ -469,8 +469,8 @@ async function loadAndInitComparison(jsonPath) {
 
                 const imgBefore = document.createElement('img');
                 imgBefore.alt = 'Before'; imgBefore.className = 'before';
-                /* 手机端也直接挂 src：避免滑入时才 hydrate 造成卡顿/闪一下（内存仍靠「禁止 idle 扫尾预热」控制） */
-                imgBefore.loading = 'eager';
+                const cmpLazy = isMobileWarm && index > 0;
+                imgBefore.loading = cmpLazy ? 'lazy' : 'eager';
                 imgBefore.decoding = isMobileWarm ? 'async' : 'sync';
                 if (index < 2) imgBefore.fetchPriority = 'high';
                 imgBefore.draggable = false; 
@@ -482,7 +482,7 @@ async function loadAndInitComparison(jsonPath) {
 
                 const imgAfter = document.createElement('img');
                 imgAfter.alt = 'After'; imgAfter.className = 'after';
-                imgAfter.loading = 'eager';
+                imgAfter.loading = cmpLazy ? 'lazy' : 'eager';
                 imgAfter.decoding = isMobileWarm ? 'async' : 'sync';
                 if (index < 2) imgAfter.fetchPriority = 'high';
                 imgAfter.draggable = false; 
@@ -522,7 +522,7 @@ async function loadAndInitComparison(jsonPath) {
                 const thumbUrl = normalizeImageUrl(groupData.after_src);
                 thumbImg.src = thumbUrl;
                 thumbImg.alt = `Thumbnail for ${groupData.id}`;
-                thumbImg.loading = 'eager';
+                thumbImg.loading = cmpLazy ? 'lazy' : 'eager';
                 thumbImg.decoding = isMobileWarm ? 'async' : 'sync';
                 thumbImg.onerror = () => { thumbImg.alt='Thumb not found'; thumbImg.src=''; console.error(`[Comparison ${groupData.id}] 加载 Thumbnail 图片失败: ${groupData.after_src}`); };
                 thumbItem.appendChild(thumbImg);
@@ -971,9 +971,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // *** 初始化调用 ***
     console.log("开始加载轮播图和对比区...");
-    loadGalleryImages('automotive-slides', 'automotive-nav', 'images/display_automotive.json');
-    loadGalleryImages('portrait-slides', 'portrait-nav', 'images/display_portrait.json');
-    loadAndInitComparison('images/comparison_groups.json');
+    loadGalleryImages('automotive-slides', 'automotive-nav', 'images/display_automotive.json').catch((e) =>
+        console.error('[Gallery] automotive init failed', e)
+    );
+    loadGalleryImages('portrait-slides', 'portrait-nav', 'images/display_portrait.json').catch((e) =>
+        console.error('[Gallery] portrait init failed', e)
+    );
+    loadAndInitComparison('images/comparison_groups.json').catch((e) => {
+        console.error('[Comparison] 未捕获的初始化失败', e);
+    });
     // initializeContactForm(); // Commented out - function not defined
 
     // 弹窗功能初始化
