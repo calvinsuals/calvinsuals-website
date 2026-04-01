@@ -167,12 +167,16 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         finalImageUrls = finalImageUrls.map(normalizeImageUrl);
         if (finalImageUrls.length === 0) { container.innerHTML = '<p style="color: white; text-align: center;">No images.</p>'; return; }
         const fragment = document.createDocumentFragment();
+        const isMobileWarm = __isMobileImageWarmProfile();
         finalImageUrls.forEach((imgUrl, index) => {
             const slide = document.createElement('div'); slide.className = 'gallery-slide';
             if (typeof imgUrl === 'string' && imgUrl.startsWith('http')) {
                 slide.dataset.bgImage = imgUrl;
-                // Set all slide backgrounds up-front to avoid white flashes on fast navigation.
-                slide.style.backgroundImage = `url('${imgUrl}')`;
+                // Mobile: only set first slide background immediately to avoid burst downloading all large images.
+                if (!isMobileWarm || index === 0) {
+                    slide.style.backgroundImage = `url('${imgUrl}')`;
+                    slide.dataset.bgApplied = '1';
+                }
             } else { console.warn(`[${containerId}] Invalid URL: '${imgUrl}'`); slide.textContent = `Invalid URL`; /*...*/ }
             fragment.appendChild(slide);
             if (nav) { const dot = document.createElement('div'); dot.className = index === 0 ? 'gallery-dot active' : 'gallery-dot'; dot.dataset.index = index; nav.appendChild(dot); }
@@ -824,6 +828,14 @@ function initializeGallerySlider(slidesId, dotsId) {
     const autoPlayDelay = 9000;
     const easeCrossfade = 'cubic-bezier(0.42, 0, 0.58, 1)';
 
+    const isMobileWarm = __isMobileImageWarmProfile();
+    function applySlideBackground(slide) {
+        if (!slide || !slide.dataset || !slide.dataset.bgImage) return;
+        if (slide.dataset.bgApplied === '1') return;
+        slide.style.backgroundImage = `url('${slide.dataset.bgImage}')`;
+        slide.dataset.bgApplied = '1';
+    }
+
     // Prepare slides
     slideElements.forEach((slide, index) => {
         slide.style.position = 'absolute';
@@ -839,7 +851,7 @@ function initializeGallerySlider(slidesId, dotsId) {
         slide.style.backfaceVisibility = 'hidden';
 
         if (slide.dataset.bgImage) {
-            slide.style.backgroundImage = `url('${slide.dataset.bgImage}')`;
+            if (!isMobileWarm || index === 0) applySlideBackground(slide);
         } else {
             console.warn(`[FadeSlider DEBUG] Slide ${index} in #${slidesId} is missing data-bgImage attribute.`);
         }
@@ -854,19 +866,26 @@ function initializeGallerySlider(slidesId, dotsId) {
         const currentSlide = slideElements[prevIndex];
         const nextSlide = slideElements[newIndex];
         const nextUrl = nextSlide.dataset.bgImage;
+        if (nextUrl) applySlideBackground(nextSlide);
 
         if (nextUrl && !__imageReadyCache.has(nextUrl)) {
             warmImage(nextUrl, () => showSlide(newIndex));
             const preloadIndex = (newIndex + 1) % slideElements.length;
             const preloadSlide = slideElements[preloadIndex];
-            if (preloadSlide && preloadSlide.dataset.bgImage) warmImage(preloadSlide.dataset.bgImage);
+            if (preloadSlide && preloadSlide.dataset.bgImage) {
+                if (!isMobileWarm) applySlideBackground(preloadSlide);
+                warmImage(preloadSlide.dataset.bgImage);
+            }
             return;
         }
 
         if (nextUrl) warmImage(nextUrl);
         const nextIndex = (newIndex + 1) % slideElements.length;
         const nextNextSlide = slideElements[nextIndex];
-        if (nextNextSlide && nextNextSlide.dataset.bgImage) warmImage(nextNextSlide.dataset.bgImage);
+        if (nextNextSlide && nextNextSlide.dataset.bgImage) {
+            if (!isMobileWarm) applySlideBackground(nextNextSlide);
+            warmImage(nextNextSlide.dataset.bgImage);
+        }
 
         transitionLock = true;
 
