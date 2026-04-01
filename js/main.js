@@ -421,12 +421,6 @@ async function loadAndInitComparison(jsonPath) {
     if (!container) { console.error('Comparison container not found.'); return; }
     if (container.dataset.loadedJsonPath === jsonPath && container.childElementCount > 0) return;
 
-    if (__isMobileImageWarmProfile()) {
-        container.innerHTML = '<p style="color:#aaa;text-align:center;padding:28px 16px;line-height:1.6;">为降低手机端内存占用，对比作品请在电脑浏览器查看。您仍可浏览汽车与人像作品。</p>';
-        container.dataset.loadedJsonPath = jsonPath;
-        return;
-    }
-
     const thumbnailNavContainer = document.createElement('div');
     thumbnailNavContainer.className = 'comparison-thumbnail-nav';
     thumbnailNavContainer.id = 'comparison-thumbnail-nav-dynamic';
@@ -450,7 +444,8 @@ async function loadAndInitComparison(jsonPath) {
         const cmpEager = isMobileWarm
             ? Math.min(2, comparisonUrls.length)
             : Math.min(6, comparisonUrls.length);
-        warmImagesIdle(comparisonUrls, cmpEager);
+        /* 手机端禁止 idle 扫尾预热全部对比图，避免刷新后内存峰值 */
+        warmImagesIdle(comparisonUrls, cmpEager, !isMobileWarm);
 
         const sliderContainer = document.createElement('div');
         sliderContainer.className = 'comparison-slider';
