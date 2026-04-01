@@ -1,0 +1,32 @@
+# 当首页/脚本/样式等变更时触发，便于在 Actions 里看到「有推送」记录。
+# 静态站点发布一般由 Cloudflare Pages 等托管在 push 后自动构建，本工作流不负责部署。
+# Actions 版本由根目录 .github/dependabot.yml 按月提 PR 跟进。
+name: Site source changed
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/*.html'
+      - 'js/**'
+      - 'css/**'
+      - 'scripts/**'
+      - 'images/*.json'
+      - '.github/workflows/*.yml'
+
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Summary
+        run: |
+          echo "仓库内静态站点相关文件已在 main 上更新。"
+          echo "若线上未变：请到托管平台（如 Cloudflare Pages）确认已连接本仓库、生产分支为 main，并查看该处的部署记录/缓存。"

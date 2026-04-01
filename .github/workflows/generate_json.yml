@@ -12,6 +12,7 @@ on:
       - main
     paths:
       - 'images/**'
+      - 'scripts/sync_critical_preload.py'
       - '.github/workflows/generate_json.yml'
   workflow_dispatch:
 
@@ -62,6 +63,9 @@ jobs:
           R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
           R2_PUBLIC_BASE_URL: ${{ secrets.R2_PUBLIC_BASE_URL }}
 
+      - name: Sync critical preload from display JSON
+        run: python scripts/sync_critical_preload.py
+
       - name: Commit and push changes
         # 添加 set -e，让脚本在出错时立即停止
         run: |
@@ -73,6 +77,7 @@ jobs:
           echo "--- 开始将文件添加到 Git ---"
           git add images/
           git add images/**/*.json
+          git add index.html
           
           echo "--- 添加文件后的 Git 状态 ---"
           git status
@@ -87,7 +92,7 @@ jobs:
             echo "未检测到 JSON 文件有更改。"
           else
             echo "检测到更改，开始提交和推送..."
-            git commit -m "Automated: 更新画廊 JSON 文件"
+            git commit -m "Automated: 更新画廊 JSON 与首图 preload（sync_critical_preload）"
             git push origin main
             echo "提交和推送完成。"
           fi

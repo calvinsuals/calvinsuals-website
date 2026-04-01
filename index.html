@@ -6,7 +6,11 @@
     <title>calvinsuals Photography</title>
     <link rel="preconnect" href="https://img.calvinsuals.com" crossorigin>
     <link rel="dns-prefetch" href="https://img.calvinsuals.com">
+    <!-- 首图 preload 由 scripts/sync_critical_preload.py 写入，改图后运行脚本或依赖 CI -->
+    <!-- CRITICAL-PRELOAD:START -->
     <link rel="preload" as="image" fetchpriority="high" href="https://img.calvinsuals.com/images/display/automotive%20display/images_display_automotive%20display_By.calvinsuals.240305.webp">
+    <link rel="preload" as="image" href="https://img.calvinsuals.com/images/display/portrait%20display/images_display_portrait%20display_By.calvinsuals.25081409105.webp">
+    <!-- CRITICAL-PRELOAD:END -->
     <link rel="preload" href="images/display_automotive.json" as="fetch" type="application/json" crossorigin="anonymous">
     <link rel="preload" href="images/display_portrait.json" as="fetch" type="application/json" crossorigin="anonymous">
     <link rel="preload" href="images/comparison_groups.json" as="fetch" type="application/json" crossorigin="anonymous">
@@ -2340,9 +2344,9 @@
     </div>
 
     <!-- 添加外部脚本链接 -->
-    <script src="js/site_background.js?v=20260404h" defer></script>
-    <script src="js/main.js?v=20260404h" defer></script>
-    <script src="js/navigation.js?v=20260404h" defer></script>
+    <script src="js/site_background.js?v=20260404i" defer></script>
+    <script src="js/main.js?v=20260404i" defer></script>
+    <script src="js/navigation.js?v=20260404i" defer></script>
 
     <!-- 锚点定位修复脚本 -->
     <script>
