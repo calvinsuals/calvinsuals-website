@@ -175,12 +175,12 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         }
         if (finalImageUrls.length === 0) { container.innerHTML = '<p style="color: white; text-align: center;">No images.</p>'; return; }
         const fragment = document.createDocumentFragment();
-        const initialBgCount = isMobileWarm ? 1 : 2;
+        /* 桌面：与早期一致，先挂上全部背景，轮播切换不等待 decode；手机：只挂首张，防并发爆内存 */
+        const initialBgCount = isMobileWarm ? 1 : finalImageUrls.length;
         finalImageUrls.forEach((imgUrl, index) => {
             const slide = document.createElement('div'); slide.className = 'gallery-slide';
             if (typeof imgUrl === 'string' && imgUrl.startsWith('http')) {
                 slide.dataset.bgImage = imgUrl;
-                // Limit immediate background attachment on all viewports to reduce burst image downloads.
                 if (index < initialBgCount) {
                     slide.style.backgroundImage = `url('${imgUrl}')`;
                     slide.dataset.bgApplied = '1';
@@ -191,10 +191,9 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         });
         container.appendChild(fragment);
         container.dataset.loadedJsonPath = jsonPath;
-        /* 移动端：只预热首张，且禁止 idle 队列扫尾（否则会后台拉满全部大图，刷新易崩） */
         const galEager = isMobileWarm
             ? Math.min(1, finalImageUrls.length)
-            : Math.min(3, finalImageUrls.length);
+            : finalImageUrls.length;
         warmImagesIdle(finalImageUrls, galEager, !isMobileWarm);
 
         // 初始化轮播逻辑 (如果提供了 navId 且有多张图片)
@@ -443,8 +442,8 @@ async function loadAndInitComparison(jsonPath) {
         const isMobileWarm = __isMobileImageWarmProfile();
         const cmpEager = isMobileWarm
             ? Math.min(2, comparisonUrls.length)
-            : Math.min(6, comparisonUrls.length);
-        /* 手机端禁止 idle 扫尾预热全部对比图，避免刷新后内存峰值 */
+            : comparisonUrls.length;
+        /* 手机端禁止 idle 扫尾；桌面端恢复全量 eager 预热（队列空，行为与早期一致） */
         warmImagesIdle(comparisonUrls, cmpEager, !isMobileWarm);
 
         const sliderContainer = document.createElement('div');
@@ -470,9 +469,9 @@ async function loadAndInitComparison(jsonPath) {
 
                 const imgBefore = document.createElement('img');
                 imgBefore.alt = 'Before'; imgBefore.className = 'before';
-                imgBefore.loading = index > (isMobileWarm ? 0 : 1) ? 'lazy' : 'eager';
+                imgBefore.loading = isMobileWarm && index > 0 ? 'lazy' : 'eager';
                 imgBefore.decoding = 'async';
-                if (!isMobileWarm && index === 0) imgBefore.fetchPriority = 'high';
+                if (!isMobileWarm && index < 4) imgBefore.fetchPriority = 'high';
                 imgBefore.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 Before src: ${groupData.before_src}`);
                 const beforeUrl = normalizeImageUrl(groupData.before_src);
@@ -486,9 +485,9 @@ async function loadAndInitComparison(jsonPath) {
 
                 const imgAfter = document.createElement('img');
                 imgAfter.alt = 'After'; imgAfter.className = 'after';
-                imgAfter.loading = index > (isMobileWarm ? 0 : 1) ? 'lazy' : 'eager';
+                imgAfter.loading = isMobileWarm && index > 0 ? 'lazy' : 'eager';
                 imgAfter.decoding = 'async';
-                if (!isMobileWarm && index === 0) imgAfter.fetchPriority = 'high';
+                if (!isMobileWarm && index < 4) imgAfter.fetchPriority = 'high';
                 imgAfter.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 After src: ${groupData.after_src}`);
                 const afterUrl = normalizeImageUrl(groupData.after_src);
@@ -864,7 +863,7 @@ function initializeGallerySlider(slidesId, dotsId) {
     const easeCrossfade = 'cubic-bezier(0.42, 0, 0.58, 1)';
 
     const isMobileWarm = __isMobileImageWarmProfile();
-    const desktopBgPreApplyCount = 2;
+    const desktopBgPreApplyCount = isMobileWarm ? 2 : slideElements.length;
     const disableAutoplayOnMobile = isMobileWarm;
     function applySlideBackground(slide) {
         if (!slide || !slide.dataset || !slide.dataset.bgImage) return;
