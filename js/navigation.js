@@ -144,14 +144,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const navigateTo = urlParams.get('section');
     
     if (navigateTo) {
-        // 确保页面已完全加载
+        const runSectionScroll = () => scrollToElement(navigateTo);
         if (document.readyState === 'complete') {
-            scrollToElement(navigateTo);
+            runSectionScroll();
         } else {
-            // 如果页面还在加载中，等待加载完成
-            window.addEventListener('load', function() {
-                scrollToElement(navigateTo);
-            });
+            window.addEventListener('load', runSectionScroll, { once: true });
         }
     }
     
@@ -172,35 +169,33 @@ function setupInPageNavigation() {
 }
 
 // 精确滚动到指定元素
+// 注意：不要先 scrollTo(0,0) —— 进首页带 ?section= 或长页内跳转时会出现「先闪回顶再滚下去」，像自动刷新/抽风。
 function scrollToElement(elementId) {
     const element = document.getElementById(elementId);
     if (!element) return;
-    
-    // 重置滚动位置，防止之前的滚动影响
-    window.scrollTo(0, 0);
-    
-    // 等待一小段时间确保重置生效
-    setTimeout(() => {
-        // 计算准确的滚动位置
-        const headerOffset = 30; // 导航/头部的高度
+
+    const headerOffset = 30;
+
+    function doScroll() {
         const elementPosition = element.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-        
-        // 平滑滚动到目标位置
         window.scrollTo({
-            top: offsetPosition,
+            top: Math.max(0, offsetPosition),
             behavior: 'smooth'
         });
-        
-        // 添加高亮效果帮助用户识别目标区域
+
         element.classList.add('target-highlight');
         setTimeout(() => {
             element.classList.remove('target-highlight');
         }, 1500);
-        
-        // 更新URL但不触发新的导航
+
         history.pushState(null, null, '#' + elementId);
-    }, 200);
+    }
+
+    // 等一帧布局再量高度，减少图片/字体未就绪时的偏差
+    requestAnimationFrame(() => {
+        requestAnimationFrame(doScroll);
+    });
 }
 
 // 导出函数供其他页面使用
