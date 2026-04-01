@@ -437,6 +437,7 @@
             /* 高度将由内部的 .gallery-slide 的 padding-bottom 撑开 */
             height: 0; /* 新增：为 padding-bottom 生效 */
             padding-bottom: 50%; /* 新增：将宽高比定义移到这里 (2:1)，确保容器有高度 */
+            background-color: #0a0a0a; /* 底在容器上，避免 slide 上底色与图分层闪 */
         }
         
         .gallery-slide {
@@ -448,10 +449,7 @@
             /* height: 0; */ /* 移除，改为 100% */
             /* padding-bottom: 50%; */ /* 2:1比例, 移除，移到 .gallery-slides */
             height: 100%; /* 新增：填充由父级 .gallery-slides 的 padding-bottom 创建的空间 */
-            background-size: cover;
-            background-position: center;
-            background-color: #0a0a0a; /* 与对比占位/页身深色一致，避免透明底与图交替闪 */
-            /* transform: translateZ(0); */ /* 移除 transform */
+            background: none; /* 画面由子 img 负责，杜绝 background 先显、图后盖上的灰闪 */
             opacity: 0; /* 默认隐藏 */
             visibility: hidden; /* 配合 opacity 过渡，确保元素不占据空间且不可交互 */
             /* 时长与 js/main.js initializeGallerySlider 中 transitionDuration 保持一致（屏保式慢叠化） */
@@ -465,17 +463,15 @@
             z-index: 2; /*激活的在最上层*/
         }
         
-        .gallery-slide img {
+        .gallery-slide img.gallery-slide-img {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%; /* 填充由 padding-bottom 创建的空间 */
+            height: 100%;
             object-fit: cover;
+            pointer-events: none;
             filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));
-            /* will-change: transform; */ /* 移除或改为 opacity */
-            /* transform: translateZ(0); */ /* 移除 */
-            /* -webkit-transform: translateZ(0); */ /* 移除 */
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
         }
@@ -2330,8 +2326,8 @@
 
     <!-- 添加外部脚本链接 -->
     <script src="js/site_background.js?v=20260404d" defer></script>
-    <script src="js/main.js?v=20260404d" defer></script>
-    <script src="js/navigation.js?v=20260404d" defer></script>
+    <script src="js/main.js?v=20260404e" defer></script>
+    <script src="js/navigation.js?v=20260404e" defer></script>
 
     <!-- 锚点定位修复脚本 -->
     <script>

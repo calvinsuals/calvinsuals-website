@@ -187,19 +187,34 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         }
         if (finalImageUrls.length === 0) { container.innerHTML = '<p style="color: white; text-align: center;">No images.</p>'; return; }
         const fragment = document.createDocumentFragment();
-        /* 桌面：首轮铺满 background + 全量 warm，叠化顺滑；手机：仅首张 + 单 URL eager warm（与 d74c145 一致），防刷新解码/内存尖峰 */
-        const initialBgCount = isMobileWarm ? 1 : finalImageUrls.length;
+        /* 用 <img> 出图而非 div background，避免底色先绘、图后盖上造成的灰闪；手机仅首张立即 src */
+        const initialImgCount = isMobileWarm ? 1 : finalImageUrls.length;
         finalImageUrls.forEach((imgUrl, index) => {
-            const slide = document.createElement('div'); slide.className = 'gallery-slide';
+            const slide = document.createElement('div');
+            slide.className = 'gallery-slide';
             if (typeof imgUrl === 'string' && imgUrl.startsWith('http')) {
                 slide.dataset.bgImage = imgUrl;
-                if (index < initialBgCount) {
-                    slide.style.backgroundImage = `url('${imgUrl}')`;
-                    slide.dataset.bgApplied = '1';
+                const img = document.createElement('img');
+                img.className = 'gallery-slide-img';
+                img.alt = '';
+                img.decoding = 'async';
+                img.draggable = false;
+                if (index < initialImgCount) {
+                    img.src = imgUrl;
+                    slide.dataset.imgApplied = '1';
                 }
-            } else { console.warn(`[${containerId}] Invalid URL: '${imgUrl}'`); slide.textContent = `Invalid URL`; /*...*/ }
+                slide.appendChild(img);
+            } else {
+                console.warn(`[${containerId}] Invalid URL: '${imgUrl}'`);
+                slide.textContent = `Invalid URL`;
+            }
             fragment.appendChild(slide);
-            if (nav) { const dot = document.createElement('div'); dot.className = index === 0 ? 'gallery-dot active' : 'gallery-dot'; dot.dataset.index = index; nav.appendChild(dot); }
+            if (nav) {
+                const dot = document.createElement('div');
+                dot.className = index === 0 ? 'gallery-dot active' : 'gallery-dot';
+                dot.dataset.index = index;
+                nav.appendChild(dot);
+            }
         });
         container.appendChild(fragment);
         container.dataset.loadedJsonPath = jsonPath;
@@ -773,12 +788,49 @@ function initializeGallerySlider(slidesId, dotsId) {
 
     const isMobileWarm = __isMobileImageWarmProfile();
     const disableAutoplayOnMobile = false;
-    function applySlideBackground(slide) {
-        if (!slide || !slide.dataset || !slide.dataset.bgImage) return;
-        if (slide.dataset.bgApplied === '1') return;
-        slide.style.backgroundImage = `url('${slide.dataset.bgImage}')`;
-        slide.dataset.bgApplied = '1';
+
+    function promiseSlideImgReady(slide) {
+        const url = slide && slide.dataset ? slide.dataset.bgImage : '';
+        if (!url) return Promise.resolve();
+        let img = slide.querySelector('img.gallery-slide-img');
+        if (!img) {
+            img = document.createElement('img');
+            img.className = 'gallery-slide-img';
+            img.alt = '';
+            img.decoding = 'async';
+            img.draggable = false;
+            slide.appendChild(img);
+        }
+        if (img.getAttribute('src') === url && img.complete && img.naturalWidth > 0) {
+            slide.dataset.imgApplied = '1';
+            return Promise.resolve();
+        }
+        return new Promise((resolve) => {
+            let settled = false;
+            const finish = () => {
+                if (settled) return;
+                settled = true;
+                slide.dataset.imgApplied = '1';
+                resolve();
+            };
+            const afterLoad = () => {
+                if (settled) return;
+                if (typeof img.decode === 'function' && !__isMobileImageWarmProfile()) {
+                    img.decode().then(finish).catch(finish);
+                } else {
+                    finish();
+                }
+            };
+            img.addEventListener('load', afterLoad, { once: true });
+            img.addEventListener('error', finish, { once: true });
+            img.src = url;
+            if (img.complete && img.naturalWidth > 0) {
+                afterLoad();
+            }
+        });
     }
+
+    let crossFadeGeneration = 0;
 
     // Prepare slides
     slideElements.forEach((slide, index) => {
@@ -794,12 +846,7 @@ function initializeGallerySlider(slidesId, dotsId) {
         slide.style.transform = 'translateZ(0)';
         slide.style.backfaceVisibility = 'hidden';
 
-        if (slide.dataset.bgImage) {
-            /* 手机只预贴首张，其余在 showSlide 时再贴，避免与多张大图 decode 叠加 */
-            if (!isMobileWarm || index === 0) {
-                applySlideBackground(slide);
-            }
-        } else {
+        if (!slide.dataset.bgImage) {
             console.warn(`[FadeSlider DEBUG] Slide ${index} in #${slidesId} is missing data-bgImage attribute.`);
         }
     });
@@ -813,70 +860,66 @@ function initializeGallerySlider(slidesId, dotsId) {
         const currentSlide = slideElements[prevIndex];
         const nextSlide = slideElements[newIndex];
         const nextUrl = nextSlide.dataset.bgImage;
-        if (nextUrl) applySlideBackground(nextSlide);
-
-        /* slide 已在 loadGalleryImages 挂上 background 时，勿因 hidden Image 未进缓存而卡住叠化（否则会「等一下再闪」） */
-        const cacheKey = nextUrl && typeof nextUrl === 'string' ? normalizeImageUrl(nextUrl) : '';
-        const bgAlreadyOnSlide = nextSlide.dataset.bgApplied === '1';
-        if (nextUrl && !bgAlreadyOnSlide && cacheKey && !__imageReadyCache.has(cacheKey)) {
-            warmImage(nextUrl, () => showSlide(newIndex));
-            const preloadIndex = (newIndex + 1) % slideElements.length;
-            const preloadSlide = slideElements[preloadIndex];
-            if (preloadSlide && preloadSlide.dataset.bgImage) {
-                if (!isMobileWarm) applySlideBackground(preloadSlide);
-                warmImage(preloadSlide.dataset.bgImage);
-            }
-            return;
-        }
-
-        if (nextUrl) warmImage(nextUrl);
-        const nextIndex = (newIndex + 1) % slideElements.length;
-        const nextNextSlide = slideElements[nextIndex];
-        if (nextNextSlide && nextNextSlide.dataset.bgImage) {
-            if (!isMobileWarm) applySlideBackground(nextNextSlide);
-            warmImage(nextNextSlide.dataset.bgImage);
-        }
 
         transitionLock = true;
+        const gen = ++crossFadeGeneration;
 
-        nextSlide.style.visibility = 'visible';
-        nextSlide.style.zIndex = '3';
-        currentSlide.style.zIndex = '2';
-        nextSlide.style.opacity = '0';
-        void nextSlide.offsetHeight;
+        promiseSlideImgReady(nextSlide).then(() => {
+            if (gen !== crossFadeGeneration) {
+                transitionLock = false;
+                return;
+            }
+            if (currentIndex !== prevIndex) {
+                transitionLock = false;
+                return;
+            }
 
-        requestAnimationFrame(() => {
+            if (nextUrl) warmImage(nextUrl);
+            const lookahead = (newIndex + 1) % slideElements.length;
+            const aheadSlide = slideElements[lookahead];
+            if (aheadSlide && aheadSlide.dataset.bgImage) {
+                warmImage(aheadSlide.dataset.bgImage);
+            }
+
+            nextSlide.style.visibility = 'visible';
+            nextSlide.style.zIndex = '3';
+            currentSlide.style.zIndex = '2';
+            nextSlide.style.opacity = '0';
+            void nextSlide.offsetHeight;
+
             requestAnimationFrame(() => {
-                nextSlide.style.opacity = '1';
-                currentSlide.style.opacity = '0';
+                requestAnimationFrame(() => {
+                    nextSlide.style.opacity = '1';
+                    currentSlide.style.opacity = '0';
+                });
             });
+
+            const onCurrentFadeOut = (e) => {
+                if (e.propertyName !== 'opacity') return;
+                currentSlide.removeEventListener('transitionend', onCurrentFadeOut);
+                currentSlide.style.visibility = 'hidden';
+                currentSlide.style.zIndex = '1';
+                nextSlide.style.zIndex = '2';
+                transitionLock = false;
+            };
+            currentSlide.addEventListener('transitionend', onCurrentFadeOut);
+
+            window.setTimeout(() => {
+                if (!transitionLock) return;
+                currentSlide.removeEventListener('transitionend', onCurrentFadeOut);
+                currentSlide.style.visibility = 'hidden';
+                currentSlide.style.zIndex = '1';
+                nextSlide.style.zIndex = '2';
+                transitionLock = false;
+            }, transitionDuration + 120);
+
+            if (dotElements.length > 0) {
+                if (dotElements[prevIndex]) dotElements[prevIndex].classList.remove('active');
+                if (dotElements[newIndex]) dotElements[newIndex].classList.add('active');
+            }
+            currentIndex = newIndex;
+            console.log(`[FadeSlider DEBUG #${slidesId}] Crossfade ${prevIndex} -> ${newIndex}.`);
         });
-
-        const onCurrentFadeOut = (e) => {
-            if (e.propertyName !== 'opacity') return;
-            currentSlide.removeEventListener('transitionend', onCurrentFadeOut);
-            currentSlide.style.visibility = 'hidden';
-            currentSlide.style.zIndex = '1';
-            nextSlide.style.zIndex = '2';
-            transitionLock = false;
-        };
-        currentSlide.addEventListener('transitionend', onCurrentFadeOut);
-
-        window.setTimeout(() => {
-            if (!transitionLock) return;
-            currentSlide.removeEventListener('transitionend', onCurrentFadeOut);
-            currentSlide.style.visibility = 'hidden';
-            currentSlide.style.zIndex = '1';
-            nextSlide.style.zIndex = '2';
-            transitionLock = false;
-        }, transitionDuration + 120);
-
-        if (dotElements.length > 0) {
-            if (dotElements[prevIndex]) dotElements[prevIndex].classList.remove('active');
-            if (dotElements[newIndex]) dotElements[newIndex].classList.add('active');
-        }
-        currentIndex = newIndex;
-        console.log(`[FadeSlider DEBUG #${slidesId}] Crossfade ${prevIndex} -> ${newIndex}.`);
     }
 
     function next() {
