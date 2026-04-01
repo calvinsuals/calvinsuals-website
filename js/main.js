@@ -168,12 +168,14 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         if (finalImageUrls.length === 0) { container.innerHTML = '<p style="color: white; text-align: center;">No images.</p>'; return; }
         const fragment = document.createDocumentFragment();
         const isMobileWarm = __isMobileImageWarmProfile();
+        const desktopBgPreApplyCount = 2;
+        const initialBgCount = isMobileWarm ? 1 : 2;
         finalImageUrls.forEach((imgUrl, index) => {
             const slide = document.createElement('div'); slide.className = 'gallery-slide';
             if (typeof imgUrl === 'string' && imgUrl.startsWith('http')) {
                 slide.dataset.bgImage = imgUrl;
-                // Mobile: only set first slide background immediately to avoid burst downloading all large images.
-                if (!isMobileWarm || index === 0) {
+                // Limit immediate background attachment on all viewports to reduce burst image downloads.
+                if (index < initialBgCount) {
                     slide.style.backgroundImage = `url('${imgUrl}')`;
                     slide.dataset.bgApplied = '1';
                 }
@@ -183,10 +185,10 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         });
         container.appendChild(fragment);
         container.dataset.loadedJsonPath = jsonPath;
-        /* 桌面：全量预热；手机：仅 eager 前几张，其余走 idle，减轻内存与首屏压力 */
+        /* 控制首屏预热并发，避免桌面/移动端都出现解码峰值卡顿 */
         const galEager = __isMobileImageWarmProfile()
             ? Math.min(3, finalImageUrls.length)
-            : finalImageUrls.length;
+            : Math.min(4, finalImageUrls.length);
         warmImagesIdle(finalImageUrls, galEager);
 
         // 初始化轮播逻辑 (如果提供了 navId 且有多张图片)
@@ -434,7 +436,7 @@ async function loadAndInitComparison(jsonPath) {
         const isMobileWarm = __isMobileImageWarmProfile();
         const cmpEager = isMobileWarm
             ? Math.min(2, comparisonUrls.length)
-            : comparisonUrls.length;
+            : Math.min(6, comparisonUrls.length);
         warmImagesIdle(comparisonUrls, cmpEager);
 
         const sliderContainer = document.createElement('div');
@@ -460,9 +462,9 @@ async function loadAndInitComparison(jsonPath) {
 
                 const imgBefore = document.createElement('img');
                 imgBefore.alt = 'Before'; imgBefore.className = 'before';
-                imgBefore.loading = isMobileWarm && index > 0 ? 'lazy' : 'eager';
+                imgBefore.loading = index > (isMobileWarm ? 0 : 1) ? 'lazy' : 'eager';
                 imgBefore.decoding = 'async';
-                if (!isMobileWarm && index < 4) imgBefore.fetchPriority = 'high';
+                if (!isMobileWarm && index === 0) imgBefore.fetchPriority = 'high';
                 imgBefore.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 Before src: ${groupData.before_src}`);
                 imgBefore.src = normalizeImageUrl(groupData.before_src);
@@ -471,9 +473,9 @@ async function loadAndInitComparison(jsonPath) {
 
                 const imgAfter = document.createElement('img');
                 imgAfter.alt = 'After'; imgAfter.className = 'after';
-                imgAfter.loading = isMobileWarm && index > 0 ? 'lazy' : 'eager';
+                imgAfter.loading = index > (isMobileWarm ? 0 : 1) ? 'lazy' : 'eager';
                 imgAfter.decoding = 'async';
-                if (!isMobileWarm && index < 4) imgAfter.fetchPriority = 'high';
+                if (!isMobileWarm && index === 0) imgAfter.fetchPriority = 'high';
                 imgAfter.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 After src: ${groupData.after_src}`);
                 imgAfter.src = normalizeImageUrl(groupData.after_src);
@@ -851,7 +853,9 @@ function initializeGallerySlider(slidesId, dotsId) {
         slide.style.backfaceVisibility = 'hidden';
 
         if (slide.dataset.bgImage) {
-            if (!isMobileWarm || index === 0) applySlideBackground(slide);
+            if ((isMobileWarm && index === 0) || (!isMobileWarm && index < desktopBgPreApplyCount)) {
+                applySlideBackground(slide);
+            }
         } else {
             console.warn(`[FadeSlider DEBUG] Slide ${index} in #${slidesId} is missing data-bgImage attribute.`);
         }
@@ -1037,44 +1041,32 @@ document.addEventListener('DOMContentLoaded', () => {
     loadGalleryImages('automotive-slides', 'automotive-nav', 'images/display_automotive.json');
     loadGalleryImages('portrait-slides', 'portrait-nav', 'images/display_portrait.json');
     const isMobileViewport = __isMobileImageWarmProfile();
+    const comparisonJsonPath = 'images/comparison_groups.json';
+    let comparisonScheduled = false;
+    function runComparisonLoadOnce() {
+        if (comparisonScheduled) return;
+        comparisonScheduled = true;
+        loadAndInitComparison(comparisonJsonPath);
+    }
     if (isMobileViewport) {
-        // 移动端先保证主页可用，再按需加载重资源对比区，降低首屏内存和解码峰值。
-        const cmpContainer = document.getElementById('comparison-container-dynamic');
-        if (cmpContainer) {
-            cmpContainer.innerHTML = '';
-            const hint = document.createElement('p');
-            hint.style.color = '#b8b8b8';
-            hint.style.textAlign = 'center';
-            hint.style.padding = '14px 16px 8px';
-            hint.textContent = '对比区已优化为按需加载';
-
-            const btnWrap = document.createElement('div');
-            btnWrap.style.display = 'flex';
-            btnWrap.style.justifyContent = 'center';
-            btnWrap.style.padding = '0 0 14px';
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.textContent = '点击加载对比图';
-            btn.style.border = '1px solid rgba(255,255,255,0.32)';
-            btn.style.background = 'rgba(255,255,255,0.08)';
-            btn.style.color = '#e6e6e6';
-            btn.style.padding = '8px 14px';
-            btn.style.borderRadius = '999px';
-            btn.style.cursor = 'pointer';
-            btn.style.fontSize = '0.92rem';
-            btn.addEventListener('click', () => {
-                btn.disabled = true;
-                btn.textContent = '加载中...';
-                loadAndInitComparison('images/comparison_groups.json');
-            }, { once: true });
-            btnWrap.appendChild(btn);
-            cmpContainer.appendChild(hint);
-            cmpContainer.appendChild(btnWrap);
+        // 移动端：进入对比区附近才自动加载，避免首屏瞬时重负载，但不再显示「点击加载」按钮。
+        const comparisonSection = document.getElementById('comparison');
+        if (comparisonSection && 'IntersectionObserver' in window) {
+            const io = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        io.disconnect();
+                        runComparisonLoadOnce();
+                    }
+                });
+            }, { root: null, rootMargin: '400px 0px', threshold: 0.01 });
+            io.observe(comparisonSection);
+            setTimeout(runComparisonLoadOnce, 5000);
         } else {
-            loadAndInitComparison('images/comparison_groups.json');
+            setTimeout(runComparisonLoadOnce, 1600);
         }
     } else {
-        loadAndInitComparison('images/comparison_groups.json'); // 加载新的对比区
+        runComparisonLoadOnce(); // 桌面端保持自动加载
     }
     // initializeContactForm(); // Commented out - function not defined
 
