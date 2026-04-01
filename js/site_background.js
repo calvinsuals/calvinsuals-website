@@ -1,8 +1,7 @@
 /**
  * 将 body 上的 --site-background-* 同步到 <html>（供 overscroll / 安全区露边等使用）。
  *
- * 渐变统一画在 body 上（全宽全高、随文档滚动），桌面不再使用「整页高的 fixed 层 + translateY」，
- * 避免超高合成层拖慢 GPU、与首屏大图解码抢资源。
+ * 窄屏：渐变在 body 全高。桌面：渐变为 fixed 视口层（见 site_background.css），此处不再写滚动变量。
  */
 (function () {
     const root = document.documentElement;
