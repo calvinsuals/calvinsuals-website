@@ -179,8 +179,8 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         container.innerHTML = '';
         if (nav) nav.innerHTML = '';
         const fragment = document.createDocumentFragment();
-        /* 首张必挂 src；桌面再预挂第 2 张减轻自动叠化切下一张时的等待，仍避免旧版「全量并发」 */
-        const initialImgCount = isMobileWarm ? 1 : Math.min(2, finalImageUrls.length);
+        /* 手机：只挂首张控内存。桌面：每张立刻挂 src（当前 JSON 量级可接受），避免滚回或叠化到第 3 张起才起请求 → 像「重新加载」 */
+        const initialImgCount = isMobileWarm ? 1 : finalImageUrls.length;
         finalImageUrls.forEach((imgUrl, index) => {
             const slide = document.createElement('div');
             slide.className = 'gallery-slide';
@@ -191,8 +191,9 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
                 img.alt = '';
                 img.decoding = 'async';
                 img.draggable = false;
+                if (!isMobileWarm) img.loading = 'eager';
                 if (index === 0) img.fetchPriority = 'high';
-                if (index === 1 && !isMobileWarm) img.fetchPriority = 'low';
+                else if (!isMobileWarm) img.fetchPriority = 'low';
                 if (index < initialImgCount) {
                     img.src = imgUrl;
                     slide.dataset.imgApplied = '1';
@@ -214,9 +215,20 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         container.dataset.loadedJsonPath = jsonPath;
         const galEager = isMobileWarm
             ? Math.min(1, finalImageUrls.length)
-            : Math.min(2, finalImageUrls.length);
-        /* 桌面：前两张 warm + idle 余量；手机：仅一张、不跑 idle 队列 */
+            : finalImageUrls.length;
+        /* 桌面：全量 warm（与上面每张已挂 src 一致）；手机：仅一张、不跑 idle 队列 */
         warmImagesIdle(finalImageUrls, galEager, !isMobileWarm);
+
+        if (!isMobileWarm) {
+            container.querySelectorAll('img.gallery-slide-img').forEach((im) => {
+                const tryDecode = () => {
+                    if (typeof im.decode !== 'function') return;
+                    im.decode().catch(() => {});
+                };
+                if (im.complete && im.naturalWidth > 0) tryDecode();
+                else im.addEventListener('load', tryDecode, { once: true });
+            });
+        }
 
         // 初始化轮播逻辑 (如果提供了 navId 且有多张图片)
         console.log(`[LoadGalleryImages DEBUG ${containerId}] Checking conditions for calling initializeGallerySlider:`); // 新增
@@ -413,11 +425,7 @@ async function loadAndInitComparison(jsonPath) {
             if (g && g.after_src) comparisonUrls.push(normalizeImageUrl(g.after_src));
         });
         const isMobileWarm = __isMobileImageWarmProfile();
-        /* 手机：不做对比区 warm；桌面：限制并发 warm，其余 idle，避免与首屏轮播抢带宽 */
-        if (!isMobileWarm) {
-            const comEager = Math.min(4, comparisonUrls.length);
-            warmImagesIdle(comparisonUrls, comEager, true);
-        }
+        /* 不在此处 warm：与下方 <img src> 重复请求/解码，反让首屏更慢；优先交给 img 的 fetchPriority */
 
         const sliderContainer = document.createElement('div');
         sliderContainer.className = 'comparison-slider';
@@ -519,13 +527,10 @@ async function loadAndInitComparison(jsonPath) {
              console.log("[Comparison] Slider 和 Thumbnail Nav 已插入页面容器。");
         } else { console.error("[Comparison] 主容器已不存在！"); }
 
-        /* 只等 load，不在主线程连环 decode（桌面逐帧 decode 易长时间占满、拖垮滚动） */
-        await Promise.race([
-            primeComparisonImages(container, { decode: false }),
-            new Promise((r) => setTimeout(r, 12000)),
-        ]);
+        /* 勿 await：旧逻辑会等「全部对比图 load」才绑滑块，大图多时像整段卡住数秒；后台等 load 即可 */
+        void primeComparisonImages(container, { decode: false }).catch(() => {});
 
-        // --- 初始化交互 --- 
+        // --- 初始化交互（立即绑定，与图片加载并行） ---
         initializeComparison(); // 初始化滑块交互
         initializeThumbnailNav(sliderContainer, thumbnailNavContainer); // <-- 恢复：不再传递 groups
         initializeDragScrolling(); // 初始化拖动滚动（仅鼠标；触摸走原生 overflow 滚动）
@@ -762,6 +767,11 @@ function initializeGallerySlider(slidesId, dotsId) {
             };
             const afterLoad = () => {
                 if (settled) return;
+                /* 桌面：已完整加载的图再 decode() 多数时候只多一帧等待；首张已 eager 挂 src 时直接进叠化更快 */
+                if (img.complete && img.naturalWidth > 0 && !__isMobileImageWarmProfile()) {
+                    finish();
+                    return;
+                }
                 if (typeof img.decode === 'function' && !__isMobileImageWarmProfile()) {
                     img.decode().then(finish).catch(finish);
                 } else {
