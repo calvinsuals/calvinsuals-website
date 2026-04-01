@@ -466,7 +466,12 @@ async function loadAndInitComparison(jsonPath) {
                 if (!isMobileWarm && index === 0) imgBefore.fetchPriority = 'high';
                 imgBefore.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 Before src: ${groupData.before_src}`);
-                imgBefore.src = normalizeImageUrl(groupData.before_src);
+                const beforeUrl = normalizeImageUrl(groupData.before_src);
+                if (isMobileWarm && index > 0) {
+                    imgBefore.dataset.src = beforeUrl;
+                } else {
+                    imgBefore.src = beforeUrl;
+                }
                 imgBefore.onerror = () => { imgBefore.alt='Image not found'; imgBefore.src=''; console.error(`[Comparison ${groupData.id}] 加载 Before 图片失败: ${groupData.before_src}`);};
                 console.log(`[Comparison ${groupData.id}] Before img 创建成功.`);
 
@@ -477,7 +482,12 @@ async function loadAndInitComparison(jsonPath) {
                 if (!isMobileWarm && index === 0) imgAfter.fetchPriority = 'high';
                 imgAfter.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 After src: ${groupData.after_src}`);
-                imgAfter.src = normalizeImageUrl(groupData.after_src);
+                const afterUrl = normalizeImageUrl(groupData.after_src);
+                if (isMobileWarm && index > 0) {
+                    imgAfter.dataset.src = afterUrl;
+                } else {
+                    imgAfter.src = afterUrl;
+                }
                 imgAfter.onerror = () => { imgAfter.alt='Image not found'; imgAfter.src=''; console.error(`[Comparison ${groupData.id}] 加载 After 图片失败: ${groupData.after_src}`);};
                 console.log(`[Comparison ${groupData.id}] After img 创建成功.`);
 
@@ -508,7 +518,8 @@ async function loadAndInitComparison(jsonPath) {
                 thumbItem.className = 'comparison-thumbnail-item';
                 thumbItem.dataset.targetId = group.id;
                 const thumbImg = document.createElement('img');
-                thumbImg.src = normalizeImageUrl(groupData.after_src); 
+                const thumbUrl = normalizeImageUrl(groupData.after_src);
+                thumbImg.src = thumbUrl;
                 thumbImg.alt = `Thumbnail for ${groupData.id}`;
                 thumbImg.loading = isMobileWarm ? 'lazy' : 'eager';
                 thumbImg.decoding = 'async';
@@ -557,11 +568,21 @@ function initializeThumbnailNav(sliderContainer, navContainer) {
     const thumbItems = navContainer.querySelectorAll('.comparison-thumbnail-item');
     if (thumbItems.length === 0) return;
 
+    function ensureGroupImagesLoaded(groupEl) {
+        if (!groupEl) return;
+        const lazyNodes = groupEl.querySelectorAll('img[data-src]');
+        lazyNodes.forEach((img) => {
+            const ds = img.dataset ? img.dataset.src : '';
+            if (ds && !img.src) img.src = ds;
+        });
+    }
+
     function handleThumbClick(event) {
         const clickedItem = event.currentTarget;
         const targetId = clickedItem.dataset.targetId;
         const targetGroup = document.getElementById(targetId);
         if (!targetGroup) return;
+        ensureGroupImagesLoaded(targetGroup);
         targetGroup.scrollIntoView({ behavior: 'auto', inline: 'center', block: 'nearest' });
     }
 
@@ -569,6 +590,10 @@ function initializeThumbnailNav(sliderContainer, navContainer) {
         item.removeEventListener('click', handleThumbClick);
         item.addEventListener('click', handleThumbClick);
     });
+
+    // Ensure first group is always ready.
+    const firstGroup = sliderContainer.querySelector('.comparison-group');
+    ensureGroupImagesLoaded(firstGroup);
 }
 
 /**
@@ -1045,37 +1070,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("开始加载轮播图和对比区...");
     loadGalleryImages('automotive-slides', 'automotive-nav', 'images/display_automotive.json');
     loadGalleryImages('portrait-slides', 'portrait-nav', 'images/display_portrait.json');
-    const isMobileViewport = __isMobileImageWarmProfile();
-    const comparisonJsonPath = 'images/comparison_groups.json';
-    let comparisonScheduled = false;
-    function runComparisonLoadOnce() {
-        if (comparisonScheduled) return;
-        comparisonScheduled = true;
-        loadAndInitComparison(comparisonJsonPath);
-    }
-    if (isMobileViewport) {
-        // 移动端：滚动到对比区附近才加载；若不支持 IO，则在首次用户滚动后再加载。
-        const comparisonSection = document.getElementById('comparison');
-        if (comparisonSection && 'IntersectionObserver' in window) {
-            const io = new IntersectionObserver((entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        io.disconnect();
-                        runComparisonLoadOnce();
-                    }
-                });
-            }, { root: null, rootMargin: '400px 0px', threshold: 0.01 });
-            io.observe(comparisonSection);
-        } else {
-            const onFirstScrollLoadComparison = () => {
-                window.removeEventListener('scroll', onFirstScrollLoadComparison);
-                runComparisonLoadOnce();
-            };
-            window.addEventListener('scroll', onFirstScrollLoadComparison, { passive: true, once: true });
-        }
-    } else {
-        runComparisonLoadOnce(); // 桌面端保持自动加载
-    }
+    loadAndInitComparison('images/comparison_groups.json');
     // initializeContactForm(); // Commented out - function not defined
 
     // 弹窗功能初始化
