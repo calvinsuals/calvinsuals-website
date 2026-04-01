@@ -11,6 +11,7 @@ on:
       - 'js/**'
       - 'css/**'
       - 'images/*.json'
+      - '.github/workflows/*.yml'
 
   workflow_dispatch:
 
