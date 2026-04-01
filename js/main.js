@@ -195,25 +195,31 @@ function initializeComparison() {
 
         let isResizing = false;
         let animationFrameId = null;
+        let handleMoveRaf = null;
+        let pendingClientX = null;
 
         const moveHandler = (clientX) => {
             if (!isResizing) return;
-            
-            // 直接更新位置，不使用requestAnimationFrame来提高响应速度
-            const rect = wrapper.getBoundingClientRect();
-            if(!rect || rect.width <= 0) return;
-            
-            // 计算位置时增加一个灵敏度因子，使移动更快速
-            const sensitivityFactor = 1.2; // 增加灵敏度，值越大移动越敏感
-            const rawX = clientX - rect.left;
-            // 应用灵敏度因子，并确保结果在容器范围内
-            const x = Math.min(Math.max(0, rawX * sensitivityFactor), rect.width);
-            const percent = (x / rect.width) * 100;
-            const clampedPercent = Math.max(0, Math.min(100, percent));
-            
-            // 直接设置样式而不是等待动画帧
-            handle.style.left = `${clampedPercent}%`;
-            afterImage.style.clipPath = `inset(0 ${100 - clampedPercent}% 0 0)`;
+            pendingClientX = clientX;
+            if (handleMoveRaf != null) return;
+            handleMoveRaf = requestAnimationFrame(() => {
+                handleMoveRaf = null;
+                const cx = pendingClientX;
+                pendingClientX = null;
+                if (!isResizing || cx == null) return;
+
+                const rect = wrapper.getBoundingClientRect();
+                if (!rect || rect.width <= 0) return;
+
+                const sensitivityFactor = 1.2;
+                const rawX = cx - rect.left;
+                const x = Math.min(Math.max(0, rawX * sensitivityFactor), rect.width);
+                const percent = (x / rect.width) * 100;
+                const clampedPercent = Math.max(0, Math.min(100, percent));
+
+                handle.style.left = `${clampedPercent}%`;
+                afterImage.style.clipPath = `inset(0 ${100 - clampedPercent}% 0 0)`;
+            });
         };
         
         // 其余代码保持不变
@@ -227,7 +233,12 @@ function initializeComparison() {
             console.log('[Comparison EndResize] Setting isResizing = false');
             isResizing = false; 
             wrapper.classList.remove('active'); 
-            cancelAnimationFrame(animationFrameId); 
+            cancelAnimationFrame(animationFrameId);
+            if (handleMoveRaf != null) {
+                cancelAnimationFrame(handleMoveRaf);
+                handleMoveRaf = null;
+            }
+            pendingClientX = null;
         };
 
         // 清理旧监听器（如果存在）
@@ -362,10 +373,10 @@ async function loadAndInitComparison(jsonPath) {
         container.dataset.loadedJsonPath = jsonPath;
         const comparisonUrls = [];
         comparisonGroupsData.forEach((g) => {
-            if (g && g.before_src) comparisonUrls.push(g.before_src);
-            if (g && g.after_src) comparisonUrls.push(g.after_src);
+            if (g && g.before_src) comparisonUrls.push(normalizeImageUrl(g.before_src));
+            if (g && g.after_src) comparisonUrls.push(normalizeImageUrl(g.after_src));
         });
-        warmImagesIdle(comparisonUrls, 12);
+        warmImagesIdle(comparisonUrls, comparisonUrls.length);
 
         const sliderContainer = document.createElement('div');
         sliderContainer.className = 'comparison-slider';
@@ -390,9 +401,9 @@ async function loadAndInitComparison(jsonPath) {
 
                 const imgBefore = document.createElement('img');
                 imgBefore.alt = 'Before'; imgBefore.className = 'before';
-                imgBefore.loading = (window.innerWidth >= 768 && index < 3) ? 'eager' : 'lazy';
+                imgBefore.loading = 'eager';
                 imgBefore.decoding = 'async';
-                if (index < 2) imgBefore.fetchPriority = 'high';
+                if (index < 4) imgBefore.fetchPriority = 'high';
                 imgBefore.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 Before src: ${groupData.before_src}`);
                 imgBefore.src = normalizeImageUrl(groupData.before_src);
@@ -401,9 +412,9 @@ async function loadAndInitComparison(jsonPath) {
 
                 const imgAfter = document.createElement('img');
                 imgAfter.alt = 'After'; imgAfter.className = 'after';
-                imgAfter.loading = (window.innerWidth >= 768 && index < 3) ? 'eager' : 'lazy';
+                imgAfter.loading = 'eager';
                 imgAfter.decoding = 'async';
-                if (index < 2) imgAfter.fetchPriority = 'high';
+                if (index < 4) imgAfter.fetchPriority = 'high';
                 imgAfter.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 After src: ${groupData.after_src}`);
                 imgAfter.src = normalizeImageUrl(groupData.after_src);
@@ -436,7 +447,7 @@ async function loadAndInitComparison(jsonPath) {
                 const thumbImg = document.createElement('img');
                 thumbImg.src = normalizeImageUrl(groupData.after_src); 
                 thumbImg.alt = `Thumbnail for ${groupData.id}`;
-                thumbImg.loading = (window.innerWidth >= 768 && index < 6) ? 'eager' : 'lazy';
+                thumbImg.loading = 'eager';
                 thumbImg.decoding = 'async';
                 thumbImg.onerror = () => { thumbImg.alt='Thumb not found'; thumbImg.src=''; console.error(`[Comparison ${groupData.id}] 加载 Thumbnail 图片失败: ${groupData.after_src}`); };
                 thumbItem.appendChild(thumbImg);
@@ -486,20 +497,6 @@ function initializeThumbnailNav(sliderContainer, navContainer) { // <-- 恢复�
     
     let currentActiveThumbIndex = 0; // 初始激活索引
 
-    // --- 添加 Debounce 函数 (如果之前被移除则加回) ---
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func.apply(this, args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    };
-    // --- 结束 Debounce 函数 ---
-
     // 点击缩略图逻辑 (保持不变)
     thumbItems.forEach((item, index) => {
         item.removeEventListener('click', handleThumbClick);
@@ -524,65 +521,56 @@ function initializeThumbnailNav(sliderContainer, navContainer) { // <-- 恢复�
         }
     }
 
-    // --- 恢复滚动处理逻辑 --- 
-    
-    // 更新高亮的逻辑 (保持优化版本: requestAnimationFrame + 只操作必要元素)
+    // 滚动时按「与视口中心距离最近」的组切换缩略图高亮（去掉居中容差 + 500ms debounce，避免滑半天条才亮、拖对比条时首帧跟布局抢线程）
     function updateHighlight() {
-        // console.log("[Comparison] Debounced: Updating highlight after scroll stop.");
-            const sliderRect = sliderContainer.getBoundingClientRect();
-            const sliderCenter = sliderRect.left + sliderRect.width / 2;
-        let centerGroupIndex = -1; 
-            let minDistance = Infinity;
-        const groups = sliderContainer.querySelectorAll('.comparison-group'); // 从 sliderContainer 获取 groups
+        const sliderRect = sliderContainer.getBoundingClientRect();
+        const sliderCenter = sliderRect.left + sliderRect.width / 2;
+        let centerGroupIndex = -1;
+        let minDistance = Infinity;
+        const groups = sliderContainer.querySelectorAll('.comparison-group');
         if (groups.length === 0) return;
 
         groups.forEach((group, index) => {
-                const groupRect = group.getBoundingClientRect();
+            const groupRect = group.getBoundingClientRect();
             if (groupRect.width === 0 || groupRect.height === 0) return;
-                const groupCenter = groupRect.left + groupRect.width / 2;
-                const distance = Math.abs(sliderCenter - groupCenter);
-                if (distance < minDistance) {
-                    minDistance = distance;
+            const groupCenter = groupRect.left + groupRect.width / 2;
+            const distance = Math.abs(sliderCenter - groupCenter);
+            if (distance < minDistance) {
+                minDistance = distance;
                 centerGroupIndex = index;
             }
         });
 
-        if (centerGroupIndex !== -1 && centerGroupIndex !== currentActiveThumbIndex) {
-            const targetGroup = groups[centerGroupIndex];
-            const targetGroupRect = targetGroup.getBoundingClientRect();
-            const targetGroupCenter = targetGroupRect.left + targetGroupRect.width / 2;
-            const centeringTolerance = targetGroupRect.width / 3; 
+        if (centerGroupIndex === -1 || centerGroupIndex === currentActiveThumbIndex) return;
 
-            if (Math.abs(sliderCenter - targetGroupCenter) < centeringTolerance) {
-                const targetGroupId = targetGroup.id;
-                const newActiveThumb = navContainer.querySelector(`.comparison-thumbnail-item[data-target-id="${targetGroupId}"]`);
-                const currentActiveThumb = navContainer.querySelector('.comparison-thumbnail-item.active');
+        const targetGroup = groups[centerGroupIndex];
+        const targetGroupId = targetGroup.id;
+        const newActiveThumb = navContainer.querySelector(`.comparison-thumbnail-item[data-target-id="${targetGroupId}"]`);
+        const currentActiveThumb = navContainer.querySelector('.comparison-thumbnail-item.active');
 
-                if (newActiveThumb && newActiveThumb !== currentActiveThumb) {
-                    console.log(`Requesting highlight update to ${targetGroupId} (Index: ${centerGroupIndex})`);
-                    requestAnimationFrame(() => {
-                        if (currentActiveThumb) {
-                            currentActiveThumb.classList.remove('active');
-                        }
-                        newActiveThumb.classList.add('active');
-                        currentActiveThumbIndex = centerGroupIndex; 
-                        // console.log(`Highlight updated to ${targetGroupId}`);
-                    });
-                } else if (!newActiveThumb) {
-                    console.warn(`Could not find thumbnail for target group ID: ${targetGroupId}`);
-                }
-            } 
-        } 
+        if (newActiveThumb && newActiveThumb !== currentActiveThumb) {
+            if (currentActiveThumb) currentActiveThumb.classList.remove('active');
+            newActiveThumb.classList.add('active');
+            currentActiveThumbIndex = centerGroupIndex;
+        } else if (!newActiveThumb) {
+            console.warn(`Could not find thumbnail for target group ID: ${targetGroupId}`);
+        }
     }
 
-    // 创建 Debounced 版本的更新函数 (恢复 500ms 延迟，可调整)
-    const debouncedUpdateHighlight = debounce(updateHighlight, 500); 
+    let thumbHighlightRaf = null;
+    function scheduleThumbHighlight() {
+        if (thumbHighlightRaf != null) return;
+        thumbHighlightRaf = requestAnimationFrame(() => {
+            thumbHighlightRaf = null;
+            updateHighlight();
+        });
+    }
 
-    // 绑定 Debounced 函数到 scroll 事件
-    sliderContainer.removeEventListener('scroll', debouncedUpdateHighlight); // 确保移除旧的（以防万一）
-    sliderContainer.addEventListener('scroll', debouncedUpdateHighlight);
-    
-    console.log("[Comparison Debounce] Thumbnail nav initialized with debounced highlight update.");
+    sliderContainer.removeEventListener('scroll', scheduleThumbHighlight);
+    sliderContainer.addEventListener('scroll', scheduleThumbHighlight, { passive: true });
+    requestAnimationFrame(() => updateHighlight());
+
+    console.log("[Comparison] Thumbnail nav: rAF-throttled highlight (nearest to center).");
 }
 
 /**
