@@ -187,8 +187,8 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         }
         if (finalImageUrls.length === 0) { container.innerHTML = '<p style="color: white; text-align: center;">No images.</p>'; return; }
         const fragment = document.createDocumentFragment();
-        /* 手机列表已截断为最多 4 张：与桌面一样首轮铺满 background，切换时不现等图 */
-        const initialBgCount = finalImageUrls.length;
+        /* 桌面：首轮铺满 background + 全量 warm，叠化顺滑；手机：仅首张 + 单 URL eager warm（与 d74c145 一致），防刷新解码/内存尖峰 */
+        const initialBgCount = isMobileWarm ? 1 : finalImageUrls.length;
         finalImageUrls.forEach((imgUrl, index) => {
             const slide = document.createElement('div'); slide.className = 'gallery-slide';
             if (typeof imgUrl === 'string' && imgUrl.startsWith('http')) {
@@ -203,7 +203,9 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         });
         container.appendChild(fragment);
         container.dataset.loadedJsonPath = jsonPath;
-        const galEager = finalImageUrls.length;
+        const galEager = isMobileWarm
+            ? Math.min(1, finalImageUrls.length)
+            : finalImageUrls.length;
         warmImagesIdle(finalImageUrls, galEager, !isMobileWarm);
 
         // 初始化轮播逻辑 (如果提供了 navId 且有多张图片)
@@ -769,6 +771,7 @@ function initializeGallerySlider(slidesId, dotsId) {
     const autoPlayDelay = 9000;
     const easeCrossfade = 'cubic-bezier(0.42, 0, 0.58, 1)';
 
+    const isMobileWarm = __isMobileImageWarmProfile();
     const disableAutoplayOnMobile = false;
     function applySlideBackground(slide) {
         if (!slide || !slide.dataset || !slide.dataset.bgImage) return;
@@ -792,7 +795,10 @@ function initializeGallerySlider(slidesId, dotsId) {
         slide.style.backfaceVisibility = 'hidden';
 
         if (slide.dataset.bgImage) {
-            applySlideBackground(slide);
+            /* 手机只预贴首张，其余在 showSlide 时再贴，避免与多张大图 decode 叠加 */
+            if (!isMobileWarm || index === 0) {
+                applySlideBackground(slide);
+            }
         } else {
             console.warn(`[FadeSlider DEBUG] Slide ${index} in #${slidesId} is missing data-bgImage attribute.`);
         }
@@ -817,7 +823,7 @@ function initializeGallerySlider(slidesId, dotsId) {
             const preloadIndex = (newIndex + 1) % slideElements.length;
             const preloadSlide = slideElements[preloadIndex];
             if (preloadSlide && preloadSlide.dataset.bgImage) {
-                applySlideBackground(preloadSlide);
+                if (!isMobileWarm) applySlideBackground(preloadSlide);
                 warmImage(preloadSlide.dataset.bgImage);
             }
             return;
@@ -827,7 +833,7 @@ function initializeGallerySlider(slidesId, dotsId) {
         const nextIndex = (newIndex + 1) % slideElements.length;
         const nextNextSlide = slideElements[nextIndex];
         if (nextNextSlide && nextNextSlide.dataset.bgImage) {
-            applySlideBackground(nextNextSlide);
+            if (!isMobileWarm) applySlideBackground(nextNextSlide);
             warmImage(nextNextSlide.dataset.bgImage);
         }
 
