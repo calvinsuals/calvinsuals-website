@@ -9,22 +9,11 @@
     <!-- 首图 preload 由 scripts/sync_critical_preload.py 写入，改图后运行脚本或依赖 CI -->
     <!-- CRITICAL-PRELOAD:START -->
     <link rel="preload" as="image" fetchpriority="high" href="https://img.calvinsuals.com/images/display/automotive%20display/images_display_automotive%20display_By.calvinsuals.240305.webp">
-    <link rel="preload" as="image" href="https://img.calvinsuals.com/images/display/portrait%20display/images_display_portrait%20display_By.calvinsuals.25081409105.webp">
+    <link rel="preload" as="image" fetchpriority="low" href="https://img.calvinsuals.com/images/display/portrait%20display/images_display_portrait%20display_By.calvinsuals.25081409105.webp">
     <!-- CRITICAL-PRELOAD:END -->
     <link rel="preload" href="images/display_automotive.json" as="fetch" type="application/json" crossorigin="anonymous">
     <link rel="preload" href="images/display_portrait.json" as="fetch" type="application/json" crossorigin="anonymous">
     <link rel="preload" href="images/comparison_groups.json" as="fetch" type="application/json" crossorigin="anonymous">
-    <script>
-    (function () {
-        try {
-            if (typeof matchMedia !== 'undefined' && matchMedia('(min-width:768px)').matches) {
-                var h = document.documentElement;
-                h.style.setProperty('--site-bg-doc-height', '100vh');
-                h.style.setProperty('--site-scroll-y', '0px');
-            }
-        } catch (e) {}
-    })();
-    </script>
     <!-- 字体 (Add 600 weight for Montserrat) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,7 +28,7 @@
     <!-- <link rel="stylesheet" href="gallery.css"> -->
     <!-- <link rel="stylesheet" href="automotive.css"> --> 
 
-    <link rel="stylesheet" href="css/site_background.css?v=20260401c">
+    <link rel="stylesheet" href="css/site_background.css?v=20260403a">
 
     <style>
         /* --- Variables & Base (Consistent across pages) --- */
@@ -2239,7 +2228,7 @@
             
         <div class="about-wrapper">
             <div class="about-image-container">
-                <img src="https://img.calvinsuals.com/images/about/hero/hero.jpg" alt="Photographer Portrait" onerror="this.alt='Profile image not found'; this.src=''; this.style.display='none';">
+                <img src="https://img.calvinsuals.com/images/about/hero/hero.jpg" alt="Photographer Portrait" loading="lazy" decoding="async" fetchpriority="low" onerror="this.alt='Profile image not found'; this.src=''; this.style.display='none';">
             </div>
             <div class="about-text-container">
                 <p><strong>Calvin Chan | 视觉创作</strong></p>
@@ -2252,16 +2241,16 @@
         </div>
         <div class="social-links about-social">
             <a href="https://v.douyin.com/g1Onr09i9l4" class="social-link" title="抖音" aria-label="访问我的抖音" target="_blank">
-                <img src="https://img.calvinsuals.com/images/about/icons/tiktok/tiktok.webp" alt="抖音" width="24" height="24">
+                <img src="https://img.calvinsuals.com/images/about/icons/tiktok/tiktok.webp" alt="抖音" width="24" height="24" loading="lazy" decoding="async">
             </a>
             <a href="javascript:void(0)" class="social-link" title="小红书" aria-label="访问我的小红书" onclick="event.preventDefault(); openAboutSocialModal('xiaohongshuModal');">
-                <img src="https://img.calvinsuals.com/images/about/icons/xiaohongshu/xiaohongshu.png" alt="小红书" width="24" height="24">
+                <img src="https://img.calvinsuals.com/images/about/icons/xiaohongshu/xiaohongshu.png" alt="小红书" width="24" height="24" loading="lazy" decoding="async">
             </a>
             <a href="javascript:void(0)" class="social-link" title="微信" aria-label="添加我的微信" onclick="event.preventDefault(); openAboutSocialModal('wechatModal');">
-                <img src="https://img.calvinsuals.com/images/about/icons/wechat/wechat.png" alt="微信" width="24" height="24">
+                <img src="https://img.calvinsuals.com/images/about/icons/wechat/wechat.png" alt="微信" width="24" height="24" loading="lazy" decoding="async">
             </a>
             <a href="https://www.instagram.com/calvinsuals" class="social-link" title="Instagram" aria-label="访问我的Instagram" target="_blank">
-                <img src="https://img.calvinsuals.com/images/about/icons/instagram/instagram.webp" alt="Instagram" width="24" height="24">
+                <img src="https://img.calvinsuals.com/images/about/icons/instagram/instagram.webp" alt="Instagram" width="24" height="24" loading="lazy" decoding="async">
             </a>
         </div>
     </section>
@@ -2304,11 +2293,11 @@
             <h3 class="modal-title"></h3>
             <div class="modal-images">
                 <a href="https://www.xiaohongshu.com/user/profile/5b5699c311be104a66c9ec6a" target="_blank">
-                    <img src="https://pub-67b44c34fdd2480e83feffb3cfc185b9.r2.dev/images/about/xiaohongshu1/xiaohongshu1.jpg" alt="小红书截图1" onerror="this.alt='图片未找到'; this.style.display='block';">
+                    <img src="https://pub-67b44c34fdd2480e83feffb3cfc185b9.r2.dev/images/about/xiaohongshu1/xiaohongshu1.jpg" alt="小红书截图1" loading="lazy" decoding="async" onerror="this.alt='图片未找到'; this.style.display='block';">
                     <p class="modal-text">拍车咔尔文</p>
                 </a>
                 <a href="https://www.xiaohongshu.com/user/profile/6534235c000000000400a840" target="_blank">
-                    <img src="https://pub-67b44c34fdd2480e83feffb3cfc185b9.r2.dev/images/about/xiaohongshu2/xiaohongshu2.jpg" alt="小红书截图2" onerror="this.alt='图片未找到'; this.style.display='block';">
+                    <img src="https://pub-67b44c34fdd2480e83feffb3cfc185b9.r2.dev/images/about/xiaohongshu2/xiaohongshu2.jpg" alt="小红书截图2" loading="lazy" decoding="async" onerror="this.alt='图片未找到'; this.style.display='block';">
                     <p class="modal-text">Itssc.ch Photos</p>
                 </a>
             </div>
@@ -2319,7 +2308,7 @@
             <span class="modal-close" onclick="closeAboutSocialModal('wechatModal');">&times;</span>
             <h3 class="modal-title"></h3>
             <div class="modal-images">
-                <img src="https://pub-67b44c34fdd2480e83feffb3cfc185b9.r2.dev/images/about/wechat/wechat.jpg" alt="微信二维码" onerror="this.alt='图片未找到'; this.style.display='block';">
+                <img src="https://pub-67b44c34fdd2480e83feffb3cfc185b9.r2.dev/images/about/wechat/wechat.jpg" alt="微信二维码" loading="lazy" decoding="async" onerror="this.alt='图片未找到'; this.style.display='block';">
             </div>
             <p class="modal-text">微信号: itscalvinchan</p>
             <button class="copy-button" onclick="
@@ -2342,8 +2331,8 @@
     </div>
 
     <!-- 添加外部脚本链接 -->
-    <script src="js/site_background.js?v=20260402a" defer></script>
-    <script src="js/main.js?v=20260402b" defer></script>
+    <script src="js/site_background.js?v=20260403a" defer></script>
+    <script src="js/main.js?v=20260403b" defer></script>
     <script src="js/navigation.js?v=20260404i" defer></script>
 
     <!-- 锚点定位修复脚本 -->

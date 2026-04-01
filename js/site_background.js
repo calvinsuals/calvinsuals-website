@@ -1,11 +1,11 @@
 /**
- * 1) 将 body 上的 --site-background-* 同步到 <html>。
- * 2) 仅在桌面端（min-width: 768px）用 --site-bg-doc-height、--site-scroll-y 驱动 .background-gradient；
- *    移动端用整页 body 渐变，不跑滚动同步，避免与移动端 UI 表现冲突。
+ * 将 body 上的 --site-background-* 同步到 <html>（供 overscroll / 安全区露边等使用）。
+ *
+ * 渐变统一画在 body 上（全宽全高、随文档滚动），桌面不再使用「整页高的 fixed 层 + translateY」，
+ * 避免超高合成层拖慢 GPU、与首屏大图解码抢资源。
  */
 (function () {
     const root = document.documentElement;
-    const mq = window.matchMedia('(min-width: 768px)');
 
     function syncSiteBackgroundTokens() {
         if (!document.body) return;
@@ -20,88 +20,24 @@
         if (backgroundFallback) {
             root.style.setProperty('--site-background-fallback', backgroundFallback);
         }
-    }
 
-    function clearDesktopVars() {
         root.style.removeProperty('--site-scroll-y');
         root.style.removeProperty('--site-bg-doc-height');
     }
 
-    function updateDocHeight() {
-        if (!mq.matches) return;
-        const h = Math.max(
-            document.documentElement.scrollHeight,
-            document.body ? document.body.scrollHeight : 0
-        );
-        root.style.setProperty('--site-bg-doc-height', h + 'px');
-    }
-
-    let scrollRaf = 0;
-    /**
-     * 滚动帧只写 scrollY。不要在每帧读 scrollHeight：会强制布局，长页桌面滚动会明显掉帧。
-     * 文档高度由 resize / load / ResizeObserver / __syncSiteBackgroundLayout 更新即可。
-     */
-    function applyScrollFrame() {
-        scrollRaf = 0;
-        if (!mq.matches) return;
-        root.style.setProperty('--site-scroll-y', window.scrollY + 'px');
-    }
-
-    function onScroll() {
-        if (!mq.matches) return;
-        if (!scrollRaf) {
-            scrollRaf = requestAnimationFrame(applyScrollFrame);
-        }
-    }
-
-    let heightRaf = 0;
-    function scheduleDocHeight() {
-        if (!mq.matches) return;
-        if (!heightRaf) {
-            heightRaf = requestAnimationFrame(function () {
-                heightRaf = 0;
-                updateDocHeight();
-            });
-        }
-    }
-
-    function applyViewportMode() {
-        syncSiteBackgroundTokens();
-        if (mq.matches) {
-            updateDocHeight();
-            root.style.setProperty('--site-scroll-y', window.scrollY + 'px');
-        } else {
-            clearDesktopVars();
-        }
-    }
-
     function init() {
-        applyViewportMode();
+        syncSiteBackgroundTokens();
 
-        window.addEventListener('scroll', onScroll, { passive: true });
-        window.addEventListener('resize', scheduleDocHeight, { passive: true });
-        window.addEventListener('load', scheduleDocHeight, { passive: true });
+        window.addEventListener('load', syncSiteBackgroundTokens, { passive: true });
+        window.addEventListener('resize', syncSiteBackgroundTokens, { passive: true });
 
-        mq.addEventListener('change', applyViewportMode);
-
-        if (typeof ResizeObserver !== 'undefined' && document.body) {
-            const ro = new ResizeObserver(scheduleDocHeight);
-            ro.observe(document.body);
+        if (typeof window.matchMedia === 'function') {
+            const mq = window.matchMedia('(min-width: 768px)');
+            mq.addEventListener('change', syncSiteBackgroundTokens);
         }
     }
 
     init();
 
-    /** 供 main.js 在动态插入大块内容后调用，刷新桌面固定渐变高度与滚动偏移，避免快滑到底「背景/页高不同步」 */
-    window.__syncSiteBackgroundLayout = function () {
-        syncSiteBackgroundTokens();
-        if (mq.matches) {
-            scheduleDocHeight();
-            if (!scrollRaf) {
-                scrollRaf = requestAnimationFrame(applyScrollFrame);
-            }
-        } else {
-            clearDesktopVars();
-        }
-    };
+    window.__syncSiteBackgroundLayout = syncSiteBackgroundTokens;
 })();

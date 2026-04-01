@@ -1,9 +1,9 @@
 /* Shared site background shell.
  *
- * 移动端（<768px）：整页 body 拉伸渐变，隐藏 fixed 层——避免地址栏显隐等导致的黑框/露缝（与此前一致）。
- * 桌面端（≥768px）：固定 .background-gradient + translateY(-scrollY)，减轻快速滚动时大面积 repaint。
+ * 全视口统一：渐变画在 body 上（铺底 + --site-background-image），随内容滚动。
+ * .background-gradient 保留在 HTML 中但始终隐藏，避免旧页/脚本依赖缺失节点。
  *
- * html 使用 --site-background-fallback 兜底 overscroll / 安全区露缝。
+ * html 使用 --site-background-fallback 兜底 overscroll / 安全区露缝（由 JS 从 body 同步 token）。
  */
 
 html.site-fixed-background,
@@ -19,7 +19,6 @@ html.site-fixed-background {
     background-image: none;
 }
 
-/* --- 移动端：整页 body = 与桌面固定层相同的「铺底 + 渐变」（仅实现方式不同） --- */
 body.site-background-shell {
     --bs-body-bg: transparent;
     background-color: var(--site-background-underlay, #6f6f6f) !important;
@@ -49,36 +48,8 @@ body.site-background-shell .modal {
     height: auto;
 }
 
-/* 不参与「兄弟层 z-index:1」堆叠，避免价目弹窗被顶栏（1001）压住 */
 body.site-background-shell #modal-container {
     position: relative;
     z-index: 1200;
     isolation: isolate;
-}
-
-/* --- 桌面端：固定层 + 合成滚动 --- */
-@media (min-width: 768px) {
-    body.site-background-shell {
-        background-image: none !important;
-    }
-
-    body.site-background-shell .background-gradient {
-        display: block !important;
-        position: fixed;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: var(--site-bg-doc-height, 100vh);
-        z-index: 0;
-        pointer-events: none;
-        /* 与 body（窄屏）同一套铺底 + 渐变，两端口视觉一致 */
-        background-color: var(--site-background-underlay, #6f6f6f);
-        background-image: var(--site-background-image, var(--primary-gradient, linear-gradient(135deg, #333 0%, #ddd 100%)));
-        background-repeat: no-repeat;
-        background-size: 100% 100%;
-        background-position: 0 0;
-        transform: translate3d(0, calc(-1 * var(--site-scroll-y, 0px)), 0);
-        will-change: transform;
-        backface-visibility: hidden;
-    }
 }
