@@ -187,8 +187,8 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         }
         if (finalImageUrls.length === 0) { container.innerHTML = '<p style="color: white; text-align: center;">No images.</p>'; return; }
         const fragment = document.createDocumentFragment();
-        /* 用 <img> 出图而非 div background，避免底色先绘、图后盖上造成的灰闪；手机仅首张立即 src */
-        const initialImgCount = isMobileWarm ? 1 : finalImageUrls.length;
+        /* 用 <img> 出图；首张立即 src，其余在切换时再赋值。桌面若一次挂全量 src 会并发拉满大图，首屏远慢于手机 */
+        const initialImgCount = 1;
         finalImageUrls.forEach((imgUrl, index) => {
             const slide = document.createElement('div');
             slide.className = 'gallery-slide';
@@ -219,9 +219,8 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         });
         container.appendChild(fragment);
         container.dataset.loadedJsonPath = jsonPath;
-        const galEager = isMobileWarm
-            ? Math.min(1, finalImageUrls.length)
-            : finalImageUrls.length;
+        const galEager = Math.min(1, finalImageUrls.length);
+        /* 桌面：首张 warm 后其余走 idle，不抢 LCP；手机：仍只 warm 一张 */
         warmImagesIdle(finalImageUrls, galEager, !isMobileWarm);
 
         // 初始化轮播逻辑 (如果提供了 navId 且有多张图片)
@@ -468,9 +467,10 @@ async function loadAndInitComparison(jsonPath) {
             if (g && g.after_src) comparisonUrls.push(normalizeImageUrl(g.after_src));
         });
         const isMobileWarm = __isMobileImageWarmProfile();
-        /* 手机：不做对比区 warm（避免额外 Image()+decode 与 DOM 叠加）；桌面全量 warm */
+        /* 手机：不做对比区 warm；桌面：限制并发 warm，其余 idle，避免与首屏轮播抢带宽 */
         if (!isMobileWarm) {
-            warmImagesIdle(comparisonUrls, comparisonUrls.length, true);
+            const comEager = Math.min(8, comparisonUrls.length);
+            warmImagesIdle(comparisonUrls, comEager, true);
         }
 
         const sliderContainer = document.createElement('div');
@@ -582,6 +582,7 @@ async function loadAndInitComparison(jsonPath) {
         initializeComparison(); // 初始化滑块交互
         initializeThumbnailNav(sliderContainer, thumbnailNavContainer); // <-- 恢复：不再传递 groups
         initializeDragScrolling(); // 初始化拖动滚动（仅鼠标；触摸走原生 overflow 滚动）
+        attachComparisonScrollDecodePrime(sliderContainer);
 
         console.log(`[Comparison] Placeholder setup complete with horizontal slider and thumbnail nav.`);
 
@@ -678,6 +679,42 @@ function initializeThumbnailNav(sliderContainer, navContainer) {
         item.removeEventListener('click', handleThumbClick);
         item.addEventListener('click', handleThumbClick);
     });
+}
+
+/**
+ * 手机对比横滑：WebKit 常把离屏组的位图回收，往回滑易有「重新解码」体感。
+ * 在滚动时对可视区域±半屏内的组对已 load 的 img 调用 decode()（幂等、不分批连环 init），减轻不对称感。
+ */
+function attachComparisonScrollDecodePrime(slider) {
+    if (!slider || !__isMobileImageWarmProfile()) return;
+
+    let rafId = 0;
+    const primeVisibleNeighbors = () => {
+        rafId = 0;
+        const rect = slider.getBoundingClientRect();
+        if (rect.width <= 0) return;
+        const pad = rect.width * 0.55;
+        const left = rect.left - pad;
+        const right = rect.right + pad;
+        slider.querySelectorAll('.comparison-group').forEach((group) => {
+            const gr = group.getBoundingClientRect();
+            if (gr.right < left || gr.left > right) return;
+            group.querySelectorAll('.comparison-wrapper img').forEach((img) => {
+                if (!img.complete || img.naturalWidth <= 0) return;
+                if (typeof img.decode !== 'function') return;
+                img.decode().catch(() => {});
+            });
+        });
+    };
+
+    const schedule = () => {
+        if (rafId) return;
+        rafId = requestAnimationFrame(primeVisibleNeighbors);
+    };
+
+    slider.addEventListener('scroll', schedule, { passive: true });
+    if (typeof queueMicrotask === 'function') queueMicrotask(schedule);
+    else setTimeout(schedule, 0);
 }
 
 /** 桌面端鼠标拖横滚；触摸由原生 overflow-x + touch-action 处理。 */
