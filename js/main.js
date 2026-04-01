@@ -556,11 +556,47 @@ async function loadAndInitComparison(jsonPath) {
         // --- 初始化交互 --- 
         initializeComparison(); // 初始化滑块交互
         initializeThumbnailNav(sliderContainer, thumbnailNavContainer); // <-- 恢复：不再传递 groups
+        initializeComparisonLazyReveal(sliderContainer);
         initializeDragScrolling(); // 初始化拖动滚动
 
         console.log(`[Comparison] Placeholder setup complete with horizontal slider and thumbnail nav.`);
 
     } catch (error) { console.error(`Error in loadAndInitComparison:`, error); if (container) { container.innerHTML = `<p style="color: red;">无法加载对比区。</p>`; } }
+}
+
+/** 手机端对比组用 data-src 延迟挂载；滑入横向对比条可视区时再写入 src（否则只点缩略图才会出图）。 */
+function __hydrateComparisonGroupImages(groupEl) {
+    if (!groupEl) return;
+    groupEl.querySelectorAll('img[data-src]').forEach((img) => {
+        const ds = img.dataset ? img.dataset.src : '';
+        if (ds && !img.getAttribute('src')) {
+            img.src = ds;
+            img.removeAttribute('data-src');
+        }
+    });
+}
+
+/** 横向滚动对比条：组进入可视区即加载该组大图（与缩略图点击互补）。 */
+function initializeComparisonLazyReveal(sliderEl) {
+    if (!sliderEl) return;
+    const groups = sliderEl.querySelectorAll('.comparison-group');
+    if (groups.length === 0) return;
+
+    if (typeof IntersectionObserver === 'undefined') {
+        groups.forEach((g) => __hydrateComparisonGroupImages(g));
+        return;
+    }
+
+    const io = new IntersectionObserver(
+        (entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) __hydrateComparisonGroupImages(entry.target);
+            });
+        },
+        { root: sliderEl, rootMargin: '160px 0px', threshold: 0.01 }
+    );
+
+    groups.forEach((g) => io.observe(g));
 }
 
 /**
@@ -576,21 +612,12 @@ function initializeThumbnailNav(sliderContainer, navContainer) {
     const thumbItems = navContainer.querySelectorAll('.comparison-thumbnail-item');
     if (thumbItems.length === 0) return;
 
-    function ensureGroupImagesLoaded(groupEl) {
-        if (!groupEl) return;
-        const lazyNodes = groupEl.querySelectorAll('img[data-src]');
-        lazyNodes.forEach((img) => {
-            const ds = img.dataset ? img.dataset.src : '';
-            if (ds && !img.src) img.src = ds;
-        });
-    }
-
     function handleThumbClick(event) {
         const clickedItem = event.currentTarget;
         const targetId = clickedItem.dataset.targetId;
         const targetGroup = document.getElementById(targetId);
         if (!targetGroup) return;
-        ensureGroupImagesLoaded(targetGroup);
+        __hydrateComparisonGroupImages(targetGroup);
         targetGroup.scrollIntoView({ behavior: 'auto', inline: 'center', block: 'nearest' });
     }
 
@@ -599,9 +626,8 @@ function initializeThumbnailNav(sliderContainer, navContainer) {
         item.addEventListener('click', handleThumbClick);
     });
 
-    // Ensure first group is always ready.
     const firstGroup = sliderContainer.querySelector('.comparison-group');
-    ensureGroupImagesLoaded(firstGroup);
+    __hydrateComparisonGroupImages(firstGroup);
 }
 
 /**
