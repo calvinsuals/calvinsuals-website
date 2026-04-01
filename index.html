@@ -450,7 +450,7 @@
             height: 100%; /* 新增：填充由父级 .gallery-slides 的 padding-bottom 创建的空间 */
             background-size: cover;
             background-position: center;
-            background-color: #2f2f2f; /* Keep dark placeholder while large images decode */
+            background-color: transparent; /* 避免大图解码前灰底与叠化叠加造成「闪块」 */
             /* transform: translateZ(0); */ /* 移除 transform */
             opacity: 0; /* 默认隐藏 */
             visibility: hidden; /* 配合 opacity 过渡，确保元素不占据空间且不可交互 */
@@ -2327,8 +2327,8 @@
 
     <!-- 添加外部脚本链接 -->
     <script src="js/site_background.js?v=20260401" defer></script>
-    <script src="js/main.js?v=20260403l" defer></script>
-    <script src="js/navigation.js?v=20260402" defer></script>
+    <script src="js/main.js?v=20260403r" defer></script>
+    <script src="js/navigation.js?v=20260403c" defer></script>
 
     <!-- 锚点定位修复脚本 -->
     <script>
