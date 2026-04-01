@@ -176,8 +176,8 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         }
         if (finalImageUrls.length === 0) { container.innerHTML = '<p style="color: white; text-align: center;">No images.</p>'; return; }
         const fragment = document.createDocumentFragment();
-        /* 桌面：与早期一致，先挂上全部背景，轮播切换不等待 decode；手机：只挂首张，防并发爆内存 */
-        const initialBgCount = isMobileWarm ? 1 : finalImageUrls.length;
+        /* 手机列表已截断为最多 4 张：与桌面一样首轮铺满 background，切换时不现等图 */
+        const initialBgCount = finalImageUrls.length;
         finalImageUrls.forEach((imgUrl, index) => {
             const slide = document.createElement('div'); slide.className = 'gallery-slide';
             if (typeof imgUrl === 'string' && imgUrl.startsWith('http')) {
@@ -192,9 +192,7 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         });
         container.appendChild(fragment);
         container.dataset.loadedJsonPath = jsonPath;
-        const galEager = isMobileWarm
-            ? Math.min(1, finalImageUrls.length)
-            : finalImageUrls.length;
+        const galEager = finalImageUrls.length;
         warmImagesIdle(finalImageUrls, galEager, !isMobileWarm);
 
         // 初始化轮播逻辑 (如果提供了 navId 且有多张图片)
@@ -469,8 +467,7 @@ async function loadAndInitComparison(jsonPath) {
 
                 const imgBefore = document.createElement('img');
                 imgBefore.alt = 'Before'; imgBefore.className = 'before';
-                const cmpLazy = isMobileWarm && index > 0;
-                imgBefore.loading = cmpLazy ? 'lazy' : 'eager';
+                imgBefore.loading = 'eager';
                 imgBefore.decoding = isMobileWarm ? 'async' : 'sync';
                 if (index < 2) imgBefore.fetchPriority = 'high';
                 imgBefore.draggable = false; 
@@ -482,7 +479,7 @@ async function loadAndInitComparison(jsonPath) {
 
                 const imgAfter = document.createElement('img');
                 imgAfter.alt = 'After'; imgAfter.className = 'after';
-                imgAfter.loading = cmpLazy ? 'lazy' : 'eager';
+                imgAfter.loading = 'eager';
                 imgAfter.decoding = isMobileWarm ? 'async' : 'sync';
                 if (index < 2) imgAfter.fetchPriority = 'high';
                 imgAfter.draggable = false; 
@@ -522,7 +519,7 @@ async function loadAndInitComparison(jsonPath) {
                 const thumbUrl = normalizeImageUrl(groupData.after_src);
                 thumbImg.src = thumbUrl;
                 thumbImg.alt = `Thumbnail for ${groupData.id}`;
-                thumbImg.loading = cmpLazy ? 'lazy' : 'eager';
+                thumbImg.loading = 'eager';
                 thumbImg.decoding = isMobileWarm ? 'async' : 'sync';
                 thumbImg.onerror = () => { thumbImg.alt='Thumb not found'; thumbImg.src=''; console.error(`[Comparison ${groupData.id}] 加载 Thumbnail 图片失败: ${groupData.after_src}`); };
                 thumbItem.appendChild(thumbImg);
@@ -546,11 +543,13 @@ async function loadAndInitComparison(jsonPath) {
              console.log("[Comparison] Slider 和 Thumbnail Nav 已插入页面容器。");
         } else { console.error("[Comparison] 主容器已不存在！"); }
 
-        const primeBudgetMs = isMobileWarm ? 4000 : 14000;
-        await Promise.race([
-            primeComparisonImages(container),
-            new Promise((r) => setTimeout(r, primeBudgetMs)),
-        ]);
+        /* 手机不跑 prime（避免连环 decode 刷新崩溃）；图仍 eager，靠浏览器自然解码 */
+        if (!isMobileWarm) {
+            await Promise.race([
+                primeComparisonImages(container),
+                new Promise((r) => setTimeout(r, 14000)),
+            ]);
+        }
 
         // --- 初始化交互 --- 
         initializeComparison(); // 初始化滑块交互
@@ -756,9 +755,7 @@ function initializeGallerySlider(slidesId, dotsId) {
     const autoPlayDelay = 9000;
     const easeCrossfade = 'cubic-bezier(0.42, 0, 0.58, 1)';
 
-    const isMobileWarm = __isMobileImageWarmProfile();
-    const desktopBgPreApplyCount = isMobileWarm ? 2 : slideElements.length;
-    const disableAutoplayOnMobile = isMobileWarm;
+    const disableAutoplayOnMobile = false;
     function applySlideBackground(slide) {
         if (!slide || !slide.dataset || !slide.dataset.bgImage) return;
         if (slide.dataset.bgApplied === '1') return;
@@ -781,9 +778,7 @@ function initializeGallerySlider(slidesId, dotsId) {
         slide.style.backfaceVisibility = 'hidden';
 
         if (slide.dataset.bgImage) {
-            if ((isMobileWarm && index === 0) || (!isMobileWarm && index < desktopBgPreApplyCount)) {
-                applySlideBackground(slide);
-            }
+            applySlideBackground(slide);
         } else {
             console.warn(`[FadeSlider DEBUG] Slide ${index} in #${slidesId} is missing data-bgImage attribute.`);
         }
@@ -805,7 +800,7 @@ function initializeGallerySlider(slidesId, dotsId) {
             const preloadIndex = (newIndex + 1) % slideElements.length;
             const preloadSlide = slideElements[preloadIndex];
             if (preloadSlide && preloadSlide.dataset.bgImage) {
-                if (!isMobileWarm) applySlideBackground(preloadSlide);
+                applySlideBackground(preloadSlide);
                 warmImage(preloadSlide.dataset.bgImage);
             }
             return;
@@ -815,7 +810,7 @@ function initializeGallerySlider(slidesId, dotsId) {
         const nextIndex = (newIndex + 1) % slideElements.length;
         const nextNextSlide = slideElements[nextIndex];
         if (nextNextSlide && nextNextSlide.dataset.bgImage) {
-            if (!isMobileWarm) applySlideBackground(nextNextSlide);
+            applySlideBackground(nextNextSlide);
             warmImage(nextNextSlide.dataset.bgImage);
         }
 
