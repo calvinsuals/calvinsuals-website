@@ -394,69 +394,6 @@ function initializeComparison() {
 }
 
 /**
- * 初始化对比区移动端导航点
- */
-function initializeComparisonNav() {
-    console.log("[Comparison] initializeComparisonNav 函数开始执行...");
-    if (window.innerWidth > 767) { 
-        console.log("[Comparison] 桌面端，跳过移动导航初始化。确保 group 可见。");
-        const navContainer = document.getElementById('comparison-nav-dynamic');
-        if (navContainer) navContainer.style.display = 'none';
-        // 确保桌面端所有 group 都可见
-        document.querySelectorAll('#comparison-container-dynamic .comparison-group').forEach(g => {
-            g.classList.remove('active'); // 移除 active 类
-            g.style.position = ''; // 移除 absolute 定位
-            g.style.opacity = '';   // 恢复默认透明度
-            g.style.visibility = ''; // 恢复默认可见性
-        });
-        return;
-    }
-
-    // --- 移动端逻辑 ---
-    const navContainer = document.getElementById('comparison-nav-dynamic');
-    const groups = document.querySelectorAll('#comparison-container-dynamic .comparison-group');
-    if (!navContainer || groups.length === 0) {
-        console.warn('Comparison nav container or groups not found for mobile nav init.');
-        return;
-    }
-
-    navContainer.innerHTML = ''; // 清空旧点
-    navContainer.style.display = 'flex'; // 确保导航容器可见
-
-    groups.forEach((group, index) => {
-        // 移动端需要绝对定位来重叠显示
-        group.style.position = 'absolute';
-        group.style.opacity = index === 0 ? '1' : '0';
-        group.style.visibility = index === 0 ? 'visible' : 'hidden';
-
-        const navBtn = document.createElement('button');
-        navBtn.className = `comparison-nav-btn${index === 0 ? ' active' : ''}`;
-        navBtn.dataset.index = index;
-        navBtn.title = `View Comparison ${index + 1}`;
-        navBtn.setAttribute('aria-label', `View Comparison ${index + 1}`);
-        navContainer.appendChild(navBtn);
-
-        navBtn.addEventListener('click', () => {
-            document.querySelectorAll('#comparison-nav-dynamic .comparison-nav-btn').forEach(b => b.classList.remove('active'));
-            groups.forEach(g => {
-                g.classList.remove('active');
-                g.style.opacity = '0'; // 使用透明度过渡
-                g.style.visibility = 'hidden';
-            });
-            navBtn.classList.add('active');
-            if (groups[index]) {
-                groups[index].classList.add('active');
-                groups[index].style.opacity = '1';
-                groups[index].style.visibility = 'visible';
-            } else {
-                console.error(`Comparison group with index ${index} not found.`);
-            }
-        });
-    });
-     if (groups[0]) groups[0].classList.add('active'); // 确保第一个 active
-}
-
-/**
  * 加载对比区数据并初始化 (从 comparison_groups.json 加载)
  * @param {string} jsonPath - comparison_groups.json 的路径
  */
@@ -1087,9 +1024,6 @@ document.addEventListener('DOMContentLoaded', () => {
     disableContextMenu('.gallery-slide');
     disableContextMenu('.comparison-wrapper img');
     disableContextMenu('.placeholder-box'); // 对占位符也禁用
-
-    // 窗口大小调整事件 - 不再需要处理对比区导航
-    // window.addEventListener('resize', initializeComparisonNav);
 
     console.log("主 DOMContentLoaded 事件监听器执行完毕。");
     } catch (err) {
