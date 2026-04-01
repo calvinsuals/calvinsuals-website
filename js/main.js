@@ -454,6 +454,7 @@ async function loadAndInitComparison(jsonPath) {
                 /* 统一 async：sync 会在主线程同步解码大块位图，桌面加载/滚动易卡 */
                 imgBefore.decoding = 'async';
                 if (index < 2) imgBefore.fetchPriority = 'high';
+                else if (!isMobileWarm) imgBefore.fetchPriority = 'low';
                 imgBefore.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 Before src: ${groupData.before_src}`);
                 const beforeUrl = normalizeImageUrl(groupData.before_src);
@@ -466,6 +467,7 @@ async function loadAndInitComparison(jsonPath) {
                 imgAfter.loading = 'eager';
                 imgAfter.decoding = 'async';
                 if (index < 2) imgAfter.fetchPriority = 'high';
+                else if (!isMobileWarm) imgAfter.fetchPriority = 'low';
                 imgAfter.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 After src: ${groupData.after_src}`);
                 const afterUrl = normalizeImageUrl(groupData.after_src);
@@ -505,6 +507,8 @@ async function loadAndInitComparison(jsonPath) {
                 thumbImg.alt = `Thumbnail for ${groupData.id}`;
                 thumbImg.loading = 'eager';
                 thumbImg.decoding = 'async';
+                if (index === 0) thumbImg.fetchPriority = 'high';
+                else if (!isMobileWarm) thumbImg.fetchPriority = 'low';
                 thumbImg.onerror = () => { thumbImg.alt='Thumb not found'; thumbImg.src=''; console.error(`[Comparison ${groupData.id}] 加载 Thumbnail 图片失败: ${groupData.after_src}`); };
                 thumbItem.appendChild(thumbImg);
                 thumbnailFragment.appendChild(thumbItem); 
@@ -992,7 +996,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // } else { console.warn('菜单切换按钮或内容未找到...'); }
 
     // *** 初始化调用 ***
-    console.log("开始加载轮播图和对比区...");
+    console.log("开始加载对比区与轮播图...");
     function syncBg() {
         if (typeof window.__syncSiteBackgroundLayout === 'function') {
             try {
@@ -1005,9 +1009,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('load', syncBg, { once: true });
 
-    loadGalleryImages('automotive-slides', 'automotive-nav', 'images/display_automotive.json')
-        .catch((e) => console.error('[Gallery] automotive init failed', e))
+    /* 对比区：必须与「滚到视口再拉」脱钩，否则永远比轮播慢一拍；与 head 中 preload 首组配合，滑到即有图 */
+    loadAndInitComparison('images/comparison_groups.json')
+        .catch((e) => console.error('[Comparison] 未捕获的初始化失败', e))
         .finally(() => syncBg());
+
+    /* 汽车轮播晚一帧，让对比 JSON + 首组请求先进入队列（仍并行，仅排序） */
+    requestAnimationFrame(() => {
+        loadGalleryImages('automotive-slides', 'automotive-nav', 'images/display_automotive.json')
+            .catch((e) => console.error('[Gallery] automotive init failed', e))
+            .finally(() => syncBg());
+    });
 
     const portraitJson = 'images/display_portrait.json';
     const startPortraitGallery = () => {
@@ -1020,47 +1032,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         window.setTimeout(startPortraitGallery, 500);
     }
-
-    (function scheduleComparisonWhenVisible(jsonPath) {
-        const section = document.getElementById('comparison');
-        const run = () => {
-            loadAndInitComparison(jsonPath)
-                .catch((e) => console.error('[Comparison] 未捕获的初始化失败', e))
-                .finally(() => syncBg());
-        };
-        if (!section) {
-            run();
-            return;
-        }
-        let started = false;
-        const start = () => {
-            if (started) return;
-            started = true;
-            run();
-        };
-        if (typeof IntersectionObserver !== 'function') {
-            start();
-            return;
-        }
-        const io = new IntersectionObserver(
-            (entries) => {
-                if (entries.some((e) => e.isIntersecting)) {
-                    io.disconnect();
-                    start();
-                }
-            },
-            { root: null, rootMargin: '400px 0px 480px 0px', threshold: 0 }
-        );
-        io.observe(section);
-        window.setTimeout(() => {
-            try {
-                io.disconnect();
-            } catch (e) {
-                /* ignore */
-            }
-            start();
-        }, 9000);
-    })('images/comparison_groups.json');
     // initializeContactForm(); // Commented out - function not defined
 
     // 弹窗功能初始化

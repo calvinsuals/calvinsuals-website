@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-根据展示用 JSON 的首条图片 URL 更新 index.html 内的 CRITICAL-PRELOAD 区块。
+根据 JSON 更新 index.html 内 CRITICAL-PRELOAD：对比区 group_01、汽车/人像首图。
 与 js/main.js 中 normalizeImageUrl 使用相同主机替换规则。
-本地改完 images/display_*.json 后执行：python scripts/sync_critical_preload.py
+本地改完 images/*.json 后执行：python scripts/sync_critical_preload.py
 GitHub Actions 在 generate_galleries.py 之后会运行本脚本并一并提交 index.html。
 """
 from __future__ import annotations
@@ -38,6 +38,30 @@ def first_list_url(json_path: Path) -> str:
     return ""
 
 
+def first_comparison_pair_urls(json_path: Path) -> tuple[str, str]:
+    """comparison_groups.json 首组 before/after，供滚到对比区前预加载。"""
+    if not json_path.is_file():
+        return "", ""
+    try:
+        data = json.loads(json_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return "", ""
+    if not isinstance(data, list) or not data or not isinstance(data[0], dict):
+        return "", ""
+    g = data[0]
+    b = g.get("before_src") or ""
+    a = g.get("after_src") or ""
+    if isinstance(b, str):
+        b = normalize_image_url(b)
+    else:
+        b = ""
+    if isinstance(a, str):
+        a = normalize_image_url(a)
+    else:
+        a = ""
+    return b, a
+
+
 def preload_href(url: str) -> str:
     """路径中含空格等时编码，与浏览器请求一致。"""
     p = urlparse(url)
@@ -48,6 +72,20 @@ def preload_href(url: str) -> str:
 
 def build_preload_lines() -> list[str]:
     lines: list[str] = []
+    lines.append(
+        '    <link rel="preload" href="images/comparison_groups.json" as="fetch" '
+        'type="application/json" crossorigin="anonymous">'
+    )
+    cb, ca = first_comparison_pair_urls(ROOT / "images" / "comparison_groups.json")
+    if cb:
+        lines.append(
+            f'    <link rel="preload" as="image" fetchpriority="high" href="{preload_href(cb)}">'
+        )
+    if ca:
+        lines.append(
+            f'    <link rel="preload" as="image" fetchpriority="high" href="{preload_href(ca)}">'
+        )
+
     auto = first_list_url(ROOT / "images" / "display_automotive.json")
     portrait = first_list_url(ROOT / "images" / "display_portrait.json")
 
@@ -87,7 +125,9 @@ def main() -> None:
         raise SystemExit("未能替换 CRITICAL-PRELOAD 区块（请检查标记是否唯一）")
 
     INDEX.write_text(new_text, encoding="utf-8")
-    print("已更新 index.html 内 CRITICAL-PRELOAD（来自 display_automotive / display_portrait 首图）")
+    print(
+        "已更新 index.html 内 CRITICAL-PRELOAD（comparison_groups 首组 + automotive / portrait 首图）"
+    )
 
 
 if __name__ == "__main__":

@@ -6,14 +6,16 @@
     <title>calvinsuals Photography</title>
     <link rel="preconnect" href="https://img.calvinsuals.com" crossorigin>
     <link rel="dns-prefetch" href="https://img.calvinsuals.com">
-    <!-- 首图 preload 由 scripts/sync_critical_preload.py 写入，改图后运行脚本或依赖 CI -->
+    <!-- 首图 preload 可由 scripts/sync_critical_preload.py 维护；对比首组需与 images/comparison_groups.json 中 group_01 一致 -->
     <!-- CRITICAL-PRELOAD:START -->
+    <link rel="preload" href="images/comparison_groups.json" as="fetch" type="application/json" crossorigin="anonymous">
+    <link rel="preload" as="image" fetchpriority="high" href="https://img.calvinsuals.com/images/comparison/group_01/By.calvinsuals.24071820250410004641_%E7%BB%93%E6%9E%9C.webp">
+    <link rel="preload" as="image" fetchpriority="high" href="https://img.calvinsuals.com/images/comparison/group_01/By.calvinsuals.24071820250410004642_%E7%BB%93%E6%9E%9C.webp">
     <link rel="preload" as="image" fetchpriority="high" href="https://img.calvinsuals.com/images/display/automotive%20display/images_display_automotive%20display_By.calvinsuals.240305.webp">
     <link rel="preload" as="image" href="https://img.calvinsuals.com/images/display/portrait%20display/images_display_portrait%20display_By.calvinsuals.25081409105.webp">
     <!-- CRITICAL-PRELOAD:END -->
     <link rel="preload" href="images/display_automotive.json" as="fetch" type="application/json" crossorigin="anonymous">
     <link rel="preload" href="images/display_portrait.json" as="fetch" type="application/json" crossorigin="anonymous">
-    <!-- comparison_groups 由对比区进入视口后再拉，避免与首屏轮播抢连接 -->
     <!-- 字体 (Add 600 weight for Montserrat) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,8 +33,7 @@
     <!-- <link rel="stylesheet" href="automotive.css"> --> 
 
     <link rel="stylesheet" href="css/site_background.css?v=20260404a">
-    <!-- 首页 JSON 提前排队，减少轮播/对比区在 fetch 完成前空白 -->
-    <link rel="preload" href="images/comparison_groups.json" as="fetch">
+    <!-- 首页 JSON（comparison_groups 已在 head 顶部 preload） -->
     <link rel="preload" href="images/display_automotive.json" as="fetch">
     <link rel="preload" href="images/display_portrait.json" as="fetch">
 
@@ -2380,7 +2381,7 @@
 
     <!-- 添加外部脚本链接 -->
     <script src="js/site_background.js?v=20260404a" defer></script>
-    <script src="js/main.js?v=20260404l" defer></script>
+    <script src="js/main.js?v=20260404m" defer></script>
     <script src="js/navigation.js?v=20260404i" defer></script>
 
     <!-- 锚点定位修复脚本 -->
