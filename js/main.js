@@ -102,6 +102,15 @@ function warmImage(url, onReady) {
     }
 }
 
+/** 窄屏：避免一次性 decode 过多大图导致标签页 OOM / 长时间白屏（与桌面「全量预热」策略区分） */
+function __isMobileImageWarmProfile() {
+    try {
+        return typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 767px)').matches;
+    } catch (e) {
+        return false;
+    }
+}
+
 function warmImagesIdle(urls, eagerCount = 8) {
     const valid = (urls || []).filter((u) => typeof u === 'string' && u.startsWith('http'));
     if (valid.length === 0) return;
@@ -170,8 +179,11 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         });
         container.appendChild(fragment);
         container.dataset.loadedJsonPath = jsonPath;
-        /* 展示区张数有限：一次性预热全部，避免轮播切换时等 decode 卡顿 */
-        warmImagesIdle(finalImageUrls, finalImageUrls.length);
+        /* 桌面：全量预热；手机：仅 eager 前几张，其余走 idle，减轻内存与首屏压力 */
+        const galEager = __isMobileImageWarmProfile()
+            ? Math.min(3, finalImageUrls.length)
+            : finalImageUrls.length;
+        warmImagesIdle(finalImageUrls, galEager);
 
         // 初始化轮播逻辑 (如果提供了 navId 且有多张图片)
         console.log(`[LoadGalleryImages DEBUG ${containerId}] Checking conditions for calling initializeGallerySlider:`); // 新增
@@ -413,7 +425,10 @@ async function loadAndInitComparison(jsonPath) {
             if (g && g.before_src) comparisonUrls.push(normalizeImageUrl(g.before_src));
             if (g && g.after_src) comparisonUrls.push(normalizeImageUrl(g.after_src));
         });
-        warmImagesIdle(comparisonUrls, comparisonUrls.length);
+        const cmpEager = __isMobileImageWarmProfile()
+            ? Math.min(8, comparisonUrls.length)
+            : comparisonUrls.length;
+        warmImagesIdle(comparisonUrls, cmpEager);
 
         const sliderContainer = document.createElement('div');
         sliderContainer.className = 'comparison-slider';

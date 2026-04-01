@@ -1939,13 +1939,16 @@
 
         /* 移动端菜单样式 */
         @media screen and (max-width: 767px) {
-            /* 移动端稳定高度：避免 100dvh 随 Chrome UI 动画变化导致标题/容器漂移 */
+            /* 移动端稳定高度：svh 优先；旧内核无 svh 时回退 vh */
             .hero {
+                height: 100vh;
+                min-height: 100vh;
                 height: 100svh;
                 min-height: 100svh;
             }
 
             .nav-menu {
+                height: 100vh;
                 height: 100svh;
             }
 
@@ -2321,8 +2324,8 @@
     </div>
 
     <!-- 添加外部脚本链接 -->
-    <script src="js/site_background.js" defer></script>
-    <script src="js/main.js?v=20260401b" defer></script>
+    <script src="js/site_background.js?v=20260401" defer></script>
+    <script src="js/main.js?v=20260401c" defer></script>
     <script src="js/navigation.js" defer></script>
 
     <!-- 锚点定位修复脚本 -->
