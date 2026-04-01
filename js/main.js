@@ -168,7 +168,6 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         if (finalImageUrls.length === 0) { container.innerHTML = '<p style="color: white; text-align: center;">No images.</p>'; return; }
         const fragment = document.createDocumentFragment();
         const isMobileWarm = __isMobileImageWarmProfile();
-        const desktopBgPreApplyCount = 2;
         const initialBgCount = isMobileWarm ? 1 : 2;
         finalImageUrls.forEach((imgUrl, index) => {
             const slide = document.createElement('div'); slide.className = 'gallery-slide';
@@ -187,8 +186,8 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         container.dataset.loadedJsonPath = jsonPath;
         /* 控制首屏预热并发，避免桌面/移动端都出现解码峰值卡顿 */
         const galEager = __isMobileImageWarmProfile()
-            ? Math.min(3, finalImageUrls.length)
-            : Math.min(4, finalImageUrls.length);
+            ? Math.min(1, finalImageUrls.length)
+            : Math.min(3, finalImageUrls.length);
         warmImagesIdle(finalImageUrls, galEager);
 
         // 初始化轮播逻辑 (如果提供了 navId 且有多张图片)
@@ -831,6 +830,8 @@ function initializeGallerySlider(slidesId, dotsId) {
     const easeCrossfade = 'cubic-bezier(0.42, 0, 0.58, 1)';
 
     const isMobileWarm = __isMobileImageWarmProfile();
+    const desktopBgPreApplyCount = 2;
+    const disableAutoplayOnMobile = isMobileWarm;
     function applySlideBackground(slide) {
         if (!slide || !slide.dataset || !slide.dataset.bgImage) return;
         if (slide.dataset.bgApplied === '1') return;
@@ -942,6 +943,10 @@ function initializeGallerySlider(slidesId, dotsId) {
     }
 
     function startAutoPlay() {
+        if (disableAutoplayOnMobile) {
+            console.log(`[FadeSlider DEBUG #${slidesId}] Autoplay disabled on mobile safe mode.`);
+            return;
+        }
         stopAutoPlay(); // Clear existing interval before starting a new one
         if (slideElements.length > 1) { // Only autoplay if there's more than one slide
             intervalId = setInterval(next, autoPlayDelay);
@@ -1049,7 +1054,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadAndInitComparison(comparisonJsonPath);
     }
     if (isMobileViewport) {
-        // 移动端：进入对比区附近才自动加载，避免首屏瞬时重负载，但不再显示「点击加载」按钮。
+        // 移动端：滚动到对比区附近才加载；若不支持 IO，则在首次用户滚动后再加载。
         const comparisonSection = document.getElementById('comparison');
         if (comparisonSection && 'IntersectionObserver' in window) {
             const io = new IntersectionObserver((entries) => {
@@ -1061,9 +1066,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }, { root: null, rootMargin: '400px 0px', threshold: 0.01 });
             io.observe(comparisonSection);
-            setTimeout(runComparisonLoadOnce, 5000);
         } else {
-            setTimeout(runComparisonLoadOnce, 1600);
+            const onFirstScrollLoadComparison = () => {
+                window.removeEventListener('scroll', onFirstScrollLoadComparison);
+                runComparisonLoadOnce();
+            };
+            window.addEventListener('scroll', onFirstScrollLoadComparison, { passive: true, once: true });
         }
     } else {
         runComparisonLoadOnce(); // 桌面端保持自动加载
