@@ -331,7 +331,9 @@ function initializeComparison() {
         } else {
             afterImage.style.clipPath = `inset(0 ${100 - initialPercent}% 0 0)`;
         }
-        console.log(`[Comparison Init] Set initial state for ${wrapper.closest('.comparison-group')?.id || 'wrapper'} to ${initialPercent}%`);
+        const parentGroup = wrapper.closest('.comparison-group');
+        const parentGroupId = parentGroup ? parentGroup.id : 'wrapper';
+        console.log(`[Comparison Init] Set initial state for ${parentGroupId} to ${initialPercent}%`);
     });
 }
 
@@ -425,8 +427,9 @@ async function loadAndInitComparison(jsonPath) {
             if (g && g.before_src) comparisonUrls.push(normalizeImageUrl(g.before_src));
             if (g && g.after_src) comparisonUrls.push(normalizeImageUrl(g.after_src));
         });
-        const cmpEager = __isMobileImageWarmProfile()
-            ? Math.min(8, comparisonUrls.length)
+        const isMobileWarm = __isMobileImageWarmProfile();
+        const cmpEager = isMobileWarm
+            ? Math.min(2, comparisonUrls.length)
             : comparisonUrls.length;
         warmImagesIdle(comparisonUrls, cmpEager);
 
@@ -453,9 +456,9 @@ async function loadAndInitComparison(jsonPath) {
 
                 const imgBefore = document.createElement('img');
                 imgBefore.alt = 'Before'; imgBefore.className = 'before';
-                imgBefore.loading = 'eager';
+                imgBefore.loading = isMobileWarm && index > 0 ? 'lazy' : 'eager';
                 imgBefore.decoding = 'async';
-                if (index < 4) imgBefore.fetchPriority = 'high';
+                if (!isMobileWarm && index < 4) imgBefore.fetchPriority = 'high';
                 imgBefore.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 Before src: ${groupData.before_src}`);
                 imgBefore.src = normalizeImageUrl(groupData.before_src);
@@ -464,9 +467,9 @@ async function loadAndInitComparison(jsonPath) {
 
                 const imgAfter = document.createElement('img');
                 imgAfter.alt = 'After'; imgAfter.className = 'after';
-                imgAfter.loading = 'eager';
+                imgAfter.loading = isMobileWarm && index > 0 ? 'lazy' : 'eager';
                 imgAfter.decoding = 'async';
-                if (index < 4) imgAfter.fetchPriority = 'high';
+                if (!isMobileWarm && index < 4) imgAfter.fetchPriority = 'high';
                 imgAfter.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 After src: ${groupData.after_src}`);
                 imgAfter.src = normalizeImageUrl(groupData.after_src);
@@ -502,7 +505,7 @@ async function loadAndInitComparison(jsonPath) {
                 const thumbImg = document.createElement('img');
                 thumbImg.src = normalizeImageUrl(groupData.after_src); 
                 thumbImg.alt = `Thumbnail for ${groupData.id}`;
-                thumbImg.loading = 'eager';
+                thumbImg.loading = isMobileWarm ? 'lazy' : 'eager';
                 thumbImg.decoding = 'async';
                 thumbImg.onerror = () => { thumbImg.alt='Thumb not found'; thumbImg.src=''; console.error(`[Comparison ${groupData.id}] 加载 Thumbnail 图片失败: ${groupData.after_src}`); };
                 thumbItem.appendChild(thumbImg);
