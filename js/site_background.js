@@ -37,12 +37,14 @@
     }
 
     let scrollRaf = 0;
-    /** 桌面滚动：同一帧内同步 scrollY 与文档高度，避免固定渐变层高度滞后导致「滑着滑着像半截图/背景断层」 */
+    /**
+     * 滚动帧只写 scrollY。不要在每帧读 scrollHeight：会强制布局，长页桌面滚动会明显掉帧。
+     * 文档高度由 resize / load / ResizeObserver / __syncSiteBackgroundLayout 更新即可。
+     */
     function applyScrollFrame() {
         scrollRaf = 0;
         if (!mq.matches) return;
         root.style.setProperty('--site-scroll-y', window.scrollY + 'px');
-        updateDocHeight();
     }
 
     function onScroll() {

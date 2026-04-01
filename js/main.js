@@ -84,17 +84,8 @@ function warmImage(url, onReady) {
         if (typeof onReady === 'function') onReady();
         __flushWarmWaiters(url);
     };
-    /* 窄屏跳过显式 decode()，减轻主线程尖峰；桌面仍 decode 以利叠化前纹理就绪 */
-    const tryDecode = __isMobileImageWarmProfile()
-        ? markReady
-        : () => {
-              if (typeof img.decode === 'function') {
-                  img.decode().then(markReady).catch(markReady);
-              } else {
-                  markReady();
-              }
-          };
-    img.onload = tryDecode;
+    /* 离屏 Image 只做网络预热；不在此 decode，避免桌面 idle 队列与滚动抢主线程。叠化前 decode 在 promiseSlideImgReady。 */
+    img.onload = markReady;
     img.onerror = () => {
         __imageWarmCache.delete(url);
         if (__imageWarmWaiters.has(url)) {
@@ -112,7 +103,7 @@ function warmImage(url, onReady) {
     };
     img.src = url;
     if (img.complete) {
-        tryDecode();
+        markReady();
     }
 }
 
@@ -424,7 +415,7 @@ async function loadAndInitComparison(jsonPath) {
         const isMobileWarm = __isMobileImageWarmProfile();
         /* 手机：不做对比区 warm；桌面：限制并发 warm，其余 idle，避免与首屏轮播抢带宽 */
         if (!isMobileWarm) {
-            const comEager = Math.min(8, comparisonUrls.length);
+            const comEager = Math.min(4, comparisonUrls.length);
             warmImagesIdle(comparisonUrls, comEager, true);
         }
 
@@ -452,7 +443,8 @@ async function loadAndInitComparison(jsonPath) {
                 const imgBefore = document.createElement('img');
                 imgBefore.alt = 'Before'; imgBefore.className = 'before';
                 imgBefore.loading = 'eager';
-                imgBefore.decoding = isMobileWarm ? 'async' : 'sync';
+                /* 统一 async：sync 会在主线程同步解码大块位图，桌面加载/滚动易卡 */
+                imgBefore.decoding = 'async';
                 if (index < 2) imgBefore.fetchPriority = 'high';
                 imgBefore.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 Before src: ${groupData.before_src}`);
@@ -464,7 +456,7 @@ async function loadAndInitComparison(jsonPath) {
                 const imgAfter = document.createElement('img');
                 imgAfter.alt = 'After'; imgAfter.className = 'after';
                 imgAfter.loading = 'eager';
-                imgAfter.decoding = isMobileWarm ? 'async' : 'sync';
+                imgAfter.decoding = 'async';
                 if (index < 2) imgAfter.fetchPriority = 'high';
                 imgAfter.draggable = false; 
                 console.log(`[Comparison ${groupData.id}] 设置 After src: ${groupData.after_src}`);
@@ -504,7 +496,7 @@ async function loadAndInitComparison(jsonPath) {
                 thumbImg.src = thumbUrl;
                 thumbImg.alt = `Thumbnail for ${groupData.id}`;
                 thumbImg.loading = 'eager';
-                thumbImg.decoding = isMobileWarm ? 'async' : 'sync';
+                thumbImg.decoding = 'async';
                 thumbImg.onerror = () => { thumbImg.alt='Thumb not found'; thumbImg.src=''; console.error(`[Comparison ${groupData.id}] 加载 Thumbnail 图片失败: ${groupData.after_src}`); };
                 thumbItem.appendChild(thumbImg);
                 thumbnailFragment.appendChild(thumbItem); 
@@ -527,10 +519,10 @@ async function loadAndInitComparison(jsonPath) {
              console.log("[Comparison] Slider 和 Thumbnail Nav 已插入页面容器。");
         } else { console.error("[Comparison] 主容器已不存在！"); }
 
-        /* 手机：只等 img load，不连环 decode（防崩）；桌面：load + 去重逐帧 decode */
+        /* 只等 load，不在主线程连环 decode（桌面逐帧 decode 易长时间占满、拖垮滚动） */
         await Promise.race([
-            primeComparisonImages(container, { decode: !isMobileWarm }),
-            new Promise((r) => setTimeout(r, isMobileWarm ? 10000 : 14000)),
+            primeComparisonImages(container, { decode: false }),
+            new Promise((r) => setTimeout(r, 12000)),
         ]);
 
         // --- 初始化交互 --- 
@@ -544,8 +536,7 @@ async function loadAndInitComparison(jsonPath) {
 }
 
 /**
- * 对比区：先等全部 img load；桌面再对唯一 URL 逐帧 decode。
- * @param {{ decode?: boolean }} opts decode 默认 true；手机用 false 避免刷新时 GPU/内存尖峰崩溃。
+ * 对比区：等全部 img load；opts.decode 为 true 时对去重后的 img 逐帧 decode（默认仅当调用方开启）。
  */
 function primeComparisonImages(comparisonRoot, opts) {
     if (!comparisonRoot) return Promise.resolve();
