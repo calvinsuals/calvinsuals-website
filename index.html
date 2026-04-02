@@ -501,10 +501,13 @@
 
         /* 桌面：首页大图/区块不参与离屏省略绘制；轮播张不用 visibility:hidden（叠化只靠 opacity），避免滚回视口像重新显图 */
         @media screen and (min-width: 768px) {
-            /* 仅首页·桌面：不用站点渐变铺底，只用既有 --site-background-underlay 纯色（子页/手机仍为渐变） */
+            /* 仅首页·桌面：单色铺底。色值 #0a0a0a 来自历史 fd8b0a2/3193ad5「页身深色」；不改 body 变量，手机端仍用原渐变 */
+            html.site-fixed-background:has(body.home-page) {
+                background-color: #0a0a0a;
+            }
             body.home-page.site-background-shell {
                 background-image: none !important;
-                background-color: var(--site-background-underlay, #6f6f6f) !important;
+                background-color: #0a0a0a !important;
             }
             body.home-page.site-background-shell .background-gradient {
                 display: none !important;
