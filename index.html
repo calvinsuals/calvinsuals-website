@@ -554,9 +554,8 @@
                 perspective: none;
                 -webkit-perspective: none;
                 max-width: 1200px;
-                border: 1px solid rgba(255, 255, 255, 0.07);
+                border: none;
                 box-shadow:
-                    0 1px 0 rgba(255, 255, 255, 0.1),
                     0 18px 42px rgba(0, 0, 0, 0.55),
                     0 6px 16px rgba(0, 0, 0, 0.45);
             }
@@ -572,11 +571,10 @@
                 backface-visibility: visible;
                 -webkit-backface-visibility: visible;
                 /* 勿用 contain:paint — 部分浏览器快滑时易裁切/半幅刷新 */
-                /* 内凹衬底 + 顶亮边：像压在暗衬上，而不是贴在纯黑墙上 */
+                /* 内凹衬底，无白描边/顶亮线 */
                 background-color: #111111;
                 background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 42%);
                 box-shadow:
-                    inset 0 1px 0 rgba(255, 255, 255, 0.09),
                     inset 0 0 0 1px rgba(0, 0, 0, 0.35),
                     inset 0 -20px 40px rgba(0, 0, 0, 0.35);
             }
@@ -589,10 +587,8 @@
 
             body.home-page .comparison-wrapper {
                 box-shadow:
-                    0 1px 0 rgba(255, 255, 255, 0.08),
                     0 20px 48px rgba(0, 0, 0, 0.5),
-                    0 8px 20px rgba(0, 0, 0, 0.4),
-                    0 0 0 1px rgba(255, 255, 255, 0.06);
+                    0 8px 20px rgba(0, 0, 0, 0.4);
             }
 
             body.home-page .comparison-group {
@@ -628,15 +624,13 @@
                 background-color: #111111;
                 background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 42%);
                 box-shadow:
-                    inset 0 1px 0 rgba(255, 255, 255, 0.09),
                     inset 0 0 0 1px rgba(0, 0, 0, 0.35),
                     inset 0 -20px 40px rgba(0, 0, 0, 0.35);
             }
 
             body.home-page .gallery-slider {
-                border: 1px solid rgba(255, 255, 255, 0.07);
+                border: none;
                 box-shadow:
-                    0 1px 0 rgba(255, 255, 255, 0.08),
                     0 14px 32px rgba(0, 0, 0, 0.5),
                     0 5px 14px rgba(0, 0, 0, 0.4);
             }
@@ -647,10 +641,8 @@
 
             body.home-page .comparison-wrapper {
                 box-shadow:
-                    0 1px 0 rgba(255, 255, 255, 0.08),
                     0 18px 40px rgba(0, 0, 0, 0.48),
-                    0 6px 16px rgba(0, 0, 0, 0.38),
-                    0 0 0 1px rgba(255, 255, 255, 0.06);
+                    0 6px 16px rgba(0, 0, 0, 0.38);
             }
 
             body.home-page .overlay-title {
