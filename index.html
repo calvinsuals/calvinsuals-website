@@ -546,15 +546,15 @@
 
             body.home-page .gallery-preview {
                 isolation: auto;
-                max-width: min(92%, 1080px);
+                max-width: min(94%, 1240px);
             }
 
-            /* 略缩小展示宽 + 分层阴影与顶缘高光，深色底上恢复「浮起」层次 */
+            /* 桌面首页轮播略小于全局 1400px，介于「显大」与锐度之间 */
             body.home-page .gallery-slider {
                 transform: none;
                 perspective: none;
                 -webkit-perspective: none;
-                max-width: 1080px;
+                max-width: 1240px;
                 border: 1px solid rgba(255, 255, 255, 0.07);
                 box-shadow:
                     0 1px 0 rgba(255, 255, 255, 0.1),
