@@ -197,7 +197,8 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
                     const img = document.createElement('img');
                     img.className = 'gallery-slide-img';
                     img.alt = '';
-                    img.decoding = b === 0 ? 'sync' : 'async';
+                    /* 双图均 async，避免首张 sync decode 与竖滚同帧抢主线程 */
+                    img.decoding = 'async';
                     img.draggable = false;
                     img.loading = 'eager';
                     img.fetchPriority = b === 0 ? 'high' : 'low';
@@ -1330,6 +1331,31 @@ document.addEventListener('DOMContentLoaded', () => {
     disableContextMenu('.gallery-slide');
     disableContextMenu('.comparison-wrapper img');
     disableContextMenu('.placeholder-box'); // 对占位符也禁用
+
+    /* 竖滚时暂停展示轮播 autoplay，停滚约 1.4s 后再开，减少叠化与页面合成叠乘 */
+    (function attachVerticalScrollGalleryPause() {
+        let resumeTimer = null;
+        const RESUME_MS = 1400;
+        function onScroll() {
+            const regs = window.__displayGalleryControls;
+            if (!regs) return;
+            const vals = Object.values(regs);
+            if (vals.length === 0) return;
+            vals.forEach(function (c) {
+                if (c && typeof c.stopAutoPlay === 'function') c.stopAutoPlay();
+            });
+            if (resumeTimer) clearTimeout(resumeTimer);
+            resumeTimer = setTimeout(function () {
+                resumeTimer = null;
+                const r2 = window.__displayGalleryControls;
+                if (!r2) return;
+                Object.values(r2).forEach(function (c) {
+                    if (c && typeof c.startAutoPlay === 'function') c.startAutoPlay();
+                });
+            }, RESUME_MS);
+        }
+        window.addEventListener('scroll', onScroll, { passive: true });
+    })();
 
     console.log("主 DOMContentLoaded 事件监听器执行完毕。");
     } catch (err) {

@@ -553,9 +553,14 @@
             }
 
             body.home-page .gallery-slides {
+                transform: none;
                 box-shadow: none;
                 perspective: none;
                 -webkit-perspective: none;
+                backface-visibility: visible;
+                -webkit-backface-visibility: visible;
+                /* 收拢绘制范围，减轻竖滚时轮播 subtree 牵连整页 */
+                contain: layout paint;
                 /* 与 site_background 兜底色接近，快速滑动短暂露底时不至于整块死灰 */
                 background-color: #5c5c5c;
                 background-image: linear-gradient(135deg, #3a3a3a 0%, #8a8a8a 100%);
@@ -567,8 +572,7 @@
                 transform: none;
             }
 
-            body.home-page .comparison-group,
-            body.home-page .gallery-slides {
+            body.home-page .comparison-group {
                 transform: none;
                 backface-visibility: hidden;
                 -webkit-backface-visibility: hidden;
@@ -2439,7 +2443,7 @@
 
     <!-- 添加外部脚本链接 -->
     <script src="js/site_background.js?v=20260407a" defer></script>
-    <script src="js/main.js?v=20260407b" defer></script>
+    <script src="js/main.js?v=20260407c" defer></script>
     <script src="js/navigation.js?v=20260404i" defer></script>
 
     <!-- 锚点定位修复脚本 -->
