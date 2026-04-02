@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>calvinsuals Photography</title>
-    <!-- TEMP：已关桌面 fixed 视口渐变，全站 body 整页渐变；首帧 html 仍兜底色 -->
+    <!-- 首帧 html 兜底色；全站渐变见 site_background.css；仅首页桌面可关渐变见下方 body.home-page -->
     <style>
         html.site-fixed-background {
             background-color: #2f2f2f;
             min-height: 100%;
         }
     </style>
-    <link rel="stylesheet" href="css/site_background.css?v=20260406c">
+    <link rel="stylesheet" href="css/site_background.css?v=20260407a">
     <link rel="preconnect" href="https://img.calvinsuals.com" crossorigin>
     <link rel="dns-prefetch" href="https://img.calvinsuals.com">
     <!-- 首图 preload 可由 scripts/sync_critical_preload.py 维护；对比首组需与 images/comparison_groups.json 中 group_01 一致 -->
@@ -501,6 +501,15 @@
 
         /* 桌面：首页大图/区块不参与离屏省略绘制；轮播张不用 visibility:hidden（叠化只靠 opacity），避免滚回视口像重新显图 */
         @media screen and (min-width: 768px) {
+            /* 仅首页·桌面：不用站点渐变铺底，只用既有 --site-background-underlay 纯色（子页/手机仍为渐变） */
+            body.home-page.site-background-shell {
+                background-image: none !important;
+                background-color: var(--site-background-underlay, #6f6f6f) !important;
+            }
+            body.home-page.site-background-shell .background-gradient {
+                display: none !important;
+            }
+
             body.home-page #automotive,
             body.home-page #portrait,
             body.home-page #comparison,
@@ -537,7 +546,7 @@
             }
 
             body.home-page .gallery-slider {
-                transform: translateZ(0);
+                transform: none;
                 perspective: none;
                 -webkit-perspective: none;
                 box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4);
@@ -555,11 +564,12 @@
             body.home-page .comparison-wrapper,
             body.home-page .comparison-after-mask {
                 contain: none;
+                transform: none;
             }
 
             body.home-page .comparison-group,
             body.home-page .gallery-slides {
-                transform: translateZ(0);
+                transform: none;
                 backface-visibility: hidden;
                 -webkit-backface-visibility: hidden;
             }
@@ -2421,7 +2431,7 @@
     </div>
 
     <!-- 添加外部脚本链接 -->
-    <script src="js/site_background.js?v=20260406c" defer></script>
+    <script src="js/site_background.js?v=20260407a" defer></script>
     <script src="js/main.js?v=20260406a" defer></script>
     <script src="js/navigation.js?v=20260404i" defer></script>
 

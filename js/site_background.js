@@ -1,7 +1,7 @@
 /**
  * 将 body 上的 --site-background-* 同步到 <html>（供 overscroll / 安全区露边等使用）。
  *
- * TEMP：渐变均在 body（见 CSS）。此处仅同步 token 到 html。
+ * 桌面：渐变在 fixed 视口层；窄屏：渐变在 body（见 CSS）。此处仅同步 token。
  */
 (function () {
     const root = document.documentElement;
@@ -48,6 +48,5 @@
 
     init();
 
-    /* 与图片加载等并行触发时合并到下一帧，避免连续 getComputedStyle 抢主线程 */
     window.__syncSiteBackgroundLayout = scheduleSyncSiteBackgroundTokens;
 })();
