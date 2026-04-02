@@ -22,8 +22,63 @@ function __notifyComparisonHandleDragEnd() {
 
 /** 轮播叠化时长（ms）；与 index.html 窄屏 .gallery-slide 兜底一致 */
 const GALLERY_CROSSFADE_MS = 2200;
-/** 自动切图间隔；略短于 9s 可提高曝光，仍避免叠化过于频繁 */
-const GALLERY_AUTOPLAY_MS = 7200;
+/** 自动切图间隔（叠化 GALLERY_CROSSFADE_MS=2200ms，与此相加约 6s 一轮观感） */
+const GALLERY_AUTOPLAY_MS = 3800;
+/** 竖向滚动页面时暂停展示轮播，停滚后过此时间再恢复（避免滚动手感与叠化抢帧） */
+const GALLERY_AUTOSCROLL_RESUME_MS = 200;
+
+let __galleryPageScrollPauseInstalled = false;
+let __galleryScrollResumeTimer = null;
+
+function ensureGalleryAutoplayPauseOnWindowScroll() {
+    if (__galleryPageScrollPauseInstalled) return;
+    __galleryPageScrollPauseInstalled = true;
+    const stopAll = () => {
+        const ctrls = window.__displayGalleryControls;
+        if (!ctrls || typeof ctrls !== 'object') return;
+        Object.keys(ctrls).forEach((id) => {
+            const c = ctrls[id];
+            if (c && typeof c.stopAutoPlay === 'function') c.stopAutoPlay();
+        });
+    };
+    const startAll = () => {
+        const ctrls = window.__displayGalleryControls;
+        if (!ctrls || typeof ctrls !== 'object') return;
+        Object.keys(ctrls).forEach((id) => {
+            const c = ctrls[id];
+            if (c && typeof c.startAutoPlay === 'function') c.startAutoPlay();
+        });
+    };
+    window.addEventListener(
+        'scroll',
+        () => {
+            stopAll();
+            if (__galleryScrollResumeTimer) clearTimeout(__galleryScrollResumeTimer);
+            __galleryScrollResumeTimer = window.setTimeout(() => {
+                __galleryScrollResumeTimer = null;
+                startAll();
+            }, GALLERY_AUTOSCROLL_RESUME_MS);
+        },
+        { passive: true }
+    );
+}
+
+/** 与站内主图导出宽度一致；height 与 index.html 中轮播 2:1、对比区 padding-bottom 62.5% 对齐 */
+const DISPLAY_INNER_WIDTH = 1200;
+const GALLERY_SLIDE_HINT_H = Math.round(DISPLAY_INNER_WIDTH / 2);
+const COMPARISON_HINT_H = Math.round(DISPLAY_INNER_WIDTH * 0.625);
+
+function setGallerySlideImgDimensions(img) {
+    if (!img) return;
+    img.setAttribute('width', String(DISPLAY_INNER_WIDTH));
+    img.setAttribute('height', String(GALLERY_SLIDE_HINT_H));
+}
+
+function setComparisonDisplayImgDimensions(img) {
+    if (!img) return;
+    img.setAttribute('width', String(DISPLAY_INNER_WIDTH));
+    img.setAttribute('height', String(COMPARISON_HINT_H));
+}
 
 /** 正式环境默认不打详细 log；需要时在首页地址后加 ?debug=1 */
 function __siteDbg() {
@@ -309,6 +364,7 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
                     const img = document.createElement('img');
                     img.className = 'gallery-slide-img';
                     img.alt = '';
+                    setGallerySlideImgDimensions(img);
                     /* 双图均 async，避免首张 sync decode 与竖滚同帧抢主线程 */
                     img.decoding = 'async';
                     img.draggable = false;
@@ -334,6 +390,7 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
                     const img = document.createElement('img');
                     img.className = 'gallery-slide-img';
                     img.alt = '';
+                    setGallerySlideImgDimensions(img);
                     img.decoding = !isMobileWarm && index === 0 ? 'sync' : 'async';
                     img.draggable = false;
                     if (!isMobileWarm) img.loading = 'eager';
@@ -647,11 +704,13 @@ async function loadAndInitComparison(jsonPath) {
 
                 const imgBefore = document.createElement('img');
                 imgBefore.alt = 'Before'; imgBefore.className = 'before';
-                /* 手机：第 3 组起 lazy。桌面：全部 eager，避免停一会再快滑到对比区才现拉网络/解码像「卡住」 */
-                imgBefore.loading = !isMobileWarm || index < 2 ? 'eager' : 'lazy';
+                setComparisonDisplayImgDimensions(imgBefore);
+                /* 全端 eager：手机横向滑入时再 lazy 会晚解码，像「突然换图」；桌面原即全 eager */
+                imgBefore.loading = 'eager';
                 imgBefore.decoding = 'async';
                 if (index < 2) imgBefore.fetchPriority = 'high';
                 else if (!isMobileWarm) imgBefore.fetchPriority = 'auto';
+                else if (isMobileWarm && index >= 2) imgBefore.fetchPriority = 'low';
                 imgBefore.draggable = false; 
                 __siteDbg(`[Comparison ${groupData.id}] 设置 Before src: ${groupData.before_src}`);
                 const beforeUrl = normalizeImageUrl(groupData.before_src);
@@ -661,10 +720,12 @@ async function loadAndInitComparison(jsonPath) {
 
                 const imgAfter = document.createElement('img');
                 imgAfter.alt = 'After'; imgAfter.className = 'after';
-                imgAfter.loading = !isMobileWarm || index < 2 ? 'eager' : 'lazy';
+                setComparisonDisplayImgDimensions(imgAfter);
+                imgAfter.loading = 'eager';
                 imgAfter.decoding = 'async';
                 if (index < 2) imgAfter.fetchPriority = 'high';
                 else if (!isMobileWarm) imgAfter.fetchPriority = 'auto';
+                else if (isMobileWarm && index >= 2) imgAfter.fetchPriority = 'low';
                 imgAfter.draggable = false; 
                 __siteDbg(`[Comparison ${groupData.id}] 设置 After src: ${groupData.after_src}`);
                 const afterUrl = normalizeImageUrl(groupData.after_src);
@@ -699,13 +760,15 @@ async function loadAndInitComparison(jsonPath) {
                 thumbItem.className = 'comparison-thumbnail-item';
                 thumbItem.dataset.targetId = group.id;
                 const thumbImg = document.createElement('img');
+                setComparisonDisplayImgDimensions(thumbImg);
                 const thumbUrl = normalizeImageUrl(groupData.after_src);
                 thumbImg.src = thumbUrl;
                 thumbImg.alt = `Thumbnail for ${groupData.id}`;
-                thumbImg.loading = !isMobileWarm || index < 2 ? 'eager' : 'lazy';
+                thumbImg.loading = 'eager';
                 thumbImg.decoding = 'async';
                 if (index === 0) thumbImg.fetchPriority = 'high';
                 else if (!isMobileWarm) thumbImg.fetchPriority = 'auto';
+                else if (isMobileWarm && index >= 1) thumbImg.fetchPriority = 'low';
                 thumbImg.onerror = () => { thumbImg.alt='Thumb not found'; thumbImg.src=''; console.error(`[Comparison ${groupData.id}] 加载 Thumbnail 图片失败: ${groupData.after_src}`); };
                 thumbItem.appendChild(thumbImg);
                 thumbnailFragment.appendChild(thumbItem); 
@@ -1098,6 +1161,7 @@ function initDualBufferGallerySlider(slidesId, dotsId, slidesContainer, urlList)
     window.__displayGalleryControls = window.__displayGalleryControls || {};
     window.__displayGalleryControls[slidesId] = { stopAutoPlay: stopAutoPlay, startAutoPlay: startAutoPlay };
 
+    ensureGalleryAutoplayPauseOnWindowScroll();
     scheduleLookahead();
     startAutoPlay();
 }
@@ -1169,6 +1233,7 @@ function initializeGallerySlider(slidesId, dotsId) {
             img = document.createElement('img');
             img.className = 'gallery-slide-img';
             img.alt = '';
+            setGallerySlideImgDimensions(img);
             img.decoding = 'async';
             img.draggable = false;
             slide.appendChild(img);
@@ -1362,6 +1427,7 @@ function initializeGallerySlider(slidesId, dotsId) {
     window.__displayGalleryControls = window.__displayGalleryControls || {};
     window.__displayGalleryControls[slidesId] = { stopAutoPlay: stopAutoPlay, startAutoPlay: startAutoPlay };
 
+    ensureGalleryAutoplayPauseOnWindowScroll();
     startAutoPlay();
     __siteDbg(`[FadeSlider DEBUG] Initialization complete for slider: ${slidesId}.`); // 新增
 }

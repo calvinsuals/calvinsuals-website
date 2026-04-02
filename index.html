@@ -24,14 +24,10 @@
     <!-- CRITICAL-PRELOAD:END -->
     <link rel="preload" href="images/display_automotive.json" as="fetch" type="application/json" crossorigin="anonymous">
     <link rel="preload" href="images/display_portrait.json" as="fetch" type="application/json" crossorigin="anonymous">
-    <!-- 字体 (Add 600 weight for Montserrat) -->
+    <!-- 全站仅用 Montserrat（多字重）；中文等无字形时由系统 sans-serif 回退 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Updated Montserrat to include 600 weight -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400&family=Montserrat:wght@300;400;500;600;700;800&family=Raleway:wght@300;400&family=Open+Sans:wght@300;400&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
-    <!-- 次要字体异步加载，减轻与首屏图竞争 -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500&family=M+PLUS+Rounded+1c:wght@400;500&family=Varela+Round&family=Quicksand:wght@400;500&family=Comfortaa:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500&family=M+PLUS+Rounded+1c:wght@400;500&family=Varela+Round&family=Quicksand:wght@400;500&family=Comfortaa:wght@400;500&display=swap" rel="stylesheet"></noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- 样式 -->
     <!-- <link rel="stylesheet" href="navigation.css"> --> <!-- Removed as file does not exist -->
     <!-- <link rel="stylesheet" href="footer.css"> --> <!-- Removed as file does not exist -->
@@ -238,33 +234,46 @@
             margin: 0 auto; /* 确保水平居中 */
         }
         
+        /* Hero 专用：更强对比的金属渐变（比 overlay 更明显），暗部仍高于 #181818 以免糊进背景 */
+        .hero-content .name,
+        .hero-content .tagline,
+        .hero-content .tagline .text-white {
+            color: #d0d0d0;
+            background: linear-gradient(
+                125deg,
+                #6a6a6a 0%,
+                #8f8f8f 14%,
+                #c8c8c8 38%,
+                #f7f7f7 50%,
+                #c8c8c8 62%,
+                #8f8f8f 86%,
+                #6a6a6a 100%
+            );
+            background-size: 220% 220%;
+            background-position: 42% 48%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
         .hero-content .name {
-            /* font-size: 3rem; */ /* Removed previous size */
-            font-size: 3rem; /* Increased font size further */
+            font-size: 3rem;
             margin: 0;
             letter-spacing: 2px;
-            /* text-transform: lowercase; */
-            /* font-weight: 700; */ /* Removed Bold */
-            font-weight: 600; /* Changed base to SemiBold */
+            font-weight: 600;
             line-height: 1;
-            color: #e6e6e6;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
         }
         
         .hero-content .tagline {
-            /* font-size: 1.3rem; */ /* Removed previous size */
-            font-size: 1.3rem; /* Increased font size again */
+            font-size: 1.3rem;
             /* margin-top: 80px; */ /* Removed previous value */
             margin-top: 85px; /* Increased top margin slightly */
-            opacity: 0.9;
             font-weight: 400;
             letter-spacing: 1.5px;
             max-width: 800px;
             margin-left: auto;
             margin-right: auto;
             position: relative;
-            color: #d2d2d2;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
         }
 
         .hero-content .tagline::before,
@@ -274,7 +283,7 @@
             top: 50%;
             width: 60px;
             height: 1px;
-            background-color: rgba(119, 119, 119, 0.5); /* 修改为与灰色匹配的半透明色 */
+            background: linear-gradient(90deg, transparent, rgba(210, 210, 210, 0.55), transparent);
         }
 
         .hero-content .tagline::before {
@@ -315,16 +324,6 @@
             .hero-content .tagline::before,
             .hero-content .tagline::after {
                 display: none; /* 移动端隐藏装饰线 */
-            }
-
-            /* Restore original-like mobile gradient text treatment. */
-            .hero-content .name,
-            .hero-content .tagline {
-                background: linear-gradient(135deg, #a5a5a5 0%, #f2f2f2 52%, #a5a5a5 100%);
-                -webkit-background-clip: text;
-                background-clip: text;
-                -webkit-text-fill-color: transparent;
-                text-shadow: none;
             }
         }
         
@@ -546,20 +545,24 @@
 
             body.home-page .gallery-preview {
                 isolation: auto;
-                max-width: min(94%, 1240px);
+                max-width: min(94%, 1200px);
             }
 
-            /* 桌面首页轮播略小于全局 1400px，介于「显大」与锐度之间 */
+            /* 与站内主图导出宽度 1200px 对齐，减少放大拉伸与解码尺寸错配 */
             body.home-page .gallery-slider {
                 transform: none;
                 perspective: none;
                 -webkit-perspective: none;
-                max-width: 1240px;
+                max-width: 1200px;
                 border: 1px solid rgba(255, 255, 255, 0.07);
                 box-shadow:
                     0 1px 0 rgba(255, 255, 255, 0.1),
                     0 18px 42px rgba(0, 0, 0, 0.55),
                     0 6px 16px rgba(0, 0, 0, 0.45);
+            }
+
+            body.home-page .comparison-container {
+                max-width: 1200px;
             }
 
             body.home-page .gallery-slides {
@@ -603,6 +606,70 @@
                 transform: none;
                 backface-visibility: visible;
                 -webkit-backface-visibility: visible;
+            }
+        }
+
+        /* 首页·手机：与桌面同色铺底；轮播/对比暗部与悬浮分区标题渐变对齐桌面 Hero 金属字 */
+        @media screen and (max-width: 767px) {
+            html.site-fixed-background:has(body.home-page) {
+                background-color: #181818;
+            }
+            body.home-page.site-background-shell {
+                background-image: none !important;
+                background-color: #181818 !important;
+                --site-background-fallback: #181818;
+                --site-background-underlay: #181818;
+            }
+            body.home-page.site-background-shell .background-gradient {
+                display: none !important;
+            }
+
+            body.home-page .gallery-slides {
+                background-color: #111111;
+                background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 42%);
+                box-shadow:
+                    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+                    inset 0 0 0 1px rgba(0, 0, 0, 0.35),
+                    inset 0 -20px 40px rgba(0, 0, 0, 0.35);
+            }
+
+            body.home-page .gallery-slider {
+                border: 1px solid rgba(255, 255, 255, 0.07);
+                box-shadow:
+                    0 1px 0 rgba(255, 255, 255, 0.08),
+                    0 14px 32px rgba(0, 0, 0, 0.5),
+                    0 5px 14px rgba(0, 0, 0, 0.4);
+            }
+
+            body.home-page .comparison-preload-surface {
+                background-color: #1a1a1a;
+            }
+
+            body.home-page .comparison-wrapper {
+                box-shadow:
+                    0 1px 0 rgba(255, 255, 255, 0.08),
+                    0 18px 40px rgba(0, 0, 0, 0.48),
+                    0 6px 16px rgba(0, 0, 0, 0.38),
+                    0 0 0 1px rgba(255, 255, 255, 0.06);
+            }
+
+            body.home-page .overlay-title {
+                color: #d0d0d0;
+                background: linear-gradient(
+                    125deg,
+                    #6a6a6a 0%,
+                    #8f8f8f 14%,
+                    #c8c8c8 38%,
+                    #f7f7f7 50%,
+                    #c8c8c8 62%,
+                    #8f8f8f 86%,
+                    #6a6a6a 100%
+                );
+                background-size: 220% 220%;
+                background-position: 42% 48%;
+                -webkit-background-clip: text;
+                background-clip: text;
+                -webkit-text-fill-color: transparent;
             }
         }
         
@@ -1033,8 +1100,8 @@
             /* 重置hero区域尺寸 */
             /* ... */
             .hero-content .name {
-                font-size: 1.3rem !important; /* 从1.5rem改为1.3rem */
-                font-weight: 600; /* Changed mobile to SemiBold */
+                font-size: 1.3rem !important;
+                font-weight: 600;
             }
             
         }
@@ -2464,7 +2531,7 @@
     <!-- 添加外部脚本链接 -->
     <script src="js/site_background.js?v=20260407a" defer></script>
     <!-- 调试 main.js：URL 加 ?debug=1 可恢复详细控制台日志 -->
-    <script src="js/main.js?v=20260408b" defer></script>
+    <script src="js/main.js?v=20260408g" defer></script>
     <script src="js/navigation.js?v=20260404i" defer></script>
 
     <!-- 锚点定位修复脚本 -->
