@@ -1,9 +1,7 @@
 /* Shared site background shell.
  *
- * 默认（窄屏）：body 整页渐变；.background-gradient 隐藏。
- * 桌面（≥768px）：body 透明 + fixed 视口渐变层。
- *
- * 仅首页若要用「全端 body 渐变」：在 index.html 用 body.home-page 更高优先级覆盖（见该页 head 内联）。
+ * TEMP TEST：全断点统一 body 整页渐变；.background-gradient 始终隐藏（无桌面 fixed 视口层）。
+ * 测完恢复：git checkout HEAD -- css/site_background.css（或从恢复提交摘回 @media min-width 768px 块）。
  *
  * html 使用 --site-background-fallback 兜底 overscroll（由 JS 从 body 同步 token）。
  */
@@ -54,38 +52,4 @@ body.site-background-shell #modal-container {
     position: relative;
     z-index: 1200;
     isolation: isolate;
-}
-
-@media (min-width: 768px) {
-    body.site-background-shell {
-        background-image: none !important;
-        background-color: transparent !important;
-    }
-
-    body.site-background-shell .background-gradient {
-        display: block !important;
-        position: fixed;
-        left: 0;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        width: 100%;
-        height: 100%;
-        min-height: 100vh;
-        min-height: 100dvh;
-        min-height: 100lvh;
-        min-height: -webkit-fill-available;
-        z-index: 0;
-        pointer-events: none;
-        background-color: var(--site-background-underlay, #6f6f6f);
-        background-image: var(--site-background-image, var(--primary-gradient, linear-gradient(135deg, #333 0%, #ddd 100%)));
-        background-repeat: no-repeat;
-        background-size: 100% 100%;
-        background-position: center center;
-        transform: translate3d(0, 0, 0);
-        backface-visibility: hidden;
-        -webkit-backface-visibility: hidden;
-        isolation: isolate;
-        contain: paint;
-    }
 }

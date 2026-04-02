@@ -4,24 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>calvinsuals Photography</title>
-    <!-- 仅首页：首帧 + 桌面均用 body 渐变（与手机一致）；子页仍用 site_background.css 默认的桌面 fixed 层 -->
+    <!-- TEMP：已关桌面 fixed 视口渐变，全站 body 整页渐变；首帧 html 仍兜底色 -->
     <style>
         html.site-fixed-background {
             background-color: #2f2f2f;
             min-height: 100%;
         }
-        body.site-background-shell.home-page {
-            background-color: #6f6f6f !important;
-            background-image: linear-gradient(135deg, #333 0%, #ddd 100%) !important;
-            background-repeat: no-repeat !important;
-            background-size: 100% 100% !important;
-            background-attachment: scroll !important;
-        }
-        body.site-background-shell.home-page .background-gradient {
-            display: none !important;
-        }
     </style>
-    <link rel="stylesheet" href="css/site_background.css?v=20260405c">
+    <link rel="stylesheet" href="css/site_background.css?v=20260406c">
     <link rel="preconnect" href="https://img.calvinsuals.com" crossorigin>
     <link rel="dns-prefetch" href="https://img.calvinsuals.com">
     <!-- 首图 preload 可由 scripts/sync_critical_preload.py 维护；对比首组需与 images/comparison_groups.json 中 group_01 一致 -->
@@ -486,8 +476,8 @@
             background: none; /* 画面由子 img 负责，杜绝 background 先显、图后盖上的灰闪 */
             opacity: 0; /* 默认隐藏 */
             visibility: hidden; /* 配合 opacity 过渡，确保元素不占据空间且不可交互 */
-            /* 时长与 js/main.js GALLERY_CROSSFADE_MS 保持一致 */
-            transition: opacity 1s cubic-bezier(0.42, 0, 0.58, 1);
+            /* 时长与 js/main.js 轮播 transitionDuration 保持一致 */
+            transition: opacity 2.2s cubic-bezier(0.42, 0, 0.58, 1);
             z-index: 1; /* 默认层级 */
         }
 
@@ -2431,8 +2421,8 @@
     </div>
 
     <!-- 添加外部脚本链接 -->
-    <script src="js/site_background.js?v=20260404u" defer></script>
-    <script src="js/main.js?v=20260404z" defer></script>
+    <script src="js/site_background.js?v=20260406c" defer></script>
+    <script src="js/main.js?v=20260406a" defer></script>
     <script src="js/navigation.js?v=20260404i" defer></script>
 
     <!-- 锚点定位修复脚本 -->

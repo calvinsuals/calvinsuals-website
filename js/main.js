@@ -21,27 +21,7 @@ function __notifyComparisonHandleDragEnd() {
 }
 
 /** 轮播叠化时长（ms）；与 index.html 窄屏 .gallery-slide 兜底一致 */
-const GALLERY_CROSSFADE_MS = 1000;
-
-/**
- * 轮播整块滚出视口时停自动播放，减少竖向快滑时与叠化抢 GPU；滚回且用户未点圆点停播则恢复。
- */
-function attachGalleryViewportAutoplay(rootEl, startAutoPlay, stopAutoPlay, isUserPausedDot) {
-    if (!rootEl || typeof IntersectionObserver !== 'function') return;
-    const io = new IntersectionObserver(
-        (entries) => {
-            const e = entries[0];
-            if (!e) return;
-            if (e.isIntersecting && e.intersectionRatio > 0) {
-                if (!isUserPausedDot()) startAutoPlay();
-            } else {
-                stopAutoPlay();
-            }
-        },
-        { root: null, rootMargin: '120px 0px', threshold: 0 }
-    );
-    io.observe(rootEl);
-}
+const GALLERY_CROSSFADE_MS = 2200;
 
 const __jsonCache = new Map();
 const __imageWarmCache = new Set();
@@ -137,34 +117,6 @@ function __isMobileImageWarmProfile() {
     } catch (e) {
         return false;
     }
-}
-
-/** 桌面双缓冲轮播：两张图 load 后逐帧 decode，减轻滚回视口时再异步解码的「空一帧」感 */
-function primeDualGalleryDecode(container) {
-    if (!container || __isMobileImageWarmProfile()) return;
-    const imgs = Array.from(container.querySelectorAll('img.gallery-slide-img'));
-    if (imgs.length === 0) return;
-    void (async () => {
-        for (const im of imgs) {
-            await new Promise((r) => requestAnimationFrame(r));
-            try {
-                if (im.complete && im.naturalWidth > 0 && typeof im.decode === 'function') {
-                    await im.decode().catch(() => {});
-                } else {
-                    await new Promise((res) => {
-                        const done = () => {
-                            if (typeof im.decode === 'function') im.decode().then(res).catch(res);
-                            else res();
-                        };
-                        im.addEventListener('load', done, { once: true });
-                        im.addEventListener('error', res, { once: true });
-                    });
-                }
-            } catch (e) {
-                /* ignore */
-            }
-        }
-    })();
 }
 
 function warmImagesIdle(urls, eagerCount = 8, scheduleRemainder = true) {
@@ -315,10 +267,6 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
               ? Math.min(2, finalImageUrls.length)
               : finalImageUrls.length;
         warmImagesIdle(finalImageUrls, galEager, !isMobileWarm);
-
-        if (isDualDesktop) {
-            primeDualGalleryDecode(container);
-        }
 
         if (!isMobileWarm && !isDualDesktop) {
             const galImgs = Array.from(container.querySelectorAll('img.gallery-slide-img'));
@@ -638,11 +586,8 @@ async function loadAndInitComparison(jsonPath) {
              console.log("[Comparison] Slider 和 Thumbnail Nav 已插入页面容器。");
         } else { console.error("[Comparison] 主容器已不存在！"); }
 
-        /* 勿 await 绑滑块；桌面在后台等 load 后逐帧 decode，尽量把位图塞进解码缓存，减轻滚回再显一帧 */
-        void primeComparisonImages(container, {
-            decode: !__isMobileImageWarmProfile(),
-            decodeBatch: __isMobileImageWarmProfile() ? 1 : 2,
-        }).catch(() => {});
+        /* 勿 await 绑滑块；不在此批量 decode，避免与首屏滚动/叠化抢主线程 */
+        void primeComparisonImages(container, { decode: false }).catch(() => {});
 
         // --- 初始化交互（立即绑定，与图片加载并行） ---
         initializeComparison(); // 初始化滑块交互
@@ -655,16 +600,11 @@ async function loadAndInitComparison(jsonPath) {
 }
 
 /**
- * 对比区：等全部 img load；opts.decode 为 true 时对去重后的 URL 逐帧 decode。
- * opts.decodeBatch：每帧并行 decode 张数（桌面可用 2 加快预热，手机保持 1）。
+ * 对比区：等全部 img load；opts.decode 为 true 时对去重后的 img 逐帧 decode（默认由调用方显式开启）。
  */
 function primeComparisonImages(comparisonRoot, opts) {
     if (!comparisonRoot) return Promise.resolve();
     const doDecode = !(opts && opts.decode === false);
-    const decodeBatch =
-        opts && typeof opts.decodeBatch === 'number' && opts.decodeBatch > 1
-            ? Math.min(4, Math.floor(opts.decodeBatch))
-            : 1;
     const imgs = Array.from(
         comparisonRoot.querySelectorAll('.comparison-wrapper img, .comparison-thumbnail-item img')
     );
@@ -713,10 +653,9 @@ function primeComparisonImages(comparisonRoot, opts) {
                 seen.add(key);
                 unique.push(img);
             }
-            for (let i = 0; i < unique.length; i += decodeBatch) {
+            for (const img of unique) {
                 await new Promise((r) => requestAnimationFrame(r));
-                const slice = unique.slice(i, i + decodeBatch);
-                await Promise.all(slice.map((im) => decodeOne(im)));
+                await decodeOne(img);
             }
         } catch (e) {
             console.warn('[Comparison] primeComparisonImages', e);
@@ -1002,11 +941,9 @@ function initDualBufferGallerySlider(slidesId, dotsId, slidesContainer, urlList)
         }
     }
 
-    let userPausedFromDot = false;
     if (dotElements.length > 0) {
         dotElements.forEach((dot, index) => {
             dot.addEventListener('click', () => {
-                userPausedFromDot = true;
                 stopAutoPlay();
                 showSlide(index);
             });
@@ -1015,9 +952,6 @@ function initDualBufferGallerySlider(slidesId, dotsId, slidesContainer, urlList)
 
     window.__displayGalleryControls = window.__displayGalleryControls || {};
     window.__displayGalleryControls[slidesId] = { stopAutoPlay: stopAutoPlay, startAutoPlay: startAutoPlay };
-
-    const watchRoot = slidesContainer.closest('.gallery-preview') || slidesContainer;
-    attachGalleryViewportAutoplay(watchRoot, startAutoPlay, stopAutoPlay, () => userPausedFromDot);
 
     scheduleLookahead();
     startAutoPlay();
@@ -1071,7 +1005,7 @@ function initializeGallerySlider(slidesId, dotsId) {
     let currentIndex = 0;
     let intervalId = null;
     let transitionLock = false;
-    /* 叠化时长需与 index.html .gallery-slide 兜底一致 */
+    /* 慢速叠化；时长需与 index.html .gallery-slide 兜底一致 */
     const transitionDuration = GALLERY_CROSSFADE_MS;
     const autoPlayDelay = 9000;
     const easeCrossfade = 'cubic-bezier(0.42, 0, 0.58, 1)';
@@ -1269,12 +1203,10 @@ function initializeGallerySlider(slidesId, dotsId) {
         }
     }
 
-    let userPausedFromDot = false;
     if (dotElements.length > 0) {
         dotElements.forEach((dot, index) => {
             dot.addEventListener('click', () => {
                 console.log(`[FadeSlider DEBUG #${slidesId}] Dot ${index} clicked.`); // 新增
-                userPausedFromDot = true;
                 stopAutoPlay();
                 showSlide(index);
             });
@@ -1284,9 +1216,6 @@ function initializeGallerySlider(slidesId, dotsId) {
 
     window.__displayGalleryControls = window.__displayGalleryControls || {};
     window.__displayGalleryControls[slidesId] = { stopAutoPlay: stopAutoPlay, startAutoPlay: startAutoPlay };
-
-    const watchRoot = slidesContainer.closest('.gallery-preview') || slidesContainer;
-    attachGalleryViewportAutoplay(watchRoot, startAutoPlay, stopAutoPlay, () => userPausedFromDot);
 
     startAutoPlay();
     console.log(`[FadeSlider DEBUG] Initialization complete for slider: ${slidesId}.`); // 新增
