@@ -22,6 +22,19 @@ function __notifyComparisonHandleDragEnd() {
 
 /** 轮播叠化时长（ms）；与 index.html 窄屏 .gallery-slide 兜底一致 */
 const GALLERY_CROSSFADE_MS = 2200;
+/** 自动切图间隔；略短于 9s 可提高曝光，仍避免叠化过于频繁 */
+const GALLERY_AUTOPLAY_MS = 7200;
+
+/** 正式环境默认不打详细 log；需要时在首页地址后加 ?debug=1 */
+function __siteDbg() {
+    try {
+        if (typeof window === 'undefined' || !window.location) return;
+        if (!/\bdebug=1\b/.test(String(window.location.search || ''))) return;
+    } catch (e) {
+        return;
+    }
+    console.log.apply(console, arguments);
+}
 
 const __jsonCache = new Map();
 const __imageWarmCache = new Set();
@@ -167,11 +180,11 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
     const nav = navId ? document.getElementById(navId) : null;
     if (!container) { console.error(`Error: Container #${containerId} not found.`); return; }
     if (container.dataset.loadedJsonPath === jsonPath && container.childElementCount > 0) return;
-    console.log(`[${containerId}] Loading image URLs from: ${jsonPath}`);
+    __siteDbg(`[${containerId}] Loading image URLs from: ${jsonPath}`);
     try {
         const imageUrls = await fetchJsonCached(jsonPath);
         if (!Array.isArray(imageUrls)) throw new Error(`JSON data from ${jsonPath} is not a valid array.`);
-        console.log(`[${containerId}] Found ${imageUrls.length} image URLs.`);
+        __siteDbg(`[${containerId}] Found ${imageUrls.length} image URLs.`);
         let finalImageUrls = (count !== Infinity && count > 0) ? imageUrls.slice(0, count) : imageUrls;
         finalImageUrls = finalImageUrls.map(normalizeImageUrl);
         const isMobileWarm = __isMobileImageWarmProfile();
@@ -287,22 +300,22 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         }
 
         // 初始化轮播逻辑 (如果提供了 navId 且有多张图片)
-        console.log(`[LoadGalleryImages DEBUG ${containerId}] Checking conditions for calling initializeGallerySlider:`); // 新增
-        console.log(`[LoadGalleryImages DEBUG ${containerId}] navId:`, navId); // 新增
-        console.log(`[LoadGalleryImages DEBUG ${containerId}] nav element (document.getElementById(navId)):`, nav); // 新增
-        console.log(`[LoadGalleryImages DEBUG ${containerId}] finalImageUrls.length:`, finalImageUrls.length); // 新增
-        console.log(`[LoadGalleryImages DEBUG ${containerId}] Condition (navId && finalImageUrls.length > 1):`, (navId && finalImageUrls.length > 1)); // 新增
+        __siteDbg(`[LoadGalleryImages DEBUG ${containerId}] Checking conditions for calling initializeGallerySlider:`); // 新增
+        __siteDbg(`[LoadGalleryImages DEBUG ${containerId}] navId:`, navId); // 新增
+        __siteDbg(`[LoadGalleryImages DEBUG ${containerId}] nav element (document.getElementById(navId)):`, nav); // 新增
+        __siteDbg(`[LoadGalleryImages DEBUG ${containerId}] finalImageUrls.length:`, finalImageUrls.length); // 新增
+        __siteDbg(`[LoadGalleryImages DEBUG ${containerId}] Condition (navId && finalImageUrls.length > 1):`, (navId && finalImageUrls.length > 1)); // 新增
 
         if (navId && finalImageUrls.length > 1) {
-            console.log(`[LoadGalleryImages DEBUG ${containerId}] Conditions MET. Calling initializeGallerySlider...`); // 新增
+            __siteDbg(`[LoadGalleryImages DEBUG ${containerId}] Conditions MET. Calling initializeGallerySlider...`); // 新增
             initializeGallerySlider(containerId, navId);
         } else if (nav) { // 注意，如果 navId 为空但 nav 存在（理论上不应发生），或图片不足，会进入这里
-            console.log(`[LoadGalleryImages DEBUG ${containerId}] Conditions NOT MET for initializeGallerySlider. navId: ${navId}, length: ${finalImageUrls.length}. Hiding nav element if it exists.`); // 新增
+            __siteDbg(`[LoadGalleryImages DEBUG ${containerId}] Conditions NOT MET for initializeGallerySlider. navId: ${navId}, length: ${finalImageUrls.length}. Hiding nav element if it exists.`); // 新增
              nav.style.display = 'none';
         } else { // navId 和 nav 都为空
-             console.log(`[LoadGalleryImages DEBUG ${containerId}] Conditions NOT MET for initializeGallerySlider. navId: ${navId} (nav element also null), length: ${finalImageUrls.length}.`); // 新增
+             __siteDbg(`[LoadGalleryImages DEBUG ${containerId}] Conditions NOT MET for initializeGallerySlider. navId: ${navId} (nav element also null), length: ${finalImageUrls.length}.`); // 新增
         }
-        console.log(`[${containerId}] Successfully displayed ${finalImageUrls.length} images from ${jsonPath}`);
+        __siteDbg(`[${containerId}] Successfully displayed ${finalImageUrls.length} images from ${jsonPath}`);
 
     } catch (error) {
         console.error(`Error loading images for ${containerId} from ${jsonPath}:`, error);
@@ -315,10 +328,10 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
  * 初始化对比区滑块交互 (在 handle touchstart 中阻止默认行为)
  */
 function initializeComparison() {
-    console.log("[Comparison] initializeComparison 函数开始执行...");
+    __siteDbg("[Comparison] initializeComparison 函数开始执行...");
     const sliderContainer = document.querySelector('.comparison-slider'); // Get slider container
     const comparisonWrappers = document.querySelectorAll('.comparison-wrapper');
-    console.log(`[Comparison] 找到 ${comparisonWrappers.length} 个 .comparison-wrapper 元素进行滑块初始化。`);
+    __siteDbg(`[Comparison] 找到 ${comparisonWrappers.length} 个 .comparison-wrapper 元素进行滑块初始化。`);
     comparisonWrappers.forEach(wrapper => {
         const handle = wrapper.querySelector('.slider-handle');
         const afterMask = wrapper.querySelector('.comparison-after-mask');
@@ -367,7 +380,7 @@ function initializeComparison() {
         
         // 其余代码保持不变
         const startResize = (e) => { 
-            console.log('[Comparison StartResize] Setting isResizing = true');
+            __siteDbg('[Comparison StartResize] Setting isResizing = true');
             isResizing = true; 
             wrapper.classList.add('active');
             __notifyComparisonHandleDragStart();
@@ -378,7 +391,7 @@ function initializeComparison() {
                 detachWindowTouch();
                 detachWindowTouch = null;
             }
-            console.log('[Comparison EndResize] Setting isResizing = false');
+            __siteDbg('[Comparison EndResize] Setting isResizing = false');
             isResizing = false;
             wrapper.classList.remove('active');
             cancelAnimationFrame(animationFrameId);
@@ -449,7 +462,7 @@ function initializeComparison() {
         }
         const parentGroup = wrapper.closest('.comparison-group');
         const parentGroupId = parentGroup ? parentGroup.id : 'wrapper';
-        console.log(`[Comparison Init] Set initial state for ${parentGroupId} to ${initialPercent}%`);
+        __siteDbg(`[Comparison Init] Set initial state for ${parentGroupId} to ${initialPercent}%`);
     });
 }
 
@@ -466,12 +479,12 @@ async function loadAndInitComparison(jsonPath) {
     thumbnailNavContainer.className = 'comparison-thumbnail-nav';
     thumbnailNavContainer.id = 'comparison-thumbnail-nav-dynamic';
 
-    console.log(`[Comparison] Loading groups from: ${jsonPath}`);
+    __siteDbg(`[Comparison] Loading groups from: ${jsonPath}`);
 
     try {
         const comparisonGroupsData = await fetchJsonCached(jsonPath);
         if (!Array.isArray(comparisonGroupsData)) throw new Error(`JSON not array.`);
-        console.log(`[Comparison] Found ${comparisonGroupsData.length} groups.`);
+        __siteDbg(`[Comparison] Found ${comparisonGroupsData.length} groups.`);
         if (comparisonGroupsData.length === 0) { container.innerHTML = '<p style="color: white; text-align: center;">No comparison groups.</p>'; return; }
         container.innerHTML = '';
         container.dataset.loadedJsonPath = jsonPath;
@@ -485,58 +498,58 @@ async function loadAndInitComparison(jsonPath) {
 
         const sliderContainer = document.createElement('div');
         sliderContainer.className = 'comparison-slider';
-        console.log("[Comparison] 创建 comparison-slider div.");
+        __siteDbg("[Comparison] 创建 comparison-slider div.");
 
         const fragment = document.createDocumentFragment();
         const thumbnailFragment = document.createDocumentFragment(); 
 
         comparisonGroupsData.forEach((groupData, index) => {
-            console.log(`[Comparison] ---- 开始处理 group ${index}, ID: ${groupData.id} ----`);
+            __siteDbg(`[Comparison] ---- 开始处理 group ${index}, ID: ${groupData.id} ----`);
             // 现在需要 before_src 来生成缩略图
             if (!groupData.id || !groupData.before_src || !groupData.after_src) { console.warn(`[Comparison] 跳过无效数据 at index ${index}`); return; }
             try {
                 const group = document.createElement('div');
                 group.className = `comparison-group`;
                 group.id = `comparison-group-${groupData.id}`;
-                console.log(`[Comparison ${groupData.id}] Group div 创建成功.`);
+                __siteDbg(`[Comparison ${groupData.id}] Group div 创建成功.`);
 
                 const wrapper = document.createElement('div');
                 wrapper.className = `comparison-wrapper`;
-                console.log(`[Comparison ${groupData.id}] Wrapper div 创建成功, class: ${wrapper.className}`);
+                __siteDbg(`[Comparison ${groupData.id}] Wrapper div 创建成功, class: ${wrapper.className}`);
 
                 const imgBefore = document.createElement('img');
                 imgBefore.alt = 'Before'; imgBefore.className = 'before';
-                imgBefore.loading = 'eager';
-                /* 统一 async：sync 会在主线程同步解码大块位图，桌面加载/滚动易卡 */
+                /* 前两组 eager 保首屏；其余 lazy 减轻首包解码与带宽，滚到再拉 */
+                imgBefore.loading = index < 2 ? 'eager' : 'lazy';
                 imgBefore.decoding = 'async';
                 if (index < 2) imgBefore.fetchPriority = 'high';
                 else if (!isMobileWarm) imgBefore.fetchPriority = 'low';
                 imgBefore.draggable = false; 
-                console.log(`[Comparison ${groupData.id}] 设置 Before src: ${groupData.before_src}`);
+                __siteDbg(`[Comparison ${groupData.id}] 设置 Before src: ${groupData.before_src}`);
                 const beforeUrl = normalizeImageUrl(groupData.before_src);
                 imgBefore.src = beforeUrl;
                 imgBefore.onerror = () => { imgBefore.alt='Image not found'; imgBefore.src=''; console.error(`[Comparison ${groupData.id}] 加载 Before 图片失败: ${groupData.before_src}`);};
-                console.log(`[Comparison ${groupData.id}] Before img 创建成功.`);
+                __siteDbg(`[Comparison ${groupData.id}] Before img 创建成功.`);
 
                 const imgAfter = document.createElement('img');
                 imgAfter.alt = 'After'; imgAfter.className = 'after';
-                imgAfter.loading = 'eager';
+                imgAfter.loading = index < 2 ? 'eager' : 'lazy';
                 imgAfter.decoding = 'async';
                 if (index < 2) imgAfter.fetchPriority = 'high';
                 else if (!isMobileWarm) imgAfter.fetchPriority = 'low';
                 imgAfter.draggable = false; 
-                console.log(`[Comparison ${groupData.id}] 设置 After src: ${groupData.after_src}`);
+                __siteDbg(`[Comparison ${groupData.id}] 设置 After src: ${groupData.after_src}`);
                 const afterUrl = normalizeImageUrl(groupData.after_src);
                 imgAfter.src = afterUrl;
                 imgAfter.onerror = () => { imgAfter.alt='Image not found'; imgAfter.src=''; console.error(`[Comparison ${groupData.id}] 加载 After 图片失败: ${groupData.after_src}`);};
-                console.log(`[Comparison ${groupData.id}] After img 创建成功.`);
+                __siteDbg(`[Comparison ${groupData.id}] After img 创建成功.`);
 
                 const sliderHandle = document.createElement('div'); 
                 sliderHandle.className = 'slider-handle';
                 const sliderLine = document.createElement('span');
                 sliderLine.className = 'slider-line';
                 sliderHandle.appendChild(sliderLine); 
-                console.log(`[Comparison ${groupData.id}] Handle div (with line span) 创建成功.`);
+                __siteDbg(`[Comparison ${groupData.id}] Handle div (with line span) 创建成功.`);
 
                 const afterMask = document.createElement('div');
                 afterMask.className = 'comparison-after-mask';
@@ -545,13 +558,13 @@ async function loadAndInitComparison(jsonPath) {
                 wrapper.appendChild(imgBefore);
                 wrapper.appendChild(afterMask);
                 wrapper.appendChild(sliderHandle);
-                console.log(`[Comparison ${groupData.id}] 图片和 handle 已附加到 wrapper.`);
+                __siteDbg(`[Comparison ${groupData.id}] 图片和 handle 已附加到 wrapper.`);
                 group.appendChild(wrapper);
-                console.log(`[Comparison ${groupData.id}] Wrapper 已附加到 group.`);
+                __siteDbg(`[Comparison ${groupData.id}] Wrapper 已附加到 group.`);
                 
-                console.log(`[Comparison ${groupData.id}] 准备将 group 附加到 fragment...`);
+                __siteDbg(`[Comparison ${groupData.id}] 准备将 group 附加到 fragment...`);
                 fragment.appendChild(group);
-                console.log(`[Comparison ${groupData.id}] Group 已附加到 fragment.`);
+                __siteDbg(`[Comparison ${groupData.id}] Group 已附加到 fragment.`);
 
                 // --- 创建并添加缩略图元素 ---
                 const thumbItem = document.createElement('div');
@@ -561,30 +574,30 @@ async function loadAndInitComparison(jsonPath) {
                 const thumbUrl = normalizeImageUrl(groupData.after_src);
                 thumbImg.src = thumbUrl;
                 thumbImg.alt = `Thumbnail for ${groupData.id}`;
-                thumbImg.loading = 'eager';
+                thumbImg.loading = index < 2 ? 'eager' : 'lazy';
                 thumbImg.decoding = 'async';
                 if (index === 0) thumbImg.fetchPriority = 'high';
                 else if (!isMobileWarm) thumbImg.fetchPriority = 'low';
                 thumbImg.onerror = () => { thumbImg.alt='Thumb not found'; thumbImg.src=''; console.error(`[Comparison ${groupData.id}] 加载 Thumbnail 图片失败: ${groupData.after_src}`); };
                 thumbItem.appendChild(thumbImg);
                 thumbnailFragment.appendChild(thumbItem); 
-                console.log(`[Comparison ${groupData.id}] Thumbnail item 创建并添加到 fragment.`);
+                __siteDbg(`[Comparison ${groupData.id}] Thumbnail item 创建并添加到 fragment.`);
                 // --- 结束 ---
 
             } catch (error) {
                  console.error(`[Comparison] 处理 group ${index} (ID: ${groupData.id}) 时发生严重错误:`, error);
                  console.error(error.stack);
             }
-            console.log(`[Comparison] ---- 结束处理 group ${index}, ID: ${groupData.id} ----`);
+            __siteDbg(`[Comparison] ---- 结束处理 group ${index}, ID: ${groupData.id} ----`);
         });
 
-        console.log("[Comparison] 循环结束. 将 slider 和 thumbnail nav 插入页面...");
+        __siteDbg("[Comparison] 循环结束. 将 slider 和 thumbnail nav 插入页面...");
         if(document.body.contains(container)) {
              sliderContainer.appendChild(fragment);
              thumbnailNavContainer.appendChild(thumbnailFragment); 
              container.appendChild(sliderContainer);        
              container.appendChild(thumbnailNavContainer); 
-             console.log("[Comparison] Slider 和 Thumbnail Nav 已插入页面容器。");
+             __siteDbg("[Comparison] Slider 和 Thumbnail Nav 已插入页面容器。");
         } else { console.error("[Comparison] 主容器已不存在！"); }
 
         /* 勿 await 绑滑块；不在此批量 decode，避免与首屏滚动/叠化抢主线程 */
@@ -595,7 +608,7 @@ async function loadAndInitComparison(jsonPath) {
         initializeThumbnailNav(sliderContainer, thumbnailNavContainer); // <-- 恢复：不再传递 groups
         initializeDragScrolling(); // 初始化拖动滚动（仅鼠标；触摸走原生 overflow 滚动）
 
-        console.log(`[Comparison] Placeholder setup complete with horizontal slider and thumbnail nav.`);
+        __siteDbg(`[Comparison] Placeholder setup complete with horizontal slider and thumbnail nav.`);
 
     } catch (error) { console.error(`Error in loadAndInitComparison:`, error); if (container) { container.innerHTML = `<p style="color: red;">无法加载对比区。</p>`; } }
 }
@@ -669,7 +682,7 @@ function primeComparisonImages(comparisonRoot, opts) {
  * 若需恢复「滚动/停稳后高亮跟随」：git revert 本文件对应提交，或检出带标签 comparison-thumb-highlight-follow 的历史。
  */
 function initializeThumbnailNav(sliderContainer, navContainer) {
-    console.log("[Comparison] Thumbnail nav: click-to-scroll only, no highlight sync.");
+    __siteDbg("[Comparison] Thumbnail nav: click-to-scroll only, no highlight sync.");
     if (!sliderContainer || !navContainer) {
         console.warn("[Comparison] Slider or Nav container not found for init.");
         return;
@@ -752,7 +765,7 @@ function initializeDragScrolling() {
         }
     });
 
-    console.log('[Comparison] 横向滑动：触摸=原生滚动；鼠标=拖拽');
+    __siteDbg('[Comparison] 横向滑动：触摸=原生滚动；鼠标=拖拽');
 }
 
 
@@ -780,7 +793,7 @@ function initDualBufferGallerySlider(slidesId, dotsId, slidesContainer, urlList)
     let intervalId = null;
     let transitionLock = false;
     const transitionDuration = GALLERY_CROSSFADE_MS;
-    const autoPlayDelay = 9000;
+    const autoPlayDelay = GALLERY_AUTOPLAY_MS;
     const easeCrossfade = 'cubic-bezier(0.42, 0, 0.58, 1)';
     const idleSlideTransition = 'none';
     let crossFadeGeneration = 0;
@@ -960,10 +973,10 @@ function initDualBufferGallerySlider(slidesId, dotsId, slidesContainer, urlList)
 }
 
 function initializeGallerySlider(slidesId, dotsId) {
-    console.log(`[FadeSlider DEBUG] initializeGallerySlider called with slidesId: ${slidesId}, dotsId: ${dotsId}`); // 新增
+    __siteDbg(`[FadeSlider DEBUG] initializeGallerySlider called with slidesId: ${slidesId}, dotsId: ${dotsId}`); // 新增
 
     const slidesContainer = document.getElementById(slidesId);
-    console.log(`[FadeSlider DEBUG] slidesContainer (element with ID ${slidesId}):`, slidesContainer); // 新增
+    __siteDbg(`[FadeSlider DEBUG] slidesContainer (element with ID ${slidesId}):`, slidesContainer); // 新增
 
     if (!slidesContainer) {
         console.error(`[FadeSlider DEBUG] Gallery container #${slidesId} NOT FOUND. Aborting init.`); // 修改
@@ -992,11 +1005,11 @@ function initializeGallerySlider(slidesId, dotsId) {
     }
 
     const slideElements = Array.from(slidesContainer.querySelectorAll('.gallery-slide'));
-    console.log(`[FadeSlider DEBUG] Found ${slideElements.length} .gallery-slide elements inside #${slidesId}. First slide element:`, slideElements.length > 0 ? slideElements[0] : 'None'); // 新增
+    __siteDbg(`[FadeSlider DEBUG] Found ${slideElements.length} .gallery-slide elements inside #${slidesId}. First slide element:`, slideElements.length > 0 ? slideElements[0] : 'None'); // 新增
 
 
     const dotElements = dotsId ? Array.from(document.querySelectorAll(`#${dotsId} .gallery-dot`)) : [];
-    console.log(`[FadeSlider DEBUG] Found ${dotElements.length} .gallery-dot elements for dotsId: ${dotsId}`); // 新增
+    __siteDbg(`[FadeSlider DEBUG] Found ${dotElements.length} .gallery-dot elements for dotsId: ${dotsId}`); // 新增
 
 
     if (slideElements.length === 0) {
@@ -1009,7 +1022,7 @@ function initializeGallerySlider(slidesId, dotsId) {
     let transitionLock = false;
     /* 慢速叠化；时长需与 index.html .gallery-slide 兜底一致 */
     const transitionDuration = GALLERY_CROSSFADE_MS;
-    const autoPlayDelay = 9000;
+    const autoPlayDelay = GALLERY_AUTOPLAY_MS;
     const easeCrossfade = 'cubic-bezier(0.42, 0, 0.58, 1)';
 
     const isMobileWarm = __isMobileImageWarmProfile();
@@ -1088,7 +1101,7 @@ function initializeGallerySlider(slidesId, dotsId) {
             console.warn(`[FadeSlider DEBUG] Slide ${index} in #${slidesId} is missing data-bgImage attribute.`);
         }
     });
-    console.log(`[FadeSlider DEBUG] Slides prepared for #${slidesId}. Current index: ${currentIndex}`); // 新增
+    __siteDbg(`[FadeSlider DEBUG] Slides prepared for #${slidesId}. Current index: ${currentIndex}`); // 新增
 
     function showSlide(newIndex) {
         if (newIndex === currentIndex || slideElements.length === 0) return;
@@ -1171,7 +1184,7 @@ function initializeGallerySlider(slidesId, dotsId) {
                 if (dotElements[newIndex]) dotElements[newIndex].classList.add('active');
             }
             currentIndex = newIndex;
-            console.log(`[FadeSlider DEBUG #${slidesId}] Crossfade ${prevIndex} -> ${newIndex}.`);
+            __siteDbg(`[FadeSlider DEBUG #${slidesId}] Crossfade ${prevIndex} -> ${newIndex}.`);
         });
     }
 
@@ -1185,22 +1198,22 @@ function initializeGallerySlider(slidesId, dotsId) {
 
     function startAutoPlay() {
         if (disableAutoplayOnMobile) {
-            console.log(`[FadeSlider DEBUG #${slidesId}] Autoplay disabled on mobile safe mode.`);
+            __siteDbg(`[FadeSlider DEBUG #${slidesId}] Autoplay disabled on mobile safe mode.`);
             return;
         }
         stopAutoPlay(); // Clear existing interval before starting a new one
         if (slideElements.length > 1) { // Only autoplay if there's more than one slide
             intervalId = setInterval(next, autoPlayDelay);
-            console.log(`[FadeSlider DEBUG #${slidesId}] Autoplay started. Interval ID: ${intervalId}`); // 新增
+            __siteDbg(`[FadeSlider DEBUG #${slidesId}] Autoplay started. Interval ID: ${intervalId}`); // 新增
         } else {
-            console.log(`[FadeSlider DEBUG #${slidesId}] Autoplay not started (only 1 or 0 slides).`); // 新增
+            __siteDbg(`[FadeSlider DEBUG #${slidesId}] Autoplay not started (only 1 or 0 slides).`); // 新增
         }
     }
 
     function stopAutoPlay() {
         if (intervalId) {
             clearInterval(intervalId);
-            console.log(`[FadeSlider DEBUG #${slidesId}] Autoplay stopped. Cleared interval ID: ${intervalId}`); // 新增
+            __siteDbg(`[FadeSlider DEBUG #${slidesId}] Autoplay stopped. Cleared interval ID: ${intervalId}`); // 新增
             intervalId = null;
         }
     }
@@ -1208,7 +1221,7 @@ function initializeGallerySlider(slidesId, dotsId) {
     if (dotElements.length > 0) {
         dotElements.forEach((dot, index) => {
             dot.addEventListener('click', () => {
-                console.log(`[FadeSlider DEBUG #${slidesId}] Dot ${index} clicked.`); // 新增
+                __siteDbg(`[FadeSlider DEBUG #${slidesId}] Dot ${index} clicked.`); // 新增
                 stopAutoPlay();
                 showSlide(index);
             });
@@ -1220,7 +1233,7 @@ function initializeGallerySlider(slidesId, dotsId) {
     window.__displayGalleryControls[slidesId] = { stopAutoPlay: stopAutoPlay, startAutoPlay: startAutoPlay };
 
     startAutoPlay();
-    console.log(`[FadeSlider DEBUG] Initialization complete for slider: ${slidesId}.`); // 新增
+    __siteDbg(`[FadeSlider DEBUG] Initialization complete for slider: ${slidesId}.`); // 新增
 }
 // function initializeContactForm() { /* ... */ }
 // function showModal(modalId) { /* ... */ }
@@ -1229,14 +1242,14 @@ function initializeGallerySlider(slidesId, dotsId) {
 // --- DOMContentLoaded 事件监听器 ---
 document.addEventListener('DOMContentLoaded', () => {
     try {
-    console.log("DOM Loaded. Initializing scripts...");
+    __siteDbg("DOM Loaded. Initializing scripts...");
     // 导航菜单功能 (使用 automotive.html 的逻辑，包含 setTimeout)
     // const menuToggle = document.querySelector('.nav-toggle');
     // const menuContent = document.querySelector('.nav-menu');
-    // console.log("Menu Toggle Element:", menuToggle);
-    // console.log("Menu Content Element:", menuContent);
+    // __siteDbg("Menu Toggle Element:", menuToggle);
+    // __siteDbg("Menu Content Element:", menuContent);
     // if (menuToggle && menuContent) {
-    //      console.log("菜单元素找到，正在添加监听器 (带 setTimeout 逻辑)...");
+    //      __siteDbg("菜单元素找到，正在添加监听器 (带 setTimeout 逻辑)...");
     //      menuToggle.addEventListener('click', () => { 
     //          menuToggle.classList.toggle('active');
     //          menuContent.classList.toggle('active');
@@ -1276,11 +1289,11 @@ document.addEventListener('DOMContentLoaded', () => {
     //              // For external links, let the browser navigate. The menu will be closed on the new page load.
     //          }); 
     //      });
-    //      console.log("菜单事件监听器添加完成 (带 setTimeout 逻辑)。");
+    //      __siteDbg("菜单事件监听器添加完成 (带 setTimeout 逻辑)。");
     // } else { console.warn('菜单切换按钮或内容未找到...'); }
 
     // *** 初始化调用 ***
-    console.log("开始加载对比区与轮播图...");
+    __siteDbg("开始加载对比区与轮播图...");
     function syncBg() {
         if (typeof window.__syncSiteBackgroundLayout === 'function') {
             try {
@@ -1332,7 +1345,7 @@ document.addEventListener('DOMContentLoaded', () => {
     disableContextMenu('.comparison-wrapper img');
     disableContextMenu('.placeholder-box'); // 对占位符也禁用
 
-    console.log("主 DOMContentLoaded 事件监听器执行完毕。");
+    __siteDbg("主 DOMContentLoaded 事件监听器执行完毕。");
     } catch (err) {
         console.error('[main] DOMContentLoaded init error', err);
     }
