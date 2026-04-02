@@ -20,6 +20,29 @@ function __notifyComparisonHandleDragEnd() {
     });
 }
 
+/** 轮播叠化时长（ms）；与 index.html 窄屏 .gallery-slide 兜底一致 */
+const GALLERY_CROSSFADE_MS = 1000;
+
+/**
+ * 轮播整块滚出视口时停自动播放，减少竖向快滑时与叠化抢 GPU；滚回且用户未点圆点停播则恢复。
+ */
+function attachGalleryViewportAutoplay(rootEl, startAutoPlay, stopAutoPlay, isUserPausedDot) {
+    if (!rootEl || typeof IntersectionObserver !== 'function') return;
+    const io = new IntersectionObserver(
+        (entries) => {
+            const e = entries[0];
+            if (!e) return;
+            if (e.isIntersecting && e.intersectionRatio > 0) {
+                if (!isUserPausedDot()) startAutoPlay();
+            } else {
+                stopAutoPlay();
+            }
+        },
+        { root: null, rootMargin: '120px 0px', threshold: 0 }
+    );
+    io.observe(rootEl);
+}
+
 const __jsonCache = new Map();
 const __imageWarmCache = new Set();
 const __imageWarmWaiters = new Map();
@@ -114,6 +137,34 @@ function __isMobileImageWarmProfile() {
     } catch (e) {
         return false;
     }
+}
+
+/** 桌面双缓冲轮播：两张图 load 后逐帧 decode，减轻滚回视口时再异步解码的「空一帧」感 */
+function primeDualGalleryDecode(container) {
+    if (!container || __isMobileImageWarmProfile()) return;
+    const imgs = Array.from(container.querySelectorAll('img.gallery-slide-img'));
+    if (imgs.length === 0) return;
+    void (async () => {
+        for (const im of imgs) {
+            await new Promise((r) => requestAnimationFrame(r));
+            try {
+                if (im.complete && im.naturalWidth > 0 && typeof im.decode === 'function') {
+                    await im.decode().catch(() => {});
+                } else {
+                    await new Promise((res) => {
+                        const done = () => {
+                            if (typeof im.decode === 'function') im.decode().then(res).catch(res);
+                            else res();
+                        };
+                        im.addEventListener('load', done, { once: true });
+                        im.addEventListener('error', res, { once: true });
+                    });
+                }
+            } catch (e) {
+                /* ignore */
+            }
+        }
+    })();
 }
 
 function warmImagesIdle(urls, eagerCount = 8, scheduleRemainder = true) {
@@ -257,11 +308,17 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
             });
         }
 
+        /* 手机：只 warm 首张。桌面双缓冲：DOM 仅 2 张，若对整表立刻 warm 会与对比区/叠化解码抢带宽（离屏 new Image 也解码）。非双缓冲桌面仍全量 warm。 */
         const galEager = isMobileWarm
             ? Math.min(1, finalImageUrls.length)
-            : finalImageUrls.length;
-        /* 桌面：全量 warm（与上面每张已挂 src 一致）；手机：仅一张、不跑 idle 队列 */
+            : isDualDesktop
+              ? Math.min(2, finalImageUrls.length)
+              : finalImageUrls.length;
         warmImagesIdle(finalImageUrls, galEager, !isMobileWarm);
+
+        if (isDualDesktop) {
+            primeDualGalleryDecode(container);
+        }
 
         if (!isMobileWarm && !isDualDesktop) {
             const galImgs = Array.from(container.querySelectorAll('img.gallery-slide-img'));
@@ -500,9 +557,7 @@ async function loadAndInitComparison(jsonPath) {
 
                 const imgBefore = document.createElement('img');
                 imgBefore.alt = 'Before'; imgBefore.className = 'before';
-                /* 桌面第 3 组起 lazy：减轻与双轮播同时解码的显存压力，滚回已进视口的图仍走缓存、观感接近手机「轻负载」 */
-                const lazyCmp = !isMobileWarm && index >= 2;
-                imgBefore.loading = lazyCmp ? 'lazy' : 'eager';
+                imgBefore.loading = 'eager';
                 /* 统一 async：sync 会在主线程同步解码大块位图，桌面加载/滚动易卡 */
                 imgBefore.decoding = 'async';
                 if (index < 2) imgBefore.fetchPriority = 'high';
@@ -516,7 +571,7 @@ async function loadAndInitComparison(jsonPath) {
 
                 const imgAfter = document.createElement('img');
                 imgAfter.alt = 'After'; imgAfter.className = 'after';
-                imgAfter.loading = lazyCmp ? 'lazy' : 'eager';
+                imgAfter.loading = 'eager';
                 imgAfter.decoding = 'async';
                 if (index < 2) imgAfter.fetchPriority = 'high';
                 else if (!isMobileWarm) imgAfter.fetchPriority = 'low';
@@ -557,7 +612,7 @@ async function loadAndInitComparison(jsonPath) {
                 const thumbUrl = normalizeImageUrl(groupData.after_src);
                 thumbImg.src = thumbUrl;
                 thumbImg.alt = `Thumbnail for ${groupData.id}`;
-                thumbImg.loading = lazyCmp ? 'lazy' : 'eager';
+                thumbImg.loading = 'eager';
                 thumbImg.decoding = 'async';
                 if (index === 0) thumbImg.fetchPriority = 'high';
                 else if (!isMobileWarm) thumbImg.fetchPriority = 'low';
@@ -583,8 +638,11 @@ async function loadAndInitComparison(jsonPath) {
              console.log("[Comparison] Slider 和 Thumbnail Nav 已插入页面容器。");
         } else { console.error("[Comparison] 主容器已不存在！"); }
 
-        /* 勿 await：旧逻辑会等「全部对比图 load」才绑滑块，大图多时像整段卡住数秒；后台等 load 即可 */
-        void primeComparisonImages(container, { decode: false }).catch(() => {});
+        /* 勿 await 绑滑块；桌面在后台等 load 后逐帧 decode，尽量把位图塞进解码缓存，减轻滚回再显一帧 */
+        void primeComparisonImages(container, {
+            decode: !__isMobileImageWarmProfile(),
+            decodeBatch: __isMobileImageWarmProfile() ? 1 : 2,
+        }).catch(() => {});
 
         // --- 初始化交互（立即绑定，与图片加载并行） ---
         initializeComparison(); // 初始化滑块交互
@@ -597,11 +655,16 @@ async function loadAndInitComparison(jsonPath) {
 }
 
 /**
- * 对比区：等全部 img load；opts.decode 为 true 时对去重后的 img 逐帧 decode（默认仅当调用方开启）。
+ * 对比区：等全部 img load；opts.decode 为 true 时对去重后的 URL 逐帧 decode。
+ * opts.decodeBatch：每帧并行 decode 张数（桌面可用 2 加快预热，手机保持 1）。
  */
 function primeComparisonImages(comparisonRoot, opts) {
     if (!comparisonRoot) return Promise.resolve();
     const doDecode = !(opts && opts.decode === false);
+    const decodeBatch =
+        opts && typeof opts.decodeBatch === 'number' && opts.decodeBatch > 1
+            ? Math.min(4, Math.floor(opts.decodeBatch))
+            : 1;
     const imgs = Array.from(
         comparisonRoot.querySelectorAll('.comparison-wrapper img, .comparison-thumbnail-item img')
     );
@@ -650,9 +713,10 @@ function primeComparisonImages(comparisonRoot, opts) {
                 seen.add(key);
                 unique.push(img);
             }
-            for (const img of unique) {
+            for (let i = 0; i < unique.length; i += decodeBatch) {
                 await new Promise((r) => requestAnimationFrame(r));
-                await decodeOne(img);
+                const slice = unique.slice(i, i + decodeBatch);
+                await Promise.all(slice.map((im) => decodeOne(im)));
             }
         } catch (e) {
             console.warn('[Comparison] primeComparisonImages', e);
@@ -775,13 +839,13 @@ function initDualBufferGallerySlider(slidesId, dotsId, slidesContainer, urlList)
     let frontSlot = 0;
     let intervalId = null;
     let transitionLock = false;
-    const transitionDuration = 2200;
+    const transitionDuration = GALLERY_CROSSFADE_MS;
     const autoPlayDelay = 9000;
     const easeCrossfade = 'cubic-bezier(0.42, 0, 0.58, 1)';
     const idleSlideTransition = 'none';
     let crossFadeGeneration = 0;
     /* 完全 opacity:0 时部分浏览器会丢弃隐藏层 GPU 纹理，滚回视口像要「再显一遍」；0.01 仍被当前张盖住，尽量保留位图 */
-    const IDLE_HIDDEN_OPACITY = '0.01';
+    const IDLE_HIDDEN_OPACITY = '0.02';
 
     function promiseUrlOnImg(img, url) {
         const norm = normalizeImageUrl(url);
@@ -938,9 +1002,11 @@ function initDualBufferGallerySlider(slidesId, dotsId, slidesContainer, urlList)
         }
     }
 
+    let userPausedFromDot = false;
     if (dotElements.length > 0) {
         dotElements.forEach((dot, index) => {
             dot.addEventListener('click', () => {
+                userPausedFromDot = true;
                 stopAutoPlay();
                 showSlide(index);
             });
@@ -949,6 +1015,9 @@ function initDualBufferGallerySlider(slidesId, dotsId, slidesContainer, urlList)
 
     window.__displayGalleryControls = window.__displayGalleryControls || {};
     window.__displayGalleryControls[slidesId] = { stopAutoPlay: stopAutoPlay, startAutoPlay: startAutoPlay };
+
+    const watchRoot = slidesContainer.closest('.gallery-preview') || slidesContainer;
+    attachGalleryViewportAutoplay(watchRoot, startAutoPlay, stopAutoPlay, () => userPausedFromDot);
 
     scheduleLookahead();
     startAutoPlay();
@@ -1002,8 +1071,8 @@ function initializeGallerySlider(slidesId, dotsId) {
     let currentIndex = 0;
     let intervalId = null;
     let transitionLock = false;
-    /* 慢速叠化 + 较长停留，接近屏保感；时长需与下方 CSS .gallery-slide 兜底一致 */
-    const transitionDuration = 2200;
+    /* 叠化时长需与 index.html .gallery-slide 兜底一致 */
+    const transitionDuration = GALLERY_CROSSFADE_MS;
     const autoPlayDelay = 9000;
     const easeCrossfade = 'cubic-bezier(0.42, 0, 0.58, 1)';
 
@@ -1200,24 +1269,25 @@ function initializeGallerySlider(slidesId, dotsId) {
         }
     }
 
-    // Initialize dots and their event listeners
+    let userPausedFromDot = false;
     if (dotElements.length > 0) {
         dotElements.forEach((dot, index) => {
-        dot.addEventListener('click', () => {
+            dot.addEventListener('click', () => {
                 console.log(`[FadeSlider DEBUG #${slidesId}] Dot ${index} clicked.`); // 新增
+                userPausedFromDot = true;
                 stopAutoPlay();
                 showSlide(index);
-                // Optionally restart autoplay after manual interaction, or leave it stopped
-                // startAutoPlay(); 
+            });
         });
-    });
         if (dotElements[currentIndex]) dotElements[currentIndex].classList.add('active');
     }
-    
+
     window.__displayGalleryControls = window.__displayGalleryControls || {};
     window.__displayGalleryControls[slidesId] = { stopAutoPlay: stopAutoPlay, startAutoPlay: startAutoPlay };
 
-    // Initial setup: backgrounds are applied up-front in loadGalleryImages.
+    const watchRoot = slidesContainer.closest('.gallery-preview') || slidesContainer;
+    attachGalleryViewportAutoplay(watchRoot, startAutoPlay, stopAutoPlay, () => userPausedFromDot);
+
     startAutoPlay();
     console.log(`[FadeSlider DEBUG] Initialization complete for slider: ${slidesId}.`); // 新增
 }

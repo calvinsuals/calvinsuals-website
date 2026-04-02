@@ -1,8 +1,9 @@
 /* Shared site background shell.
  *
- * 手机（<768px）：保持 body 整页渐变（用户反馈手机端无问题，不改为 fixed）。
- * 桌面（≥768px）：渐变画在 fixed 视口层，避免与超长文档绑定；并做 paint 隔离，减轻快速滚动时
- *               「整块背景像跟不上 / 在加载」的体感（常为正文重绘牵连 fixed 层）。
+ * 默认（窄屏）：body 整页渐变；.background-gradient 隐藏。
+ * 桌面（≥768px）：body 透明 + fixed 视口渐变层。
+ *
+ * 仅首页若要用「全端 body 渐变」：在 index.html 用 body.home-page 更高优先级覆盖（见该页 head 内联）。
  *
  * html 使用 --site-background-fallback 兜底 overscroll（由 JS 从 body 同步 token）。
  */
@@ -20,7 +21,6 @@ html.site-fixed-background {
     background-image: none;
 }
 
-/* --- 默认（窄屏）：body 全高渐变；不启用 fixed 渐变层 --- */
 body.site-background-shell {
     --bs-body-bg: transparent;
     background-color: var(--site-background-underlay, #6f6f6f) !important;
@@ -56,7 +56,6 @@ body.site-background-shell #modal-container {
     isolation: isolate;
 }
 
-/* --- 仅桌面：fixed 视口渐变 + 绘制隔离，与滚动正文解耦 --- */
 @media (min-width: 768px) {
     body.site-background-shell {
         background-image: none !important;
