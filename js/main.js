@@ -244,6 +244,36 @@ async function fetchJsonCached(jsonPath) {
 /**
  * 加载图片列表并初始化轮播图 (加载 R2 图片)
  */
+/** 桌面：展示区快进入视口时 decode 轮播内 img，减轻滚到眼前才半幅显像 */
+function attachGalleryDesktopNearViewportDecode(slidesContainer) {
+    if (__isMobileImageWarmProfile() || !slidesContainer || typeof IntersectionObserver !== 'function') return;
+    const preview = slidesContainer.closest('.gallery-preview');
+    if (!preview || preview.dataset.decodeIoAttached === '1') return;
+    preview.dataset.decodeIoAttached = '1';
+
+    const runDecode = () => {
+        preview.querySelectorAll('img.gallery-slide-img').forEach((im) => {
+            const d = () => {
+                if (im.naturalWidth > 0 && typeof im.decode === 'function') im.decode().catch(() => {});
+            };
+            if (im.complete) d();
+            else im.addEventListener('load', d, { once: true });
+        });
+    };
+
+    const io = new IntersectionObserver(
+        (entries) => {
+            for (let i = 0; i < entries.length; i++) {
+                if (!entries[i].isIntersecting) continue;
+                io.unobserve(preview);
+                runDecode();
+            }
+        },
+        { root: null, rootMargin: '450px 0px', threshold: 0.01 }
+    );
+    io.observe(preview);
+}
+
 async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity) {
     const container = document.getElementById(containerId);
     const nav = navId ? document.getElementById(navId) : null;
@@ -384,6 +414,7 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         } else { // navId 和 nav 都为空
              __siteDbg(`[LoadGalleryImages DEBUG ${containerId}] Conditions NOT MET for initializeGallerySlider. navId: ${navId} (nav element also null), length: ${finalImageUrls.length}.`); // 新增
         }
+        if (!isMobileWarm) attachGalleryDesktopNearViewportDecode(container);
         __siteDbg(`[${containerId}] Successfully displayed ${finalImageUrls.length} images from ${jsonPath}`);
 
     } catch (error) {
@@ -536,6 +567,34 @@ function initializeComparison() {
 }
 
 /**
+ * 桌面：对比块距视口尚远时即对 wrapper 内 before/after decode，减少滚到位时半幅/逐行感。
+ */
+function attachComparisonDesktopNearViewportDecode(container) {
+    if (__isMobileImageWarmProfile() || !container || typeof IntersectionObserver !== 'function') return;
+
+    function decodeImg(im) {
+        const run = () => {
+            if (im.naturalWidth > 0 && typeof im.decode === 'function') im.decode().catch(() => {});
+        };
+        if (im.complete) run();
+        else im.addEventListener('load', run, { once: true });
+    }
+
+    const opts = { root: null, rootMargin: '420px 0px', threshold: 0.01 };
+    container.querySelectorAll('.comparison-wrapper').forEach((wrap) => {
+        const io = new IntersectionObserver((entries) => {
+            for (let i = 0; i < entries.length; i++) {
+                const entry = entries[i];
+                if (!entry.isIntersecting) continue;
+                io.unobserve(entry.target);
+                entry.target.querySelectorAll('img').forEach(decodeImg);
+            }
+        }, opts);
+        io.observe(wrap);
+    });
+}
+
+/**
  * 加载对比区数据并初始化 (从 comparison_groups.json 加载)
  * @param {string} jsonPath - comparison_groups.json 的路径
  */
@@ -592,7 +651,7 @@ async function loadAndInitComparison(jsonPath) {
                 imgBefore.loading = !isMobileWarm || index < 2 ? 'eager' : 'lazy';
                 imgBefore.decoding = 'async';
                 if (index < 2) imgBefore.fetchPriority = 'high';
-                else if (!isMobileWarm) imgBefore.fetchPriority = 'low';
+                else if (!isMobileWarm) imgBefore.fetchPriority = 'auto';
                 imgBefore.draggable = false; 
                 __siteDbg(`[Comparison ${groupData.id}] 设置 Before src: ${groupData.before_src}`);
                 const beforeUrl = normalizeImageUrl(groupData.before_src);
@@ -605,7 +664,7 @@ async function loadAndInitComparison(jsonPath) {
                 imgAfter.loading = !isMobileWarm || index < 2 ? 'eager' : 'lazy';
                 imgAfter.decoding = 'async';
                 if (index < 2) imgAfter.fetchPriority = 'high';
-                else if (!isMobileWarm) imgAfter.fetchPriority = 'low';
+                else if (!isMobileWarm) imgAfter.fetchPriority = 'auto';
                 imgAfter.draggable = false; 
                 __siteDbg(`[Comparison ${groupData.id}] 设置 After src: ${groupData.after_src}`);
                 const afterUrl = normalizeImageUrl(groupData.after_src);
@@ -646,7 +705,7 @@ async function loadAndInitComparison(jsonPath) {
                 thumbImg.loading = !isMobileWarm || index < 2 ? 'eager' : 'lazy';
                 thumbImg.decoding = 'async';
                 if (index === 0) thumbImg.fetchPriority = 'high';
-                else if (!isMobileWarm) thumbImg.fetchPriority = 'low';
+                else if (!isMobileWarm) thumbImg.fetchPriority = 'auto';
                 thumbImg.onerror = () => { thumbImg.alt='Thumb not found'; thumbImg.src=''; console.error(`[Comparison ${groupData.id}] 加载 Thumbnail 图片失败: ${groupData.after_src}`); };
                 thumbItem.appendChild(thumbImg);
                 thumbnailFragment.appendChild(thumbItem); 
@@ -676,6 +735,8 @@ async function loadAndInitComparison(jsonPath) {
         initializeComparison(); // 初始化滑块交互
         initializeThumbnailNav(sliderContainer, thumbnailNavContainer); // <-- 恢复：不再传递 groups
         initializeDragScrolling(); // 初始化拖动滚动（仅鼠标；触摸走原生 overflow 滚动）
+
+        attachComparisonDesktopNearViewportDecode(container);
 
         __siteDbg(`[Comparison] Placeholder setup complete with horizontal slider and thumbnail nav.`);
 
