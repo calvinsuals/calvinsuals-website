@@ -1,8 +1,8 @@
 /* Shared site background shell.
  *
- * 窄屏：整页 body 渐变（随文档滚动），隐藏 .background-gradient。
- * 桌面：body 不铺大图渐变，改用「仅视口高」的 fixed 层 —— 与整页拉伸渐变观感接近（同色同角），
- *       但避免每次滚动对「整文档高度」的背景重绘，减轻「滑一下像在加载背景」的卡顿。
+ * 手机（<768px）：保持 body 整页渐变（用户反馈手机端无问题，不改为 fixed）。
+ * 桌面（≥768px）：渐变画在 fixed 视口层，避免与超长文档绑定；并做 paint 隔离，减轻快速滚动时
+ *               「整块背景像跟不上 / 在加载」的体感（常为正文重绘牵连 fixed 层）。
  *
  * html 使用 --site-background-fallback 兜底 overscroll（由 JS 从 body 同步 token）。
  */
@@ -20,7 +20,7 @@ html.site-fixed-background {
     background-image: none;
 }
 
-/* --- 默认（含窄屏）：body 全高渐变 --- */
+/* --- 默认（窄屏）：body 全高渐变；不启用 fixed 渐变层 --- */
 body.site-background-shell {
     --bs-body-bg: transparent;
     background-color: var(--site-background-underlay, #6f6f6f) !important;
@@ -56,7 +56,7 @@ body.site-background-shell #modal-container {
     isolation: isolate;
 }
 
-/* --- 桌面：视口固定渐变层（非整页文档高，无滚动同步 JS） --- */
+/* --- 仅桌面：fixed 视口渐变 + 绘制隔离，与滚动正文解耦 --- */
 @media (min-width: 768px) {
     body.site-background-shell {
         background-image: none !important;
@@ -68,9 +68,14 @@ body.site-background-shell #modal-container {
         position: fixed;
         left: 0;
         top: 0;
+        right: 0;
+        bottom: 0;
         width: 100%;
-        height: 100vh;
+        height: 100%;
+        min-height: 100vh;
         min-height: 100dvh;
+        min-height: 100lvh;
+        min-height: -webkit-fill-available;
         z-index: 0;
         pointer-events: none;
         background-color: var(--site-background-underlay, #6f6f6f);
@@ -78,7 +83,10 @@ body.site-background-shell #modal-container {
         background-repeat: no-repeat;
         background-size: 100% 100%;
         background-position: center center;
-        transform: translateZ(0);
+        transform: translate3d(0, 0, 0);
         backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        isolation: isolate;
+        contain: paint;
     }
 }

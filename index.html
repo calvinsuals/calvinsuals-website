@@ -32,7 +32,7 @@
     <!-- <link rel="stylesheet" href="gallery.css"> -->
     <!-- <link rel="stylesheet" href="automotive.css"> --> 
 
-    <link rel="stylesheet" href="css/site_background.css?v=20260404a">
+    <link rel="stylesheet" href="css/site_background.css?v=20260404u">
     <!-- 首页 JSON（comparison_groups 已在 head 顶部 preload） -->
     <link rel="preload" href="images/display_automotive.json" as="fetch">
     <link rel="preload" href="images/display_portrait.json" as="fetch">
@@ -480,6 +480,18 @@
             z-index: 2; /*激活的在最上层*/
         }
 
+        /* 仅首页：大块区域立即可见（原底部内联脚本）；用 CSS 避免解析末尾对多节点写行内 style 触发额外样式计算 */
+        body.home-page .section,
+        body.home-page .comparison-section,
+        body.home-page .hero,
+        body.home-page .about-section,
+        body.home-page .contact-section,
+        body.home-page .footer {
+            opacity: 1;
+            transform: none;
+            transition: none;
+        }
+
         /* 桌面：首页大图/区块不参与离屏省略绘制；轮播张不用 visibility:hidden（叠化只靠 opacity），避免滚回视口像重新显图 */
         @media screen and (min-width: 768px) {
             body.home-page #automotive,
@@ -509,6 +521,28 @@
 
             body.home-page .gallery-slide {
                 visibility: visible !important;
+                /* 静止时不挂长 opacity 过渡，叠化由 main.js 临时写入 transition；减轻竖向滚动时合成/插值开销 */
+                transition: none;
+            }
+
+            body.home-page .gallery-preview {
+                isolation: auto;
+            }
+
+            body.home-page .gallery-slider {
+                transform: translateZ(0);
+                perspective: none;
+                -webkit-perspective: none;
+                box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4);
+            }
+
+            body.home-page .gallery-slides {
+                box-shadow: none;
+                perspective: none;
+                -webkit-perspective: none;
+                /* 与 site_background 兜底色接近，快速滑动短暂露底时不至于整块死灰 */
+                background-color: #5c5c5c;
+                background-image: linear-gradient(135deg, #3a3a3a 0%, #8a8a8a 100%);
             }
 
             body.home-page .comparison-wrapper,
@@ -2380,8 +2414,8 @@
     </div>
 
     <!-- 添加外部脚本链接 -->
-    <script src="js/site_background.js?v=20260404a" defer></script>
-    <script src="js/main.js?v=20260404q" defer></script>
+    <script src="js/site_background.js?v=20260404u" defer></script>
+    <script src="js/main.js?v=20260404v" defer></script>
     <script src="js/navigation.js?v=20260404i" defer></script>
 
     <!-- 锚点定位修复脚本 -->
@@ -2393,14 +2427,7 @@
         // REMOVED Inline Function to navigate to main section - now handled by navigation.js
 
         // REMOVED Gallery Slider Logic - now handled by js/main.js
-        
-        // 保持区域立即可见，避免快速滚动时出现“白一下再加载”的体感。
-        const sections = document.querySelectorAll('.section, .comparison-section, .hero, .about-section, .contact-section, .footer');
-        sections.forEach(section => {
-            section.style.opacity = 1;
-            section.style.transform = 'none';
-            section.style.transition = 'none';
-        });
+        // 区域立即可见已改由 <head> 内 body.home-page 的 CSS 规则处理，避免此处对多节点写行内 style。
 
         /* About 区社交弹窗：Visual Viewport 对齐 + 锁定滚动；内容 max-height 用 100% 相对遮罩，避免 dvh 与 vv 两套高度导致「UI 显隐时同一弹窗上下跳」 */
         (function () {

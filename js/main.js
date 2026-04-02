@@ -179,51 +179,101 @@ async function loadGalleryImages(containerId, navId, jsonPath, count = Infinity)
         container.innerHTML = '';
         if (nav) nav.innerHTML = '';
         const fragment = document.createDocumentFragment();
-        /* 手机：只挂首张控内存。桌面：每张立刻挂 src（当前 JSON 量级可接受），避免滚回或叠化到第 3 张起才起请求 → 像「重新加载」 */
-        const initialImgCount = isMobileWarm ? 1 : finalImageUrls.length;
-        finalImageUrls.forEach((imgUrl, index) => {
-            const slide = document.createElement('div');
-            slide.className = 'gallery-slide';
-            if (typeof imgUrl === 'string' && imgUrl.startsWith('http')) {
-                slide.dataset.bgImage = imgUrl;
-                const img = document.createElement('img');
-                img.className = 'gallery-slide-img';
-                img.alt = '';
-                img.decoding = 'async';
-                img.draggable = false;
-                if (!isMobileWarm) img.loading = 'eager';
-                if (index === 0) img.fetchPriority = 'high';
-                else if (!isMobileWarm) img.fetchPriority = 'low';
-                if (index < initialImgCount) {
+        const isDualDesktop = !isMobileWarm && finalImageUrls.length > 1;
+
+        if (isDualDesktop) {
+            container.dataset.galleryMode = 'dual-buffer';
+            window.__galleryUrlLists = window.__galleryUrlLists || {};
+            window.__galleryUrlLists[containerId] = finalImageUrls.slice();
+            for (let b = 0; b < 2; b++) {
+                const imgUrl = finalImageUrls[b];
+                const slide = document.createElement('div');
+                slide.className = 'gallery-slide';
+                if (typeof imgUrl === 'string' && imgUrl.startsWith('http')) {
+                    slide.dataset.bgImage = imgUrl;
+                    const img = document.createElement('img');
+                    img.className = 'gallery-slide-img';
+                    img.alt = '';
+                    img.decoding = b === 0 ? 'sync' : 'async';
+                    img.draggable = false;
+                    img.loading = 'eager';
+                    img.fetchPriority = b === 0 ? 'high' : 'low';
                     img.src = imgUrl;
                     slide.dataset.imgApplied = '1';
+                    slide.appendChild(img);
+                } else {
+                    console.warn(`[${containerId}] Invalid URL: '${imgUrl}'`);
+                    slide.textContent = 'Invalid URL';
                 }
-                slide.appendChild(img);
-            } else {
-                console.warn(`[${containerId}] Invalid URL: '${imgUrl}'`);
-                slide.textContent = `Invalid URL`;
+                fragment.appendChild(slide);
             }
-            fragment.appendChild(slide);
-            if (nav) {
+        } else {
+            /* 手机：只挂首张控内存。桌面单张或非双缓冲：每张立刻挂 src */
+            const initialImgCount = isMobileWarm ? 1 : finalImageUrls.length;
+            finalImageUrls.forEach((imgUrl, index) => {
+                const slide = document.createElement('div');
+                slide.className = 'gallery-slide';
+                if (typeof imgUrl === 'string' && imgUrl.startsWith('http')) {
+                    slide.dataset.bgImage = imgUrl;
+                    const img = document.createElement('img');
+                    img.className = 'gallery-slide-img';
+                    img.alt = '';
+                    img.decoding = !isMobileWarm && index === 0 ? 'sync' : 'async';
+                    img.draggable = false;
+                    if (!isMobileWarm) img.loading = 'eager';
+                    if (index === 0) img.fetchPriority = 'high';
+                    else if (!isMobileWarm) img.fetchPriority = 'low';
+                    if (index < initialImgCount) {
+                        img.src = imgUrl;
+                        slide.dataset.imgApplied = '1';
+                    }
+                    slide.appendChild(img);
+                } else {
+                    console.warn(`[${containerId}] Invalid URL: '${imgUrl}'`);
+                    slide.textContent = `Invalid URL`;
+                }
+                fragment.appendChild(slide);
+            });
+        }
+
+        if (nav) {
+            finalImageUrls.forEach((imgUrl, index) => {
                 const dot = document.createElement('div');
                 dot.className = index === 0 ? 'gallery-dot active' : 'gallery-dot';
-                dot.dataset.index = index;
+                dot.dataset.index = String(index);
                 nav.appendChild(dot);
-            }
-        });
+            });
+        }
+
         container.appendChild(fragment);
         container.dataset.loadedJsonPath = jsonPath;
+
+        if (isDualDesktop) {
+            container.querySelectorAll('img.gallery-slide-img').forEach((im, i) => {
+                const u = finalImageUrls[i];
+                if (typeof u === 'string' && u.startsWith('http')) {
+                    im.__galleryUrl = normalizeImageUrl(u);
+                }
+            });
+        }
+
         const galEager = isMobileWarm
             ? Math.min(1, finalImageUrls.length)
             : finalImageUrls.length;
         /* 桌面：全量 warm（与上面每张已挂 src 一致）；手机：仅一张、不跑 idle 队列 */
         warmImagesIdle(finalImageUrls, galEager, !isMobileWarm);
 
-        if (!isMobileWarm) {
-            container.querySelectorAll('img.gallery-slide-img').forEach((im) => {
+        if (!isMobileWarm && !isDualDesktop) {
+            const galImgs = Array.from(container.querySelectorAll('img.gallery-slide-img'));
+            galImgs.forEach((im, decodeIndex) => {
                 const tryDecode = () => {
                     if (typeof im.decode !== 'function') return;
-                    im.decode().catch(() => {});
+                    const run = () => im.decode().catch(() => {});
+                    const afterFrames = (n, cb) => {
+                        if (n <= 0) cb();
+                        else requestAnimationFrame(() => afterFrames(n - 1, cb));
+                    };
+                    afterFrames(Math.min(decodeIndex, 12), run);
                 };
                 if (im.complete && im.naturalWidth > 0) tryDecode();
                 else im.addEventListener('load', tryDecode, { once: true });
@@ -701,6 +751,203 @@ function initializeDragScrolling() {
 
 
 // --- 其他函数 (轮播, 表单, 弹窗, 菜单) ---
+
+/**
+ * 桌面端双缓冲轮播：DOM 里只有 2 张 <img>，叠化时在二者之间切。
+ * 避免「每张幻灯片一张大图」时 N 路同时解码 / 占显存，滚出视口再回来易被浏览器丢图层像重载。
+ */
+function initDualBufferGallerySlider(slidesId, dotsId, slidesContainer, urlList) {
+    const gallerySliderElement = slidesContainer.closest('.gallery-slider');
+    if (gallerySliderElement) {
+        gallerySliderElement.style.position = 'relative';
+    }
+
+    const slideElements = Array.from(slidesContainer.querySelectorAll('.gallery-slide'));
+    const dotElements = dotsId ? Array.from(document.querySelectorAll(`#${dotsId} .gallery-dot`)) : [];
+
+    if (slideElements.length !== 2 || !Array.isArray(urlList) || urlList.length < 2) {
+        return;
+    }
+
+    let logicalIndex = 0;
+    let frontSlot = 0;
+    let intervalId = null;
+    let transitionLock = false;
+    const transitionDuration = 2200;
+    const autoPlayDelay = 9000;
+    const easeCrossfade = 'cubic-bezier(0.42, 0, 0.58, 1)';
+    const idleSlideTransition = 'none';
+    let crossFadeGeneration = 0;
+
+    function promiseUrlOnImg(img, url) {
+        const norm = normalizeImageUrl(url);
+        if (!img || !norm) return Promise.resolve();
+        if (img.__galleryUrl === norm && img.complete && img.naturalWidth > 0) {
+            if (typeof img.decode === 'function') return img.decode().catch(() => {});
+            return Promise.resolve();
+        }
+        return new Promise((resolve) => {
+            let settled = false;
+            const finish = () => {
+                if (settled) return;
+                settled = true;
+                img.__galleryUrl = norm;
+                const fin = () => resolve();
+                if (typeof img.decode === 'function') img.decode().then(fin).catch(fin);
+                else fin();
+            };
+            img.addEventListener('load', finish, { once: true });
+            img.addEventListener('error', finish, { once: true });
+            img.src = norm;
+        });
+    }
+
+    slideElements.forEach((slide, index) => {
+        slide.style.position = 'absolute';
+        slide.style.top = '0';
+        slide.style.left = '0';
+        slide.style.width = '100%';
+        slide.style.height = '100%';
+        slide.style.opacity = index === 0 ? '1' : '0';
+        slide.style.visibility = 'visible';
+        slide.style.zIndex = index === 0 ? '2' : '1';
+        slide.style.transition = idleSlideTransition;
+        slide.style.transform = 'translateZ(0)';
+        slide.style.backfaceVisibility = 'hidden';
+    });
+
+    function scheduleLookahead() {
+        const hiddenIdx = 1 - frontSlot;
+        const hiddenImg = slideElements[hiddenIdx].querySelector('img.gallery-slide-img');
+        if (!hiddenImg || urlList.length < 2) return;
+        const nextU = normalizeImageUrl(urlList[(logicalIndex + 1) % urlList.length]);
+        if (hiddenImg.__galleryUrl === nextU && hiddenImg.complete && hiddenImg.naturalWidth > 0) return;
+        const mark = () => {
+            hiddenImg.__galleryUrl = nextU;
+        };
+        hiddenImg.addEventListener('load', mark, { once: true });
+        hiddenImg.addEventListener('error', mark, { once: true });
+        hiddenImg.src = nextU;
+        if (hiddenImg.complete && hiddenImg.naturalWidth > 0) mark();
+    }
+
+    function showSlide(newLogicalIndex) {
+        const n = urlList.length;
+        const normIdx = ((newLogicalIndex % n) + n) % n;
+        if (normIdx === logicalIndex) return;
+        if (transitionLock) return;
+
+        const backSlot = 1 - frontSlot;
+        const currentSlide = slideElements[frontSlot];
+        const nextSlide = slideElements[backSlot];
+        const backImg = nextSlide.querySelector('img.gallery-slide-img');
+        const nextUrl = urlList[normIdx];
+        const requestedIndex = normIdx;
+
+        transitionLock = true;
+        const gen = ++crossFadeGeneration;
+
+        promiseUrlOnImg(backImg, nextUrl).then(() => {
+            if (gen !== crossFadeGeneration) {
+                transitionLock = false;
+                return;
+            }
+
+            if (nextUrl) warmImage(normalizeImageUrl(nextUrl));
+            const la = (requestedIndex + 1) % n;
+            if (urlList[la]) warmImage(normalizeImageUrl(urlList[la]));
+
+            const crossfadeTransition = `opacity ${transitionDuration}ms ${easeCrossfade}`;
+            currentSlide.style.transition = crossfadeTransition;
+            nextSlide.style.transition = crossfadeTransition;
+
+            nextSlide.style.zIndex = '3';
+            currentSlide.style.zIndex = '2';
+            nextSlide.style.opacity = '0';
+            void nextSlide.offsetHeight;
+
+            if (dotElements.length > 0) {
+                dotElements.forEach((d, i) => {
+                    d.classList.toggle('active', i === requestedIndex);
+                });
+            }
+            logicalIndex = requestedIndex;
+
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    nextSlide.style.opacity = '1';
+                    currentSlide.style.opacity = '0';
+                });
+            });
+
+            const clearDesktopTransition = () => {
+                currentSlide.style.transition = idleSlideTransition;
+                nextSlide.style.transition = idleSlideTransition;
+            };
+
+            const onCurrentFadeOut = (e) => {
+                if (e.propertyName !== 'opacity') return;
+                currentSlide.removeEventListener('transitionend', onCurrentFadeOut);
+                currentSlide.style.zIndex = '1';
+                nextSlide.style.zIndex = '2';
+                frontSlot = backSlot;
+                clearDesktopTransition();
+                transitionLock = false;
+                scheduleLookahead();
+            };
+            currentSlide.addEventListener('transitionend', onCurrentFadeOut);
+
+            window.setTimeout(() => {
+                if (!transitionLock) return;
+                currentSlide.removeEventListener('transitionend', onCurrentFadeOut);
+                currentSlide.style.zIndex = '1';
+                nextSlide.style.zIndex = '2';
+                frontSlot = backSlot;
+                clearDesktopTransition();
+                transitionLock = false;
+                scheduleLookahead();
+            }, transitionDuration + 120);
+        });
+    }
+
+    function next() {
+        showSlide((logicalIndex + 1) % urlList.length);
+    }
+
+    function prev() {
+        showSlide((logicalIndex - 1 + urlList.length) % urlList.length);
+    }
+
+    function startAutoPlay() {
+        stopAutoPlay();
+        if (urlList.length > 1) {
+            intervalId = setInterval(next, autoPlayDelay);
+        }
+    }
+
+    function stopAutoPlay() {
+        if (intervalId) {
+            clearInterval(intervalId);
+            intervalId = null;
+        }
+    }
+
+    if (dotElements.length > 0) {
+        dotElements.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                stopAutoPlay();
+                showSlide(index);
+            });
+        });
+    }
+
+    window.__displayGalleryControls = window.__displayGalleryControls || {};
+    window.__displayGalleryControls[slidesId] = { stopAutoPlay: stopAutoPlay, startAutoPlay: startAutoPlay };
+
+    scheduleLookahead();
+    startAutoPlay();
+}
+
 function initializeGallerySlider(slidesId, dotsId) {
     console.log(`[FadeSlider DEBUG] initializeGallerySlider called with slidesId: ${slidesId}, dotsId: ${dotsId}`); // 新增
 
@@ -709,6 +956,18 @@ function initializeGallerySlider(slidesId, dotsId) {
 
     if (!slidesContainer) {
         console.error(`[FadeSlider DEBUG] Gallery container #${slidesId} NOT FOUND. Aborting init.`); // 修改
+        return;
+    }
+
+    const urlListDual = window.__galleryUrlLists && window.__galleryUrlLists[slidesId];
+    const useDualBuffer =
+        !__isMobileImageWarmProfile() &&
+        slidesContainer.dataset.galleryMode === 'dual-buffer' &&
+        Array.isArray(urlListDual) &&
+        urlListDual.length > 1;
+
+    if (useDualBuffer) {
+        initDualBufferGallerySlider(slidesId, dotsId, slidesContainer, urlListDual);
         return;
     }
 
@@ -744,6 +1003,9 @@ function initializeGallerySlider(slidesId, dotsId) {
 
     const isMobileWarm = __isMobileImageWarmProfile();
     const disableAutoplayOnMobile = false;
+    const idleSlideTransition = isMobileWarm
+        ? `opacity ${transitionDuration}ms ${easeCrossfade}`
+        : 'none';
 
     function promiseSlideImgReady(slide) {
         const url = slide && slide.dataset ? slide.dataset.bgImage : '';
@@ -807,7 +1069,7 @@ function initializeGallerySlider(slidesId, dotsId) {
         slide.style.visibility =
             index === 0 || !hideInactiveSlidesWithVisibility ? 'visible' : 'hidden';
         slide.style.zIndex = index === 0 ? '2' : '1';
-        slide.style.transition = `opacity ${transitionDuration}ms ${easeCrossfade}`;
+        slide.style.transition = idleSlideTransition;
         slide.style.transform = 'translateZ(0)';
         slide.style.backfaceVisibility = 'hidden';
 
@@ -846,6 +1108,12 @@ function initializeGallerySlider(slidesId, dotsId) {
                 warmImage(aheadSlide.dataset.bgImage);
             }
 
+            const crossfadeTransition = `opacity ${transitionDuration}ms ${easeCrossfade}`;
+            if (!isMobileWarm) {
+                currentSlide.style.transition = crossfadeTransition;
+                nextSlide.style.transition = crossfadeTransition;
+            }
+
             nextSlide.style.visibility = 'visible';
             nextSlide.style.zIndex = '3';
             currentSlide.style.zIndex = '2';
@@ -859,12 +1127,20 @@ function initializeGallerySlider(slidesId, dotsId) {
                 });
             });
 
+            const clearDesktopTransition = () => {
+                if (!isMobileWarm) {
+                    currentSlide.style.transition = idleSlideTransition;
+                    nextSlide.style.transition = idleSlideTransition;
+                }
+            };
+
             const onCurrentFadeOut = (e) => {
                 if (e.propertyName !== 'opacity') return;
                 currentSlide.removeEventListener('transitionend', onCurrentFadeOut);
                 if (hideInactiveSlidesWithVisibility) currentSlide.style.visibility = 'hidden';
                 currentSlide.style.zIndex = '1';
                 nextSlide.style.zIndex = '2';
+                clearDesktopTransition();
                 transitionLock = false;
             };
             currentSlide.addEventListener('transitionend', onCurrentFadeOut);
@@ -875,6 +1151,7 @@ function initializeGallerySlider(slidesId, dotsId) {
                 if (hideInactiveSlidesWithVisibility) currentSlide.style.visibility = 'hidden';
                 currentSlide.style.zIndex = '1';
                 nextSlide.style.zIndex = '2';
+                clearDesktopTransition();
                 transitionLock = false;
             }, transitionDuration + 120);
 
@@ -1009,23 +1286,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('load', syncBg, { once: true });
 
+    /* 不在对比/轮播 finally 里调 syncBg：画廊加载不改变 --site-background-*，反复 getComputedStyle 会与首页大量解码叠在一起，桌面滚动时像整页（含渐变）卡住 */
+
     /* 对比区：必须与「滚到视口再拉」脱钩，否则永远比轮播慢一拍；与 head 中 preload 首组配合，滑到即有图 */
-    loadAndInitComparison('images/comparison_groups.json')
-        .catch((e) => console.error('[Comparison] 未捕获的初始化失败', e))
-        .finally(() => syncBg());
+    loadAndInitComparison('images/comparison_groups.json').catch((e) =>
+        console.error('[Comparison] 未捕获的初始化失败', e)
+    );
 
     /* 汽车轮播晚一帧，让对比 JSON + 首组请求先进入队列（仍并行，仅排序） */
     requestAnimationFrame(() => {
-        loadGalleryImages('automotive-slides', 'automotive-nav', 'images/display_automotive.json')
-            .catch((e) => console.error('[Gallery] automotive init failed', e))
-            .finally(() => syncBg());
+        loadGalleryImages('automotive-slides', 'automotive-nav', 'images/display_automotive.json').catch((e) =>
+            console.error('[Gallery] automotive init failed', e)
+        );
     });
 
     const portraitJson = 'images/display_portrait.json';
     const startPortraitGallery = () => {
-        loadGalleryImages('portrait-slides', 'portrait-nav', portraitJson)
-            .catch((e) => console.error('[Gallery] portrait init failed', e))
-            .finally(() => syncBg());
+        loadGalleryImages('portrait-slides', 'portrait-nav', portraitJson).catch((e) =>
+            console.error('[Gallery] portrait init failed', e)
+        );
     };
     if (typeof window.requestIdleCallback === 'function') {
         window.requestIdleCallback(startPortraitGallery, { timeout: 2000 });
