@@ -132,6 +132,75 @@ function __isMobileImageWarmProfile() {
     }
 }
 
+/**
+ * 首页·桌面：滚轮纵向「限速」（累积 delta + 每帧最多推进若干 px）。触控竖滑仍走系统，不受影响。
+ * 减轻猛滑时与图片解码/合成叠乘的卡顿感。对比横滑区、弹窗、导航菜单内不拦截。
+ */
+function attachHomeDesktopScrollWheelDamping() {
+    if (!document.body || !document.body.classList.contains('home-page')) return;
+    try {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    } catch (e) {
+        /* ignore */
+    }
+
+    const mq = window.matchMedia('(min-width: 768px)');
+    let acc = 0;
+    let rafId = null;
+    const WHEEL_FACTOR = 0.56;
+    const MAX_STEP_PX = 50;
+
+    function normalizeDeltaY(e) {
+        let dy = e.deltaY;
+        if (e.deltaMode === 1) dy *= 18;
+        else if (e.deltaMode === 2) dy *= 280;
+        return dy;
+    }
+
+    /** 若事件目标在「自身可纵向滚」的容器内（非整页），交给浏览器原生 */
+    function insideNestedVerticalScroller(el) {
+        for (let n = el instanceof Element ? el : null; n && n !== document.body; n = n.parentElement) {
+            if (n.classList && n.classList.contains('comparison-slider')) return true;
+            const st = window.getComputedStyle(n);
+            const oy = st.overflowY;
+            if ((oy === 'auto' || oy === 'scroll' || oy === 'overlay') && n.scrollHeight > n.clientHeight + 2) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function tick() {
+        rafId = null;
+        if (!mq.matches) {
+            acc = 0;
+            return;
+        }
+        if (Math.abs(acc) < 0.5) return;
+        const step = Math.sign(acc) * Math.min(Math.abs(acc), MAX_STEP_PX);
+        acc -= step;
+        window.scrollBy({ top: step, left: 0, behavior: 'auto' });
+        rafId = requestAnimationFrame(tick);
+    }
+
+    window.addEventListener(
+        'wheel',
+        function (e) {
+            if (!mq.matches) return;
+            if (e.ctrlKey) return;
+            if (!(e.target instanceof Element)) return;
+            if (e.target.closest('input, textarea, select, [contenteditable="true"]')) return;
+            if (e.target.closest('.comparison-slider, .nav-menu, .modal, .modal-overlay, #modal-container')) return;
+            if (insideNestedVerticalScroller(e.target)) return;
+
+            e.preventDefault();
+            acc += normalizeDeltaY(e) * WHEEL_FACTOR;
+            if (rafId == null) rafId = requestAnimationFrame(tick);
+        },
+        { passive: false }
+    );
+}
+
 function warmImagesIdle(urls, eagerCount = 8, scheduleRemainder = true) {
     const valid = (urls || []).filter((u) => typeof u === 'string' && u.startsWith('http'));
     if (valid.length === 0) return;
@@ -1351,6 +1420,8 @@ document.addEventListener('DOMContentLoaded', () => {
     disableContextMenu('.gallery-slide');
     disableContextMenu('.comparison-wrapper img');
     disableContextMenu('.placeholder-box'); // 对占位符也禁用
+
+    attachHomeDesktopScrollWheelDamping();
 
     __siteDbg("主 DOMContentLoaded 事件监听器执行完毕。");
     } catch (err) {
