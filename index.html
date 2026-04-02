@@ -1493,6 +1493,12 @@
             border-radius: 50%;
         }
         
+        .about-image-container picture {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
         .about-image-container img {
             width: 100%;
             height: 100%;
@@ -2418,7 +2424,10 @@
             
         <div class="about-wrapper">
             <div class="about-image-container">
-                <img src="https://img.calvinsuals.com/images/about/hero/hero.jpg" alt="Photographer Portrait" loading="eager" decoding="sync" fetchpriority="high" onerror="this.alt='Profile image not found'; this.src=''; this.style.display='none';">
+                <picture>
+                    <source type="image/webp" srcset="https://img.calvinsuals.com/images/about/hero/hero.webp">
+                    <img src="https://img.calvinsuals.com/images/about/hero/hero.jpg" alt="Photographer Portrait" loading="eager" decoding="sync" fetchpriority="high" onerror="this.alt='Profile image not found'; this.src=''; this.style.display='none';">
+                </picture>
             </div>
             <div class="about-text-container">
                 <p><strong>Calvin Chan | 视觉创作</strong></p>
@@ -2483,11 +2492,11 @@
             <h3 class="modal-title"></h3>
             <div class="modal-images">
                 <a href="https://www.xiaohongshu.com/user/profile/5b5699c311be104a66c9ec6a" target="_blank">
-                    <img src="https://pub-67b44c34fdd2480e83feffb3cfc185b9.r2.dev/images/about/xiaohongshu1/xiaohongshu1.jpg" alt="小红书截图1" loading="lazy" decoding="async" onerror="this.alt='图片未找到'; this.style.display='block';">
+                    <img data-about-asset="xiaohongshu1" src="https://img.calvinsuals.com/images/about/xiaohongshu1/xiaohongshu1.jpg" alt="小红书截图1" loading="lazy" decoding="async" onerror="this.alt='图片未找到'; this.style.display='block';">
                     <p class="modal-text">拍车咔尔文</p>
                 </a>
                 <a href="https://www.xiaohongshu.com/user/profile/6534235c000000000400a840" target="_blank">
-                    <img src="https://pub-67b44c34fdd2480e83feffb3cfc185b9.r2.dev/images/about/xiaohongshu2/xiaohongshu2.jpg" alt="小红书截图2" loading="lazy" decoding="async" onerror="this.alt='图片未找到'; this.style.display='block';">
+                    <img data-about-asset="xiaohongshu2" src="https://img.calvinsuals.com/images/about/xiaohongshu2/xiaohongshu2.jpg" alt="小红书截图2" loading="lazy" decoding="async" onerror="this.alt='图片未找到'; this.style.display='block';">
                     <p class="modal-text">Itssc.ch Photos</p>
                 </a>
             </div>
@@ -2498,7 +2507,7 @@
             <span class="modal-close" onclick="closeAboutSocialModal('wechatModal');">&times;</span>
             <h3 class="modal-title"></h3>
             <div class="modal-images">
-                <img src="https://pub-67b44c34fdd2480e83feffb3cfc185b9.r2.dev/images/about/wechat/wechat.jpg" alt="微信二维码" loading="lazy" decoding="async" onerror="this.alt='图片未找到'; this.style.display='block';">
+                <img data-about-asset="wechat" src="https://img.calvinsuals.com/images/about/wechat/wechat.jpg" alt="微信二维码" loading="lazy" decoding="async" onerror="this.alt='图片未找到'; this.style.display='block';">
             </div>
             <p class="modal-text">微信号: itscalvinchan</p>
             <button class="copy-button" onclick="

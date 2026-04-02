@@ -13,6 +13,7 @@ on:
     paths:
       - 'images/**'
       - 'scripts/sync_critical_preload.py'
+      - 'scripts/sync_about_modal_html.py'
       - '.github/workflows/generate_json.yml'
   workflow_dispatch:
 
@@ -65,6 +66,9 @@ jobs:
 
       - name: Sync critical preload from display JSON
         run: python scripts/sync_critical_preload.py
+
+      - name: Sync About modal images from about_modal.json
+        run: python scripts/sync_about_modal_html.py
 
       - name: Commit and push changes
         # 添加 set -e，让脚本在出错时立即停止
