@@ -1548,6 +1548,26 @@ document.addEventListener('DOMContentLoaded', () => {
     disableContextMenu('.comparison-wrapper img');
     disableContextMenu('.placeholder-box'); // 对占位符也禁用
 
+    /** About 社交弹窗图：遮罩内 lazy 常拖到首开才加载；配合 HTML eager，空闲时预拉并 decode，减少首开时整块变高 */
+    function warmAboutModalImages() {
+        const imgs = document.querySelectorAll('img[data-about-asset]');
+        if (!imgs.length) return;
+        imgs.forEach((img) => {
+            const u = img.getAttribute('src');
+            if (!u || u.indexOf('http') !== 0) return;
+            const pre = new Image();
+            pre.src = u;
+            if (typeof pre.decode === 'function') {
+                pre.decode().catch(() => {});
+            }
+        });
+    }
+    if (typeof window.requestIdleCallback === 'function') {
+        window.requestIdleCallback(() => warmAboutModalImages(), { timeout: 3000 });
+    } else {
+        window.setTimeout(warmAboutModalImages, 400);
+    }
+
     attachHomeDesktopScrollWheelDamping();
 
     __siteDbg("主 DOMContentLoaded 事件监听器执行完毕。");

@@ -1364,6 +1364,23 @@
             display: block; /* 确保块级显示以接受margin */
         }
 
+        /* 窄屏：在 #wechatModal 规则之后，用 aspect-ratio 预留首开高度（避免图未到时盒子过矮再胀高） */
+        @media screen and (max-width: 767px) {
+            #wechatModal .modal-images img {
+                aspect-ratio: 1;
+                max-width: min(280px, 78vw);
+                object-fit: contain;
+            }
+            #xiaohongshuModal .modal-images img {
+                aspect-ratio: 9 / 16;
+                max-width: min(280px, 72vw);
+                width: 100%;
+                margin-left: auto;
+                margin-right: auto;
+                object-fit: cover;
+            }
+        }
+
         #wechatModal .modal-text {
             margin: 5px 0;
         }
@@ -1493,12 +1510,6 @@
             border-radius: 50%;
         }
         
-        .about-image-container picture {
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-
         .about-image-container img {
             width: 100%;
             height: 100%;
@@ -2424,10 +2435,7 @@
             
         <div class="about-wrapper">
             <div class="about-image-container">
-                <picture>
-                    <source type="image/webp" srcset="https://img.calvinsuals.com/images/about/hero/hero.webp">
-                    <img src="https://img.calvinsuals.com/images/about/hero/hero.jpg" alt="Photographer Portrait" loading="eager" decoding="sync" fetchpriority="high" onerror="this.alt='Profile image not found'; this.src=''; this.style.display='none';">
-                </picture>
+                <img data-about-asset="hero" src="https://img.calvinsuals.com/images/about/hero/hero.jpg" alt="Photographer Portrait" loading="eager" decoding="sync" fetchpriority="high" onerror="this.alt='头像加载失败';">
             </div>
             <div class="about-text-container">
                 <p><strong>Calvin Chan | 视觉创作</strong></p>
@@ -2532,7 +2540,7 @@
     <!-- 添加外部脚本链接 -->
     <script src="js/site_background.js?v=20260407a" defer></script>
     <!-- 调试 main.js：URL 加 ?debug=1 可恢复详细控制台日志 -->
-    <script src="js/main.js?v=20260408g" defer></script>
+    <script src="js/main.js?v=20260408h" defer></script>
     <script src="js/navigation.js?v=20260404i" defer></script>
 
     <!-- 锚点定位修复脚本 -->

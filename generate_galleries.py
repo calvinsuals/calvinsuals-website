@@ -39,8 +39,9 @@ COMPARISON_CONFIG = {
     "comparison_groups": {"prefix": "images/comparison/", "output_json": "comparison_groups.json"}
 }
 
-# About 区社交弹窗：每个 key 对应 R2 上一文件夹，取排序后最后一张（同名 .webp 会排在 .jpg 后）
+# About 区：弹窗 + 头像。每个 key 对应 R2 上一文件夹，取排序后最后一张（.webp 字母序在 .jpg 后 → 同目录双格式时优先 webp）
 ABOUT_MODAL_CONFIG = {
+    "hero": "images/about/hero/",
     "xiaohongshu1": "images/about/xiaohongshu1/",
     "xiaohongshu2": "images/about/xiaohongshu2/",
     "wechat": "images/about/wechat/",
@@ -267,16 +268,16 @@ def main():
         else:
             print(f"  未能在 R2 的 '{r2_prefix}' 路径下找到任何有效的对比组。")
 
-    # --- About 弹窗图片 URL（由 sync_about_modal_html.py 写入 index.html）---
+    # --- About 头像 + 弹窗图 URL（由 sync_about_modal_html.py 写入 index.html）---
     about_modal: dict[str, str] = {}
-    print(f"\n正在处理 'about_modal' 弹窗资源 (R2:{R2_BUCKET_NAME})")
+    print(f"\n正在处理 'about_modal'（头像 hero + 社交弹窗）(R2:{R2_BUCKET_NAME})")
     for key, prefix in ABOUT_MODAL_CONFIG.items():
         urls = list_r2_image_urls(R2_BUCKET_NAME, prefix)
         about_modal[key] = urls[-1] if urls else ""
         if about_modal[key]:
             print(f"  - {key}: {Path(urlparse(about_modal[key]).path).name}")
         else:
-            print(f"  警告: about 弹窗 '{key}' 在 '{prefix}' 下未找到图片，JSON 中将为空字符串。")
+            print(f"  警告: about '{key}' 在 '{prefix}' 下未找到图片，JSON 中将为空字符串。")
     write_json_local(local_base_json_dir / "about_modal.json", about_modal)
     print("  - 已写入 images/about_modal.json")
 

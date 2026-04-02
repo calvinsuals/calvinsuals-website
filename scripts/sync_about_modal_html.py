@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-根据 images/about_modal.json（由 generate_galleries.py 从 R2 列出）更新 index.html 里 About 弹窗图片 src。
+根据 images/about_modal.json（由 generate_galleries.py 从 R2 列出）更新 index.html 里 About 头像与弹窗图 src。
+每个资源对应 R2 子目录内排序后的「最后一张」图片（jpg/webp/png 均在 SUPPORTED_EXTENSIONS 内；同目录多文件时 webp 常优先）。
+<img> 需带 data-about-asset="hero"|xiaohongshu1|… 与 JSON 键一致。
 与 sync_critical_preload.py 相同的主机替换规则。
-本地：先跑 generate_galleries.py 再跑本脚本；CI 在 generate 之后自动执行。
 """
 from __future__ import annotations
 
@@ -78,19 +79,19 @@ def main() -> None:
 
     urls = load_modal_urls()
     if not urls:
-        print("未找到 images/about_modal.json 或其中无 URL，跳过 about 弹窗 src 同步。")
+        print("未找到 images/about_modal.json 或其中无 URL，跳过 about 图片 src 同步。")
         return
 
     text = INDEX.read_text(encoding="utf-8")
     for key, url in urls.items():
         text, ok = replace_img_src_for_asset(text, key, url)
         if ok:
-            print(f"已更新 about 弹窗图: {key} -> {url[:64]}...")
+            print(f"已更新 about 图: {key} -> {url[:64]}...")
         else:
             print(f"警告: index.html 中未找到 data-about-asset=\"{key}\" 的 <img>，跳过。")
 
     INDEX.write_text(text, encoding="utf-8")
-    print("已根据 about_modal.json 写入 index.html 弹窗图片地址。")
+    print("已根据 about_modal.json 写入 index.html About 头像与弹窗图片地址。")
 
 
 if __name__ == "__main__":
