@@ -500,7 +500,9 @@ async function loadAndInitComparison(jsonPath) {
 
                 const imgBefore = document.createElement('img');
                 imgBefore.alt = 'Before'; imgBefore.className = 'before';
-                imgBefore.loading = 'eager';
+                /* 桌面第 3 组起 lazy：减轻与双轮播同时解码的显存压力，滚回已进视口的图仍走缓存、观感接近手机「轻负载」 */
+                const lazyCmp = !isMobileWarm && index >= 2;
+                imgBefore.loading = lazyCmp ? 'lazy' : 'eager';
                 /* 统一 async：sync 会在主线程同步解码大块位图，桌面加载/滚动易卡 */
                 imgBefore.decoding = 'async';
                 if (index < 2) imgBefore.fetchPriority = 'high';
@@ -514,7 +516,7 @@ async function loadAndInitComparison(jsonPath) {
 
                 const imgAfter = document.createElement('img');
                 imgAfter.alt = 'After'; imgAfter.className = 'after';
-                imgAfter.loading = 'eager';
+                imgAfter.loading = lazyCmp ? 'lazy' : 'eager';
                 imgAfter.decoding = 'async';
                 if (index < 2) imgAfter.fetchPriority = 'high';
                 else if (!isMobileWarm) imgAfter.fetchPriority = 'low';
@@ -555,7 +557,7 @@ async function loadAndInitComparison(jsonPath) {
                 const thumbUrl = normalizeImageUrl(groupData.after_src);
                 thumbImg.src = thumbUrl;
                 thumbImg.alt = `Thumbnail for ${groupData.id}`;
-                thumbImg.loading = 'eager';
+                thumbImg.loading = lazyCmp ? 'lazy' : 'eager';
                 thumbImg.decoding = 'async';
                 if (index === 0) thumbImg.fetchPriority = 'high';
                 else if (!isMobileWarm) thumbImg.fetchPriority = 'low';
@@ -778,6 +780,8 @@ function initDualBufferGallerySlider(slidesId, dotsId, slidesContainer, urlList)
     const easeCrossfade = 'cubic-bezier(0.42, 0, 0.58, 1)';
     const idleSlideTransition = 'none';
     let crossFadeGeneration = 0;
+    /* 完全 opacity:0 时部分浏览器会丢弃隐藏层 GPU 纹理，滚回视口像要「再显一遍」；0.01 仍被当前张盖住，尽量保留位图 */
+    const IDLE_HIDDEN_OPACITY = '0.01';
 
     function promiseUrlOnImg(img, url) {
         const norm = normalizeImageUrl(url);
@@ -808,7 +812,7 @@ function initDualBufferGallerySlider(slidesId, dotsId, slidesContainer, urlList)
         slide.style.left = '0';
         slide.style.width = '100%';
         slide.style.height = '100%';
-        slide.style.opacity = index === 0 ? '1' : '0';
+        slide.style.opacity = index === 0 ? '1' : IDLE_HIDDEN_OPACITY;
         slide.style.visibility = 'visible';
         slide.style.zIndex = index === 0 ? '2' : '1';
         slide.style.transition = idleSlideTransition;
@@ -890,8 +894,9 @@ function initDualBufferGallerySlider(slidesId, dotsId, slidesContainer, urlList)
                 currentSlide.removeEventListener('transitionend', onCurrentFadeOut);
                 currentSlide.style.zIndex = '1';
                 nextSlide.style.zIndex = '2';
-                frontSlot = backSlot;
                 clearDesktopTransition();
+                currentSlide.style.opacity = IDLE_HIDDEN_OPACITY;
+                frontSlot = backSlot;
                 transitionLock = false;
                 scheduleLookahead();
             };
@@ -902,8 +907,9 @@ function initDualBufferGallerySlider(slidesId, dotsId, slidesContainer, urlList)
                 currentSlide.removeEventListener('transitionend', onCurrentFadeOut);
                 currentSlide.style.zIndex = '1';
                 nextSlide.style.zIndex = '2';
-                frontSlot = backSlot;
                 clearDesktopTransition();
+                currentSlide.style.opacity = IDLE_HIDDEN_OPACITY;
+                frontSlot = backSlot;
                 transitionLock = false;
                 scheduleLookahead();
             }, transitionDuration + 120);
