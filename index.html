@@ -501,13 +501,13 @@
 
         /* 桌面：首页大图/区块不参与离屏省略绘制；轮播张不用 visibility:hidden（叠化只靠 opacity），避免滚回视口像重新显图 */
         @media screen and (min-width: 768px) {
-            /* 仅首页·桌面：单色铺底。色值 #0a0a0a 来自历史 fd8b0a2/3193ad5「页身深色」；不改 body 变量，手机端仍用原渐变 */
+            /* 仅首页·桌面：单色铺底（比 #0a0a0a 略抬，避免死黑）；手机端仍用 body 渐变变量 */
             html.site-fixed-background:has(body.home-page) {
-                background-color: #0a0a0a;
+                background-color: #181818;
             }
             body.home-page.site-background-shell {
                 background-image: none !important;
-                background-color: #0a0a0a !important;
+                background-color: #181818 !important;
             }
             body.home-page.site-background-shell .background-gradient {
                 display: none !important;
@@ -546,33 +546,50 @@
 
             body.home-page .gallery-preview {
                 isolation: auto;
+                max-width: min(92%, 1080px);
             }
 
+            /* 略缩小展示宽 + 分层阴影与顶缘高光，深色底上恢复「浮起」层次 */
             body.home-page .gallery-slider {
                 transform: none;
                 perspective: none;
                 -webkit-perspective: none;
-                box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4);
+                max-width: 1080px;
+                border: 1px solid rgba(255, 255, 255, 0.07);
+                box-shadow:
+                    0 1px 0 rgba(255, 255, 255, 0.1),
+                    0 18px 42px rgba(0, 0, 0, 0.55),
+                    0 6px 16px rgba(0, 0, 0, 0.45);
             }
 
             body.home-page .gallery-slides {
                 transform: none;
-                box-shadow: none;
                 perspective: none;
                 -webkit-perspective: none;
                 backface-visibility: visible;
                 -webkit-backface-visibility: visible;
-                /* 收拢绘制范围，减轻竖滚时轮播 subtree 牵连整页 */
                 contain: layout paint;
-                /* 与 site_background 兜底色接近，快速滑动短暂露底时不至于整块死灰 */
-                background-color: #5c5c5c;
-                background-image: linear-gradient(135deg, #3a3a3a 0%, #8a8a8a 100%);
+                /* 内凹衬底 + 顶亮边：像压在暗衬上，而不是贴在纯黑墙上 */
+                background-color: #111111;
+                background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 42%);
+                box-shadow:
+                    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+                    inset 0 0 0 1px rgba(0, 0, 0, 0.35),
+                    inset 0 -20px 40px rgba(0, 0, 0, 0.35);
             }
 
             body.home-page .comparison-wrapper,
             body.home-page .comparison-after-mask {
                 contain: none;
                 transform: none;
+            }
+
+            body.home-page .comparison-wrapper {
+                box-shadow:
+                    0 1px 0 rgba(255, 255, 255, 0.08),
+                    0 20px 48px rgba(0, 0, 0, 0.5),
+                    0 8px 20px rgba(0, 0, 0, 0.4),
+                    0 0 0 1px rgba(255, 255, 255, 0.06);
             }
 
             body.home-page .comparison-group {
