@@ -453,7 +453,6 @@
             /* 高度将由内部的 .gallery-slide 的 padding-bottom 撑开 */
             height: 0; /* 新增：为 padding-bottom 生效 */
             padding-bottom: 50%; /* 新增：将宽高比定义移到这里 (2:1)，确保容器有高度 */
-            /* 与对比区 preload 同色，窄屏/桌面一致 */
             background-color: #3d3d3d;
         }
         
@@ -469,9 +468,14 @@
             background: none; /* 画面由子 img 负责，杜绝 background 先显、图后盖上的灰闪 */
             opacity: 0; /* 默认隐藏 */
             visibility: hidden; /* 配合 opacity 过渡，确保元素不占据空间且不可交互 */
-            /* 时长与 js/main.js initializeGallerySlider 中 transitionDuration 保持一致（屏保式慢叠化） */
-            transition: opacity 2.2s cubic-bezier(0.42, 0, 0.58, 1);
             z-index: 1; /* 默认层级 */
+        }
+
+        /* 仅窄屏保留常驻慢叠化；桌面默认无 transition，避免页面滚动时整层按 2.2s 插值重绘 → 像「重新加载」 */
+        @media screen and (max-width: 767px) {
+            .gallery-slide {
+                transition: opacity 2.2s cubic-bezier(0.42, 0, 0.58, 1);
+            }
         }
 
         .gallery-slide.active {
@@ -492,7 +496,11 @@
                 content-visibility: visible;
             }
 
-            body.home-page .gallery-preview,
+            body.home-page .gallery-preview {
+                isolation: auto;
+                content-visibility: visible;
+            }
+
             body.home-page .gallery-slider,
             body.home-page .gallery-slides,
             body.home-page #comparison-container-dynamic,
@@ -521,6 +529,27 @@
                 transform: translateZ(0);
                 backface-visibility: hidden;
                 -webkit-backface-visibility: hidden;
+            }
+
+            /* 去掉 3D perspective 整层纹理，减轻上下滚动时整块轮播重栅格化 */
+            body.home-page .gallery-slider {
+                transform: translateZ(0);
+                perspective: none;
+                -webkit-perspective: none;
+            }
+            body.home-page .gallery-slides {
+                perspective: none;
+                -webkit-perspective: none;
+                background-color: transparent;
+                box-shadow: none;
+            }
+
+            body.home-page .gallery-slide {
+                transition: none;
+            }
+
+            body.home-page .gallery-slide img.gallery-slide-img {
+                transform: translateZ(0);
             }
         }
         
@@ -2381,7 +2410,7 @@
 
     <!-- 添加外部脚本链接 -->
     <script src="js/site_background.js?v=20260404a" defer></script>
-    <script src="js/main.js?v=20260404m" defer></script>
+    <script src="js/main.js?v=20260404p" defer></script>
     <script src="js/navigation.js?v=20260404i" defer></script>
 
     <!-- 锚点定位修复脚本 -->
