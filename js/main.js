@@ -519,8 +519,8 @@ async function loadAndInitComparison(jsonPath) {
 
                 const imgBefore = document.createElement('img');
                 imgBefore.alt = 'Before'; imgBefore.className = 'before';
-                /* 前两组 eager 保首屏；其余 lazy 减轻首包解码与带宽，滚到再拉 */
-                imgBefore.loading = index < 2 ? 'eager' : 'lazy';
+                /* 手机：第 3 组起 lazy。桌面：全部 eager，避免停一会再快滑到对比区才现拉网络/解码像「卡住」 */
+                imgBefore.loading = !isMobileWarm || index < 2 ? 'eager' : 'lazy';
                 imgBefore.decoding = 'async';
                 if (index < 2) imgBefore.fetchPriority = 'high';
                 else if (!isMobileWarm) imgBefore.fetchPriority = 'low';
@@ -533,7 +533,7 @@ async function loadAndInitComparison(jsonPath) {
 
                 const imgAfter = document.createElement('img');
                 imgAfter.alt = 'After'; imgAfter.className = 'after';
-                imgAfter.loading = index < 2 ? 'eager' : 'lazy';
+                imgAfter.loading = !isMobileWarm || index < 2 ? 'eager' : 'lazy';
                 imgAfter.decoding = 'async';
                 if (index < 2) imgAfter.fetchPriority = 'high';
                 else if (!isMobileWarm) imgAfter.fetchPriority = 'low';
@@ -574,7 +574,7 @@ async function loadAndInitComparison(jsonPath) {
                 const thumbUrl = normalizeImageUrl(groupData.after_src);
                 thumbImg.src = thumbUrl;
                 thumbImg.alt = `Thumbnail for ${groupData.id}`;
-                thumbImg.loading = index < 2 ? 'eager' : 'lazy';
+                thumbImg.loading = !isMobileWarm || index < 2 ? 'eager' : 'lazy';
                 thumbImg.decoding = 'async';
                 if (index === 0) thumbImg.fetchPriority = 'high';
                 else if (!isMobileWarm) thumbImg.fetchPriority = 'low';
@@ -1326,10 +1326,17 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('[Gallery] portrait init failed', e)
         );
     };
-    if (typeof window.requestIdleCallback === 'function') {
-        window.requestIdleCallback(startPortraitGallery, { timeout: 2000 });
+    /* 手机仍 idle 错峰；桌面尽早挂人像轮播，避免停一会再快滑到该区时还是空槽 */
+    if (__isMobileImageWarmProfile()) {
+        if (typeof window.requestIdleCallback === 'function') {
+            window.requestIdleCallback(startPortraitGallery, { timeout: 2000 });
+        } else {
+            window.setTimeout(startPortraitGallery, 500);
+        }
     } else {
-        window.setTimeout(startPortraitGallery, 500);
+        requestAnimationFrame(() => {
+            requestAnimationFrame(startPortraitGallery);
+        });
     }
     // initializeContactForm(); // Commented out - function not defined
 
