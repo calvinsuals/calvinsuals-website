@@ -819,8 +819,9 @@ function initDualBufferGallerySlider(slidesId, dotsId, slidesContainer, urlList)
         slide.style.visibility = 'visible';
         slide.style.zIndex = index === 0 ? '2' : '1';
         slide.style.transition = idleSlideTransition;
-        slide.style.transform = 'translateZ(0)';
-        slide.style.backfaceVisibility = 'hidden';
+        /* 勿设 translateZ(0)：内联层提升会压过首页 CSS，竖滚时与整页合成错位、像「分层」 */
+        slide.style.removeProperty('transform');
+        slide.style.removeProperty('backface-visibility');
     });
 
     function scheduleLookahead() {
@@ -1079,8 +1080,8 @@ function initializeGallerySlider(slidesId, dotsId) {
             index === 0 || !hideInactiveSlidesWithVisibility ? 'visible' : 'hidden';
         slide.style.zIndex = index === 0 ? '2' : '1';
         slide.style.transition = idleSlideTransition;
-        slide.style.transform = 'translateZ(0)';
-        slide.style.backfaceVisibility = 'hidden';
+        slide.style.removeProperty('transform');
+        slide.style.removeProperty('backface-visibility');
 
         if (!slide.dataset.bgImage) {
             console.warn(`[FadeSlider DEBUG] Slide ${index} in #${slidesId} is missing data-bgImage attribute.`);

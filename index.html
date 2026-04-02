@@ -573,6 +573,13 @@
                 backface-visibility: hidden;
                 -webkit-backface-visibility: hidden;
             }
+
+            /* 轮播图：避免子 img 再抬一层，减轻竖滚与底部分离感 */
+            body.home-page .gallery-slide img.gallery-slide-img {
+                transform: none;
+                backface-visibility: visible;
+                -webkit-backface-visibility: visible;
+            }
         }
         
         .gallery-slide img.gallery-slide-img {
@@ -2432,7 +2439,7 @@
 
     <!-- 添加外部脚本链接 -->
     <script src="js/site_background.js?v=20260407a" defer></script>
-    <script src="js/main.js?v=20260406a" defer></script>
+    <script src="js/main.js?v=20260407b" defer></script>
     <script src="js/navigation.js?v=20260404i" defer></script>
 
     <!-- 锚点定位修复脚本 -->
