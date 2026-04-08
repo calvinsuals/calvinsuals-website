@@ -20,6 +20,33 @@ function __notifyComparisonHandleDragEnd() {
     });
 }
 
+/**
+ * 切后台时可能收不到 touchend，对比条会留在「拖动中」并在 window 上留下 capture + preventDefault 的 touchmove，
+ * 恢复后整页滚动/手势异常。页面隐藏时强制调用各 wrapper 的 endResize 以卸监听。
+ */
+let __comparisonVisibilityCleanupInstalled = false;
+function installComparisonVisibilityCleanup() {
+    if (__comparisonVisibilityCleanupInstalled) return;
+    __comparisonVisibilityCleanupInstalled = true;
+    function releaseIfAny() {
+        if (typeof window.__comparisonForceReleaseAll === 'function') {
+            try {
+                window.__comparisonForceReleaseAll();
+            } catch (e) {
+                /* ignore */
+            }
+        }
+    }
+    document.addEventListener(
+        'visibilitychange',
+        function () {
+            if (document.visibilityState === 'hidden') releaseIfAny();
+        },
+        { passive: true }
+    );
+    window.addEventListener('pagehide', releaseIfAny, { passive: true });
+}
+
 /** 轮播叠化时长（ms）；与 index.html 窄屏 .gallery-slide 兜底一致 */
 const GALLERY_CROSSFADE_MS = 2200;
 /** 自动切图间隔（叠化 GALLERY_CROSSFADE_MS=2200ms，与此相加约 6s 一轮观感） */
@@ -489,6 +516,7 @@ function initializeComparison() {
     const sliderContainer = document.querySelector('.comparison-slider'); // Get slider container
     const comparisonWrappers = document.querySelectorAll('.comparison-wrapper');
     __siteDbg(`[Comparison] 找到 ${comparisonWrappers.length} 个 .comparison-wrapper 元素进行滑块初始化。`);
+    const comparisonReleaseFns = [];
     comparisonWrappers.forEach(wrapper => {
         const handle = wrapper.querySelector('.slider-handle');
         const afterMask = wrapper.querySelector('.comparison-after-mask');
@@ -559,6 +587,7 @@ function initializeComparison() {
             pendingClientX = null;
             __notifyComparisonHandleDragEnd();
         };
+        comparisonReleaseFns.push(endResize);
 
         // 清理旧监听器（如果存在）
         handle.removeEventListener('mousedown', startResize);
@@ -621,6 +650,16 @@ function initializeComparison() {
         const parentGroupId = parentGroup ? parentGroup.id : 'wrapper';
         __siteDbg(`[Comparison Init] Set initial state for ${parentGroupId} to ${initialPercent}%`);
     });
+    window.__comparisonForceReleaseAll = function () {
+        comparisonReleaseFns.forEach(function (fn) {
+            try {
+                fn();
+            } catch (e) {
+                /* ignore */
+            }
+        });
+    };
+    installComparisonVisibilityCleanup();
 }
 
 /**
