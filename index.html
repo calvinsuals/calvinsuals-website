@@ -6,12 +6,14 @@
     <title>calvinsuals Photography</title>
     <!-- 首帧 html 兜底色；全站渐变见 site_background.css；仅首页桌面可关渐变见下方 body.home-page -->
     <style>
+        /* 与首页 body 深色铺底一致；不依赖 :has（部分 WebView 不支持时避免 html 仍灰边） */
         html.site-fixed-background {
-            background-color: #2f2f2f;
+            background-color: #181818;
+            --site-background-fallback: #181818;
             min-height: 100%;
         }
     </style>
-    <link rel="stylesheet" href="css/site_background.css?v=20260418p">
+    <link rel="stylesheet" href="css/site_background.css?v=20260418r">
     <link rel="preconnect" href="https://img.calvinsuals.com" crossorigin>
     <link rel="dns-prefetch" href="https://img.calvinsuals.com">
     <!-- 首图 preload 可由 scripts/sync_critical_preload.py 维护；对比首组需与 images/comparison_groups.json 中 group_01 一致 -->
@@ -67,6 +69,24 @@
             /* 与 site_background.css 中铺底一致，html 露边时也与 body 渐变协调 */
             --site-background-underlay: #6f6f6f;
             --site-background-fallback: #2f2f2f; /* Solid fallback to avoid white flashes during heavy repaints */
+        }
+
+        /* 首页整页深色底：正文勿再用 #333（会显得发灰、淡） */
+        body.home-page {
+            color: rgba(245, 245, 245, 0.94);
+        }
+        body.home-page .text-white,
+        body.home-page .hero-content .name,
+        body.home-page .hero-content .tagline,
+        body.home-page .hero-content .tagline span {
+            color: #ffffff !important;
+        }
+        body.home-page .more-projects {
+            color: rgba(255, 255, 255, 0.92) !important;
+        }
+        body.home-page #about .about-text-container p,
+        body.home-page #about .about-text-container strong {
+            color: rgba(245, 245, 245, 0.95);
         }
         
         /* --- Reset Box Model --- */
@@ -388,7 +408,21 @@
             white-space: nowrap; /* 防止标题换行 */
             margin: 0;
             padding: 0;
+            -webkit-font-smoothing: antialiased;
             /* left 和 top 由 JS 控制 */
+        }
+
+        /* 勿用 0×0 容器：部分内核会裁切 background-clip 文字渐变 */
+        #section-titles-overlay {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            min-height: 100%;
+            min-height: 100dvh;
+            z-index: 10;
+            pointer-events: none;
+            overflow: visible;
         }
 
 /* 确保所有区域标题完全对齐（使用更精确的左边距） */
@@ -635,8 +669,8 @@
                     #8f8f8f 86%,
                     #6a6a6a 100%
                 );
-                background-size: 220% 220%;
-                background-position: 42% 48%;
+                background-size: 160% 160%;
+                background-position: 50% 50%;
                 -webkit-background-clip: text;
                 background-clip: text;
                 -webkit-text-fill-color: transparent;
@@ -2262,7 +2296,7 @@
 </head>
 <body class="site-background-shell home-page">
     <!-- 标题覆盖层 -->
-    <div id="section-titles-overlay" style="position: absolute; top: 0; left: 0; width: 0; height: 0; z-index: 10; pointer-events: none;">
+    <div id="section-titles-overlay">
          <!-- 静态放置标题，JS将更新它们的位置 -->
          <h2 class="overlay-title" data-target-section="automotive" style="position: absolute; pointer-events: auto; opacity: 0; transition: opacity 0.5s;">AUTOMOTIVE</h2>
          <h2 class="overlay-title" data-target-section="comparison" style="position: absolute; pointer-events: auto; opacity: 0; transition: opacity 0.5s;">COMPARISON</h2>
@@ -2453,10 +2487,10 @@
     </div>
 
     <!-- 添加外部脚本链接 -->
-    <script src="js/site_background.js?v=20260418p" defer></script>
+    <script src="js/site_background.js?v=20260418r" defer></script>
     <!-- 调试 main.js：URL 加 ?debug=1 可恢复详细控制台日志 -->
     <script src="js/main.js?v=20260418n" defer></script>
-    <script src="js/navigation.js?v=20260418q" defer></script>
+    <script src="js/navigation.js?v=20260418r" defer></script>
 
     <!-- 锚点定位修复脚本 -->
     <script>
@@ -2666,6 +2700,30 @@
             });
         }
 
+        /** 无 deep link 时把视口拉回顶部（瞬时，避免与 smooth 冲突）；供 load / 前台恢复共用 */
+        function scrollHomeToTopIfPlainEntry() {
+            try {
+                if (!document.body || !document.body.classList.contains('home-page')) return;
+                const q = new URLSearchParams(window.location.search).get('section');
+                if (q) return;
+                if (window.location.hash && window.location.hash.length > 1) return;
+                const html = document.documentElement;
+                const h0 = html.style.scrollBehavior;
+                const b0 = document.body.style.scrollBehavior;
+                html.style.scrollBehavior = 'auto';
+                document.body.style.scrollBehavior = 'auto';
+                window.scrollTo(0, 0);
+                html.scrollTop = 0;
+                document.body.scrollTop = 0;
+                if (h0) html.style.scrollBehavior = h0;
+                else html.style.removeProperty('scroll-behavior');
+                if (b0) document.body.style.scrollBehavior = b0;
+                else document.body.style.removeProperty('scroll-behavior');
+            } catch (e) {
+                /* ignore */
+            }
+        }
+
         /** App/WebView 从后台回来：清 body 误锁、同步 html 背景 token、重算标题（避免旧渐变/错位叠层） */
         function resetHomePageAfterRestore() {
             if (!document.body || !document.body.classList.contains('home-page')) return;
@@ -2677,6 +2735,7 @@
                 document.body.style.right = '';
                 document.body.style.width = '';
             }
+            scrollHomeToTopIfPlainEntry();
             if (typeof window.__syncSiteBackgroundLayout === 'function') {
                 try {
                     window.__syncSiteBackgroundLayout();
@@ -2718,9 +2777,14 @@
 
         // 5. 在页面加载完成和窗口大小改变时调用定位函数
         // 延迟调用以确保所有元素渲染完成
-        window.addEventListener('load', () => {
-            setTimeout(updateTitlePositions, 100); // 延迟100ms执行
-        });
+        window.addEventListener(
+            'load',
+            () => {
+                scrollHomeToTopIfPlainEntry();
+                setTimeout(updateTitlePositions, 100); // 延迟100ms执行
+            },
+            { once: true }
+        );
         // 移动端 Chrome 在 UI 显隐时会触发 resize（仅高度变化），
         // 若每次都重算标题定位会出现「漂移后归位」。
         // 仅在宽度变化（或横竖屏切换）时才重算定位。

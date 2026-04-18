@@ -9,15 +9,24 @@
     function syncSiteBackgroundTokens() {
         if (!document.body) return;
         const bodyStyles = window.getComputedStyle(document.body);
-        const backgroundImage = bodyStyles.getPropertyValue('--site-background-image').trim();
         const backgroundFallback = bodyStyles.getPropertyValue('--site-background-fallback').trim();
+        const backgroundUnderlay = bodyStyles.getPropertyValue('--site-background-underlay').trim();
+        /** 以「实际画在 body 上的 background-image」为准，避免 body 已 none 但变量里仍挂着旧渐变导致 html token 错位 */
+        const paintedBg = (bodyStyles.backgroundImage || '').trim();
+        const specifiedVar = bodyStyles.getPropertyValue('--site-background-image').trim();
 
-        if (backgroundImage) {
-            root.style.setProperty('--site-background-image', backgroundImage);
+        if (backgroundUnderlay) {
+            root.style.setProperty('--site-background-underlay', backgroundUnderlay);
         }
 
         if (backgroundFallback) {
             root.style.setProperty('--site-background-fallback', backgroundFallback);
+        }
+
+        if (paintedBg && paintedBg !== 'none') {
+            if (specifiedVar) root.style.setProperty('--site-background-image', specifiedVar);
+        } else {
+            root.style.setProperty('--site-background-image', 'none');
         }
 
         root.style.removeProperty('--site-scroll-y');
