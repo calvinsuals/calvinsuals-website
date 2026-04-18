@@ -8,6 +8,21 @@
 
     function syncSiteBackgroundTokens() {
         if (!document.body) return;
+        /**
+         * 首页 index：body 上 :has() 等选择器在部分手机 WebView 里不生效，getComputedStyle 读到的
+         * --site-background-fallback 仍可能是 #2f2f2f，同步到 html 后整页露边/重开会变灰。
+         * 首页固定与 CSS 中 body.home-page 一致的纯黑铺底，不依赖瞬时计算。
+         */
+        if (document.body.classList.contains('home-page')) {
+            root.style.setProperty('--site-background-fallback', '#181818');
+            root.style.setProperty('--site-background-underlay', '#181818');
+            root.style.setProperty('--site-background-image', 'none');
+            root.style.setProperty('background-color', '#181818');
+            root.style.removeProperty('--site-scroll-y');
+            root.style.removeProperty('--site-bg-doc-height');
+            return;
+        }
+
         const bodyStyles = window.getComputedStyle(document.body);
         const backgroundFallback = bodyStyles.getPropertyValue('--site-background-fallback').trim();
         const backgroundUnderlay = bodyStyles.getPropertyValue('--site-background-underlay').trim();

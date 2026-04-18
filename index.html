@@ -6,12 +6,15 @@
     <title>calvinsuals Photography</title>
     <!-- 首帧 html 兜底色；全站渐变见 site_background.css；仅首页桌面可关渐变见下方 body.home-page -->
     <style>
+        /* 首页专用：不用 :has()（部分 WebView 不支持），直接固定与 body.home-page 一致的底色 */
         html.site-fixed-background {
-            background-color: #2f2f2f;
+            background-color: #181818 !important;
+            --site-background-fallback: #181818;
+            --site-background-underlay: #181818;
             min-height: 100%;
         }
     </style>
-    <link rel="stylesheet" href="css/site_background.css?v=20260418s">
+    <link rel="stylesheet" href="css/site_background.css?v=20260418t">
     <link rel="preconnect" href="https://img.calvinsuals.com" crossorigin>
     <link rel="dns-prefetch" href="https://img.calvinsuals.com">
     <!-- 首图 preload 可由 scripts/sync_critical_preload.py 维护；对比首组需与 images/comparison_groups.json 中 group_01 一致 -->
@@ -401,7 +404,16 @@
             white-space: nowrap; /* 防止标题换行 */
             margin: 0;
             padding: 0;
+            -webkit-font-smoothing: antialiased;
             /* left 和 top 由 JS 控制 */
+        }
+        /* WebView 重开偶发 background-clip:text 失效时仍有可读金属灰字 */
+        @supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+            body.home-page .overlay-title {
+                -webkit-text-fill-color: currentColor;
+                color: #d8d8d8 !important;
+                background: none !important;
+            }
         }
 
         /* 移除 #about .section-title 的特殊边距 */
@@ -657,8 +669,9 @@
                     #8f8f8f 86%,
                     #6a6a6a 100%
                 );
-                background-size: 220% 220%;
-                background-position: 42% 48%;
+                /* 过大尺寸在部分 WebView 恢复合成后易裁切渐变，略收 */
+                background-size: 145% 145%;
+                background-position: 50% 50%;
                 -webkit-background-clip: text;
                 background-clip: text;
                 -webkit-text-fill-color: transparent;
@@ -2541,7 +2554,7 @@
     </div>
 
     <!-- 添加外部脚本链接 -->
-    <script src="js/site_background.js?v=20260418s" defer></script>
+    <script src="js/site_background.js?v=20260418t" defer></script>
     <!-- 调试 main.js：URL 加 ?debug=1 可恢复详细控制台日志 -->
     <script src="js/main.js?v=20260418n" defer></script>
     <script src="js/navigation.js?v=20260404i" defer></script>
@@ -2821,6 +2834,12 @@
                 if (document.readyState !== 'complete') return;
                 unlockStrayBodyFixed();
                 syncBgTokensOnly();
+                /* 再钉一层：避免同步队列晚一帧时 html 仍短暂呈灰 */
+                if (document.body.classList.contains('home-page')) {
+                    document.documentElement.style.setProperty('background-color', '#181818', 'important');
+                    document.documentElement.style.setProperty('--site-background-fallback', '#181818');
+                    document.documentElement.style.setProperty('--site-background-underlay', '#181818');
+                }
             }
             window.addEventListener('pageshow', onAppResume, { passive: true });
             document.addEventListener(
