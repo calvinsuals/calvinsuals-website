@@ -142,18 +142,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // 检查URL参数中是否包含导航信息
     const urlParams = new URLSearchParams(window.location.search);
     const navigateTo = urlParams.get('section');
-    const hashSection =
-        window.location.hash && window.location.hash.length > 1 ? window.location.hash.slice(1) : '';
-
-    /* 首页：禁止浏览器自动恢复上次滚动（易与 App 再开、body 误锁叠出错位）；无 section 且无 hash 时强制在顶部 */
-    if (document.body && document.body.classList.contains('home-page')) {
-        if ('scrollRestoration' in history) {
-            history.scrollRestoration = 'manual';
-        }
-        if (!navigateTo && !hashSection) {
-            window.scrollTo(0, 0);
-        }
-    }
 
     if (navigateTo) {
         const runSectionScroll = () => scrollToElement(navigateTo);
@@ -161,13 +149,6 @@ document.addEventListener('DOMContentLoaded', function() {
             runSectionScroll();
         } else {
             window.addEventListener('load', runSectionScroll, { once: true });
-        }
-    } else if (hashSection) {
-        const runHashScroll = () => scrollToElement(hashSection);
-        if (document.readyState === 'complete') {
-            runHashScroll();
-        } else {
-            window.addEventListener('load', runHashScroll, { once: true });
         }
     }
     

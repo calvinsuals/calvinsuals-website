@@ -2456,7 +2456,7 @@
     <script src="js/site_background.js?v=20260418p" defer></script>
     <!-- 调试 main.js：URL 加 ?debug=1 可恢复详细控制台日志 -->
     <script src="js/main.js?v=20260418n" defer></script>
-    <script src="js/navigation.js?v=20260418p" defer></script>
+    <script src="js/navigation.js?v=20260418q" defer></script>
 
     <!-- 锚点定位修复脚本 -->
     <script>
@@ -2669,6 +2669,7 @@
         /** App/WebView 从后台回来：清 body 误锁、同步 html 背景 token、重算标题（避免旧渐变/错位叠层） */
         function resetHomePageAfterRestore() {
             if (!document.body || !document.body.classList.contains('home-page')) return;
+            if (document.readyState !== 'complete') return;
             if (!document.body.classList.contains('modal-open')) {
                 document.body.style.position = '';
                 document.body.style.top = '';
@@ -2682,13 +2683,25 @@
                 } catch (e) { /* ignore */ }
             }
             requestAnimationFrame(function () {
-                requestAnimationFrame(updateTitlePositions);
+                requestAnimationFrame(function () {
+                    try {
+                        updateTitlePositions();
+                    } catch (e) {
+                        console.warn('[home] updateTitlePositions after restore', e);
+                    }
+                });
             });
         }
         window.addEventListener('pageshow', resetHomePageAfterRestore, { passive: true });
-        document.addEventListener('visibilitychange', function () {
-            if (document.visibilityState === 'visible') resetHomePageAfterRestore();
-        }, { passive: true });
+        document.addEventListener(
+            'visibilitychange',
+            function () {
+                if (document.visibilityState !== 'visible') return;
+                if (document.readyState !== 'complete') return;
+                resetHomePageAfterRestore();
+            },
+            { passive: true }
+        );
 
         // 防抖函数 (避免 resize 事件过于频繁触发)
         function debounce(func, wait) {
