@@ -56,6 +56,8 @@ const GALLERY_AUTOSCROLL_RESUME_MS = 200;
 
 let __galleryPageScrollPauseInstalled = false;
 let __galleryScrollResumeTimer = null;
+/** 与 installGalleryDocumentVisibilityLifecycle 共用：回到前台延迟恢复轮播 */
+let __galleryResumeAfterHideTimer = null;
 
 /**
  * 未捕获异常 / 标签页快崩溃前：停轮播、卸滚轮阻尼、松开对比条，减轻 GPU/定时器堆积；
@@ -71,6 +73,14 @@ function __siteEmergencyTeardown(reason) {
         if (__galleryScrollResumeTimer) {
             clearTimeout(__galleryScrollResumeTimer);
             __galleryScrollResumeTimer = null;
+        }
+    } catch (e) {
+        /* ignore */
+    }
+    try {
+        if (__galleryResumeAfterHideTimer != null) {
+            clearTimeout(__galleryResumeAfterHideTimer);
+            __galleryResumeAfterHideTimer = null;
         }
     } catch (e) {
         /* ignore */
@@ -190,7 +200,28 @@ function installGalleryDocumentVisibilityLifecycle() {
         });
     };
 
+    const clearGalleryResumeTimer = () => {
+        if (__galleryResumeAfterHideTimer != null) {
+            clearTimeout(__galleryResumeAfterHideTimer);
+            __galleryResumeAfterHideTimer = null;
+        }
+    };
+
+    /** 窄屏：前台恢复晚半拍再开轮播，给系统与首帧解码让路 */
+    const scheduleStartAllGalleries = () => {
+        clearGalleryResumeTimer();
+        const delayMs = __isMobileImageWarmProfile() ? 520 : 0;
+        const run = () => {
+            __galleryResumeAfterHideTimer = null;
+            if (document.visibilityState !== 'visible') return;
+            startAllGalleries();
+        };
+        if (delayMs > 0) __galleryResumeAfterHideTimer = window.setTimeout(run, delayMs);
+        else run();
+    };
+
     const onHidden = () => {
+        clearGalleryResumeTimer();
         if (__galleryScrollResumeTimer) {
             clearTimeout(__galleryScrollResumeTimer);
             __galleryScrollResumeTimer = null;
@@ -199,7 +230,7 @@ function installGalleryDocumentVisibilityLifecycle() {
     };
 
     const onVisible = () => {
-        startAllGalleries();
+        scheduleStartAllGalleries();
     };
 
     document.addEventListener(
@@ -210,6 +241,9 @@ function installGalleryDocumentVisibilityLifecycle() {
         },
         { passive: true }
     );
+
+    /* 切走标签页/系统回收前再停一轮（部分 WebView 上比 visibility 更稳） */
+    window.addEventListener('pagehide', onHidden, { passive: true });
 
     /* bfcache 回到前台：定时器状态不可靠，强制重绑一轮 */
     window.addEventListener(
@@ -225,7 +259,7 @@ function installGalleryDocumentVisibilityLifecycle() {
             }
             stopAllGalleries();
             if (document.visibilityState === 'visible') {
-                window.setTimeout(startAllGalleries, 0);
+                scheduleStartAllGalleries();
             }
         },
         { passive: true }
@@ -934,8 +968,8 @@ async function loadAndInitComparison(jsonPath) {
                 const imgBefore = document.createElement('img');
                 imgBefore.alt = 'Before'; imgBefore.className = 'before';
                 setComparisonDisplayImgDimensions(imgBefore);
-                /* 全端 eager：手机横向滑入时再 lazy 会晚解码，像「突然换图」；桌面原即全 eager */
-                imgBefore.loading = 'eager';
+                /* 桌面：全 eager。手机：仅首组 eager，其余 lazy，减轻后台恢复时并发解码 */
+                imgBefore.loading = isMobileWarm && index > 0 ? 'lazy' : 'eager';
                 imgBefore.decoding = 'async';
                 if (index < 2) imgBefore.fetchPriority = 'high';
                 else if (!isMobileWarm) imgBefore.fetchPriority = 'auto';
@@ -950,7 +984,7 @@ async function loadAndInitComparison(jsonPath) {
                 const imgAfter = document.createElement('img');
                 imgAfter.alt = 'After'; imgAfter.className = 'after';
                 setComparisonDisplayImgDimensions(imgAfter);
-                imgAfter.loading = 'eager';
+                imgAfter.loading = isMobileWarm && index > 0 ? 'lazy' : 'eager';
                 imgAfter.decoding = 'async';
                 if (index < 2) imgAfter.fetchPriority = 'high';
                 else if (!isMobileWarm) imgAfter.fetchPriority = 'auto';
@@ -993,7 +1027,7 @@ async function loadAndInitComparison(jsonPath) {
                 const thumbUrl = normalizeImageUrl(groupData.after_src);
                 thumbImg.src = thumbUrl;
                 thumbImg.alt = `Thumbnail for ${groupData.id}`;
-                thumbImg.loading = 'eager';
+                thumbImg.loading = isMobileWarm && index > 0 ? 'lazy' : 'eager';
                 thumbImg.decoding = 'async';
                 if (index === 0) thumbImg.fetchPriority = 'high';
                 else if (!isMobileWarm) thumbImg.fetchPriority = 'auto';
