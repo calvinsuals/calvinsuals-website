@@ -813,9 +813,16 @@ body.pricing-page .footer p {
     font-family: var(--font-body, 'Montserrat', sans-serif) !important;
     font-weight: 500 !important;
     font-size: 0.8rem !important;
-    opacity: 0.75 !important;
+    color: rgba(255, 255, 255, 0.75) !important;
     line-height: 1.5 !important;
     margin-top: 25px !important;
+}
+
+/* Parent opacity would wash out <strong>; keep disclaimer sentence full white */
+.modal-body .small-text strong {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    text-shadow: var(--modal-text-shadow);
 }
 
 /* Package modals (not terms): list items only slightly smaller/softer */
