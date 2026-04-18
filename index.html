@@ -1350,26 +1350,28 @@
             background-color: #f0f0f0;
         }
         
+        /* 与图片同宽居中：勿对 img 用 width:100% + aspect-ratio，否则方形容器与二维码比例不一致会像「框比图大」 */
         #wechatModal .modal-images {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             margin-bottom: 10px;
             margin-top: 10px;
         }
-    
-        
+
         #wechatModal .modal-images img {
-            max-width: 280px; /* 限制二维码图片最大宽度 */
-            width: 100%; /* 使图片宽度填充容器 */
-            height: auto; /* 保持宽高比 */
-            margin: 0 auto;
-            display: block; /* 确保块级显示以接受margin */
+            display: block;
+            width: min(300px, 88vw);
+            max-width: 100%;
+            height: auto;
+            object-fit: contain;
+            box-sizing: border-box;
         }
 
-        /* 窄屏：微信二维码近似正方形，用 aspect-ratio 预留首开高度；小红书截图为任意比例，勿强绑 9:16+cover（会裁切/像尺寸坏了） */
+        /* 窄屏：小红书截图为任意比例；微信仅用自然比例 + 略大显示，不再强绑 aspect-ratio */
         @media screen and (max-width: 767px) {
             #wechatModal .modal-images img {
-                aspect-ratio: 1;
-                max-width: min(280px, 78vw);
-                object-fit: contain;
+                width: min(300px, 86vw);
             }
             #xiaohongshuModal .modal-images img {
                 width: auto;
