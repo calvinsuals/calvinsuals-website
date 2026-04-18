@@ -808,6 +808,20 @@ body.pricing-page .footer p {
     letter-spacing: 0.06em;
 }
 
+/* Package modals: PRICING OPTIONS / ADDITIONAL SERVICES same size; even gap to lists + slightly more */
+.pricing-page #modal-container .modal:not(#modal-terms) .modal-body > p.modal-text:not(.small-text) {
+    margin-top: 0 !important;
+    margin-bottom: 1.125rem !important;
+}
+.pricing-page #modal-container .modal:not(#modal-terms) .modal-body > p.modal-text:not(.small-text) > strong {
+    font-size: 1rem !important;
+}
+.pricing-page #modal-container .modal:not(#modal-terms) .modal-body h4 {
+    font-size: 1rem !important;
+    margin-top: 30px !important;
+    margin-bottom: 1.125rem !important;
+}
+
 /* Add style for the small text paragraph */
 .modal-body .small-text {
     font-family: var(--font-body, 'Montserrat', sans-serif) !important;
