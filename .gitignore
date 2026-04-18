@@ -40,3 +40,10 @@ Icon?
 # Log files
 *.log
 logs/
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
