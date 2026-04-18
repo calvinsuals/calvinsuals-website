@@ -90,6 +90,99 @@ function ensureGalleryAutoplayPauseOnWindowScroll() {
     );
 }
 
+let __galleryDocumentVisibilityInstalled = false;
+
+/**
+ * 应用内浏览器 / WebView：页签或 App 进后台后仍跑 setInterval 叠化会持续占 GPU 与解码队列，
+ * 久了易 OOM 或整页被系统回收（用户看到「网页无法打开」、刷新有时也不恢复进程）。
+ * 隐藏时停轮播、取消「停滚恢复」定时器；回到前台再恢复。
+ */
+function installGalleryDocumentVisibilityLifecycle() {
+    if (__galleryDocumentVisibilityInstalled) return;
+    __galleryDocumentVisibilityInstalled = true;
+
+    const allGalleryCtrls = () =>
+        window.__displayGalleryControls && typeof window.__displayGalleryControls === 'object'
+            ? window.__displayGalleryControls
+            : null;
+
+    const stopAllGalleries = () => {
+        const ctrls = allGalleryCtrls();
+        if (!ctrls) return;
+        Object.keys(ctrls).forEach((id) => {
+            const c = ctrls[id];
+            if (c && typeof c.stopAutoPlay === 'function') c.stopAutoPlay();
+        });
+    };
+
+    const startAllGalleries = () => {
+        const ctrls = allGalleryCtrls();
+        if (!ctrls) return;
+        Object.keys(ctrls).forEach((id) => {
+            const c = ctrls[id];
+            if (c && typeof c.startAutoPlay === 'function') c.startAutoPlay();
+        });
+    };
+
+    const onHidden = () => {
+        if (__galleryScrollResumeTimer) {
+            clearTimeout(__galleryScrollResumeTimer);
+            __galleryScrollResumeTimer = null;
+        }
+        stopAllGalleries();
+    };
+
+    const onVisible = () => {
+        startAllGalleries();
+    };
+
+    document.addEventListener(
+        'visibilitychange',
+        function () {
+            if (document.visibilityState === 'hidden') onHidden();
+            else onVisible();
+        },
+        { passive: true }
+    );
+
+    /* bfcache 回到前台：定时器状态不可靠，强制重绑一轮 */
+    window.addEventListener(
+        'pageshow',
+        function (ev) {
+            if (!ev || !ev.persisted) return;
+            try {
+                if (typeof window.__syncSiteBackgroundLayout === 'function') {
+                    window.__syncSiteBackgroundLayout();
+                }
+            } catch (e) {
+                /* ignore */
+            }
+            stopAllGalleries();
+            if (document.visibilityState === 'visible') {
+                window.setTimeout(startAllGalleries, 0);
+            }
+        },
+        { passive: true }
+    );
+
+    if (typeof document.addEventListener === 'function') {
+        document.addEventListener(
+            'freeze',
+            function () {
+                onHidden();
+            },
+            { passive: true }
+        );
+        document.addEventListener(
+            'resume',
+            function () {
+                if (document.visibilityState === 'visible') onVisible();
+            },
+            { passive: true }
+        );
+    }
+}
+
 /** 与站内主图导出宽度一致；height 与 index.html 中轮播 2:1、对比区 padding-bottom 62.5% 对齐 */
 const DISPLAY_INNER_WIDTH = 1200;
 const GALLERY_SLIDE_HINT_H = Math.round(DISPLAY_INNER_WIDTH / 2);
@@ -589,51 +682,59 @@ function initializeComparison() {
         };
         comparisonReleaseFns.push(endResize);
 
-        // 清理旧监听器（如果存在）
-        handle.removeEventListener('mousedown', startResize);
-        document.removeEventListener('mousemove', moveHandler); // 注意：全局监听器移除可能影响其他实例，最好绑定到特定元素或用标志位
-        window.removeEventListener('mouseup', endResize);      // 使用 window 捕获释放
-        handle.removeEventListener('touchstart', startResize);
-        handle.removeEventListener('touchmove', moveHandler);
-        window.removeEventListener('touchend', endResize);
-        window.removeEventListener('touchcancel', endResize);
+        /* 曾用匿名函数绑定 mousedown/mousemove，removeEventListener 无法成对移除；重复 init 会在 document 上叠多层 mousemove */
+        if (typeof wrapper.__cmpRemoveDomListeners === 'function') {
+            try {
+                wrapper.__cmpRemoveDomListeners();
+            } catch (e) {
+                /* ignore */
+            }
+        }
 
-        // 重新绑定
-        handle.addEventListener('mousedown', (e) => { e.preventDefault(); startResize(e); });
-        // 将 mousemove 和 mouseup 绑定到 document 可能导致冲突，最好限定范围或在 up 时移除
-        // 暂时保留 document 监听，但注意潜在问题
-        document.addEventListener('mousemove', (e) => { 
-            if(isResizing) moveHandler(e.clientX); 
-        });
-        window.addEventListener('mouseup', endResize); 
+        const onHandleMouseDown = (e) => {
+            e.preventDefault();
+            startResize(e);
+        };
+        const onDocumentMouseMove = (e) => {
+            if (isResizing) moveHandler(e.clientX);
+        };
+        const onWindowMouseUp = endResize;
 
-        handle.addEventListener(
-            'touchstart',
-            (e) => {
-                if (!(e.target === handle || handle.contains(e.target))) return;
-                e.stopPropagation();
-                if (e.cancelable) e.preventDefault();
-                startResize(e);
+        const onHandleTouchStart = (e) => {
+            if (!(e.target === handle || handle.contains(e.target))) return;
+            e.stopPropagation();
+            if (e.cancelable) e.preventDefault();
+            startResize(e);
 
-                const onWindowTouchMove = (ev) => {
-                    if (!isResizing) return;
-                    if (ev.cancelable) ev.preventDefault();
-                    if (ev.touches.length > 0) moveHandler(ev.touches[0].clientX);
-                };
-                const onWindowTouchEnd = () => {
-                    endResize();
-                };
-                detachWindowTouch = () => {
-                    window.removeEventListener('touchmove', onWindowTouchMove, true);
-                    window.removeEventListener('touchend', onWindowTouchEnd, true);
-                    window.removeEventListener('touchcancel', onWindowTouchEnd, true);
-                };
-                window.addEventListener('touchmove', onWindowTouchMove, { passive: false, capture: true });
-                window.addEventListener('touchend', onWindowTouchEnd, { capture: true });
-                window.addEventListener('touchcancel', onWindowTouchEnd, { capture: true });
-            },
-            { passive: false }
-        );
+            const onWindowTouchMove = (ev) => {
+                if (!isResizing) return;
+                if (ev.cancelable) ev.preventDefault();
+                if (ev.touches.length > 0) moveHandler(ev.touches[0].clientX);
+            };
+            const onWindowTouchEnd = () => {
+                endResize();
+            };
+            detachWindowTouch = () => {
+                window.removeEventListener('touchmove', onWindowTouchMove, true);
+                window.removeEventListener('touchend', onWindowTouchEnd, true);
+                window.removeEventListener('touchcancel', onWindowTouchEnd, true);
+            };
+            window.addEventListener('touchmove', onWindowTouchMove, { passive: false, capture: true });
+            window.addEventListener('touchend', onWindowTouchEnd, { capture: true });
+            window.addEventListener('touchcancel', onWindowTouchEnd, { capture: true });
+        };
+
+        handle.addEventListener('mousedown', onHandleMouseDown);
+        document.addEventListener('mousemove', onDocumentMouseMove);
+        window.addEventListener('mouseup', onWindowMouseUp);
+        handle.addEventListener('touchstart', onHandleTouchStart, { passive: false });
+
+        wrapper.__cmpRemoveDomListeners = () => {
+            handle.removeEventListener('mousedown', onHandleMouseDown);
+            document.removeEventListener('mousemove', onDocumentMouseMove);
+            window.removeEventListener('mouseup', onWindowMouseUp);
+            handle.removeEventListener('touchstart', onHandleTouchStart);
+        };
 
         // --- 设置初始状态 ---
         const initialPercent = 50;
@@ -1203,6 +1304,9 @@ function initDualBufferGallerySlider(slidesId, dotsId, slidesContainer, urlList)
     ensureGalleryAutoplayPauseOnWindowScroll();
     scheduleLookahead();
     startAutoPlay();
+    if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+        stopAutoPlay();
+    }
 }
 
 function initializeGallerySlider(slidesId, dotsId) {
@@ -1468,6 +1572,9 @@ function initializeGallerySlider(slidesId, dotsId) {
 
     ensureGalleryAutoplayPauseOnWindowScroll();
     startAutoPlay();
+    if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+        stopAutoPlay();
+    }
     __siteDbg(`[FadeSlider DEBUG] Initialization complete for slider: ${slidesId}.`); // 新增
 }
 // function initializeContactForm() { /* ... */ }
@@ -1477,6 +1584,7 @@ function initializeGallerySlider(slidesId, dotsId) {
 // --- DOMContentLoaded 事件监听器 ---
 document.addEventListener('DOMContentLoaded', () => {
     try {
+    installGalleryDocumentVisibilityLifecycle();
     __siteDbg("DOM Loaded. Initializing scripts...");
     // 导航菜单功能 (使用 automotive.html 的逻辑，包含 setTimeout)
     // const menuToggle = document.querySelector('.nav-toggle');
