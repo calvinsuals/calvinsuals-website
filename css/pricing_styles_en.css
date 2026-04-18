@@ -809,10 +809,12 @@ body.pricing-page .footer p {
     margin-top: 25px !important;
 }
 
-/* Below ADDITIONAL SERVICES list: square Contact me → homepage About */
+/* Below ADDITIONAL SERVICES: wide glass pill, Contact me → homepage About */
 .pricing-modal-about-cta {
-    margin: 14px 0 6px;
+    margin: 14px auto 8px;
     text-align: center;
+    max-width: 100%;
+    padding: 0 6px;
 }
 
 .pricing-page .pricing-modal-about-cta__btn {
@@ -820,35 +822,38 @@ body.pricing-page .footer p {
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
-    min-width: 5.5rem;
-    min-height: 2.75rem;
-    padding: 0.5rem 0.75rem;
-    border-radius: 4px;
+    width: 100%;
+    max-width: 22rem;
+    min-height: 2.85rem;
+    padding: 0.55rem 1.5rem;
+    border-radius: 6px;
     font-size: 0.82rem;
     font-weight: 600;
     letter-spacing: 0.04em;
     text-decoration: none !important;
-    color: #1a1a1a !important;
-    background: rgba(245, 245, 245, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.22);
-    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
-    max-width: 100%;
+    color: rgba(255, 255, 255, 0.96) !important;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.38);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 2px 14px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .pricing-page .pricing-modal-about-cta__btn:hover {
-    color: #0a0a0a !important;
-    background: #fff;
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.55);
     transform: translateY(-1px);
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.28);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.28);
 }
 
 @media (max-width: 576px) {
     .pricing-page .pricing-modal-about-cta__btn {
-        font-size: 0.75rem;
-        min-height: 2.5rem;
-        min-width: 5rem;
-        padding: 0.45rem 0.6rem;
+        font-size: 0.74rem;
+        min-height: 2.65rem;
+        padding: 0.5rem 1rem;
+        max-width: 100%;
     }
 }
 
