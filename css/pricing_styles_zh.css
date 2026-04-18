@@ -792,25 +792,35 @@ body.pricing-page .footer p {
 }
 .modal-body::-webkit-scrollbar { display: none; } /* Webkit */
 .modal-body h4 {
-    font-size: 0.95rem !important; /* Slightly smaller */
-    font-weight: 500 !important; /* Less bold */
-    margin: 30px 0 12px !important; /* Adjust spacing to match text above */
+    font-size: 0.95rem !important;
+    font-family: var(--font-body, 'Montserrat', sans-serif) !important;
+    font-weight: 600 !important; /* 与价目弹窗内主副标题条一致 */
+    margin: 30px 0 12px !important;
     color: var(--modal-text-color) !important;
     text-transform: uppercase !important;
-    letter-spacing: 0.8px; /* Adjust spacing */
-    opacity: 0.9; /* Slightly less emphasis */
+    letter-spacing: 0.8px;
+    opacity: 0.95;
     text-shadow: var(--modal-text-shadow);
+}
+
+/* 价目弹窗内「价格选项」等行标题 */
+.pricing-page .modal-body > p.modal-text > strong {
+    font-family: var(--font-body, 'Montserrat', sans-serif) !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.06em;
 }
 
 /* Add style for the small text paragraph */
 .modal-body .small-text {
-    font-size: 0.8rem !important; /* << Further reduced size */
-    opacity: 0.75 !important; /* Slightly more faded */
+    font-family: var(--font-body, 'Montserrat', sans-serif) !important;
+    font-weight: 500 !important; /* Montserrat Medium */
+    font-size: 0.8rem !important;
+    opacity: 0.75 !important;
     line-height: 1.5 !important;
     margin-top: 25px !important;
 }
 
-/* 额外服务列表下方：加长条、半透明 + 毛玻璃「联系我」→ 首页 About */
+/* 额外服务列表下方：较短半透明毛玻璃 CONTACT ME */
 .pricing-modal-about-cta {
     margin: 14px auto 8px;
     text-align: center;
@@ -823,38 +833,41 @@ body.pricing-page .footer p {
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
-    width: 100%;
-    max-width: 22rem;
-    min-height: 2.85rem;
-    padding: 0.55rem 1.5rem;
+    width: auto;
+    max-width: 12.5rem;
+    min-height: 2.5rem;
+    padding: 0.42rem 0.85rem;
     border-radius: 6px;
-    font-size: 0.82rem;
+    font-family: var(--font-body, 'Montserrat', sans-serif) !important;
+    font-size: 0.68rem;
     font-weight: 600;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
     text-decoration: none !important;
-    color: rgba(255, 255, 255, 0.96) !important;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.38);
+    color: rgba(255, 255, 255, 0.78) !important;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 2px 14px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
 }
 
 .pricing-page .pricing-modal-about-cta__btn:hover {
-    color: #fff !important;
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.55);
+    color: rgba(255, 255, 255, 0.94) !important;
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.45);
     transform: translateY(-1px);
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.28);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.26);
 }
 
 @media (max-width: 576px) {
     .pricing-page .pricing-modal-about-cta__btn {
-        font-size: 0.74rem;
-        min-height: 2.65rem;
-        padding: 0.5rem 1rem;
-        max-width: 100%;
+        font-size: 0.62rem;
+        min-height: 2.35rem;
+        max-width: 11.5rem;
+        padding: 0.38rem 0.65rem;
+        letter-spacing: 0.1em;
     }
 }
 
