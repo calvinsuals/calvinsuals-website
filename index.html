@@ -6,14 +6,12 @@
     <title>calvinsuals Photography</title>
     <!-- 首帧 html 兜底色；全站渐变见 site_background.css；仅首页桌面可关渐变见下方 body.home-page -->
     <style>
-        /* 与首页 body 深色铺底一致；不依赖 :has（部分 WebView 不支持时避免 html 仍灰边） */
         html.site-fixed-background {
-            background-color: #181818;
-            --site-background-fallback: #181818;
+            background-color: #2f2f2f;
             min-height: 100%;
         }
     </style>
-    <link rel="stylesheet" href="css/site_background.css?v=20260418r">
+    <link rel="stylesheet" href="css/site_background.css?v=20260418s">
     <link rel="preconnect" href="https://img.calvinsuals.com" crossorigin>
     <link rel="dns-prefetch" href="https://img.calvinsuals.com">
     <!-- 首图 preload 可由 scripts/sync_critical_preload.py 维护；对比首组需与 images/comparison_groups.json 中 group_01 一致 -->
@@ -69,24 +67,6 @@
             /* 与 site_background.css 中铺底一致，html 露边时也与 body 渐变协调 */
             --site-background-underlay: #6f6f6f;
             --site-background-fallback: #2f2f2f; /* Solid fallback to avoid white flashes during heavy repaints */
-        }
-
-        /* 首页整页深色底：正文勿再用 #333（会显得发灰、淡） */
-        body.home-page {
-            color: rgba(245, 245, 245, 0.94);
-        }
-        body.home-page .text-white,
-        body.home-page .hero-content .name,
-        body.home-page .hero-content .tagline,
-        body.home-page .hero-content .tagline span {
-            color: #ffffff !important;
-        }
-        body.home-page .more-projects {
-            color: rgba(255, 255, 255, 0.92) !important;
-        }
-        body.home-page #about .about-text-container p,
-        body.home-page #about .about-text-container strong {
-            color: rgba(245, 245, 245, 0.95);
         }
         
         /* --- Reset Box Model --- */
@@ -394,6 +374,19 @@
             font-family: 'Montserrat', sans-serif;
         }
 
+        /* 移除所有标题强制对齐的规则 */
+        /*
+        #automotive .section-title,
+        #portrait .section-title,
+        #comparison .section-title,
+        #about .section-title,
+        #contact .section-title {
+            margin-left: 5% !important; 
+            padding-left: 0 !important;
+            text-indent: 0 !important; 
+        }
+        */
+
         /* 添加新的 overlay-title 样式 */
         .overlay-title {
             color: #bbbbbb; /* Fallback */
@@ -408,24 +401,19 @@
             white-space: nowrap; /* 防止标题换行 */
             margin: 0;
             padding: 0;
-            -webkit-font-smoothing: antialiased;
             /* left 和 top 由 JS 控制 */
         }
 
-        /* 勿用 0×0 容器：部分内核会裁切 background-clip 文字渐变 */
-        #section-titles-overlay {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            min-height: 100%;
-            min-height: 100dvh;
-            z-index: 10;
-            pointer-events: none;
-            overflow: visible;
+        /* 移除 #about .section-title 的特殊边距 */
+        /*
+        #about .section-title {
+            margin-bottom: 30px; 
         }
-
-/* 确保所有区域标题完全对齐（使用更精确的左边距） */
+        */
+        
+        
+        
+        /* 确保所有区域标题完全对齐（使用更精确的左边距） */
         #automotive .section-title,
         #portrait .section-title,
         #comparison .section-title,
@@ -669,8 +657,8 @@
                     #8f8f8f 86%,
                     #6a6a6a 100%
                 );
-                background-size: 160% 160%;
-                background-position: 50% 50%;
+                background-size: 220% 220%;
+                background-position: 42% 48%;
                 -webkit-background-clip: text;
                 background-clip: text;
                 -webkit-text-fill-color: transparent;
@@ -2232,6 +2220,38 @@
             100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
         }
 
+        /* 桌面端about-text-container样式调整 */
+        @media screen and (min-width: 768px) {
+            /* 增加 PC 端各区域的上边距 */
+            #automotive { /* 单独增加 automotive 的上边距 */
+            margin-top: 300px!important; /* 增加 Hero 和 Automotive 之间的距离 */
+            }
+            #comparison {
+                margin-top: 150px!important; /* 保持 Comparison 和 Automotive 的上边距 */
+            }
+            #portrait {
+                margin-top: 150px!important; /* 保持 Comparison 和 Portrait 的上边距 */
+            }
+            #about { /* 单独设置 about 的上边距 */
+                margin-top: 200px!important; /* 增加 Portrait 和 About 之间距离 (+100px) */
+            }
+             #contact {
+                 margin-top: 100px!important; /* 保持 contact 的上边距 */
+            }
+            
+            .about-text-container {
+                padding-top: 50px; /* 在电脑端增加更多顶部内边距 */
+                padding-left: 10px; /* 确保桌面端也减少左侧内边距 */
+                padding-right: 10px; /* 同时减少右侧内边距保持对称 */
+            }
+            
+            /* 调整桌面端的about-text样式 */
+            .about-text {
+                padding-left: 10px; /* 减少左侧内边距 */
+                padding-right: 10px; /* 保持对称 */
+            }
+        }
+
         /* 小屏幕上的调整 */
         @media screen and (max-width: 480px) {
             #wechatModal .modal-content {
@@ -2290,13 +2310,47 @@
         }
         */
 
+        /* 移动端菜单样式 */
+        @media screen and (max-width: 767px) {
+            /* 增加移动端各区域的上边距 */
+            #automotive {
+                margin-top: 120px !important; /* 显著增加 Hero 和 Auto 之间的距离 */
+            }
+            #comparison,
+            #portrait,
+            #about,
+            #contact {
+                margin-top: 100px !important; /* 各区域间增加 2 个格子的间距 */
+            }
+            
+            /* --- Mobile Nav Styles (Copied from pricing page @media max-width: 875px) --- */
+            .nav-menu a {
+                font-size: 1.2rem !important;
+            }
+            /* 调整移动端 overlay-title 样式 */
+            .overlay-title {
+                /* font-size: 1.5rem !important; */ /* 之前的设置 */
+                letter-spacing: 1px !important;
+                 font-size: 1.5rem !important; /* 恢复之前的移动端字体大小 */
+            }
+            .nav-toggle { /* Adjustments for mobile if needed, matching pricing.html */
+                width: 40px !important;
+                height: 40px !important;
+                top: 20px !important;
+                right: 20px !important;
+            }
+            /* --- End Mobile Nav Styles --- */
+            
+            /* REMOVED old mobile menu styles for .menu-content and .menu-items */
+        }
+
     </style>
     
     
 </head>
 <body class="site-background-shell home-page">
     <!-- 标题覆盖层 -->
-    <div id="section-titles-overlay">
+    <div id="section-titles-overlay" style="position: absolute; top: 0; left: 0; width: 0; height: 0; z-index: 10; pointer-events: none;">
          <!-- 静态放置标题，JS将更新它们的位置 -->
          <h2 class="overlay-title" data-target-section="automotive" style="position: absolute; pointer-events: auto; opacity: 0; transition: opacity 0.5s;">AUTOMOTIVE</h2>
          <h2 class="overlay-title" data-target-section="comparison" style="position: absolute; pointer-events: auto; opacity: 0; transition: opacity 0.5s;">COMPARISON</h2>
@@ -2487,10 +2541,10 @@
     </div>
 
     <!-- 添加外部脚本链接 -->
-    <script src="js/site_background.js?v=20260418r" defer></script>
+    <script src="js/site_background.js?v=20260418s" defer></script>
     <!-- 调试 main.js：URL 加 ?debug=1 可恢复详细控制台日志 -->
     <script src="js/main.js?v=20260418n" defer></script>
-    <script src="js/navigation.js?v=20260418r" defer></script>
+    <script src="js/navigation.js?v=20260404i" defer></script>
 
     <!-- 锚点定位修复脚本 -->
     <script>
@@ -2651,116 +2705,61 @@
             };
         })();
 
-        // --- 动态定位标题（与 #section-titles-overlay 内 absolute 一致：统一用文档坐标） ---
+        // --- 新增：动态定位标题 --- 
         function updateTitlePositions() {
+            // 1. 确定对齐参考元素 (汽车轮播图的外层预览容器)
             const refElement = document.querySelector('#automotive .gallery-preview');
             if (!refElement) {
                 console.error("Reference element for title alignment not found.");
                 return;
             }
 
-            const sx = window.scrollX || window.pageXOffset || 0;
-            const sy = window.scrollY || window.pageYOffset || 0;
-            const refRect = refElement.getBoundingClientRect();
-            const targetOffsetLeftDoc = refRect.left + sx;
+            // 2. 计算参考元素的左边距 (相对于视口)
+            const targetOffsetLeft = refElement.getBoundingClientRect().left;
 
+            // 3. 获取所有需要定位的标题
             const titles = document.querySelectorAll('.overlay-title');
 
+            // 4. 遍历并定位每个标题
             titles.forEach(title => {
                 const sectionId = title.dataset.targetSection;
                 const sectionElement = document.getElementById(sectionId);
 
                 if (sectionElement) {
-                    const secRect = sectionElement.getBoundingClientRect();
-                    const sectionTopDoc = secRect.top + sy;
+                    // 计算目标区域的顶部位置 (相对于文档)
+                    const sectionTop = sectionElement.offsetTop;
 
-                    title.style.left = `${targetOffsetLeftDoc}px`;
+                    // 设置标题的 left 和 top 样式
+                    title.style.left = `${targetOffsetLeft}px`;
 
-                    let verticalOffset = window.innerWidth >= 768 ? 100 : 75;
+                    // 设置垂直偏移量 (例如，在区域顶部上方一点)
+                    // 可以根据屏幕宽度调整偏移量
+                    let verticalOffset = window.innerWidth >= 768 ? 100 : 75; // 默认偏移量下移半格（25px）
 
+                    // 为特定区域设置不同的偏移量
                     if (sectionId === 'comparison') {
-                        verticalOffset = window.innerWidth >= 768 ? -25 : -50;
-                    } else if (sectionId === 'portrait') {
-                        verticalOffset = window.innerWidth >= 768 ? 100 : 75;
+                        verticalOffset = window.innerWidth >= 768 ? -25 : -50; // 对比区偏移量下移半格
+                    } else if (sectionId === 'portrait') { 
+                        verticalOffset = window.innerWidth >= 768 ? 100 : 75; // Portrait 下移半格
                     } else if (sectionId === 'about') {
-                        verticalOffset = window.innerWidth >= 768 ? 5 : 0;
+                         verticalOffset = window.innerWidth >= 768 ? 5 : 0; // about 区域偏移量 (保持不变)
                     } else if (sectionId === 'contact') {
-                        verticalOffset = window.innerWidth >= 768 ? 35 : 30;
+                        verticalOffset = window.innerWidth >= 768 ? 35 : 30; // 联系区偏移量 (保持不变)
                     }
 
-                    const navToggleHeight = 60;
-                    title.style.top = `${Math.max(navToggleHeight, sectionTopDoc - verticalOffset)}px`;
+                    // 确保标题不与导航按钮重叠 (如果需要)
+                    const navToggleHeight = 60; // 导航按钮大致高度 + 间距
+                    title.style.top = `${Math.max(navToggleHeight, sectionTop - verticalOffset)}px`; // 减去偏移量使标题在区域上方，同时不低于导航按钮
 
+                    // 定位后显现标题
                     title.style.opacity = '1';
 
                 } else {
                     console.warn(`Target section #${sectionId} not found for title.`);
-                    title.style.opacity = '0';
+                    title.style.opacity = '0'; // 隐藏找不到对应区域的标题
                 }
             });
         }
-
-        /** 无 deep link 时把视口拉回顶部（瞬时，避免与 smooth 冲突）；供 load / 前台恢复共用 */
-        function scrollHomeToTopIfPlainEntry() {
-            try {
-                if (!document.body || !document.body.classList.contains('home-page')) return;
-                const q = new URLSearchParams(window.location.search).get('section');
-                if (q) return;
-                if (window.location.hash && window.location.hash.length > 1) return;
-                const html = document.documentElement;
-                const h0 = html.style.scrollBehavior;
-                const b0 = document.body.style.scrollBehavior;
-                html.style.scrollBehavior = 'auto';
-                document.body.style.scrollBehavior = 'auto';
-                window.scrollTo(0, 0);
-                html.scrollTop = 0;
-                document.body.scrollTop = 0;
-                if (h0) html.style.scrollBehavior = h0;
-                else html.style.removeProperty('scroll-behavior');
-                if (b0) document.body.style.scrollBehavior = b0;
-                else document.body.style.removeProperty('scroll-behavior');
-            } catch (e) {
-                /* ignore */
-            }
-        }
-
-        /** App/WebView 从后台回来：清 body 误锁、同步 html 背景 token、重算标题（避免旧渐变/错位叠层） */
-        function resetHomePageAfterRestore() {
-            if (!document.body || !document.body.classList.contains('home-page')) return;
-            if (document.readyState !== 'complete') return;
-            if (!document.body.classList.contains('modal-open')) {
-                document.body.style.position = '';
-                document.body.style.top = '';
-                document.body.style.left = '';
-                document.body.style.right = '';
-                document.body.style.width = '';
-            }
-            scrollHomeToTopIfPlainEntry();
-            if (typeof window.__syncSiteBackgroundLayout === 'function') {
-                try {
-                    window.__syncSiteBackgroundLayout();
-                } catch (e) { /* ignore */ }
-            }
-            requestAnimationFrame(function () {
-                requestAnimationFrame(function () {
-                    try {
-                        updateTitlePositions();
-                    } catch (e) {
-                        console.warn('[home] updateTitlePositions after restore', e);
-                    }
-                });
-            });
-        }
-        window.addEventListener('pageshow', resetHomePageAfterRestore, { passive: true });
-        document.addEventListener(
-            'visibilitychange',
-            function () {
-                if (document.visibilityState !== 'visible') return;
-                if (document.readyState !== 'complete') return;
-                resetHomePageAfterRestore();
-            },
-            { passive: true }
-        );
 
         // 防抖函数 (避免 resize 事件过于频繁触发)
         function debounce(func, wait) {
@@ -2777,14 +2776,9 @@
 
         // 5. 在页面加载完成和窗口大小改变时调用定位函数
         // 延迟调用以确保所有元素渲染完成
-        window.addEventListener(
-            'load',
-            () => {
-                scrollHomeToTopIfPlainEntry();
-                setTimeout(updateTitlePositions, 100); // 延迟100ms执行
-            },
-            { once: true }
-        );
+        window.addEventListener('load', () => {
+            setTimeout(updateTitlePositions, 100); // 延迟100ms执行
+        });
         // 移动端 Chrome 在 UI 显隐时会触发 resize（仅高度变化），
         // 若每次都重算标题定位会出现「漂移后归位」。
         // 仅在宽度变化（或横竖屏切换）时才重算定位。
@@ -2803,6 +2797,40 @@
             }, 120);
         });
         // --- 结束：动态定位标题 ---
+
+        /* 仅缓解「关 App 再开」：误留的 body 锁滚动 + 背景变量同步。不碰标题定位、不强制 scrollTo。 */
+        (function () {
+            function unlockStrayBodyFixed() {
+                if (!document.body || !document.body.classList.contains('home-page')) return;
+                if (document.body.classList.contains('modal-open')) return;
+                if (document.body.style.position !== 'fixed') return;
+                document.body.style.position = '';
+                document.body.style.top = '';
+                document.body.style.left = '';
+                document.body.style.right = '';
+                document.body.style.width = '';
+            }
+            function syncBgTokensOnly() {
+                if (typeof window.__syncSiteBackgroundLayout === 'function') {
+                    try {
+                        window.__syncSiteBackgroundLayout();
+                    } catch (e) { /* ignore */ }
+                }
+            }
+            function onAppResume() {
+                if (document.readyState !== 'complete') return;
+                unlockStrayBodyFixed();
+                syncBgTokensOnly();
+            }
+            window.addEventListener('pageshow', onAppResume, { passive: true });
+            document.addEventListener(
+                'visibilitychange',
+                function () {
+                    if (document.visibilityState === 'visible') onAppResume();
+                },
+                { passive: true }
+            );
+        })();
 
     </script>
 
