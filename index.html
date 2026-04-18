@@ -1364,7 +1364,7 @@
             display: block; /* 确保块级显示以接受margin */
         }
 
-        /* 窄屏：在 #wechatModal 规则之后，用 aspect-ratio 预留首开高度（避免图未到时盒子过矮再胀高） */
+        /* 窄屏：微信二维码近似正方形，用 aspect-ratio 预留首开高度；小红书截图为任意比例，勿强绑 9:16+cover（会裁切/像尺寸坏了） */
         @media screen and (max-width: 767px) {
             #wechatModal .modal-images img {
                 aspect-ratio: 1;
@@ -1372,12 +1372,13 @@
                 object-fit: contain;
             }
             #xiaohongshuModal .modal-images img {
-                aspect-ratio: 9 / 16;
-                max-width: min(280px, 72vw);
-                width: 100%;
+                width: auto;
+                max-width: min(100%, 300px);
+                height: auto;
+                max-height: min(62vh, 520px);
                 margin-left: auto;
                 margin-right: auto;
-                object-fit: cover;
+                object-fit: contain;
             }
         }
 
