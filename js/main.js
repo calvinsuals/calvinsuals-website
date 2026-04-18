@@ -57,6 +57,72 @@ const GALLERY_AUTOSCROLL_RESUME_MS = 200;
 let __galleryPageScrollPauseInstalled = false;
 let __galleryScrollResumeTimer = null;
 
+/**
+ * 未捕获异常 / 标签页快崩溃前：停轮播、卸滚轮阻尼、松开对比条，减轻 GPU/定时器堆积；
+ * 部分 WebView 下刷新仍复用坏状态，关标签更干净，但此处尽量释放资源。
+ */
+function __siteEmergencyTeardown(reason) {
+    try {
+        console.warn('[calvinsuals] emergency teardown:', reason);
+    } catch (e) {
+        /* ignore */
+    }
+    try {
+        if (__galleryScrollResumeTimer) {
+            clearTimeout(__galleryScrollResumeTimer);
+            __galleryScrollResumeTimer = null;
+        }
+    } catch (e) {
+        /* ignore */
+    }
+    try {
+        const ctrls = window.__displayGalleryControls;
+        if (ctrls && typeof ctrls === 'object') {
+            Object.keys(ctrls).forEach(function (id) {
+                const c = ctrls[id];
+                if (c && typeof c.stopAutoPlay === 'function') c.stopAutoPlay();
+            });
+        }
+    } catch (e) {
+        /* ignore */
+    }
+    try {
+        if (typeof window.__homeWheelTeardown === 'function') window.__homeWheelTeardown();
+    } catch (e) {
+        /* ignore */
+    }
+    try {
+        if (typeof window.__comparisonForceReleaseAll === 'function') window.__comparisonForceReleaseAll();
+    } catch (e) {
+        /* ignore */
+    }
+}
+window.__siteEmergencyTeardown = __siteEmergencyTeardown;
+
+function installSiteRuntimeGuards() {
+    if (window.__siteRuntimeGuardsInstalled) return;
+    window.__siteRuntimeGuardsInstalled = true;
+    window.addEventListener(
+        'unhandledrejection',
+        function () {
+            __siteEmergencyTeardown('unhandledrejection');
+        },
+        { passive: true }
+    );
+    window.addEventListener(
+        'error',
+        function (ev) {
+            try {
+                if (ev && ev.target && ev.target.tagName === 'IMG') return;
+            } catch (e) {
+                /* ignore */
+            }
+            if (ev && ev.error) __siteEmergencyTeardown('error');
+        },
+        true
+    );
+}
+
 function ensureGalleryAutoplayPauseOnWindowScroll() {
     if (__galleryPageScrollPauseInstalled) return;
     __galleryPageScrollPauseInstalled = true;
@@ -230,6 +296,7 @@ function __flushWarmWaiters(url) {
     });
 }
 const __MAX_IMAGE_OBJECT_CACHE = 120;
+const __MAX_IMAGE_OBJECT_CACHE_MOBILE = 48;
 const __R2_PUBLIC_HOST = 'pub-67b44c34fdd2480e83feffb3cfc185b9.r2.dev';
 const __R2_CUSTOM_HOST = 'img.calvinsuals.com';
 
@@ -240,8 +307,9 @@ function normalizeImageUrl(url) {
 
 function keepImageObject(url, img) {
     if (!url || !img || __imageObjectCache.has(url)) return;
+    const cap = __isMobileImageWarmProfile() ? __MAX_IMAGE_OBJECT_CACHE_MOBILE : __MAX_IMAGE_OBJECT_CACHE;
     __imageObjectCache.set(url, img);
-    if (__imageObjectCache.size > __MAX_IMAGE_OBJECT_CACHE) {
+    if (__imageObjectCache.size > cap) {
         const oldestKey = __imageObjectCache.keys().next().value;
         if (oldestKey) __imageObjectCache.delete(oldestKey);
     }
@@ -318,6 +386,8 @@ function attachHomeDesktopScrollWheelDamping() {
     } catch (e) {
         /* ignore */
     }
+    if (window.__homeWheelDampingInstalled) return;
+    window.__homeWheelDampingInstalled = true;
 
     const mq = window.matchMedia('(min-width: 768px)');
     let acc = 0;
@@ -358,22 +428,41 @@ function attachHomeDesktopScrollWheelDamping() {
         rafId = requestAnimationFrame(tick);
     }
 
-    window.addEventListener(
-        'wheel',
-        function (e) {
-            if (!mq.matches) return;
-            if (e.ctrlKey) return;
-            if (!(e.target instanceof Element)) return;
-            if (e.target.closest('input, textarea, select, [contenteditable="true"]')) return;
-            if (e.target.closest('.comparison-slider, .nav-menu, .modal, .modal-overlay, #modal-container')) return;
-            if (insideNestedVerticalScroller(e.target)) return;
+    function resetWheelMomentum() {
+        if (rafId != null) {
+            cancelAnimationFrame(rafId);
+            rafId = null;
+        }
+        acc = 0;
+    }
 
-            e.preventDefault();
-            acc += normalizeDeltaY(e) * WHEEL_FACTOR;
-            if (rafId == null) rafId = requestAnimationFrame(tick);
+    const wheelHandler = function (e) {
+        if (!mq.matches) return;
+        if (e.ctrlKey) return;
+        if (!(e.target instanceof Element)) return;
+        if (e.target.closest('input, textarea, select, [contenteditable="true"]')) return;
+        if (e.target.closest('.comparison-slider, .nav-menu, .modal, .modal-overlay, #modal-container')) return;
+        if (insideNestedVerticalScroller(e.target)) return;
+
+        e.preventDefault();
+        acc += normalizeDeltaY(e) * WHEEL_FACTOR;
+        if (rafId == null) rafId = requestAnimationFrame(tick);
+    };
+
+    window.addEventListener('wheel', wheelHandler, { passive: false });
+
+    document.addEventListener(
+        'visibilitychange',
+        function () {
+            if (document.visibilityState === 'hidden') resetWheelMomentum();
         },
-        { passive: false }
+        { passive: true }
     );
+
+    window.__homeWheelTeardown = function () {
+        window.removeEventListener('wheel', wheelHandler);
+        resetWheelMomentum();
+    };
 }
 
 function warmImagesIdle(urls, eagerCount = 8, scheduleRemainder = true) {
@@ -1264,6 +1353,9 @@ function initDualBufferGallerySlider(slidesId, dotsId, slidesContainer, urlList)
                 transitionLock = false;
                 scheduleLookahead();
             }, transitionDuration + 120);
+        }).catch(function (err) {
+            console.warn('[gallery dual] showSlide promise', err);
+            transitionLock = false;
         });
     }
 
@@ -1523,6 +1615,9 @@ function initializeGallerySlider(slidesId, dotsId) {
             }
             currentIndex = newIndex;
             __siteDbg(`[FadeSlider DEBUG #${slidesId}] Crossfade ${prevIndex} -> ${newIndex}.`);
+        }).catch(function (err) {
+            console.warn('[FadeSlider] showSlide promise', err);
+            transitionLock = false;
         });
     }
 
@@ -1584,6 +1679,7 @@ function initializeGallerySlider(slidesId, dotsId) {
 // --- DOMContentLoaded 事件监听器 ---
 document.addEventListener('DOMContentLoaded', () => {
     try {
+    installSiteRuntimeGuards();
     installGalleryDocumentVisibilityLifecycle();
     __siteDbg("DOM Loaded. Initializing scripts...");
     // 导航菜单功能 (使用 automotive.html 的逻辑，包含 setTimeout)
