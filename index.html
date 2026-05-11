@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh" class="site-fixed-background">
+<html lang="zh" class="site-fixed-background home-page-root">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -14,19 +14,18 @@
             min-height: 100%;
         }
     </style>
-    <link rel="stylesheet" href="css/site_background.css?v=20260418t">
+    <link rel="stylesheet" href="css/site_background.css?v=20260419a">
     <link rel="preconnect" href="https://img.calvinsuals.com" crossorigin>
     <link rel="dns-prefetch" href="https://img.calvinsuals.com">
     <!-- 首图 preload 可由 scripts/sync_critical_preload.py 维护；对比首组需与 images/comparison_groups.json 中 group_01 一致 -->
+    <!-- 无痕正常、普通 Chrome 异常：多为配置文件缓存/恢复；避免 as=fetch 的 preload 与磁盘缓存打架（JSON 由 main.js 直接 fetch） -->
     <!-- CRITICAL-PRELOAD:START -->
-    <link rel="preload" href="images/comparison_groups.json" as="fetch" type="application/json" crossorigin="anonymous">
-    <link rel="preload" as="image" fetchpriority="high" href="https://img.calvinsuals.com/images/comparison/group_01/By.calvinsuals.24071820250410004641_%E7%BB%93%E6%9E%9C.webp">
-    <link rel="preload" as="image" fetchpriority="high" href="https://img.calvinsuals.com/images/comparison/group_01/By.calvinsuals.24071820250410004642_%E7%BB%93%E6%9E%9C.webp">
-    <link rel="preload" as="image" fetchpriority="high" href="https://img.calvinsuals.com/images/display/automotive%20display/By.calvinsuals.240305.webp">
-    <link rel="preload" as="image" href="https://img.calvinsuals.com/images/display/portrait%20display/By.calvinsuals.250811.webp">
+    <link rel="preload" as="image" fetchpriority="high" media="(min-width: 768px)" href="https://img.calvinsuals.com/images/display/automotive%20display/By.calvinsuals.240305.webp">
+    <!-- 桌面再抢对比双图 + 人像首图；手机由 main.js 错峰加载 -->
+    <link rel="preload" as="image" fetchpriority="high" media="(min-width: 768px)" href="https://img.calvinsuals.com/images/comparison/group_01/By.calvinsuals.24071820250410004641_%E7%BB%93%E6%9E%9C.webp">
+    <link rel="preload" as="image" fetchpriority="high" media="(min-width: 768px)" href="https://img.calvinsuals.com/images/comparison/group_01/By.calvinsuals.24071820250410004642_%E7%BB%93%E6%9E%9C.webp">
+    <link rel="preload" as="image" media="(min-width: 768px)" href="https://img.calvinsuals.com/images/display/portrait%20display/By.calvinsuals.250811.webp">
     <!-- CRITICAL-PRELOAD:END -->
-    <link rel="preload" href="images/display_automotive.json" as="fetch" type="application/json" crossorigin="anonymous">
-    <link rel="preload" href="images/display_portrait.json" as="fetch" type="application/json" crossorigin="anonymous">
     <!-- 全站仅用 Montserrat（多字重）；中文等无字形时由系统 sans-serif 回退 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -38,10 +37,6 @@
     <!-- <link rel="stylesheet" href="styles.css"> --> <!-- Removed as file does not exist -->
     <!-- <link rel="stylesheet" href="gallery.css"> -->
     <!-- <link rel="stylesheet" href="automotive.css"> --> 
-
-    <!-- 首页 JSON（comparison_groups 已在 head 顶部 preload） -->
-    <link rel="preload" href="images/display_automotive.json" as="fetch">
-    <link rel="preload" href="images/display_portrait.json" as="fetch">
 
     <style>
         /* --- Variables & Base (Consistent across pages) --- */
@@ -257,6 +252,18 @@
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+
+        /* 恢复标签 / GPU 重排后 background-clip:text 偶发失效时，避免标题「透明只剩灰底」 */
+        @supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+            .hero-content .name,
+            .hero-content .tagline,
+            .hero-content .tagline .text-white {
+                -webkit-text-fill-color: currentColor;
+                color: #d0d0d0 !important;
+                background: none !important;
+                background-image: none !important;
+            }
         }
 
         .hero-content .name {
@@ -2554,7 +2561,7 @@
     </div>
 
     <!-- 添加外部脚本链接 -->
-    <script src="js/site_background.js?v=20260418t" defer></script>
+    <script src="js/site_background.js?v=20260419a" defer></script>
     <!-- 调试 main.js：URL 加 ?debug=1 可恢复详细控制台日志 -->
     <script src="js/main.js?v=20260418n" defer></script>
     <script src="js/navigation.js?v=20260404i" defer></script>
@@ -2720,58 +2727,73 @@
 
         // --- 新增：动态定位标题 --- 
         function updateTitlePositions() {
-            // 1. 确定对齐参考元素 (汽车轮播图的外层预览容器)
             const refElement = document.querySelector('#automotive .gallery-preview');
-            if (!refElement) {
-                console.error("Reference element for title alignment not found.");
+            const overlay = document.getElementById('section-titles-overlay');
+            if (!refElement || !overlay) {
+                if (!refElement) console.error("Reference element for title alignment not found.");
                 return;
             }
 
-            // 2. 计算参考元素的左边距 (相对于视口)
-            const targetOffsetLeft = refElement.getBoundingClientRect().left;
+            /** 与 #section-titles-overlay 同一套坐标：避免混用 offsetTop 与视口 left 在滚动 / BFCache / 地址栏变化后错位 */
+            const oRect = overlay.getBoundingClientRect();
+            const targetOffsetLeft = refElement.getBoundingClientRect().left - oRect.left;
 
-            // 3. 获取所有需要定位的标题
             const titles = document.querySelectorAll('.overlay-title');
 
-            // 4. 遍历并定位每个标题
             titles.forEach(title => {
                 const sectionId = title.dataset.targetSection;
                 const sectionElement = document.getElementById(sectionId);
 
                 if (sectionElement) {
-                    // 计算目标区域的顶部位置 (相对于文档)
-                    const sectionTop = sectionElement.offsetTop;
+                    const sectionTopRel = sectionElement.getBoundingClientRect().top - oRect.top;
 
-                    // 设置标题的 left 和 top 样式
                     title.style.left = `${targetOffsetLeft}px`;
 
-                    // 设置垂直偏移量 (例如，在区域顶部上方一点)
-                    // 可以根据屏幕宽度调整偏移量
-                    let verticalOffset = window.innerWidth >= 768 ? 100 : 75; // 默认偏移量下移半格（25px）
+                    let verticalOffset = window.innerWidth >= 768 ? 100 : 75;
 
-                    // 为特定区域设置不同的偏移量
                     if (sectionId === 'comparison') {
-                        verticalOffset = window.innerWidth >= 768 ? -25 : -50; // 对比区偏移量下移半格
-                    } else if (sectionId === 'portrait') { 
-                        verticalOffset = window.innerWidth >= 768 ? 100 : 75; // Portrait 下移半格
+                        verticalOffset = window.innerWidth >= 768 ? -25 : -50;
+                    } else if (sectionId === 'portrait') {
+                        verticalOffset = window.innerWidth >= 768 ? 100 : 75;
                     } else if (sectionId === 'about') {
-                         verticalOffset = window.innerWidth >= 768 ? 5 : 0; // about 区域偏移量 (保持不变)
+                        verticalOffset = window.innerWidth >= 768 ? 5 : 0;
                     } else if (sectionId === 'contact') {
-                        verticalOffset = window.innerWidth >= 768 ? 35 : 30; // 联系区偏移量 (保持不变)
+                        verticalOffset = window.innerWidth >= 768 ? 35 : 30;
                     }
 
-                    // 确保标题不与导航按钮重叠 (如果需要)
-                    const navToggleHeight = 60; // 导航按钮大致高度 + 间距
-                    title.style.top = `${Math.max(navToggleHeight, sectionTop - verticalOffset)}px`; // 减去偏移量使标题在区域上方，同时不低于导航按钮
+                    const navToggleHeight = 60;
+                    title.style.top = `${Math.max(navToggleHeight, sectionTopRel - verticalOffset)}px`;
 
-                    // 定位后显现标题
                     title.style.opacity = '1';
 
                 } else {
                     console.warn(`Target section #${sectionId} not found for title.`);
-                    title.style.opacity = '0'; // 隐藏找不到对应区域的标题
+                    title.style.opacity = '0';
                 }
             });
+        }
+
+        /** 杀进程重开、BFCache 恢复、Chrome 假刷新后：各区块 offsetTop / 100svh 会晚于首帧稳定，需多拍重算 overlay 标题，避免与各 section 容器叠住 */
+        function scheduleTitlePositionsAfterResume() {
+            if (!document.body || !document.body.classList.contains('home-page')) return;
+            function run() {
+                try {
+                    updateTitlePositions();
+                } catch (e) { /* ignore */ }
+            }
+            run();
+            requestAnimationFrame(function () {
+                run();
+                requestAnimationFrame(run);
+            });
+            setTimeout(run, 120);
+            setTimeout(run, 380);
+            var hero = document.querySelector('.hero');
+            if (hero) {
+                requestAnimationFrame(function () {
+                    void hero.offsetHeight;
+                });
+            }
         }
 
         // 防抖函数 (避免 resize 事件过于频繁触发)
@@ -2809,9 +2831,18 @@
                 updateTitlePositions();
             }, 120);
         });
+        /* 移动端 Chrome：地址栏显隐改的是 visualViewport 高度，innerWidth 不变；防抖减轻抖动 */
+        if (window.visualViewport) {
+            const vvRelayout = debounce(function () {
+                if (document.body && document.body.classList.contains('home-page')) {
+                    updateTitlePositions();
+                }
+            }, 220);
+            window.visualViewport.addEventListener('resize', vvRelayout, { passive: true });
+        }
         // --- 结束：动态定位标题 ---
 
-        /* 仅缓解「关 App 再开」：误留的 body 锁滚动 + 背景变量同步。不碰标题定位、不强制 scrollTo。 */
+        /* 「关 App 再开」：误留的 body 锁滚动 + 背景变量同步 + 首页 overlay 标题与首屏 hero 布局重算（不强制 scrollTo）。 */
         (function () {
             function unlockStrayBodyFixed() {
                 if (!document.body || !document.body.classList.contains('home-page')) return;
@@ -2831,14 +2862,24 @@
                 }
             }
             function onAppResume() {
-                if (document.readyState !== 'complete') return;
                 unlockStrayBodyFixed();
                 syncBgTokensOnly();
-                /* 再钉一层：避免同步队列晚一帧时 html 仍短暂呈灰 */
-                if (document.body.classList.contains('home-page')) {
+                /* 再钉一层：避免同步队列晚一帧时 html 仍短暂呈灰（勿要求 complete，自动刷新中途也会触发 pageshow） */
+                if (document.body && document.body.classList.contains('home-page')) {
+                    scheduleTitlePositionsAfterResume();
                     document.documentElement.style.setProperty('background-color', '#181818', 'important');
                     document.documentElement.style.setProperty('--site-background-fallback', '#181818');
                     document.documentElement.style.setProperty('--site-background-underlay', '#181818');
+                    /* 促 Chrome 在自动刷新后重算文字/渐变合成层，减轻「只剩灰底」假死感 */
+                    var hc = document.querySelector('.hero-content');
+                    if (hc) {
+                        requestAnimationFrame(function () {
+                            hc.style.setProperty('transform', 'translateZ(0)');
+                            requestAnimationFrame(function () {
+                                hc.style.removeProperty('transform');
+                            });
+                        });
+                    }
                 }
             }
             window.addEventListener('pageshow', onAppResume, { passive: true });

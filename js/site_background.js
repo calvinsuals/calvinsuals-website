@@ -17,9 +17,15 @@
             root.style.setProperty('--site-background-fallback', '#181818');
             root.style.setProperty('--site-background-underlay', '#181818');
             root.style.setProperty('--site-background-image', 'none');
-            root.style.setProperty('background-color', '#181818');
+            root.style.setProperty('background-color', '#181818', 'important');
             root.style.removeProperty('--site-scroll-y');
             root.style.removeProperty('--site-bg-doc-height');
+            /**
+             * 自动刷新 / 恢复标签后，body 上来自 site_background.css 的铺底可能晚一帧才匹配到
+             * body.home-page（或 :has 失效），整页会短暂呈灰；直接钉住 body，与 index 内联首帧一致。
+             */
+            document.body.style.setProperty('background-color', '#181818', 'important');
+            document.body.style.setProperty('background-image', 'none', 'important');
             return;
         }
 
@@ -58,11 +64,27 @@
         });
     }
 
+    function syncAfterResume() {
+        syncSiteBackgroundTokens();
+        requestAnimationFrame(function () {
+            syncSiteBackgroundTokens();
+        });
+    }
+
     function init() {
         syncSiteBackgroundTokens();
 
         window.addEventListener('load', syncSiteBackgroundTokens, { passive: true });
         window.addEventListener('resize', scheduleSyncSiteBackgroundTokens, { passive: true });
+        /* 杀进程重开、Chrome 自动刷新后：与样式表/恢复顺序竞态时补一帧铺底，避免灰屏 */
+        window.addEventListener('pageshow', syncAfterResume, { passive: true });
+        document.addEventListener(
+            'visibilitychange',
+            function () {
+                if (document.visibilityState === 'visible') syncAfterResume();
+            },
+            { passive: true }
+        );
 
         if (typeof window.matchMedia === 'function') {
             const mq = window.matchMedia('(min-width: 768px)');

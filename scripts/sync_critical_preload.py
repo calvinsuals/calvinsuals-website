@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-根据 JSON 更新 index.html 内 CRITICAL-PRELOAD：对比区 group_01、汽车/人像首图。
+根据 JSON 更新 index.html 内 CRITICAL-PRELOAD：仅桌面端图片 preload（不使用 as=fetch 的 preload，避免 Chrome 清历史后与普通配置文件的缓存/恢复交互异常）。
 与 js/main.js 中 normalizeImageUrl 使用相同主机替换规则。
 本地改完 images/*.json 后执行：python scripts/sync_critical_preload.py
 GitHub Actions 在 generate_galleries.py 之后会运行本脚本并一并提交 index.html。
@@ -72,29 +72,33 @@ def preload_href(url: str) -> str:
 
 def build_preload_lines() -> list[str]:
     lines: list[str] = []
-    lines.append(
-        '    <link rel="preload" href="images/comparison_groups.json" as="fetch" '
-        'type="application/json" crossorigin="anonymous">'
-    )
-    cb, ca = first_comparison_pair_urls(ROOT / "images" / "comparison_groups.json")
-    if cb:
-        lines.append(
-            f'    <link rel="preload" as="image" fetchpriority="high" href="{preload_href(cb)}">'
-        )
-    if ca:
-        lines.append(
-            f'    <link rel="preload" as="image" fetchpriority="high" href="{preload_href(ca)}">'
-        )
 
     auto = first_list_url(ROOT / "images" / "display_automotive.json")
     portrait = first_list_url(ROOT / "images" / "display_portrait.json")
+    cb, ca = first_comparison_pair_urls(ROOT / "images" / "comparison_groups.json")
+    desktop_media = ' media="(min-width: 768px)"'
 
     if auto:
         lines.append(
-            f'    <link rel="preload" as="image" fetchpriority="high" href="{preload_href(auto)}">'
+            f'    <link rel="preload" as="image" fetchpriority="high"{desktop_media} href="{preload_href(auto)}">'
+        )
+
+    if cb or ca or portrait:
+        lines.append(
+            "    <!-- 桌面再抢对比双图 + 人像首图；手机由 main.js 错峰加载 -->"
+        )
+    if cb:
+        lines.append(
+            f'    <link rel="preload" as="image" fetchpriority="high"{desktop_media} href="{preload_href(cb)}">'
+        )
+    if ca:
+        lines.append(
+            f'    <link rel="preload" as="image" fetchpriority="high"{desktop_media} href="{preload_href(ca)}">'
         )
     if portrait:
-        lines.append(f'    <link rel="preload" as="image" href="{preload_href(portrait)}">')
+        lines.append(
+            f'    <link rel="preload" as="image"{desktop_media} href="{preload_href(portrait)}">'
+        )
 
     return lines
 
@@ -125,9 +129,7 @@ def main() -> None:
         raise SystemExit("未能替换 CRITICAL-PRELOAD 区块（请检查标记是否唯一）")
 
     INDEX.write_text(new_text, encoding="utf-8")
-    print(
-        "已更新 index.html 内 CRITICAL-PRELOAD（comparison_groups 首组 + automotive / portrait 首图）"
-    )
+    print("已更新 index.html 内 CRITICAL-PRELOAD（仅桌面图片 preload，无 JSON preload）")
 
 
 if __name__ == "__main__":

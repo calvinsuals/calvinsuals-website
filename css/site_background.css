@@ -21,6 +21,29 @@ html.site-fixed-background {
     background-image: none;
 }
 
+/**
+ * 仅 index 首页：html 加 class="home-page-root"，铺底不依赖 :has()（Chrome 杀进程恢复、自动刷新后
+ * :has(body.home-page) 可能晚一帧，html 会先落到上面 #333、body 落到 #6f6f6f，整页像「灰屏」）。
+ * 与 body.home-page 成对出现，其它页面勿加 home-page-root。
+ */
+html.site-fixed-background.home-page-root {
+    background-color: #181818 !important;
+    --site-background-fallback: #181818;
+    --site-background-underlay: #181818;
+}
+
+html.site-fixed-background body.home-page.site-background-shell {
+    --site-background-fallback: #181818;
+    --site-background-underlay: #181818;
+    --site-background-image: none;
+    background-color: #181818 !important;
+    background-image: none !important;
+}
+
+html.site-fixed-background body.home-page.site-background-shell .background-gradient {
+    display: none !important;
+}
+
 body.site-background-shell {
     --bs-body-bg: transparent;
     background-color: var(--site-background-underlay, #6f6f6f) !important;
